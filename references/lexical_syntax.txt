@@ -1,0 +1,38 @@
+ID: a string consisting of a letter (in the range a-z or A-Z) followed by zero or more letters and digits (in the range 0-9), but not equal to "wain", "int", "if", "else", "while", "println", "return", "NULL", "new" or "delete".
+NUM: a string consisting of a single digit (in the range 0-9) or two or more digits, the first of which is not 0; the numeric value of a NUM token cannot exceed 2^31-1
+LPAREN: the string "("
+RPAREN: the string ")"
+LBRACE: the string "{"
+RBRACE: the string "}"
+RETURN: the string "return" (in lower case)
+IF: the string "if"
+ELSE: the string "else"
+WHILE: the string "while"
+PRINTLN: the string "println"
+WAIN: the string "wain"
+BECOMES: the string "="
+INT: the string "int"
+EQ: the string "=="
+NE: the string "!="
+LT: the string "<"
+GT: the string ">"
+LE: the string "<="
+GE: the string ">="
+PLUS: the string "+"
+MINUS: the string "-"
+STAR: the string "*"
+SLASH: the string "/"
+PCT: the string "%"
+COMMA: the string ","
+SEMI: the string ";"
+NEW: the string "new"
+DELETE: the string "delete"
+LBRACK: the string "["
+RBRACK: the string "]"
+AMP: the string "&"
+NULL: the string "NULL"
+
+SPACE: (ascii 32)
+TAB: (ascii 9)
+NEWLINE: (ascii 10)
+COMMENT: the string "//" followed by all the characters up to and including the next NEWLINE
