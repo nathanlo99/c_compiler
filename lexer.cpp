@@ -1,6 +1,7 @@
 
 #include <array>
 #include <bit>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <queue>
@@ -293,20 +294,6 @@ NFA construct_wlp4_nfa() {
       result << k;
     return result.str();
   }();
-  const std::vector<std::pair<std::string, TokenKind>> keywords = []() {
-    std::vector<std::pair<std::string, TokenKind>> result;
-    result.emplace_back("return", Return);
-    result.emplace_back("if", If);
-    result.emplace_back("else", Else);
-    result.emplace_back("while", While);
-    result.emplace_back("println", Println);
-    result.emplace_back("wain", Wain);
-    result.emplace_back("int", Int);
-    result.emplace_back("new", New);
-    result.emplace_back("delete", Delete);
-    result.emplace_back("NULL", Null);
-    return result;
-  }();
   const std::vector<std::pair<std::string, TokenKind>> simple_nfa_rules = []() {
     std::vector<std::pair<std::string, TokenKind>> result;
     result.emplace_back("(", Lparen);
@@ -359,7 +346,107 @@ DFA construct_wlp4_dfa() {
   return result;
 }
 
+std::map<std::string, TokenKind> get_wlp4_keywords() {
+  const std::map<std::string, TokenKind> keywords = []() {
+    std::map<std::string, TokenKind> result;
+    result["return"] = Return;
+    result["if"] = If;
+    result["else"] = Else;
+    result["while"] = While;
+    result["println"] = Println;
+    result["wain"] = Wain;
+    result["int"] = Int;
+    result["new"] = New;
+    result["delete"] = Delete;
+    result["NULL"] = Null;
+    return result;
+  }();
+  return keywords;
+}
+
+struct Token {
+  const std::string lexeme;
+  const TokenKind kind;
+  Token(const std::string &lexeme, const TokenKind &kind)
+      : lexeme(lexeme), kind(kind) {}
+};
+
+struct Lexer {
+  const std::string input;
+  size_t next_idx;
+  const DFA dfa;
+  const std::map<std::string, TokenKind> keywords;
+
+  Lexer(const std::string &input)
+      : input(input), next_idx(0), dfa(construct_wlp4_dfa()),
+        keywords(get_wlp4_keywords()) {}
+
+  Token next();
+  bool done() { return next_idx >= input.size(); }
+};
+
+Token Lexer::next() {
+  const size_t start_idx = next_idx;
+  int state = 0;
+  size_t last_accepting_idx = -1;
+  TokenKind last_accepting_kind = None;
+  while (next_idx < input.size()) {
+    const char next_char = input[next_idx];
+    state = dfa.transitions[state][next_char];
+    if (state == -1)
+      break;
+    const TokenKind accepting = dfa.accepting_states[state];
+    if (accepting != None) {
+      last_accepting_idx = next_idx + 1;
+      last_accepting_kind = accepting;
+    }
+    next_idx++;
+  }
+  if (last_accepting_kind == None) {
+    if (next_idx < input.size()) {
+      throw std::runtime_error(std::string("Unexpected character ") +
+                               input[next_idx] + " at index " +
+                               std::to_string(next_idx));
+    } else {
+      throw std::runtime_error("Unexpected end of file");
+    }
+  }
+
+  const std::string lexeme =
+      input.substr(start_idx, last_accepting_idx - start_idx);
+  next_idx = last_accepting_idx;
+
+  if (keywords.count(lexeme) > 0)
+    last_accepting_kind = keywords.at(lexeme);
+
+  return Token(lexeme, last_accepting_kind);
+}
+
+std::string read_file(const std::string &filename) {
+  std::ifstream ifs(filename);
+  std::stringstream buffer;
+  buffer << ifs.rdbuf();
+  return buffer.str();
+}
+
+std::string consume_stdin() {
+  std::stringstream buffer;
+  buffer << std::cin.rdbuf();
+  return buffer.str();
+}
+
 int main() {
-  const DFA dfa = construct_wlp4_dfa();
-  dfa.print();
+  try {
+    const std::string input = consume_stdin();
+    Lexer lexer(input);
+    while (!lexer.done()) {
+      const Token token = lexer.next();
+      if (token.kind == Whitespace || token.kind == Comment)
+        continue;
+      std::cout << token_kind_to_string(token.kind) << " " << token.lexeme
+                << std::endl;
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+  }
 }
