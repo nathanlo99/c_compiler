@@ -29,7 +29,7 @@ int main() {
     const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
     const std::shared_ptr<TreeNode> tree = table.to_parse_tree();
     runtime_assert(tree->tokens() == token_stream, "Bad parse");
-    tree->print();
+    tree->print_cs241();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }
