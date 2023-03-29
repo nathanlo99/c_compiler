@@ -163,6 +163,8 @@ std::map<std::string, TokenKind> get_wlp4_keywords();
 struct Token {
   const std::string lexeme;
   const TokenKind kind;
+
+  Token() : Token("", None) {}
   Token(const std::string &lexeme, const TokenKind &kind)
       : lexeme(lexeme), kind(kind) {}
 };

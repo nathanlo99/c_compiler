@@ -1,5 +1,6 @@
 
 #include "parser.hpp"
+#include "ast.hpp"
 
 #include "util.hpp"
 
@@ -33,15 +34,19 @@ void CFG::add_production(const std::string &product,
   }
 }
 
+void CFG::Production::print() const {
+  std::cout << product << " -> ";
+  for (const auto &ingredient : ingredients) {
+    std::cout << ingredient << " ";
+  }
+  std::cout << std::endl;
+}
+
 void CFG::print() const {
   std::cout << "CFG with " << productions.size() << " productions" << std::endl;
 
   for (const auto &production : productions) {
-    std::cout << production.product << " -> ";
-    for (const auto &ingredient : production.ingredients) {
-      std::cout << ingredient << " ";
-    }
-    std::cout << std::endl;
+    production.print();
   }
 }
 
@@ -107,12 +112,12 @@ void EarleyTable::print() const {
   }
 }
 
-void EarleyTable::insert_unique(const size_t i, const StateItem &item) {
+bool EarleyTable::column_contains(const size_t i, const StateItem &item) const {
   for (const auto &existing_item : data[i]) {
     if (existing_item == item)
-      return;
+      return true;
   }
-  data[i].push_back(item);
+  return false;
 }
 
 void EarleyTable::complete(const size_t i, const size_t j) {
@@ -178,19 +183,64 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
   return table;
 }
 
+StateItem EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
+                                 const std::string &target) const {
+  assert(end_idx < data.size());
+  for (const auto &item : data[end_idx]) {
+    if (item.origin_idx == start_idx && item.complete() &&
+        item.production.product == target)
+      return item;
+  }
+  runtime_assert(false, "Could not find item " + target + " beginning at " +
+                            std::to_string(start_idx) + " and ending at " +
+                            std::to_string(end_idx));
+  __builtin_unreachable();
+}
+
 std::shared_ptr<TreeNode>
 EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
-                                  const CFG::Production &production) const {}
+                                  const std::string &target_symbol) const {
+  // 1. Find the production which starts at start_idx, ends at end_idx, and
+  // which produces target
+  const StateItem item = find_item(start_idx, end_idx, target_symbol);
 
-std::shared_ptr<TreeNode> EarleyTable::to_parse_tree() const {
-  for (const auto &item : data.back()) {
-    if (item.complete() && item.origin_idx == 0 &&
-        item.production.product == cfg.start_symbol) {
-      const auto candidate =
-          construct_parse_tree(0, data.size() - 1, item.production);
-      if (candidate != nullptr)
-        return candidate;
+  std::shared_ptr<TreeNode> result =
+      std::make_shared<TreeNode>(item.production);
+
+  assert(
+      column_contains(start_idx, StateItem(item.production, item.origin_idx)));
+
+  size_t next_idx = start_idx;
+  for (size_t dot = 1; dot <= item.production.ingredients.size(); ++dot) {
+    const size_t last_idx = next_idx;
+    const StateItem target = StateItem(item.production, item.origin_idx, dot);
+
+    while (next_idx <= end_idx && !column_contains(next_idx, target))
+      next_idx++;
+    if (next_idx > end_idx || !column_contains(next_idx, target))
+      return nullptr;
+
+    // Invariants: next_idx <= end_idx and the next_idx'th column contains
+    // target
+
+    // Since we've found target(dot-1) at last_idx and target(dot) at next_idx,
+    // we know that the item at dot-1 was produced between last_idx and next_idx
+    const std::string ingredient = item.production.ingredients[dot - 1];
+    const bool is_non_terminal = cfg.is_non_terminal_symbol.at(ingredient);
+    if (is_non_terminal) {
+      const auto child_tree =
+          construct_parse_tree(last_idx, next_idx, ingredient);
+      result->children.push_back(child_tree);
+    } else {
+      const Token token = token_stream[next_idx - 1];
+      const auto child_tree = std::make_shared<TreeNode>(token);
+      result->children.push_back(child_tree);
     }
   }
-  return nullptr;
+
+  return result;
+}
+
+std::shared_ptr<TreeNode> EarleyTable::to_parse_tree() const {
+  return construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
 }

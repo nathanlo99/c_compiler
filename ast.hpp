@@ -10,7 +10,25 @@
 
 struct TreeNode {
   Token token;
-
-  CFG::Production production;
+  const CFG::Production production;
   std::vector<std::shared_ptr<TreeNode>> children;
+
+  TreeNode(const Token &token) : token(token) {}
+  TreeNode(const CFG::Production &production) : production(production) {}
+
+  void print(const size_t depth = 0) {
+    const bool is_terminal = token.kind != None;
+    const std::string padding(4 * depth, ' ');
+    if (is_terminal) {
+      std::cout << padding << token_kind_to_string(token.kind) << " ("
+                << token.lexeme << ")" << std::endl;
+    } else {
+      std::cout << padding;
+      production.print();
+    }
+
+    for (const auto &child : children) {
+      child->print(depth + 1);
+    }
+  }
 };

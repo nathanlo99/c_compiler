@@ -15,9 +15,13 @@ struct CFG {
   struct Production {
     std::string product;
     std::vector<std::string> ingredients;
+
+    Production() : Production("[terminal]", {}) {}
     Production(const std::string &target,
                const std::vector<std::string> &ingredients)
         : product(target), ingredients(ingredients) {}
+
+    void print() const;
 
     bool operator==(const Production &other) const = default;
   };
@@ -63,6 +67,10 @@ struct StateItem {
     return StateItem(production, origin_idx, dot + 1);
   }
 
+  bool is_similar_to(const StateItem &other) const {
+    return production == other.production && origin_idx == other.origin_idx;
+  }
+
   void print() const;
 
   bool operator==(const StateItem &other) const = default;
@@ -76,7 +84,13 @@ struct EarleyTable {
   EarleyTable(const std::vector<Token> &token_stream, const CFG &cfg)
       : data(token_stream.size() + 1), token_stream(token_stream), cfg(cfg) {}
 
-  void insert_unique(const size_t i, const StateItem &item);
+  bool column_contains(const size_t i, const StateItem &item) const;
+  StateItem find_item(const size_t start_idx, const size_t end_idx,
+                      const std::string &target) const;
+  void insert_unique(const size_t i, const StateItem &item) {
+    if (!column_contains(i, item))
+      data[i].push_back(item);
+  }
 
   void complete(const size_t i, const size_t j);
   void predict(const size_t i, const size_t j, const std::string &symbol);
@@ -86,7 +100,7 @@ struct EarleyTable {
 
   std::shared_ptr<TreeNode>
   construct_parse_tree(const size_t start_idx, const size_t end_idx,
-                       const CFG::Production &production) const;
+                       const std::string &target_symbol) const;
 
   std::shared_ptr<TreeNode> to_parse_tree() const;
 };

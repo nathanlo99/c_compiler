@@ -1,4 +1,5 @@
 
+#include "ast.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
 
@@ -15,24 +16,18 @@ std::string consume_stdin() {
   return buffer.str();
 }
 
-void debug() {
-  const CFG cfg = load_cfg_from_file("tests/simple.cfg");
-  const EarleyParser parser(cfg);
-  const std::vector<Token> token_stream = Lexer("1+2").token_stream();
-  const EarleyTable table = parser.construct_table(token_stream);
-  table.print();
-}
+void debug() {}
 
 int main() {
-  debug();
-  return 0;
+  // debug();
+  // return 0;
   try {
     const std::string input = consume_stdin();
     const std::vector<Token> token_stream = Lexer(input).token_stream();
     const CFG cfg = load_cfg_from_file("references/productions.cfg");
-    const EarleyParser parser(cfg);
-    const EarleyTable table = parser.construct_table(token_stream);
-    table.print();
+    const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+    const std::shared_ptr<TreeNode> tree = table.to_parse_tree();
+    tree->print();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }
