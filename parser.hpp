@@ -9,6 +9,8 @@
 
 #include "lexer.hpp"
 
+struct TreeNode; // From ast.hpp
+
 struct CFG {
   struct Production {
     std::string product;
@@ -72,14 +74,7 @@ struct EarleyTable {
   const CFG &cfg;
 
   EarleyTable(const std::vector<Token> &token_stream, const CFG &cfg)
-      : data(), token_stream(token_stream), cfg(cfg) {
-    data.reserve(token_stream.size());
-  }
-
-  void prepare(const size_t row) {
-    if (row >= data.size())
-      data.resize(row + 1);
-  }
+      : data(token_stream.size() + 1), token_stream(token_stream), cfg(cfg) {}
 
   void insert_unique(const size_t i, const StateItem &item);
 
@@ -88,16 +83,18 @@ struct EarleyTable {
   void scan(const size_t i, const size_t j, const std::string &symbol);
 
   void print() const;
+
+  std::shared_ptr<TreeNode>
+  construct_parse_tree(const size_t start_idx, const size_t end_idx,
+                       const CFG::Production &production) const;
+
+  std::shared_ptr<TreeNode> to_parse_tree() const;
 };
 
 struct EarleyParser {
-  CFG cfg;
-
+  const CFG &cfg;
   EarleyParser(const CFG &cfg) : cfg(cfg) {}
 
 public:
   EarleyTable construct_table(const std::vector<Token> &token_stream) const;
-
-  // std::shared_ptr<ASTNode> parse(const std::vector<Token> &token_stream)
-  // const;
 };

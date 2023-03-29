@@ -16,9 +16,9 @@ std::string consume_stdin() {
 }
 
 void debug() {
-  const CFG cfg = load_cfg_from_file("tests/arithmetic.cfg");
+  const CFG cfg = load_cfg_from_file("tests/simple.cfg");
   const EarleyParser parser(cfg);
-  const std::vector<Token> token_stream = Lexer("1+2*3").token_stream();
+  const std::vector<Token> token_stream = Lexer("1+2").token_stream();
   const EarleyTable table = parser.construct_table(token_stream);
   table.print();
 }

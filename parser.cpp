@@ -68,9 +68,7 @@ void CFG::compute_nullable() {
   while (true) {
     const size_t old_size = nullable_symbols.size();
     for (const auto &[symbol, is_non_terminal] : is_non_terminal_symbol) {
-      if (!is_non_terminal)
-        continue;
-      if (nullable_symbols.count(symbol) > 0)
+      if (!is_non_terminal || nullable_symbols.count(symbol) > 0)
         continue;
       if (definitely_nullable(symbol)) {
         nullable_symbols.insert(symbol);
@@ -110,8 +108,6 @@ void EarleyTable::print() const {
 }
 
 void EarleyTable::insert_unique(const size_t i, const StateItem &item) {
-  while (i >= data.size())
-    data.emplace_back();
   for (const auto &existing_item : data[i]) {
     if (existing_item == item)
       return;
@@ -123,8 +119,6 @@ void EarleyTable::complete(const size_t i, const size_t j) {
   const StateItem item = data[i][j];
   for (size_t k = 0; k < data[item.origin_idx].size(); ++k) {
     const StateItem old_item = data[item.origin_idx][k];
-    if (old_item.complete())
-      continue;
     if (old_item.next_symbol() == item.production.product) {
       insert_unique(i, old_item.step());
     }
@@ -159,7 +153,6 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
   EarleyTable table(token_stream, cfg);
 
   // Set up first column
-  table.prepare(0);
   for (const auto &production : cfg.productions) {
     if (production.product == cfg.start_symbol) {
       table.insert_unique(0, StateItem(production, 0));
@@ -167,21 +160,37 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
   }
 
   for (size_t i = 0; i <= token_stream.size(); ++i) {
-    table.prepare(i);
     for (size_t j = 0; j < table.data[i].size(); ++j) {
       const StateItem item = table.data[i][j];
-      if (item.dot == item.production.ingredients.size()) {
+      if (item.complete()) {
         table.complete(i, j);
+        continue;
+      }
+      const std::string next_symbol = item.next_symbol();
+      const bool is_non_terminal = cfg.is_non_terminal_symbol.at(next_symbol);
+      if (is_non_terminal) {
+        table.predict(i, j, next_symbol);
       } else {
-        const std::string next_symbol = item.production.ingredients[item.dot];
-        const bool is_non_terminal = cfg.is_non_terminal_symbol.at(next_symbol);
-        if (is_non_terminal) {
-          table.predict(i, j, next_symbol);
-        } else {
-          table.scan(i, j, next_symbol);
-        }
+        table.scan(i, j, next_symbol);
       }
     }
   }
   return table;
+}
+
+std::shared_ptr<TreeNode>
+EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
+                                  const CFG::Production &production) const {}
+
+std::shared_ptr<TreeNode> EarleyTable::to_parse_tree() const {
+  for (const auto &item : data.back()) {
+    if (item.complete() && item.origin_idx == 0 &&
+        item.production.product == cfg.start_symbol) {
+      const auto candidate =
+          construct_parse_tree(0, data.size() - 1, item.production);
+      if (candidate != nullptr)
+        return candidate;
+    }
+  }
+  return nullptr;
 }
