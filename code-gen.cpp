@@ -10,14 +10,7 @@
 #include <utility>
 #include <vector>
 
-void runtime_assert(const bool expr, const std::string &message) {
-  if (!expr)
-    throw std::runtime_error(message);
-}
-
-void unreachable(const std::string &message) {
-  runtime_assert(false, "Should be unreachable: " + message);
-}
+#include "util.hpp"
 
 enum Opcode {
   Add,

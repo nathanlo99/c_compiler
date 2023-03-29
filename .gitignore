@@ -1,3 +1,5 @@
 code-gen
 lexer
 .DS_Store
+*.dSYM
+wlp

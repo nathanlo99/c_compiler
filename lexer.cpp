@@ -1,14 +1,5 @@
 
-#include <array>
-#include <bit>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <queue>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "lexer.hpp"
 
 std::vector<int> get_bits(uint64_t value) {
   std::vector<int> result;
@@ -19,266 +10,134 @@ std::vector<int> get_bits(uint64_t value) {
   return result;
 }
 
-using NFAEntry = std::map<char, std::set<int>>;
+void DFA::add_state(const TokenKind kind,
+                    const std::array<uint64_t, 128> &state_transitions) {
+  num_states++;
+  accepting_states.push_back(kind);
+  transitions.push_back(state_transitions);
+}
 
-enum TokenKind {
-  None,
-  Id,
-  Num,
-  Lparen,
-  Rparen,
-  Lbrace,
-  Rbrace,
-  Return,
-  If,
-  Else,
-  While,
-  Println,
-  Wain,
-  Becomes,
-  Int,
-  Eq,
-  Ne,
-  Lt,
-  Gt,
-  Le,
-  Ge,
-  Plus,
-  Minus,
-  Star,
-  Slash,
-  Pct,
-  Comma,
-  Semi,
-  New,
-  Delete,
-  Lbrack,
-  Rbrack,
-  Amp,
-  Null,
-  Whitespace,
-  Comment,
-};
-
-std::string token_kind_to_string(const TokenKind kind) {
-  switch (kind) {
-  case None:
-    return "NONE";
-  case Id:
-    return "ID";
-  case Num:
-    return "NUM";
-  case Lparen:
-    return "LPAREN";
-  case Rparen:
-    return "RPAREN";
-  case Lbrace:
-    return "LBRACE";
-  case Rbrace:
-    return "RBRACE";
-  case Return:
-    return "RETURN";
-  case If:
-    return "IF";
-  case Else:
-    return "ELSE";
-  case While:
-    return "WHILE";
-  case Println:
-    return "PRINTLN";
-  case Wain:
-    return "WAIN";
-  case Becomes:
-    return "BECOMES";
-  case Int:
-    return "INT";
-  case Eq:
-    return "EQ";
-  case Ne:
-    return "NE";
-  case Lt:
-    return "LT";
-  case Gt:
-    return "GT";
-  case Le:
-    return "LE";
-  case Ge:
-    return "GE";
-  case Plus:
-    return "PLUS";
-  case Minus:
-    return "MINUS";
-  case Star:
-    return "STAR";
-  case Slash:
-    return "SLASH";
-  case Pct:
-    return "PCT";
-  case Comma:
-    return "COMMA";
-  case Semi:
-    return "SEMI";
-  case New:
-    return "NEW";
-  case Delete:
-    return "DELETE";
-  case Lbrack:
-    return "LBRACK";
-  case Rbrack:
-    return "RBRACK";
-  case Amp:
-    return "AMP";
-  case Null:
-    return "NULL";
-  case Whitespace:
-    return "WHITESPACE";
-  case Comment:
-    return "COMMENT";
+void DFA::print() const {
+  std::cout << "DFA with " << num_states << " states" << std::endl;
+  for (int state = 0; state < num_states; ++state) {
+    const TokenKind token_kind = accepting_states[state];
+    const bool is_accepting = token_kind != None;
+    const std::string token_str = token_kind_to_string(token_kind);
+    std::cout << "State " << state << ": "
+              << (is_accepting ? "(accepting: " + token_str + ")" : "")
+              << std::endl;
+    for (int ch = 0; ch < 128; ++ch) {
+      const int target = transitions[state].at(ch);
+      if (target == -1)
+        continue;
+      std::cout << "  '" << static_cast<char>(ch) << "' (" << ch << ") -> "
+                << target << std::endl;
+    }
   }
 }
 
-struct DFA {
-  int num_states = 0;
-  std::vector<TokenKind> accepting_states;
-  std::vector<std::array<uint64_t, 128>> transitions;
+void NFA::add_accepting_state(const int state, const TokenKind kind) {
+  accepting_states[state] = kind;
+}
 
-  void add_state(const TokenKind kind,
-                 const std::array<uint64_t, 128> &state_transitions) {
-    num_states++;
-    accepting_states.push_back(kind);
-    transitions.push_back(state_transitions);
+void NFA::add_transitions(const int source, const int target,
+                          const std::string &transitions) {
+  for (const char c : transitions) {
+    entries[source][c].insert(target);
   }
+}
 
-  void print() const {
-    std::cout << "DFA with " << num_states << " states" << std::endl;
-    for (int state = 0; state < num_states; ++state) {
-      const TokenKind token_kind = accepting_states[state];
-      const bool is_accepting = token_kind != None;
-      const std::string token_str = token_kind_to_string(token_kind);
-      std::cout << "State " << state << ": "
-                << (is_accepting ? "(accepting: " + token_str + ")" : "")
-                << std::endl;
-      for (int ch = 0; ch < 128; ++ch) {
-        const int target = transitions[state].at(ch);
-        if (target == -1)
-          continue;
-        std::cout << "  '" << static_cast<char>(ch) << "' (" << ch << ") -> "
-                  << target << std::endl;
+void NFA::add_string(const std::string &lexeme, const TokenKind state) {
+  int last_state = 0;
+  for (const char c : lexeme) {
+    const int next_state = entries.size();
+    entries.emplace_back();
+    entries[last_state][c].insert(next_state);
+    last_state = next_state;
+  }
+  add_accepting_state(last_state, state);
+}
+
+void NFA::print() const {
+  std::cout << "NFA with " << entries.size() << " states" << std::endl;
+  for (int state = 0; state < entries.size(); ++state) {
+    const bool is_accepting = accepting_states.count(state) > 0;
+    const TokenKind token_kind =
+        is_accepting ? accepting_states.at(state) : Whitespace;
+    const std::string token_str = token_kind_to_string(token_kind);
+    const NFAEntry entry = entries[state];
+    std::cout << "State " << state << ": "
+              << (is_accepting ? "(accepting: " + token_str + ")" : "")
+              << std::endl;
+    for (const auto &[ch, targets] : entry) {
+      std::cout << "  '" << ch << "' (" << static_cast<int>(ch) << ") -> {";
+      for (const auto &target : targets) {
+        std::cout << target << ", ";
+      }
+      std::cout << "\b\b}" << std::endl;
+    }
+  }
+}
+
+DFA NFA::to_dfa() const {
+  // For WLP, this is reasonable: the current NFA only has 30 states
+  assert(entries.size() <= 64);
+  using state_t = uint64_t;
+  const state_t start_state = 1 << 0;
+  DFA result;
+  std::map<state_t, int> state_to_idx;
+  state_to_idx[0] = -1;
+
+  std::queue<state_t> active_nodes;
+  active_nodes.push(start_state);
+
+  while (!active_nodes.empty()) {
+    const state_t state = active_nodes.front();
+    active_nodes.pop();
+    if (state_to_idx.count(state) > 0)
+      continue;
+    const std::vector<int> nfa_states = get_bits(state);
+
+    // Compute accepting state, if one exists
+    TokenKind accepting_kind = None;
+    for (int source : nfa_states) {
+      const auto it = accepting_states.find(source);
+      const TokenKind kind = (it == accepting_states.end()) ? None : it->second;
+      if (kind != None) {
+        assert(accepting_kind == None || kind == accepting_kind);
+        accepting_kind = kind;
       }
     }
-  }
-};
 
-struct NFA {
-  std::map<int, TokenKind> accepting_states;
-  std::vector<NFAEntry> entries;
-
-  NFA(const int num_states) : entries(num_states) {}
-
-  void add_accepting_state(const int state, const TokenKind kind) {
-    accepting_states[state] = kind;
-  }
-
-  void add_transitions(const int source, const int target,
-                       const std::string &transitions) {
-    for (const char c : transitions) {
-      entries[source][c].insert(target);
-    }
-  }
-
-  void add_string(const std::string &lexeme, const TokenKind state) {
-    int last_state = 0;
-    for (const char c : lexeme) {
-      const int next_state = entries.size();
-      entries.emplace_back();
-      entries[last_state][c].insert(next_state);
-      last_state = next_state;
-    }
-    add_accepting_state(last_state, state);
-  }
-
-  void print() const {
-    std::cout << "NFA with " << entries.size() << " states" << std::endl;
-    for (int state = 0; state < entries.size(); ++state) {
-      const bool is_accepting = accepting_states.count(state) > 0;
-      const TokenKind token_kind =
-          is_accepting ? accepting_states.at(state) : Whitespace;
-      const std::string token_str = token_kind_to_string(token_kind);
-      const NFAEntry entry = entries[state];
-      std::cout << "State " << state << ": "
-                << (is_accepting ? "(accepting: " + token_str + ")" : "")
-                << std::endl;
-      for (const auto &[ch, targets] : entry) {
-        std::cout << "  '" << ch << "' (" << static_cast<int>(ch) << ") -> {";
-        for (const auto &target : targets) {
-          std::cout << target << ", ";
-        }
-        std::cout << "\b\b}" << std::endl;
-      }
-    }
-  }
-
-  DFA to_dfa() const {
-    // For WLP, this is reasonable: the current NFA only has 30 states
-    assert(entries.size() <= 64);
-    using state_t = uint64_t;
-    const state_t start_state = 1 << 0;
-    DFA result;
-    std::map<state_t, int> state_to_idx;
-    state_to_idx[0] = -1;
-
-    std::queue<state_t> active_nodes;
-    active_nodes.push(start_state);
-
-    while (!active_nodes.empty()) {
-      const state_t state = active_nodes.front();
-      active_nodes.pop();
-      if (state_to_idx.count(state) > 0)
-        continue;
-      const std::vector<int> nfa_states = get_bits(state);
-
-      // Compute accepting state, if one exists
-      TokenKind accepting_kind = None;
+    // Compute transitions
+    std::array<state_t, 128> transitions;
+    for (int ch = 0; ch < 128; ++ch) {
+      state_t dfa_target = 0;
       for (int source : nfa_states) {
-        const auto it = accepting_states.find(source);
-        const TokenKind kind =
-            (it == accepting_states.end()) ? None : it->second;
-        if (kind != None) {
-          assert(accepting_kind == None || kind == accepting_kind);
-          accepting_kind = kind;
+        if (entries[source].count(ch) == 0)
+          continue;
+        for (int nfa_target : entries[source].at(ch)) {
+          assert(nfa_target <= 64);
+          dfa_target |= (1ULL << nfa_target);
         }
       }
-
-      // Compute transitions
-      std::array<state_t, 128> transitions;
-      for (int ch = 0; ch < 128; ++ch) {
-        state_t dfa_target = 0;
-        for (int source : nfa_states) {
-          if (entries[source].count(ch) == 0)
-            continue;
-          for (int nfa_target : entries[source].at(ch)) {
-            assert(nfa_target <= 64);
-            dfa_target |= (1ULL << nfa_target);
-          }
-        }
-        active_nodes.push(dfa_target);
-        transitions[ch] = dfa_target;
-      }
-      const int idx = result.num_states;
-      result.add_state(accepting_kind, transitions);
-      state_to_idx[state] = idx;
+      active_nodes.push(dfa_target);
+      transitions[ch] = dfa_target;
     }
-
-    for (int state = 0; state < result.num_states; ++state) {
-      for (int ch = 0; ch < 128; ++ch) {
-        result.transitions[state][ch] =
-            state_to_idx.at(result.transitions[state][ch]);
-      }
-    }
-
-    return result;
+    const int idx = result.num_states;
+    result.add_state(accepting_kind, transitions);
+    state_to_idx[state] = idx;
   }
-};
+
+  for (int state = 0; state < result.num_states; ++state) {
+    for (int ch = 0; ch < 128; ++ch) {
+      result.transitions[state][ch] =
+          state_to_idx.at(result.transitions[state][ch]);
+    }
+  }
+
+  return result;
+}
 
 NFA construct_wlp4_nfa() {
   const std::string lower_alpha = "abcdefghijklmnopqrstuvwxyz";
@@ -327,7 +186,7 @@ NFA construct_wlp4_nfa() {
   nfa.add_accepting_state(5, Comment);
   nfa.add_accepting_state(6, Whitespace);
   nfa.add_transitions(0, 1, letters);
-  nfa.add_transitions(1, 1, alphanumeric);
+  nfa.add_transitions(1, 1, alphanumeric + "_");
   nfa.add_transitions(0, 2, digits);
   nfa.add_transitions(0, 3, non_zero_digits);
   nfa.add_transitions(3, 3, digits);
@@ -364,26 +223,14 @@ std::map<std::string, TokenKind> get_wlp4_keywords() {
   return keywords;
 }
 
-struct Token {
-  const std::string lexeme;
-  const TokenKind kind;
-  Token(const std::string &lexeme, const TokenKind &kind)
-      : lexeme(lexeme), kind(kind) {}
-};
-
-struct Lexer {
-  const std::string input;
-  size_t next_idx;
-  const DFA dfa;
-  const std::map<std::string, TokenKind> keywords;
-
-  Lexer(const std::string &input)
-      : input(input), next_idx(0), dfa(construct_wlp4_dfa()),
-        keywords(get_wlp4_keywords()) {}
-
-  Token next();
-  bool done() { return next_idx >= input.size(); }
-};
+bool is_valid_number_literal(const std::string &lexeme) {
+  try {
+    const int result = std::stoi(lexeme);
+    return true;
+  } catch (const std::exception &e) {
+    return false;
+  }
+}
 
 Token Lexer::next() {
   const size_t start_idx = next_idx;
@@ -418,35 +265,9 @@ Token Lexer::next() {
 
   if (keywords.count(lexeme) > 0)
     last_accepting_kind = keywords.at(lexeme);
+  if (last_accepting_kind == Num && !is_valid_number_literal(lexeme))
+    throw std::runtime_error(std::string("NUM literal out of range: ") +
+                             lexeme + " at index " + std::to_string(next_idx));
 
   return Token(lexeme, last_accepting_kind);
-}
-
-std::string read_file(const std::string &filename) {
-  std::ifstream ifs(filename);
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
-}
-
-std::string consume_stdin() {
-  std::stringstream buffer;
-  buffer << std::cin.rdbuf();
-  return buffer.str();
-}
-
-int main() {
-  try {
-    const std::string input = consume_stdin();
-    Lexer lexer(input);
-    while (!lexer.done()) {
-      const Token token = lexer.next();
-      if (token.kind == Whitespace || token.kind == Comment)
-        continue;
-      std::cout << token_kind_to_string(token.kind) << " " << token.lexeme
-                << std::endl;
-    }
-  } catch (const std::exception &e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-  }
 }
