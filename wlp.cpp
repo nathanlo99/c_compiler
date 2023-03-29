@@ -15,17 +15,24 @@ std::string consume_stdin() {
   return buffer.str();
 }
 
-void debug() {}
+void debug() {
+  const CFG cfg = load_cfg_from_file("tests/arithmetic.cfg");
+  const EarleyParser parser(cfg);
+  const std::vector<Token> token_stream = Lexer("1+2*3").token_stream();
+  const EarleyTable table = parser.construct_table(token_stream);
+  table.print();
+}
 
 int main() {
   debug();
-
+  return 0;
   try {
     const std::string input = consume_stdin();
     const std::vector<Token> token_stream = Lexer(input).token_stream();
-    const CFG cfg = load_cfg_from_file("references/augmented.cfg");
+    const CFG cfg = load_cfg_from_file("references/productions.cfg");
     const EarleyParser parser(cfg);
-    const bool valid_parse = parser.parse(token_stream);
+    const EarleyTable table = parser.construct_table(token_stream);
+    table.print();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }
