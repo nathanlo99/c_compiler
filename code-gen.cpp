@@ -211,14 +211,14 @@ Type string_to_type(const std::string &string) {
   return Void;
 }
 
-struct TreeNode {
+struct ParseNode {
   std::string name;
-  std::vector<std::shared_ptr<TreeNode>> children;
+  std::vector<std::shared_ptr<ParseNode>> children;
   std::string lexeme;
   std::string production;
   Type type = Void;
 
-  TreeNode(const std::string &name) : name(name) {}
+  ParseNode(const std::string &name) : name(name) {}
 
   void debug(int depth = 0) const {
     std::cout << std::string(2 * depth, ' ') << name;
@@ -407,10 +407,10 @@ std::vector<std::string> split(const std::string &line) {
   return result;
 }
 
-std::pair<size_t, std::shared_ptr<TreeNode>>
+std::pair<size_t, std::shared_ptr<ParseNode>>
 create_tree(const std::string &name, const std::vector<std::string> &lines,
             size_t idx = 0) {
-  std::shared_ptr<TreeNode> result = std::make_shared<TreeNode>(name);
+  std::shared_ptr<ParseNode> result = std::make_shared<ParseNode>(name);
   if (name == ".EMPTY")
     return std::make_pair(idx, nullptr);
 
@@ -436,21 +436,21 @@ create_tree(const std::string &name, const std::vector<std::string> &lines,
   return std::make_pair(idx, result);
 }
 
-Type decl_to_type(std::shared_ptr<TreeNode> node) {
+Type decl_to_type(std::shared_ptr<ParseNode> node) {
   runtime_assert(node->name == "dcl",
                  "Invalid decl_to_type, got " + node->name);
   return string_to_type(node->children[0]->production);
 }
 
 void populate_params(SymbolTable &table, const std::string &procedure_name,
-                     std::shared_ptr<TreeNode> params) {
+                     std::shared_ptr<ParseNode> params) {
   if (params->production == "params") {
     table.add_procedure(procedure_name, Int, {});
     return;
   }
 
   std::vector<Type> argument_types;
-  std::shared_ptr<TreeNode> param_list = params->children[0];
+  std::shared_ptr<ParseNode> param_list = params->children[0];
   while (param_list->children.size() > 1) {
     assert(param_list->name == "paramlist");
     argument_types.push_back(decl_to_type(param_list->children[0]));
@@ -460,9 +460,9 @@ void populate_params(SymbolTable &table, const std::string &procedure_name,
   table.add_procedure(procedure_name, Int, argument_types);
 }
 
-std::vector<Type> arg_list_to_types(std::shared_ptr<TreeNode> arglist) {
+std::vector<Type> arg_list_to_types(std::shared_ptr<ParseNode> arglist) {
   std::vector<Type> result;
-  std::shared_ptr<TreeNode> cur = arglist;
+  std::shared_ptr<ParseNode> cur = arglist;
   while (cur->children.size() > 1) {
     result.push_back(cur->children[0]->type);
     cur = cur->children[2];
@@ -471,9 +471,9 @@ std::vector<Type> arg_list_to_types(std::shared_ptr<TreeNode> arglist) {
   return result;
 }
 
-void visit_all(
-    SymbolTable &context, std::shared_ptr<TreeNode> &node,
-    const std::function<void(SymbolTable &, std::shared_ptr<TreeNode>)> &post) {
+void visit_all(SymbolTable &context, std::shared_ptr<ParseNode> &node,
+               const std::function<void(SymbolTable &,
+                                        std::shared_ptr<ParseNode>)> &post) {
 
   if (node->name == "procedure" || node->name == "main") {
     const std::string procedure_name =
@@ -491,7 +491,8 @@ void visit_all(
   post(context, node);
 }
 
-void populate_symbol_table(SymbolTable &table, std::shared_ptr<TreeNode> node) {
+void populate_symbol_table(SymbolTable &table,
+                           std::shared_ptr<ParseNode> node) {
   if (node->name == "dcl") {
     const std::string variable_name = node->children[1]->lexeme;
     const Type type = decl_to_type(node);
@@ -526,7 +527,8 @@ void populate_symbol_table(SymbolTable &table, std::shared_ptr<TreeNode> node) {
   }
 }
 
-void infer_and_check_types(SymbolTable &table, std::shared_ptr<TreeNode> node) {
+void infer_and_check_types(SymbolTable &table,
+                           std::shared_ptr<ParseNode> node) {
   const std::string node_name = node->name;
   const std::string node_production = node->production;
   if (node_name == "ID") {
@@ -858,7 +860,7 @@ struct Assembly {
     }
   }
 
-  void generate_code(std::shared_ptr<TreeNode> node, SymbolTable &table);
+  void generate_code(std::shared_ptr<ParseNode> node, SymbolTable &table);
 
   void print() const {
     for (const auto &instruction : instructions) {
@@ -874,7 +876,7 @@ std::string generate_label(const std::string &label_type) {
   return "_" + label_type + "_" + std::to_string(idx);
 }
 
-void Assembly::generate_code(std::shared_ptr<TreeNode> node,
+void Assembly::generate_code(std::shared_ptr<ParseNode> node,
                              SymbolTable &table) {
   const auto production = node->production;
 

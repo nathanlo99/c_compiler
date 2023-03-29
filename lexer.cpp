@@ -24,7 +24,7 @@ void DFA::print() const {
   std::cout << "DFA with " << num_states << " states" << std::endl;
   for (int state = 0; state < num_states; ++state) {
     const TokenKind token_kind = accepting_states[state];
-    const bool is_accepting = token_kind != None;
+    const bool is_accepting = token_kind != TokenKind::None;
     const std::string token_str = token_kind_to_string(token_kind);
     std::cout << "State " << state << ": "
               << (is_accepting ? "(accepting: " + token_str + ")" : "")
@@ -66,7 +66,7 @@ void NFA::print() const {
   for (size_t state = 0; state < entries.size(); ++state) {
     const bool is_accepting = accepting_states.count(state) > 0;
     const TokenKind token_kind =
-        is_accepting ? accepting_states.at(state) : Whitespace;
+        is_accepting ? accepting_states.at(state) : TokenKind::Whitespace;
     const std::string token_str = token_kind_to_string(token_kind);
     const NFAEntry entry = entries[state];
     std::cout << "State " << state << ": "
@@ -102,12 +102,13 @@ DFA NFA::to_dfa() const {
     const std::vector<int> nfa_states = get_bits(state);
 
     // Compute accepting state, if one exists
-    TokenKind accepting_kind = None;
+    TokenKind accepting_kind = TokenKind::None;
     for (int source : nfa_states) {
       const auto it = accepting_states.find(source);
-      const TokenKind kind = (it == accepting_states.end()) ? None : it->second;
-      if (kind != None) {
-        assert(accepting_kind == None || kind == accepting_kind);
+      const TokenKind kind =
+          (it == accepting_states.end()) ? TokenKind::None : it->second;
+      if (kind != TokenKind::None) {
+        assert(accepting_kind == TokenKind::None || kind == accepting_kind);
         accepting_kind = kind;
       }
     }
@@ -158,36 +159,36 @@ NFA construct_wlp4_nfa() {
   }();
   const std::vector<std::pair<std::string, TokenKind>> simple_nfa_rules = []() {
     std::vector<std::pair<std::string, TokenKind>> result;
-    result.emplace_back("(", Lparen);
-    result.emplace_back(")", Rparen);
-    result.emplace_back("{", Lbrace);
-    result.emplace_back("}", Rbrace);
-    result.emplace_back("=", Becomes);
-    result.emplace_back("==", Eq);
-    result.emplace_back("!=", Ne);
-    result.emplace_back("<", Lt);
-    result.emplace_back(">", Gt);
-    result.emplace_back("<=", Le);
-    result.emplace_back(">=", Ge);
-    result.emplace_back("+", Plus);
-    result.emplace_back("-", Minus);
-    result.emplace_back("*", Star);
-    result.emplace_back("/", Slash);
-    result.emplace_back("%", Pct);
-    result.emplace_back(",", Comma);
-    result.emplace_back(";", Semi);
-    result.emplace_back("[", Lbrack);
-    result.emplace_back("]", Rbrack);
-    result.emplace_back("&", Amp);
+    result.emplace_back("(", TokenKind::Lparen);
+    result.emplace_back(")", TokenKind::Rparen);
+    result.emplace_back("{", TokenKind::Lbrace);
+    result.emplace_back("}", TokenKind::Rbrace);
+    result.emplace_back("=", TokenKind::Becomes);
+    result.emplace_back("==", TokenKind::Eq);
+    result.emplace_back("!=", TokenKind::Ne);
+    result.emplace_back("<", TokenKind::Lt);
+    result.emplace_back(">", TokenKind::Gt);
+    result.emplace_back("<=", TokenKind::Le);
+    result.emplace_back(">=", TokenKind::Ge);
+    result.emplace_back("+", TokenKind::Plus);
+    result.emplace_back("-", TokenKind::Minus);
+    result.emplace_back("*", TokenKind::Star);
+    result.emplace_back("/", TokenKind::Slash);
+    result.emplace_back("%", TokenKind::Pct);
+    result.emplace_back(",", TokenKind::Comma);
+    result.emplace_back(";", TokenKind::Semi);
+    result.emplace_back("[", TokenKind::Lbrack);
+    result.emplace_back("]", TokenKind::Rbrack);
+    result.emplace_back("&", TokenKind::Amp);
     return result;
   }();
 
   NFA nfa(7);
-  nfa.add_accepting_state(1, Id);
-  nfa.add_accepting_state(2, Num);
-  nfa.add_accepting_state(3, Num);
-  nfa.add_accepting_state(5, Comment);
-  nfa.add_accepting_state(6, Whitespace);
+  nfa.add_accepting_state(1, TokenKind::Id);
+  nfa.add_accepting_state(2, TokenKind::Num);
+  nfa.add_accepting_state(3, TokenKind::Num);
+  nfa.add_accepting_state(5, TokenKind::Comment);
+  nfa.add_accepting_state(6, TokenKind::Whitespace);
   nfa.add_transitions(0, 1, letters);
   nfa.add_transitions(1, 1, alphanumeric + "_");
   nfa.add_transitions(0, 2, digits);
@@ -211,16 +212,16 @@ DFA construct_wlp4_dfa() {
 std::map<std::string, TokenKind> get_wlp4_keywords() {
   const std::map<std::string, TokenKind> keywords = []() {
     std::map<std::string, TokenKind> result;
-    result["return"] = Return;
-    result["if"] = If;
-    result["else"] = Else;
-    result["while"] = While;
-    result["println"] = Println;
-    result["wain"] = Wain;
-    result["int"] = Int;
-    result["new"] = New;
-    result["delete"] = Delete;
-    result["NULL"] = Null;
+    result["return"] = TokenKind::Return;
+    result["if"] = TokenKind::If;
+    result["else"] = TokenKind::Else;
+    result["while"] = TokenKind::While;
+    result["println"] = TokenKind::Println;
+    result["wain"] = TokenKind::Wain;
+    result["int"] = TokenKind::Int;
+    result["new"] = TokenKind::New;
+    result["delete"] = TokenKind::Delete;
+    result["NULL"] = TokenKind::Null;
     return result;
   }();
   return keywords;
@@ -239,20 +240,20 @@ Token Lexer::next() {
   const size_t start_idx = next_idx;
   int state = 0;
   size_t last_accepting_idx = -1;
-  TokenKind last_accepting_kind = None;
+  TokenKind last_accepting_kind = TokenKind::None;
   while (next_idx < input.size()) {
     const char next_char = input[next_idx];
     state = dfa.transitions[state][next_char];
     if (state == -1)
       break;
     const TokenKind accepting = dfa.accepting_states[state];
-    if (accepting != None) {
+    if (accepting != TokenKind::None) {
       last_accepting_idx = next_idx + 1;
       last_accepting_kind = accepting;
     }
     next_idx++;
   }
-  if (last_accepting_kind == None) {
+  if (last_accepting_kind == TokenKind::None) {
     if (next_idx < input.size()) {
       throw std::runtime_error(std::string("Unexpected character ") +
                                input[next_idx] + " at index " +
@@ -268,7 +269,7 @@ Token Lexer::next() {
 
   if (keywords.count(lexeme) > 0)
     last_accepting_kind = keywords.at(lexeme);
-  if (last_accepting_kind == Num && !is_valid_number_literal(lexeme))
+  if (last_accepting_kind == TokenKind::Num && !is_valid_number_literal(lexeme))
     throw std::runtime_error(std::string("NUM literal out of range: ") +
                              lexeme + " at index " + std::to_string(next_idx));
 

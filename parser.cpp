@@ -1,6 +1,6 @@
 
 #include "parser.hpp"
-#include "ast.hpp"
+#include "parse_node.hpp"
 
 #include "lexer.hpp"
 #include "util.hpp"
@@ -109,7 +109,7 @@ void StateItem::print() const {
 void EarleyTable::print() const {
   std::cout << "Earley table with " << data.size() << " columns" << std::endl;
   for (size_t i = 0; i < data.size(); ++i) {
-    const Token next_token = (i == 0) ? Token("", None) : token_stream[i - 1];
+    const Token next_token = (i == 0) ? Token() : token_stream[i - 1];
     std::cout << "Column " << i << ": " << token_kind_to_string(next_token.kind)
               << "(" << next_token.lexeme << ")" << std::endl;
     for (const auto &state_item : data[i]) {
@@ -238,7 +238,7 @@ EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
   return std::nullopt;
 }
 
-std::shared_ptr<TreeNode>
+std::shared_ptr<ParseNode>
 EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
                                   const std::string &target_symbol) const {
   // std::cout << "Constructing parse tree starting at " << start_idx
@@ -253,8 +253,8 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
   // std::cout << "Found candidate item:" << std::endl;
   // item->print();
 
-  std::shared_ptr<TreeNode> result =
-      std::make_shared<TreeNode>(item->production);
+  std::shared_ptr<ParseNode> result =
+      std::make_shared<ParseNode>(item->production);
 
   assert(column_contains(start_idx,
                          StateItem(item->production, item->origin_idx)));
@@ -275,7 +275,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
       if (!column_contains(idx, target))
         continue;
 
-      std::shared_ptr<TreeNode> child_candidate;
+      std::shared_ptr<ParseNode> child_candidate;
       if (is_non_terminal) {
         child_candidate = construct_parse_tree(idx, last_idx, ingredient);
       } else {
@@ -283,7 +283,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
         runtime_assert(token_kind_to_string(token.kind) == ingredient,
                        "Expected token type " + ingredient + ", got " +
                            token_kind_to_string(token.kind));
-        child_candidate = std::make_shared<TreeNode>(token);
+        child_candidate = std::make_shared<ParseNode>(token);
       }
       if (child_candidate == nullptr)
         continue;
@@ -303,6 +303,10 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
   return result;
 }
 
-std::shared_ptr<TreeNode> EarleyTable::to_parse_tree() const {
-  return construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
+std::shared_ptr<ParseNode> EarleyTable::to_parse_tree() const {
+  const auto parse_tree =
+      construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
+  runtime_assert(parse_tree->tokens() == token_stream,
+                 "Bad parse: some tokens were missing");
+  return parse_tree;
 }

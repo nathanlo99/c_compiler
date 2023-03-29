@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-enum TokenKind {
+enum class TokenKind {
   None,
   Bof,
   Eof,
@@ -55,81 +55,81 @@ enum TokenKind {
 
 static std::string token_kind_to_string(const TokenKind kind) {
   switch (kind) {
-  case None:
+  case TokenKind::None:
     return "NONE";
-  case Bof:
+  case TokenKind::Bof:
     return "BOF";
-  case Eof:
+  case TokenKind::Eof:
     return "EOF";
-  case Id:
+  case TokenKind::Id:
     return "ID";
-  case Num:
+  case TokenKind::Num:
     return "NUM";
-  case Lparen:
+  case TokenKind::Lparen:
     return "LPAREN";
-  case Rparen:
+  case TokenKind::Rparen:
     return "RPAREN";
-  case Lbrace:
+  case TokenKind::Lbrace:
     return "LBRACE";
-  case Rbrace:
+  case TokenKind::Rbrace:
     return "RBRACE";
-  case Return:
+  case TokenKind::Return:
     return "RETURN";
-  case If:
+  case TokenKind::If:
     return "IF";
-  case Else:
+  case TokenKind::Else:
     return "ELSE";
-  case While:
+  case TokenKind::While:
     return "WHILE";
-  case Println:
+  case TokenKind::Println:
     return "PRINTLN";
-  case Wain:
+  case TokenKind::Wain:
     return "WAIN";
-  case Becomes:
+  case TokenKind::Becomes:
     return "BECOMES";
-  case Int:
+  case TokenKind::Int:
     return "INT";
-  case Eq:
+  case TokenKind::Eq:
     return "EQ";
-  case Ne:
+  case TokenKind::Ne:
     return "NE";
-  case Lt:
+  case TokenKind::Lt:
     return "LT";
-  case Gt:
+  case TokenKind::Gt:
     return "GT";
-  case Le:
+  case TokenKind::Le:
     return "LE";
-  case Ge:
+  case TokenKind::Ge:
     return "GE";
-  case Plus:
+  case TokenKind::Plus:
     return "PLUS";
-  case Minus:
+  case TokenKind::Minus:
     return "MINUS";
-  case Star:
+  case TokenKind::Star:
     return "STAR";
-  case Slash:
+  case TokenKind::Slash:
     return "SLASH";
-  case Pct:
+  case TokenKind::Pct:
     return "PCT";
-  case Comma:
+  case TokenKind::Comma:
     return "COMMA";
-  case Semi:
+  case TokenKind::Semi:
     return "SEMI";
-  case New:
+  case TokenKind::New:
     return "NEW";
-  case Delete:
+  case TokenKind::Delete:
     return "DELETE";
-  case Lbrack:
+  case TokenKind::Lbrack:
     return "LBRACK";
-  case Rbrack:
+  case TokenKind::Rbrack:
     return "RBRACK";
-  case Amp:
+  case TokenKind::Amp:
     return "AMP";
-  case Null:
+  case TokenKind::Null:
     return "NULL";
-  case Whitespace:
+  case TokenKind::Whitespace:
     return "WHITESPACE";
-  case Comment:
+  case TokenKind::Comment:
     return "COMMENT";
   }
 }
@@ -170,7 +170,7 @@ struct Token {
   const std::string lexeme;
   const TokenKind kind;
 
-  Token() : Token("", None) {}
+  Token() : Token("", TokenKind::None) {}
   Token(const std::string &lexeme, const TokenKind &kind)
       : lexeme(lexeme), kind(kind) {}
 
@@ -197,13 +197,14 @@ struct Lexer {
 
   std::vector<Token> token_stream() {
     std::vector<Token> result;
-    result.push_back(Token("BOF", Bof));
+    result.push_back(Token("BOF", TokenKind::Bof));
     while (!done()) {
       const Token next_token = next();
-      if (next_token.kind != Whitespace && next_token.kind != Comment)
+      if (next_token.kind != TokenKind::Whitespace &&
+          next_token.kind != TokenKind::Comment)
         result.push_back(next_token);
     }
-    result.push_back(Token("EOF", Eof));
+    result.push_back(Token("EOF", TokenKind::Eof));
     return result;
   }
 };

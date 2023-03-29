@@ -1,20 +1,16 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "lexer.hpp"
 #include "parser.hpp"
 
-struct TreeNode {
+struct ParseNode {
   Token token;
   const CFG::Production production;
-  std::vector<std::shared_ptr<TreeNode>> children;
+  std::vector<std::shared_ptr<ParseNode>> children;
 
-  TreeNode(const Token &token) : token(token) {}
-  TreeNode(const CFG::Production &production) : production(production) {}
+  ParseNode(const Token &token) : token(token) {}
+  ParseNode(const CFG::Production &production) : production(production) {}
 
   void print(const size_t depth = 0);
 

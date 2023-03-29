@@ -1,9 +1,9 @@
 
-#include "ast.hpp"
+#include "parse_node.hpp"
 #include "lexer.hpp"
 
-void TreeNode::print(const size_t depth) {
-  const bool is_terminal = token.kind != None;
+void ParseNode::print(const size_t depth) {
+  const bool is_terminal = token.kind != TokenKind::None;
   const std::string padding(4 * depth, ' ');
   if (is_terminal) {
     std::cout << padding << token_kind_to_string(token.kind) << " ("
@@ -18,21 +18,21 @@ void TreeNode::print(const size_t depth) {
   }
 }
 
-void TreeNode::grab_tokens(std::vector<Token> &result) const {
-  if (token.kind != None)
+void ParseNode::grab_tokens(std::vector<Token> &result) const {
+  if (token.kind != TokenKind::None)
     result.push_back(token);
   for (const auto &child : children)
     child->grab_tokens(result);
 }
 
-std::vector<Token> TreeNode::tokens() const {
+std::vector<Token> ParseNode::tokens() const {
   std::vector<Token> result;
   grab_tokens(result);
   return result;
 }
 
-void TreeNode::print_cs241() const {
-  if (token.kind == None) {
+void ParseNode::print_cs241() const {
+  if (token.kind == TokenKind::None) {
     std::cout << production.product;
     if (production.ingredients.empty()) {
       std::cout << " .EMPTY" << std::endl;

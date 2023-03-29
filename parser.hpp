@@ -9,7 +9,7 @@
 
 #include "lexer.hpp"
 
-struct TreeNode; // From ast.hpp
+struct ParseNode; // From parse_node.hpp
 
 struct CFG {
   struct Production {
@@ -101,11 +101,11 @@ struct EarleyTable {
 
   void print() const;
 
-  std::shared_ptr<TreeNode>
+  std::shared_ptr<ParseNode>
   construct_parse_tree(const size_t start_idx, const size_t end_idx,
                        const std::string &target_symbol) const;
 
-  std::shared_ptr<TreeNode> to_parse_tree() const;
+  std::shared_ptr<ParseNode> to_parse_tree() const;
 };
 
 struct EarleyParser {
