@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include "ast.hpp"
 
+#include "lexer.hpp"
 #include "util.hpp"
 
 CFG load_cfg_from_file(const std::string &filename) {
@@ -89,7 +90,7 @@ void StateItem::print() const {
   std::cout << " " << (complete() ? "✓" : " ") << " ";
   std::cout << "(" << std::setw(3) << origin_idx << "): ";
   std::cout << production.product << " -> ";
-  for (int i = 0; i < production.ingredients.size(); ++i) {
+  for (size_t i = 0; i < production.ingredients.size(); ++i) {
     if (dot == i)
       std::cout << "• ";
     std::cout << production.ingredients[i] << " ";
@@ -215,64 +216,84 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
       }
     }
   }
+
   return table;
 }
 
-StateItem EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
-                                 const std::string &target) const {
+std::optional<StateItem>
+EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
+                       const std::string &target) const {
   assert(end_idx < data.size());
   for (const auto &item : data[end_idx]) {
     if (item.origin_idx == start_idx && item.complete() &&
         item.production.product == target)
       return item;
   }
-  runtime_assert(false, "Could not find item " + target + " beginning at " +
-                            std::to_string(start_idx) + " and ending at " +
-                            std::to_string(end_idx));
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 std::shared_ptr<TreeNode>
 EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
                                   const std::string &target_symbol) const {
+  // std::cout << "Constructing parse tree starting at " << start_idx
+  //           << ", ending at " << end_idx << " for the target '"
+  //           << target_symbol << "'" << std::endl;
+
   // 1. Find the production which starts at start_idx, ends at end_idx, and
   // which produces target
-  const StateItem item = find_item(start_idx, end_idx, target_symbol);
+  const auto item = find_item(start_idx, end_idx, target_symbol);
+  if (item == std::nullopt)
+    return nullptr;
+  // std::cout << "Found candidate item:" << std::endl;
+  // item->print();
 
   std::shared_ptr<TreeNode> result =
-      std::make_shared<TreeNode>(item.production);
+      std::make_shared<TreeNode>(item->production);
 
-  assert(
-      column_contains(start_idx, StateItem(item.production, item.origin_idx)));
+  assert(column_contains(start_idx,
+                         StateItem(item->production, item->origin_idx)));
 
-  size_t next_idx = start_idx;
-  for (size_t dot = 1; dot <= item.production.ingredients.size(); ++dot) {
+  size_t next_idx = end_idx;
+  for (int dot = item->production.ingredients.size() - 1; dot >= 0; --dot) {
     const size_t last_idx = next_idx;
-    const StateItem target = StateItem(item.production, item.origin_idx, dot);
-
-    while (next_idx <= end_idx && !column_contains(next_idx, target))
-      next_idx++;
-    if (next_idx > end_idx || !column_contains(next_idx, target))
-      return nullptr;
-
-    // Invariants: next_idx <= end_idx and the next_idx'th column contains
-    // target
-
-    // Since we've found target(dot-1) at last_idx and target(dot) at next_idx,
-    // we know that the item at dot-1 was produced between last_idx and next_idx
-    const std::string ingredient = item.production.ingredients[dot - 1];
+    const StateItem target = StateItem(item->production, item->origin_idx, dot);
+    const std::string ingredient = item->production.ingredients[dot];
     const bool is_non_terminal = cfg.is_non_terminal_symbol.at(ingredient);
-    if (is_non_terminal) {
-      const auto child_tree =
-          construct_parse_tree(last_idx, next_idx, ingredient);
-      result->children.push_back(child_tree);
-    } else {
-      const Token token = token_stream[next_idx - 1];
-      const auto child_tree = std::make_shared<TreeNode>(token);
-      result->children.push_back(child_tree);
+
+    // std::cout << "Starting search for target with ingredient " << ingredient
+    //           << std::endl;
+    // target.print();
+
+    bool added_child = false;
+    for (size_t idx = last_idx; idx >= start_idx; --idx) {
+      if (!column_contains(idx, target))
+        continue;
+
+      std::shared_ptr<TreeNode> child_candidate;
+      if (is_non_terminal) {
+        child_candidate = construct_parse_tree(idx, last_idx, ingredient);
+      } else {
+        const Token token = token_stream[idx];
+        runtime_assert(token_kind_to_string(token.kind) == ingredient,
+                       "Expected token type " + ingredient + ", got " +
+                           token_kind_to_string(token.kind));
+        child_candidate = std::make_shared<TreeNode>(token);
+      }
+      if (child_candidate == nullptr)
+        continue;
+      result->children.push_back(child_candidate);
+      added_child = true;
+      next_idx = idx;
+      break;
     }
+
+    if (!added_child)
+      return nullptr;
   }
 
+  if (next_idx != start_idx)
+    return nullptr;
+  std::reverse(result->children.begin(), result->children.end());
   return result;
 }
 

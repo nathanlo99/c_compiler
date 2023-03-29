@@ -31,4 +31,16 @@ struct TreeNode {
       child->print(depth + 1);
     }
   }
+
+  void grab_tokens(std::vector<Token> &result) const {
+    if (token.kind != None)
+      result.push_back(token);
+    for (const auto &child : children)
+      child->grab_tokens(result);
+  }
+  std::vector<Token> tokens() const {
+    std::vector<Token> result;
+    grab_tokens(result);
+    return result;
+  }
 };

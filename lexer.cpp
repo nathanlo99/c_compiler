@@ -1,6 +1,9 @@
 
 #include "lexer.hpp"
 
+#include <bit>
+#include <cassert>
+
 std::vector<int> get_bits(uint64_t value) {
   std::vector<int> result;
   while (value != 0) {
@@ -60,7 +63,7 @@ void NFA::add_string(const std::string &lexeme, const TokenKind state) {
 
 void NFA::print() const {
   std::cout << "NFA with " << entries.size() << " states" << std::endl;
-  for (int state = 0; state < entries.size(); ++state) {
+  for (size_t state = 0; state < entries.size(); ++state) {
     const bool is_accepting = accepting_states.count(state) > 0;
     const TokenKind token_kind =
         is_accepting ? accepting_states.at(state) : Whitespace;
@@ -225,7 +228,7 @@ std::map<std::string, TokenKind> get_wlp4_keywords() {
 
 bool is_valid_number_literal(const std::string &lexeme) {
   try {
-    const int result = std::stoi(lexeme);
+    std::stoi(lexeme);
     return true;
   } catch (const std::exception &e) {
     return false;

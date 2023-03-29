@@ -85,8 +85,9 @@ struct EarleyTable {
       : data(token_stream.size() + 1), token_stream(token_stream), cfg(cfg) {}
 
   bool column_contains(const size_t i, const StateItem &item) const;
-  StateItem find_item(const size_t start_idx, const size_t end_idx,
-                      const std::string &target) const;
+  std::optional<StateItem> find_item(const size_t start_idx,
+                                     const size_t end_idx,
+                                     const std::string &target) const;
   void insert_unique(const size_t i, const StateItem &item) {
     if (!column_contains(i, item))
       data[i].push_back(item);
