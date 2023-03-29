@@ -153,6 +153,38 @@ void EarleyTable::scan(const size_t i, const size_t j,
   }
 }
 
+void EarleyTable::report_error(const size_t i) const {
+  std::stringstream ss;
+
+  // Compute the set of symbols we expected instead of token_stream[i - 1]
+  std::set<std::string> expected_symbols;
+  for (const auto &item : data[i - 1]) {
+    if (item.complete())
+      continue;
+    const std::string expected = item.next_symbol();
+    if (cfg.is_non_terminal_symbol.at(expected))
+      continue;
+    expected_symbols.insert(expected);
+  }
+
+  ss << "Parse error at " << i << " (" << token_stream[i - 1] << "): expected ";
+  if (expected_symbols.empty()) {
+    ss << "end of file";
+  } else {
+    bool first = true;
+    for (const auto &expected : expected_symbols) {
+      if (!first) {
+        ss << ", ";
+      } else {
+        first = false;
+      }
+      ss << expected;
+    }
+  }
+
+  runtime_assert(false, ss.str());
+}
+
 EarleyTable
 EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
   EarleyTable table(token_stream, cfg);
@@ -165,6 +197,9 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
   }
 
   for (size_t i = 0; i <= token_stream.size(); ++i) {
+    if (table.data[i].size() == 0)
+      table.report_error(i);
+
     for (size_t j = 0; j < table.data[i].size(); ++j) {
       const StateItem item = table.data[i][j];
       if (item.complete()) {

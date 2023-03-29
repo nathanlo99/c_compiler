@@ -96,6 +96,8 @@ struct EarleyTable {
   void predict(const size_t i, const size_t j, const std::string &symbol);
   void scan(const size_t i, const size_t j, const std::string &symbol);
 
+  void report_error(const size_t i) const;
+
   void print() const;
 
   std::shared_ptr<TreeNode>

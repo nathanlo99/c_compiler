@@ -167,6 +167,11 @@ struct Token {
   Token() : Token("", None) {}
   Token(const std::string &lexeme, const TokenKind &kind)
       : lexeme(lexeme), kind(kind) {}
+
+  friend std::ostream &operator<<(std::ostream &os, const Token &token) {
+    return os << token_kind_to_string(token.kind) << " (" << token.lexeme
+              << ")";
+  }
 };
 
 struct Lexer {

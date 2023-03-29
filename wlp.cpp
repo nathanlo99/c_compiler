@@ -26,6 +26,7 @@ int main() {
     const std::vector<Token> token_stream = Lexer(input).token_stream();
     const CFG cfg = load_cfg_from_file("references/productions.cfg");
     const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+    table.print();
     const std::shared_ptr<TreeNode> tree = table.to_parse_tree();
     tree->print();
   } catch (const std::exception &e) {

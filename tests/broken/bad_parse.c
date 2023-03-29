@@ -1,1 +1,2 @@
-int wain(int a, int b, int c) { return 241; }
+int wain(int a, int b) { return 241; }
+and more
