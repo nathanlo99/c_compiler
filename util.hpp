@@ -13,6 +13,7 @@
 
 [[maybe_unused]] static void unreachable(const std::string &message) {
   runtime_assert(false, "Should be unreachable: " + message);
+  __builtin_unreachable();
 }
 
 [[maybe_unused]] static std::vector<std::string> split(const std::string &str) {

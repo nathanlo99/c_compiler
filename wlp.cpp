@@ -32,6 +32,7 @@ int main() {
     const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
     const std::shared_ptr<Program> ast =
         convert<Program>(parse_tree_to_ast(parse_tree));
+    ast->print();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }

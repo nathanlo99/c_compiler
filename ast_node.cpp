@@ -115,7 +115,7 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
     auto rest = convert<Statements>(parse_tree_to_ast(node->children[0]));
     const auto statement =
         convert<Statement>(parse_tree_to_ast(node->children[1]));
-    rest->statements.push_back(*statement);
+    rest->statements.push_back(statement);
     return rest;
   } else if (production_str == "statement -> lvalue BECOMES expr SEMI") {
     const auto lhs = convert<LValueExpr>(parse_tree_to_ast(node->children[0]));
