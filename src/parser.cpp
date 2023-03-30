@@ -104,21 +104,21 @@ std::ostream &operator<<(std::ostream &os, const StateItem &item) {
   }
   if (item.dot == item.production.ingredients.size())
     os << "•";
-  os << std::endl;
   return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const EarleyTable &table) {
   os << "Earley table with " << table.data.size() << " columns" << std::endl;
   for (size_t i = 0; i < table.data.size(); ++i) {
+    os << std::string(100, '-') << std::endl;
     const Token next_token = (i == 0) ? Token() : table.token_stream[i - 1];
     os << "Column " << i << ": " << token_kind_to_string(next_token.kind) << "("
        << next_token.lexeme << ")" << std::endl;
     for (const auto &state_item : table.data[i]) {
       os << state_item << std::endl;
     }
-    os << std::string(100, '-') << std::endl;
   }
+  os << std::string(100, '-') << std::endl;
   return os;
 }
 

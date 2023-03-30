@@ -135,7 +135,7 @@ static std::string token_kind_to_string(const TokenKind kind) {
 }
 
 struct DFA {
-  int num_states = 0;
+  size_t num_states = 0;
   std::vector<TokenKind> accepting_states;
   std::vector<std::array<uint64_t, 128>> transitions;
 

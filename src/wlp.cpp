@@ -20,8 +20,6 @@ std::string consume_stdin() {
   return buffer.str();
 }
 
-void debug() {}
-
 std::shared_ptr<Program> parse_program(const std::string &input) {
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   const CFG cfg = load_cfg_from_file("references/productions.cfg");
@@ -30,6 +28,8 @@ std::shared_ptr<Program> parse_program(const std::string &input) {
   const std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
   return program;
 }
+
+void debug() {}
 
 int main() {
   // debug();

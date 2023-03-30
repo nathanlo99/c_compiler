@@ -69,7 +69,8 @@ struct ArgumentList : ASTNode {
 
 struct Statements : Statement {
   std::vector<std::shared_ptr<Statement>> statements;
-
+  Statements(const std::vector<std::shared_ptr<Statement>> &statements = {})
+      : statements(statements) {}
   virtual ~Statements() = default;
 
   virtual void print(const size_t depth = 0) const override;

@@ -22,7 +22,7 @@ void DFA::add_state(const TokenKind kind,
 
 std::ostream &operator<<(std::ostream &os, const DFA &dfa) {
   os << "DFA with " << dfa.num_states << " states" << std::endl;
-  for (int state = 0; state < dfa.num_states; ++state) {
+  for (size_t state = 0; state < dfa.num_states; ++state) {
     const TokenKind token_kind = dfa.accepting_states[state];
     const bool is_accepting = token_kind != TokenKind::None;
     const std::string token_str = token_kind_to_string(token_kind);
@@ -133,7 +133,7 @@ DFA NFA::to_dfa() const {
     state_to_idx[state] = idx;
   }
 
-  for (int state = 0; state < result.num_states; ++state) {
+  for (size_t state = 0; state < result.num_states; ++state) {
     for (int ch = 0; ch < 128; ++ch) {
       result.transitions[state][ch] =
           state_to_idx.at(result.transitions[state][ch]);
