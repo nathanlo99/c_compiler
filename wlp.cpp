@@ -30,8 +30,7 @@ int main() {
     const CFG cfg = load_cfg_from_file("references/productions.cfg");
     const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
     const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-    const std::shared_ptr<Program> ast =
-        convert<Program>(parse_tree_to_ast(parse_tree));
+    const std::shared_ptr<Program> ast = construct_ast<Program>(parse_tree);
     ast->print();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

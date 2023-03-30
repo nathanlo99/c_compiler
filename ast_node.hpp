@@ -108,7 +108,7 @@ struct Procedure : ASTNode {
   Type return_type;
 
   std::vector<Variable> decls;
-  std::shared_ptr<Statements> statements;
+  std::vector<std::shared_ptr<Statement>> statements;
   std::shared_ptr<Expr> return_expr;
 
   Procedure(const std::string &name, std::shared_ptr<ParameterList> params,
@@ -116,7 +116,7 @@ struct Procedure : ASTNode {
             std::shared_ptr<Statements> statements,
             std::shared_ptr<Expr> return_expr)
       : name(name), params(params->parameters), return_type(type),
-        decls(decls->declarations), statements(statements),
+        decls(decls->declarations), statements(statements->statements),
         return_expr(return_expr) {}
   virtual ~Procedure() = default;
 
@@ -137,7 +137,9 @@ struct Procedure : ASTNode {
                 << variable.initial_value.value << std::endl;
     }
     std::cout << get_padding(depth + 1) << "statements: " << std::endl;
-    statements->print(depth + 2);
+    for (const auto &statement : statements) {
+      statement->print(depth + 2);
+    }
     std::cout << get_padding(depth + 1) << "return_expr: " << std::endl;
     return_expr->print(depth + 2);
     std::cout << get_padding(depth) << "}" << std::endl;
@@ -276,7 +278,7 @@ struct FunctionCallExpr : Expr {
   std::string procedure_name;
   std::vector<std::shared_ptr<Expr>> arguments;
 
-  FunctionCallExpr(std::string procedure_name,
+  FunctionCallExpr(const std::string &procedure_name,
                    const std::vector<std::shared_ptr<Expr>> &arguments = {})
       : procedure_name(procedure_name), arguments(arguments) {}
   virtual ~FunctionCallExpr() = default;
@@ -381,9 +383,11 @@ struct DeleteStatement : Statement {
   }
 };
 
-template <typename Target>
-std::shared_ptr<Target> convert(std::shared_ptr<ASTNode> node) {
-  return std::dynamic_pointer_cast<Target>(node);
-}
+std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node);
 
-std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node);
+template <typename Target>
+std::shared_ptr<Target> construct_ast(std::shared_ptr<ParseNode> node) {
+  const auto result = std::dynamic_pointer_cast<Target>(construct_ast(node));
+  runtime_assert(result != nullptr, "Unexpected AST node type");
+  return result;
+}
