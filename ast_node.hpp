@@ -20,6 +20,9 @@ struct Statement : ASTNode {};
 struct Literal : ASTNode {
   int32_t value = 0;
   Type type = Type::Int;
+
+  Literal() = default;
+  Literal(const int32_t value, const Type type) : value(value), type(type) {}
 };
 
 struct Variable {
@@ -47,7 +50,7 @@ struct DeclarationList : ASTNode {
 };
 
 struct Statements : Statement {
-  std::vector<std::shared_ptr<Statement>> statements;
+  std::vector<Statement> statements;
 };
 
 struct Procedure : ASTNode {
@@ -82,45 +85,77 @@ struct DereferenceLValueExpr : LValueExpr {
   std::shared_ptr<Expr> argument;
 };
 
-struct TestExpr {
+struct TestExpr : Expr {
   std::shared_ptr<Expr> lhs;
   Token operation;
   std::shared_ptr<Expr> rhs;
 };
 
-struct BinaryExpr {
+struct BinaryExpr : Expr {
   std::shared_ptr<Expr> lhs;
   Token operation;
   std::shared_ptr<Expr> rhs;
+
+  BinaryExpr(std::shared_ptr<Expr> lhs, Token operation,
+             std::shared_ptr<Expr> rhs)
+      : lhs(lhs), operation(operation), rhs(rhs) {}
 };
 
-struct AddressOfExpr {
+struct AddressOfExpr : Expr {
   std::shared_ptr<LValueExpr> argument;
+};
+
+struct VariableExpr : Expr {
+  Variable variable;
+
+  VariableExpr(Variable variable) : variable(variable) {}
+};
+
+struct LiteralExpr : Expr {
+  Literal literal;
+
+  LiteralExpr(Literal literal) : literal(literal) {}
 };
 
 // Statements
 struct AssignmentStatement : Statement {
-  Variable variable;
-  std::shared_ptr<Expr> assigned_value;
+  std::shared_ptr<LValueExpr> lhs;
+  std::shared_ptr<Expr> rhs;
+
+  AssignmentStatement(std::shared_ptr<LValueExpr> lhs,
+                      std::shared_ptr<Expr> rhs)
+      : lhs(lhs), rhs(rhs) {}
 };
 
 struct IfStatement : Statement {
   std::shared_ptr<TestExpr> test_expression;
   std::shared_ptr<Statement> true_statement;
   std::shared_ptr<Statement> false_statement;
+
+  IfStatement(std::shared_ptr<TestExpr> test_expression,
+              std::shared_ptr<Statement> true_statement,
+              std::shared_ptr<Statement> false_statement)
+      : test_expression(test_expression), true_statement(true_statement),
+        false_statement(false_statement) {}
 };
 
 struct WhileStatement : Statement {
   std::shared_ptr<TestExpr> test_expression;
   std::shared_ptr<Statement> body_statement;
+
+  WhileStatement(std::shared_ptr<TestExpr> test_expression,
+                 std::shared_ptr<Statement> body_statement)
+      : test_expression(test_expression), body_statement(body_statement) {}
 };
 
 struct PrintStatement : Statement {
   std::shared_ptr<Expr> expression;
+  PrintStatement(std::shared_ptr<Expr> expression) : expression(expression) {}
 };
 
 struct DeleteStatement : Statement {
   std::shared_ptr<Expr> expression;
+  DeleteStatement(std::shared_ptr<Expr> expression) : expression(expression) {}
 };
 
 template <typename Target>

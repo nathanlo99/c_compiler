@@ -81,11 +81,12 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "params -> paramlist") {
     return parse_tree_to_ast(node->children[0]);
   } else if (production_str == "paramlist -> dcl") {
-    return parse_tree_to_ast(node->children[0]);
+    const auto decl = parse_node_to_variable(node->children[0]);
+    return std::make_shared<ParameterList>(std::vector<Variable>{decl});
   } else if (production_str == "paramlist -> dcl COMMA paramlist") {
-    const auto first = convert<Variable>(parse_tree_to_ast(node->children[0]));
+    const auto first = parse_node_to_variable(node->children[0]);
     auto rest = convert<ParameterList>(parse_tree_to_ast(node->children[2]));
-    rest->parameters.insert(rest->parameters.begin(), *first);
+    rest->parameters.insert(rest->parameters.begin(), first);
     return rest;
   } else if (production_str == "type -> INT") {
     unreachable("Handled further up");
@@ -94,28 +95,54 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "dcls ->") {
     return std::make_shared<DeclarationList>();
   } else if (production_str == "dcls -> dcls dcl BECOMES NUM SEMI") {
-    // TODO
+    auto rest = convert<DeclarationList>(parse_tree_to_ast(node->children[0]));
+    auto decl = parse_node_to_variable(node->children[1]);
+    decl.initial_value =
+        Literal(std::stoi(node->children[3]->token.lexeme), Type::Int);
+    rest->declarations.push_back(decl);
+    return rest;
   } else if (production_str == "dcls -> dcls dcl BECOMES NULL SEMI") {
-    // TODO
+    auto rest = convert<DeclarationList>(parse_tree_to_ast(node->children[0]));
+    auto decl = parse_node_to_variable(node->children[1]);
+    decl.initial_value = Literal(0, Type::IntStar);
+    rest->declarations.push_back(decl);
+    return rest;
   } else if (production_str == "dcl -> type ID") {
-    // TODO
+    unreachable(production_str + ": should be handled further up");
   } else if (production_str == "statements ->") {
     return std::make_shared<Statements>();
   } else if (production_str == "statements -> statements statement") {
-    // TODO
+    auto rest = convert<Statements>(parse_tree_to_ast(node->children[0]));
+    const auto statement =
+        convert<Statement>(parse_tree_to_ast(node->children[1]));
+    rest->statements.push_back(*statement);
+    return rest;
   } else if (production_str == "statement -> lvalue BECOMES expr SEMI") {
-    // TODO
+    const auto lhs = convert<LValueExpr>(parse_tree_to_ast(node->children[0]));
+    const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[2]));
+    return std::make_shared<AssignmentStatement>(lhs, rhs);
   } else if (production_str ==
              "statement -> IF LPAREN test RPAREN LBRACE "
              "statements RBRACE ELSE LBRACE statements RBRACE") {
-    // TODO
+    const auto test = convert<TestExpr>(parse_tree_to_ast(node->children[2]));
+    const auto true_statements =
+        convert<Statements>(parse_tree_to_ast(node->children[5]));
+    const auto false_statements =
+        convert<Statements>(parse_tree_to_ast(node->children[9]));
+    return std::make_shared<IfStatement>(test, true_statements,
+                                         false_statements);
   } else if (production_str ==
              "statement -> WHILE LPAREN test RPAREN LBRACE statements RBRACE") {
-    // TODO
+    const auto test = convert<TestExpr>(parse_tree_to_ast(node->children[2]));
+    const auto body_statement =
+        convert<Statements>(parse_tree_to_ast(node->children[5]));
+    return std::make_shared<WhileStatement>(test, body_statement);
   } else if (production_str == "statement -> PRINTLN LPAREN expr RPAREN SEMI") {
-    // TODO
+    const auto expr = convert<Expr>(parse_tree_to_ast(node->children[2]));
+    return std::make_shared<PrintStatement>(expr);
   } else if (production_str == "statement -> DELETE LBRACK RBRACK expr SEMI") {
-    // TODO
+    const auto expr = convert<Expr>(parse_tree_to_ast(node->children[3]));
+    return std::make_shared<DeleteStatement>(expr);
   } else if (production_str == "test -> expr EQ expr" ||
              production_str == "test -> expr NE expr" ||
              production_str == "test -> expr LT expr" ||
@@ -130,19 +157,22 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
     const auto lhs = convert<Expr>(parse_tree_to_ast(node->children[0]));
     const auto op = node->children[1]->token;
     const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[2]));
-    return std::make_shared<Expr>(lhs, op, rhs);
+    return std::make_shared<BinaryExpr>(lhs, op, rhs);
   } else if (production_str == "expr -> term") {
     return parse_tree_to_ast(node->children[0]);
   } else if (production_str == "term -> factor") {
     return parse_tree_to_ast(node->children[0]);
   } else if (production_str == "factor -> ID") {
-    // TODO
+    const auto variable_name = node->children[0]->token.lexeme;
+    const auto variable = Variable(variable_name, Type::Unknown, Literal());
+    return std::make_shared<VariableExpr>(variable);
   } else if (production_str == "factor -> NUM") {
-    // TODO
+    const auto value = std::stoi(node->children[0]->token.lexeme);
+    return std::make_shared<LiteralExpr>(Literal(value, Type::Int));
   } else if (production_str == "factor -> NULL") {
-    // TODO
+    return std::make_shared<LiteralExpr>(Literal(0, Type::IntStar));
   } else if (production_str == "factor -> LPAREN expr RPAREN") {
-    // TODO
+    return parse_tree_to_ast(node->children[1]);
   } else if (production_str == "factor -> AMP lvalue") {
     // TODO
   } else if (production_str == "factor -> STAR factor") {
