@@ -19,15 +19,14 @@ struct ASTNode {
 struct Expr : ASTNode {};
 struct Statement : ASTNode {};
 
-struct Literal : ASTNode {
+struct Literal {
   int32_t value = 0;
   Type type = Type::Int;
 
   Literal() = default;
   Literal(const int32_t value, const Type type) : value(value), type(type) {}
-  virtual ~Literal() = default;
 
-  virtual void print(const size_t depth) const override;
+  void print(const size_t depth) const;
 };
 
 struct Variable {
@@ -128,7 +127,7 @@ struct TestExpr : Expr {
   Token operation;
   std::shared_ptr<Expr> rhs;
 
-  TestExpr(std::shared_ptr<Expr> lhs, Token operation,
+  TestExpr(std::shared_ptr<Expr> lhs, const Token operation,
            std::shared_ptr<Expr> rhs)
       : lhs(lhs), operation(operation), rhs(rhs) {}
   virtual ~TestExpr() = default;
@@ -138,7 +137,7 @@ struct TestExpr : Expr {
 
 struct VariableExpr : Expr {
   Variable variable;
-  VariableExpr(Variable variable) : variable(variable) {}
+  VariableExpr(const Variable &variable) : variable(variable) {}
   virtual ~VariableExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -146,7 +145,7 @@ struct VariableExpr : Expr {
 
 struct LiteralExpr : Expr {
   Literal literal;
-  LiteralExpr(Literal literal) : literal(literal) {}
+  LiteralExpr(const Literal &literal) : literal(literal) {}
   virtual ~LiteralExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -157,7 +156,7 @@ struct BinaryExpr : Expr {
   Token operation;
   std::shared_ptr<Expr> rhs;
 
-  BinaryExpr(std::shared_ptr<Expr> lhs, Token operation,
+  BinaryExpr(std::shared_ptr<Expr> lhs, const Token operation,
              std::shared_ptr<Expr> rhs)
       : lhs(lhs), operation(operation), rhs(rhs) {}
   virtual ~BinaryExpr() = default;

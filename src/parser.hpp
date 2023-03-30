@@ -21,8 +21,11 @@ struct CFG {
                const std::vector<std::string> &ingredients)
         : product(target), ingredients(ingredients) {}
 
-    void print() const;
     std::string to_string() const;
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const Production &production) {
+      return os << production.to_string();
+    }
 
     bool operator==(const Production &other) const = default;
   };
@@ -41,6 +44,7 @@ private:
   void compute_nullable();
 
 public:
+  friend std::ostream &operator<<(std::ostream &os, const CFG &cfg);
   void print() const;
 };
 
@@ -72,7 +76,7 @@ struct StateItem {
     return production == other.production && origin_idx == other.origin_idx;
   }
 
-  void print() const;
+  friend std::ostream &operator<<(std::ostream &os, const StateItem &item);
 
   bool operator==(const StateItem &other) const = default;
 };
@@ -100,7 +104,7 @@ struct EarleyTable {
 
   void report_error(const size_t i) const;
 
-  void print() const;
+  friend std::ostream &operator<<(std::ostream &os, const EarleyTable &table);
 
   std::shared_ptr<ParseNode>
   construct_parse_tree(const size_t start_idx, const size_t end_idx,

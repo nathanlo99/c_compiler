@@ -9,8 +9,7 @@ void ParseNode::print(const size_t depth) {
     std::cout << padding << token_kind_to_string(token.kind) << " ("
               << token.lexeme << ")" << std::endl;
   } else {
-    std::cout << padding;
-    production.print();
+    std::cout << padding << production << std::endl;
   }
 
   for (const auto &child : children) {

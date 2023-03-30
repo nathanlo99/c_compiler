@@ -50,14 +50,12 @@ std::string CFG::Production::to_string() const {
   return ss.str();
 }
 
-void CFG::Production::print() const { std::cout << to_string() << std::endl; }
-
-void CFG::print() const {
-  std::cout << "CFG with " << productions.size() << " productions" << std::endl;
-
-  for (const auto &production : productions) {
-    production.print();
+std::ostream &operator<<(std::ostream &os, const CFG &cfg) {
+  os << "CFG with " << cfg.productions.size() << " productions" << std::endl;
+  for (const auto &production : cfg.productions) {
+    os << production << std::endl;
   }
+  return os;
 }
 
 bool CFG::definitely_nullable(const std::string &symbol) const {
@@ -95,31 +93,33 @@ void CFG::compute_nullable() {
   }
 }
 
-void StateItem::print() const {
-  std::cout << " " << (complete() ? "✓" : " ") << " ";
-  std::cout << "(" << std::setw(3) << origin_idx << "): ";
-  std::cout << production.product << " -> ";
-  for (size_t i = 0; i < production.ingredients.size(); ++i) {
-    if (dot == i)
-      std::cout << "• ";
-    std::cout << production.ingredients[i] << " ";
+std::ostream &operator<<(std::ostream &os, const StateItem &item) {
+  os << " " << (item.complete() ? "✓" : " ") << " ";
+  os << "(" << std::setw(3) << item.origin_idx << "): ";
+  os << item.production.product << " -> ";
+  for (size_t i = 0; i < item.production.ingredients.size(); ++i) {
+    if (item.dot == i)
+      os << "• ";
+    os << item.production.ingredients[i] << " ";
   }
-  if (dot == production.ingredients.size())
-    std::cout << "•";
-  std::cout << std::endl;
+  if (item.dot == item.production.ingredients.size())
+    os << "•";
+  os << std::endl;
+  return os;
 }
 
-void EarleyTable::print() const {
-  std::cout << "Earley table with " << data.size() << " columns" << std::endl;
-  for (size_t i = 0; i < data.size(); ++i) {
-    const Token next_token = (i == 0) ? Token() : token_stream[i - 1];
-    std::cout << "Column " << i << ": " << token_kind_to_string(next_token.kind)
-              << "(" << next_token.lexeme << ")" << std::endl;
-    for (const auto &state_item : data[i]) {
-      state_item.print();
+std::ostream &operator<<(std::ostream &os, const EarleyTable &table) {
+  os << "Earley table with " << table.data.size() << " columns" << std::endl;
+  for (size_t i = 0; i < table.data.size(); ++i) {
+    const Token next_token = (i == 0) ? Token() : table.token_stream[i - 1];
+    os << "Column " << i << ": " << token_kind_to_string(next_token.kind) << "("
+       << next_token.lexeme << ")" << std::endl;
+    for (const auto &state_item : table.data[i]) {
+      os << state_item << std::endl;
     }
-    std::cout << std::string(100, '-') << std::endl;
+    os << std::string(100, '-') << std::endl;
   }
+  return os;
 }
 
 bool EarleyTable::column_contains(const size_t i, const StateItem &item) const {
@@ -271,7 +271,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
 
     // std::cout << "Starting search for target with ingredient " << ingredient
     //           << std::endl;
-    // target.print();
+    // std::cout << target << std::endl;
 
     bool added_child = false;
     for (size_t idx = last_idx; idx >= start_idx; --idx) {

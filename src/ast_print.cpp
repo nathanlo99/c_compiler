@@ -1,19 +1,8 @@
 
 #include "ast_node.hpp"
 
-static std::string get_padding(const size_t depth) {
+inline std::string get_padding(const size_t depth) {
   return std::string(2 * depth, ' ');
-}
-
-static std::string type_to_string(const Type type) {
-  switch (type) {
-  case Type::Int:
-    return "int";
-  case Type::IntStar:
-    return "int*";
-  default:
-    return "??";
-  }
 }
 
 void Literal::print(const size_t depth) const {

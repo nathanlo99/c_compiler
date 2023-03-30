@@ -142,7 +142,7 @@ struct DFA {
   void add_state(const TokenKind kind,
                  const std::array<uint64_t, 128> &state_transitions);
 
-  void print() const;
+  friend std::ostream &operator<<(std::ostream &os, const DFA &dfa);
 };
 
 struct NFA {
@@ -159,7 +159,7 @@ struct NFA {
 
   DFA to_dfa() const;
 
-  void print() const;
+  friend std::ostream &operator<<(std::ostream &os, const NFA &nfa);
 };
 
 NFA construct_wlp4_nfa();

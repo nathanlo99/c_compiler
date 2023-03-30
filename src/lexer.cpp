@@ -20,23 +20,23 @@ void DFA::add_state(const TokenKind kind,
   transitions.push_back(state_transitions);
 }
 
-void DFA::print() const {
-  std::cout << "DFA with " << num_states << " states" << std::endl;
-  for (int state = 0; state < num_states; ++state) {
-    const TokenKind token_kind = accepting_states[state];
+std::ostream &operator<<(std::ostream &os, const DFA &dfa) {
+  os << "DFA with " << dfa.num_states << " states" << std::endl;
+  for (int state = 0; state < dfa.num_states; ++state) {
+    const TokenKind token_kind = dfa.accepting_states[state];
     const bool is_accepting = token_kind != TokenKind::None;
     const std::string token_str = token_kind_to_string(token_kind);
-    std::cout << "State " << state << ": "
-              << (is_accepting ? "(accepting: " + token_str + ")" : "")
-              << std::endl;
+    os << "State " << state << ": "
+       << (is_accepting ? "(accepting: " + token_str + ")" : "") << std::endl;
     for (int ch = 0; ch < 128; ++ch) {
-      const int target = transitions[state].at(ch);
+      const int target = dfa.transitions[state].at(ch);
       if (target == -1)
         continue;
-      std::cout << "  '" << static_cast<char>(ch) << "' (" << ch << ") -> "
-                << target << std::endl;
+      os << "  '" << static_cast<char>(ch) << "' (" << ch << ") -> " << target
+         << std::endl;
     }
   }
+  return os;
 }
 
 void NFA::add_accepting_state(const int state, const TokenKind kind) {
@@ -61,25 +61,25 @@ void NFA::add_string(const std::string &lexeme, const TokenKind state) {
   add_accepting_state(last_state, state);
 }
 
-void NFA::print() const {
-  std::cout << "NFA with " << entries.size() << " states" << std::endl;
-  for (size_t state = 0; state < entries.size(); ++state) {
-    const bool is_accepting = accepting_states.count(state) > 0;
+std::ostream &operator<<(std::ostream &os, const NFA &nfa) {
+  os << "NFA with " << nfa.entries.size() << " states" << std::endl;
+  for (size_t state = 0; state < nfa.entries.size(); ++state) {
+    const bool is_accepting = nfa.accepting_states.count(state) > 0;
     const TokenKind token_kind =
-        is_accepting ? accepting_states.at(state) : TokenKind::Whitespace;
+        is_accepting ? nfa.accepting_states.at(state) : TokenKind::Whitespace;
     const std::string token_str = token_kind_to_string(token_kind);
-    const NFAEntry entry = entries[state];
-    std::cout << "State " << state << ": "
-              << (is_accepting ? "(accepting: " + token_str + ")" : "")
-              << std::endl;
+    const NFA::NFAEntry entry = nfa.entries[state];
+    os << "State " << state << ": "
+       << (is_accepting ? "(accepting: " + token_str + ")" : "") << std::endl;
     for (const auto &[ch, targets] : entry) {
-      std::cout << "  '" << ch << "' (" << static_cast<int>(ch) << ") -> {";
+      os << "  '" << ch << "' (" << static_cast<int>(ch) << ") -> {";
       for (const auto &target : targets) {
-        std::cout << target << ", ";
+        os << target << ", ";
       }
-      std::cout << "\b\b}" << std::endl;
+      os << "\b\b}" << std::endl;
     }
   }
+  return os;
 }
 
 DFA NFA::to_dfa() const {
