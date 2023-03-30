@@ -1,0 +1,173 @@
+
+#include "ast_node.hpp"
+
+static std::string get_padding(const size_t depth) {
+  return std::string(2 * depth, ' ');
+}
+
+static std::string type_to_string(const Type type) {
+  switch (type) {
+  case Type::Int:
+    return "int";
+  case Type::IntStar:
+    return "int*";
+  default:
+    return "??";
+  }
+}
+
+void Literal::print(const size_t depth) const {
+  std::cout << get_padding(depth) << value << ": " << type_to_string(type)
+            << std::endl;
+}
+
+void Variable::print(const size_t depth) const {
+  std::cout << get_padding(depth) << name << ": " << type_to_string(type)
+            << " = " << initial_value.value << std::endl;
+}
+
+void Statements::print(const size_t depth) const {
+  for (const auto &statement : statements) {
+    statement->print(depth);
+  }
+}
+
+void Procedure::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "Procedure {" << std::endl;
+  std::cout << get_padding(depth + 1) << "name: " << name << std::endl;
+  std::cout << get_padding(depth + 1)
+            << "return_type: " << type_to_string(return_type) << std::endl;
+  std::cout << get_padding(depth + 1) << "parameters: " << std::endl;
+  for (const Variable &variable : params) {
+    std::cout << get_padding(depth + 2) << variable.name << ": "
+              << type_to_string(variable.type) << std::endl;
+  }
+  std::cout << get_padding(depth + 1) << "declarations: " << std::endl;
+  for (const Variable &variable : decls) {
+    std::cout << get_padding(depth + 2) << variable.name << ": "
+              << type_to_string(variable.type) << " = "
+              << variable.initial_value.value << std::endl;
+  }
+  std::cout << get_padding(depth + 1) << "statements: " << std::endl;
+  for (const auto &statement : statements) {
+    statement->print(depth + 2);
+  }
+  std::cout << get_padding(depth + 1) << "return_expr: " << std::endl;
+  return_expr->print(depth + 2);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void Program::print(const size_t depth) const {
+  for (const auto &procedure : procedures) {
+    procedure.print(depth);
+    std::cout << std::endl;
+  }
+}
+
+void VariableLValueExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "VariableLValueExpr(" << variable.name
+            << ")" << std::endl;
+}
+
+void DereferenceLValueExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "DereferenceLValueExpr {" << std::endl;
+  argument->print(depth + 1);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void TestExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "TestExpr {" << std::endl;
+  std::cout << get_padding(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "operation: " << operation.lexeme
+            << std::endl;
+  std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void VariableExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "VariableExpr(" << variable.name << ")"
+            << std::endl;
+}
+
+void LiteralExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << literal.value << ": "
+            << type_to_string(literal.type) << std::endl;
+}
+
+void BinaryExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "BinaryExpr {" << std::endl;
+  std::cout << get_padding(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "operation: " << operation.lexeme
+            << std::endl;
+  std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void AddressOfExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "AddressOfExpr {" << std::endl;
+  argument->print(depth + 1);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void NewExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "NewExpr {" << std::endl;
+  rhs->print(depth + 1);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void FunctionCallExpr::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "FunctionCall {" << std::endl;
+  std::cout << get_padding(depth + 1) << "procedure_name: " << procedure_name
+            << "," << std::endl;
+  std::cout << get_padding(depth + 1) << "arguments: [" << std::endl;
+  for (const auto &expr : arguments) {
+    expr->print(depth + 2);
+  }
+  std::cout << get_padding(depth + 1) << "]" << std::endl;
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void AssignmentStatement::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "AssignmentStatement {" << std::endl;
+  std::cout << get_padding(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << get_padding(depth) << ")" << std::endl;
+}
+
+void IfStatement::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "IfStatement {" << std::endl;
+  std::cout << get_padding(depth + 1) << "condition: " << std::endl;
+  test_expression->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "true_statement: " << std::endl;
+  true_statement->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "false_statement: " << std::endl;
+  false_statement->print(depth + 2);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void WhileStatement::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "WhileStatement {" << std::endl;
+  std::cout << get_padding(depth + 1) << "condition: " << std::endl;
+  test_expression->print(depth + 2);
+  std::cout << get_padding(depth + 1) << "body: " << std::endl;
+  body_statement->print(depth + 2);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void PrintStatement::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "PrintStatement {" << std::endl;
+  expression->print(depth + 1);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
+
+void DeleteStatement::print(const size_t depth) const {
+  std::cout << get_padding(depth) << "DeleteStatement {" << std::endl;
+  expression->print(depth + 1);
+  std::cout << get_padding(depth) << "}" << std::endl;
+}
