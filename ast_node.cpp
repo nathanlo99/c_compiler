@@ -148,8 +148,12 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
              production_str == "test -> expr LT expr" ||
              production_str == "test -> expr LE expr" ||
              production_str == "test -> expr GE expr" ||
-             production_str == "test -> expr GT expr" ||
-             production_str == "expr -> expr PLUS term" ||
+             production_str == "test -> expr GT expr") {
+    const auto lhs = convert<Expr>(parse_tree_to_ast(node->children[0]));
+    const auto op = node->children[1]->token;
+    const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[2]));
+    return std::make_shared<TestExpr>(lhs, op, rhs);
+  } else if (production_str == "expr -> expr PLUS term" ||
              production_str == "expr -> expr MINUS term" ||
              production_str == "term -> term STAR factor" ||
              production_str == "term -> term SLASH factor" ||
@@ -174,23 +178,38 @@ std::shared_ptr<ASTNode> parse_tree_to_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "factor -> LPAREN expr RPAREN") {
     return parse_tree_to_ast(node->children[1]);
   } else if (production_str == "factor -> AMP lvalue") {
-    // TODO
+    const auto rhs = convert<LValueExpr>(parse_tree_to_ast(node->children[1]));
+    return std::make_shared<AddressOfExpr>(rhs);
   } else if (production_str == "factor -> STAR factor") {
-    // TODO
+    const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[1]));
+    return std::make_shared<DereferenceLValueExpr>(rhs);
   } else if (production_str == "factor -> NEW INT LBRACK expr RBRACK") {
-    // TODO
+    const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[3]));
+    return std::make_shared<NewExpr>(rhs);
   } else if (production_str == "factor -> ID LPAREN RPAREN") {
-    // TODO
+    const std::string procedure_name = node->children[0]->token.lexeme;
+    return std::make_shared<FunctionCallExpr>(procedure_name);
   } else if (production_str == "factor -> ID LPAREN arglist RPAREN") {
-    // TODO
+    const std::string procedure_name = node->children[0]->token.lexeme;
+    const auto arguments =
+        convert<ArgumentList>(parse_tree_to_ast(node->children[2]));
+    return std::make_shared<FunctionCallExpr>(procedure_name, arguments->exprs);
   } else if (production_str == "arglist -> expr") {
-    // TODO
+    const auto expr = convert<Expr>(parse_tree_to_ast(node->children[0]));
+    return std::make_shared<ArgumentList>(
+        std::vector<std::shared_ptr<Expr>>{expr});
   } else if (production_str == "arglist -> expr COMMA arglist") {
-    // TODO
+    const auto expr = convert<Expr>(parse_tree_to_ast(node->children[0]));
+    auto rest = convert<ArgumentList>(parse_tree_to_ast(node->children[2]));
+    rest->exprs.insert(rest->exprs.begin(), expr);
+    return rest;
   } else if (production_str == "lvalue -> ID") {
-    // TODO
+    const std::string variable_name = node->children[0]->token.lexeme;
+    const Variable variable(variable_name, Type::Unknown, Literal());
+    return std::make_shared<VariableLValueExpr>(variable);
   } else if (production_str == "lvalue -> STAR factor") {
-    // TODO
+    const auto rhs = convert<Expr>(parse_tree_to_ast(node->children[1]));
+    return std::make_shared<DereferenceLValueExpr>(rhs);
   } else if (production_str == "lvalue -> LPAREN lvalue RPAREN") {
     return parse_tree_to_ast(node->children[1]);
   }

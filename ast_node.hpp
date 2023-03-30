@@ -29,7 +29,6 @@ struct Variable {
   std::string name;
   Type type;
   Literal initial_value;
-
   Variable(const std::string &name, const Type type,
            const Literal initial_value)
       : name(name), type(type), initial_value(initial_value) {}
@@ -37,16 +36,20 @@ struct Variable {
 
 struct ParameterList : ASTNode {
   std::vector<Variable> parameters;
-
   ParameterList(const std::vector<Variable> &variables = {})
       : parameters(variables) {}
 };
 
 struct DeclarationList : ASTNode {
   std::vector<Variable> declarations;
-
   DeclarationList(const std::vector<Variable> &variables = {})
       : declarations(variables) {}
+};
+
+struct ArgumentList : ASTNode {
+  std::vector<std::shared_ptr<Expr>> exprs;
+  ArgumentList(const std::vector<std::shared_ptr<Expr>> &exprs = {})
+      : exprs(exprs) {}
 };
 
 struct Statements : Statement {
@@ -79,16 +82,32 @@ struct LValueExpr : Expr {};
 
 struct VariableLValueExpr : LValueExpr {
   Variable variable;
+  VariableLValueExpr(Variable variable) : variable(variable) {}
 };
 
 struct DereferenceLValueExpr : LValueExpr {
   std::shared_ptr<Expr> argument;
+  DereferenceLValueExpr(std::shared_ptr<Expr> argument) : argument(argument) {}
 };
 
 struct TestExpr : Expr {
   std::shared_ptr<Expr> lhs;
   Token operation;
   std::shared_ptr<Expr> rhs;
+
+  TestExpr(std::shared_ptr<Expr> lhs, Token operation,
+           std::shared_ptr<Expr> rhs)
+      : lhs(lhs), operation(operation), rhs(rhs) {}
+};
+
+struct VariableExpr : Expr {
+  Variable variable;
+  VariableExpr(Variable variable) : variable(variable) {}
+};
+
+struct LiteralExpr : Expr {
+  Literal literal;
+  LiteralExpr(Literal literal) : literal(literal) {}
 };
 
 struct BinaryExpr : Expr {
@@ -103,18 +122,21 @@ struct BinaryExpr : Expr {
 
 struct AddressOfExpr : Expr {
   std::shared_ptr<LValueExpr> argument;
+  AddressOfExpr(std::shared_ptr<LValueExpr> argument) : argument(argument) {}
 };
 
-struct VariableExpr : Expr {
-  Variable variable;
-
-  VariableExpr(Variable variable) : variable(variable) {}
+struct NewExpr : Expr {
+  std::shared_ptr<Expr> rhs;
+  NewExpr(std::shared_ptr<Expr> rhs) : rhs(rhs) {}
 };
 
-struct LiteralExpr : Expr {
-  Literal literal;
+struct FunctionCallExpr : Expr {
+  std::string procedure_name;
+  std::vector<std::shared_ptr<Expr>> arguments;
 
-  LiteralExpr(Literal literal) : literal(literal) {}
+  FunctionCallExpr(std::string procedure_name,
+                   const std::vector<std::shared_ptr<Expr>> &arguments = {})
+      : procedure_name(procedure_name), arguments(arguments) {}
 };
 
 // Statements
