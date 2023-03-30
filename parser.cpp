@@ -41,13 +41,16 @@ void CFG::add_production(const std::string &product,
   }
 }
 
-void CFG::Production::print() const {
-  std::cout << product << " -> ";
+std::string CFG::Production::to_string() const {
+  std::stringstream ss;
+  ss << product << " ->";
   for (const auto &ingredient : ingredients) {
-    std::cout << ingredient << " ";
+    ss << " " << ingredient;
   }
-  std::cout << std::endl;
+  return ss.str();
 }
+
+void CFG::Production::print() const { std::cout << to_string() << std::endl; }
 
 void CFG::print() const {
   std::cout << "CFG with " << productions.size() << " productions" << std::endl;

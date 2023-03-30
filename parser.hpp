@@ -22,6 +22,7 @@ struct CFG {
         : product(target), ingredients(ingredients) {}
 
     void print() const;
+    std::string to_string() const;
 
     bool operator==(const Production &other) const = default;
   };

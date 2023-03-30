@@ -185,7 +185,7 @@ public:
   }
 };
 
-enum Type {
+enum class Type {
   Void,
   Int,
   IntStar,
@@ -193,22 +193,22 @@ enum Type {
 
 std::string type_to_string(const Type type) {
   switch (type) {
-  case Void:
+  case Type::Void:
     return "";
-  case Int:
+  case Type::Int:
     return "int";
-  case IntStar:
+  case Type::IntStar:
     return "int*";
   }
 }
 
 Type string_to_type(const std::string &string) {
   if (string == "type INT")
-    return Int;
+    return Type::Int;
   else if (string == "type INT STAR")
-    return IntStar;
+    return Type::IntStar;
   runtime_assert(false, "Invalid type string: " + string);
-  return Void;
+  return Type::Void;
 }
 
 struct ParseNode {
@@ -222,7 +222,7 @@ struct ParseNode {
 
   void debug(int depth = 0) const {
     std::cout << std::string(2 * depth, ' ') << name;
-    if (type != Void)
+    if (type != Type::Void)
       std::cout << ": " << type_to_string(type);
     std::cout << std::endl;
     for (const auto &child : children)
@@ -231,7 +231,7 @@ struct ParseNode {
 
   void print() const {
     std::cout << production;
-    if (type != Void)
+    if (type != Type::Void)
       std::cout << " : " << type_to_string(type);
     std::cout << std::endl;
     for (const auto &child : children)
@@ -337,7 +337,7 @@ struct SymbolTable {
     } else {
       const auto it = symbol_table.find(variable_name);
       if (it == symbol_table.end())
-        return Void;
+        return Type::Void;
       return it->second;
     }
   }
@@ -445,7 +445,7 @@ Type decl_to_type(std::shared_ptr<ParseNode> node) {
 void populate_params(SymbolTable &table, const std::string &procedure_name,
                      std::shared_ptr<ParseNode> params) {
   if (params->production == "params") {
-    table.add_procedure(procedure_name, Int, {});
+    table.add_procedure(procedure_name, Type::Int, {});
     return;
   }
 
@@ -457,7 +457,7 @@ void populate_params(SymbolTable &table, const std::string &procedure_name,
     param_list = param_list->children[2];
   }
   argument_types.push_back(decl_to_type(param_list->children[0]));
-  table.add_procedure(procedure_name, Int, argument_types);
+  table.add_procedure(procedure_name, Type::Int, argument_types);
 }
 
 std::vector<Type> arg_list_to_types(std::shared_ptr<ParseNode> arglist) {
@@ -509,7 +509,7 @@ void populate_symbol_table(SymbolTable &table,
   if (node->name == "main") {
     const Type first_type = decl_to_type(node->children[3]);
     const Type second_type = decl_to_type(node->children[5]);
-    table.add_procedure("wain", Int,
+    table.add_procedure("wain", Type::Int,
                         std::vector<Type>({first_type, second_type}));
   }
 
@@ -539,13 +539,13 @@ void infer_and_check_types(SymbolTable &table,
 
   // The type of a NUM is int.
   if (node_name == "NUM") {
-    node->type = Int;
+    node->type = Type::Int;
     return;
   }
 
   // The type of a NULL token is int*.
   if (node_name == "NULL") {
-    node->type = IntStar;
+    node->type = Type::IntStar;
     return;
   }
 
@@ -559,7 +559,7 @@ void infer_and_check_types(SymbolTable &table,
   // When factor derives ID, the derived ID must have a type, and the type of
   // the factor is the same as the type of the ID.
   if (node_production == "factor ID") {
-    runtime_assert(node->children[0]->type != Void,
+    runtime_assert(node->children[0]->type != Type::Void,
                    "factor deriving ID did not have a type");
     node->type = node->children[0]->type;
     return;
@@ -568,7 +568,7 @@ void infer_and_check_types(SymbolTable &table,
   // When lvalue derives ID, the derived ID must have a type, and the type of
   // the lvalue is the same as the type of the ID.
   if (node_production == "lvalue ID") {
-    runtime_assert(node->children[0]->type != Void,
+    runtime_assert(node->children[0]->type != Type::Void,
                    "lvalue deriving ID did not have a type");
     node->type = node->children[0]->type;
     return;
@@ -591,9 +591,9 @@ void infer_and_check_types(SymbolTable &table,
   // The type of a factor deriving AMP lvalue is int*. The type of the derived
   // lvalue (i.e. the one preceded by AMP) must be int.
   if (node_production == "factor AMP lvalue") {
-    runtime_assert(node->children[1]->type == Int,
+    runtime_assert(node->children[1]->type == Type::Int,
                    "AMP was applied to non-int");
-    node->type = IntStar;
+    node->type = Type::IntStar;
     return;
   }
 
@@ -601,18 +601,18 @@ void infer_and_check_types(SymbolTable &table,
   // derived factor (i.e. the one preceded by STAR) must be int*.
   if (node_production == "factor STAR factor" ||
       node_production == "lvalue STAR factor") {
-    runtime_assert(node->children[1]->type == IntStar,
+    runtime_assert(node->children[1]->type == Type::IntStar,
                    "STAR was applied to non-int-star");
-    node->type = Int;
+    node->type = Type::Int;
     return;
   }
 
   // The type of a factor deriving NEW INT LBRACK expr RBRACK is int*. The type
   // of the derived expr must be int.
   if (node_production == "factor NEW INT LBRACK expr RBRACK") {
-    runtime_assert(node->children[3]->type == Int,
+    runtime_assert(node->children[3]->type == Type::Int,
                    "Expression in new was not int");
-    node->type = IntStar;
+    node->type = Type::IntStar;
     return;
   }
 
@@ -623,7 +623,7 @@ void infer_and_check_types(SymbolTable &table,
     runtime_assert(table.contains_procedure(procedure_name),
                    "Calling undefined procedure " + procedure_name +
                        " with no arguments");
-    runtime_assert(table.get_return_type(procedure_name) == Int,
+    runtime_assert(table.get_return_type(procedure_name) == Type::Int,
                    "Procedure " + procedure_name + " did not return int");
     runtime_assert(table.get_argument_types(procedure_name).empty(),
                    "Procedure " + procedure_name +
@@ -643,7 +643,7 @@ void infer_and_check_types(SymbolTable &table,
     const auto argument_types = arg_list_to_types(node->children[2]);
     runtime_assert(argument_types == parameter_types,
                    "Invalid call to procedure " + procedure_name);
-    node->type = Int;
+    node->type = Type::Int;
   }
 
   // The type of a term deriving factor is the same as the type of the derived
@@ -657,11 +657,11 @@ void infer_and_check_types(SymbolTable &table,
   // int. The term and factor directly derived from such a term must have type
   // int.
   if (node_name == "term") {
-    runtime_assert(node->children[0]->type == Int,
+    runtime_assert(node->children[0]->type == Type::Int,
                    "First argument in product expression was not int");
-    runtime_assert(node->children[2]->type == Int,
+    runtime_assert(node->children[2]->type == Type::Int,
                    "Second argument in product expression was not int");
-    node->type = Int;
+    node->type = Type::Int;
     return;
   }
 
@@ -683,9 +683,9 @@ void infer_and_check_types(SymbolTable &table,
     //     The derived expr may have type int and the derived term may have type
     //     int*, in which case the type of the expr deriving them is int*.
     const std::map<std::pair<Type, Type>, Type> plus_types = {
-        std::make_pair(std::make_pair(Int, Int), Int),
-        std::make_pair(std::make_pair(IntStar, Int), IntStar),
-        std::make_pair(std::make_pair(Int, IntStar), IntStar),
+        std::make_pair(std::make_pair(Type::Int, Type::Int), Type::Int),
+        std::make_pair(std::make_pair(Type::IntStar, Type::Int), Type::IntStar),
+        std::make_pair(std::make_pair(Type::Int, Type::IntStar), Type::IntStar),
     };
 
     const auto types =
@@ -707,9 +707,9 @@ void infer_and_check_types(SymbolTable &table,
     //     The derived expr and the derived term may both have type int*, in
     //     which case the type of the expr deriving them is int.
     const std::map<std::pair<Type, Type>, Type> minus_types = {
-        std::make_pair(std::make_pair(Int, Int), Int),
-        std::make_pair(std::make_pair(IntStar, Int), IntStar),
-        std::make_pair(std::make_pair(IntStar, IntStar), Int),
+        std::make_pair(std::make_pair(Type::Int, Type::Int), Type::Int),
+        std::make_pair(std::make_pair(Type::IntStar, Type::Int), Type::IntStar),
+        std::make_pair(std::make_pair(Type::IntStar, Type::IntStar), Type::Int),
     };
 
     const auto types =
@@ -724,11 +724,12 @@ void infer_and_check_types(SymbolTable &table,
     // The second dcl in the sequence directly derived from main must derive a
     // type that derives INT.
     const Type second_type = decl_to_type(node->children[5]);
-    runtime_assert(second_type == Int, "Second argument to main was not int");
+    runtime_assert(second_type == Type::Int,
+                   "Second argument to main was not int");
 
     // The expr in the sequence directly derived from main must have type int.
     const Type body_type = node->children[11]->type;
-    runtime_assert(body_type == Int, "Return type of main was not int");
+    runtime_assert(body_type == Type::Int, "Return type of main was not int");
 
     return;
   }
@@ -737,7 +738,8 @@ void infer_and_check_types(SymbolTable &table,
   // int.
   if (node_name == "procedure") {
     const Type body_type = node->children[9]->type;
-    runtime_assert(body_type == Int, "Return type of procedure was not int");
+    runtime_assert(body_type == Type::Int,
+                   "Return type of procedure was not int");
     return;
   }
 
@@ -752,7 +754,7 @@ void infer_and_check_types(SymbolTable &table,
   // When statement derives PRINTLN LPAREN expr RPAREN SEMI, the derived expr
   // must have type int.
   if (node_production == "statement PRINTLN LPAREN expr RPAREN SEMI") {
-    runtime_assert(node->children[2]->type == Int,
+    runtime_assert(node->children[2]->type == Type::Int,
                    "Printed expression was not int");
     return;
   }
@@ -760,7 +762,7 @@ void infer_and_check_types(SymbolTable &table,
   // When statement derives DELETE LBRACK RBRACK expr SEMI, the derived expr
   // must have type int*.
   if (node_production == "statement DELETE LBRACK RBRACK expr SEMI") {
-    runtime_assert(node->children[3]->type == IntStar,
+    runtime_assert(node->children[3]->type == Type::IntStar,
                    "Deleted expression did not have type int*");
     return;
   }
@@ -769,9 +771,9 @@ void infer_and_check_types(SymbolTable &table,
   // both have the same type.
   if (node_name == "test") {
     runtime_assert(node->children[0]->type == node->children[2]->type &&
-                       node->children[0]->type != Void,
+                       node->children[0]->type != Type::Void,
                    "Comparison of two expressions with wrong types");
-    node->type = Int;
+    node->type = Type::Int;
     return;
   }
 
@@ -779,7 +781,7 @@ void infer_and_check_types(SymbolTable &table,
   // sequence containing a type that derives INT.
   if (node_production == "dcls dcls dcl BECOMES NUM SEMI") {
     const Type type = decl_to_type(node->children[1]);
-    runtime_assert(type == Int,
+    runtime_assert(type == Type::Int,
                    "Declaration assigning to int was not declared as int");
     return;
   }
@@ -788,7 +790,7 @@ void infer_and_check_types(SymbolTable &table,
   // sequence containing a type that derives INT STAR.
   if (node_production == "dcls dcls dcl BECOMES NULL SEMI") {
     const Type type = decl_to_type(node->children[1]);
-    runtime_assert(type == IntStar,
+    runtime_assert(type == Type::IntStar,
                    "Declaration assigning to NULL was not declared as int*");
     return;
   }
@@ -1100,13 +1102,13 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     generate_code(node->children[0], table);
   } else if (production == "expr expr PLUS term") {
     const auto lhs = node->children[0], rhs = node->children[2];
-    if (lhs->type == Int && rhs->type == Int) {
+    if (lhs->type == Type::Int && rhs->type == Type::Int) {
       generate_code(lhs, table); // $3 = expr1
       push(3);                   // push expr1 onto stack
       generate_code(rhs, table); // $3 = expr2
       pop(5);                    // $5 = expr1
       instructions.push_back(Instruction::add(3, 5, 3)); // $3 = $5 + $3
-    } else if (lhs->type == IntStar && rhs->type == Int) {
+    } else if (lhs->type == Type::IntStar && rhs->type == Type::Int) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);
@@ -1114,7 +1116,7 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
       instructions.push_back(Instruction::mflo(3));
       pop(5);
       instructions.push_back(Instruction::add(3, 5, 3));
-    } else if (lhs->type == Int && rhs->type == IntStar) {
+    } else if (lhs->type == Type::Int && rhs->type == Type::IntStar) {
       generate_code(lhs, table);
       instructions.push_back(Instruction::mult(3, 4));
       instructions.push_back(Instruction::mflo(3));
@@ -1128,13 +1130,13 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     }
   } else if (production == "expr expr MINUS term") {
     const auto lhs = node->children[0], rhs = node->children[2];
-    if (lhs->type == Int && rhs->type == Int) {
+    if (lhs->type == Type::Int && rhs->type == Type::Int) {
       generate_code(node->children[0], table); // $3 = expr1
       push(3);                                 // push expr1 onto stack
       generate_code(node->children[2], table); // $3 = expr2
       pop(5);                                  // $5 = expr1
       instructions.push_back(Instruction::sub(3, 5, 3)); // $3 = $5 - $3
-    } else if (lhs->type == IntStar && rhs->type == Int) {
+    } else if (lhs->type == Type::IntStar && rhs->type == Type::Int) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);
@@ -1142,7 +1144,7 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
       instructions.push_back(Instruction::mflo(3));
       pop(5);
       instructions.push_back(Instruction::sub(3, 5, 3));
-    } else if (lhs->type == IntStar && rhs->type == IntStar) {
+    } else if (lhs->type == Type::IntStar && rhs->type == Type::IntStar) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);

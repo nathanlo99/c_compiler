@@ -1,7 +1,7 @@
 
 #pragma once
 
-enum Type {
+enum class Type {
   Unknown,
   Int,
   IntStar,
