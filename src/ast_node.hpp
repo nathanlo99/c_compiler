@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "lexer.hpp"
 #include "parse_node.hpp"
 
 #include "ast_visitor.hpp"
@@ -134,20 +135,6 @@ struct DereferenceLValueExpr : LValueExpr {
   virtual void visit(ASTVisitor &visitor) override;
 };
 
-struct TestExpr : Expr {
-  std::shared_ptr<Expr> lhs;
-  Token operation;
-  std::shared_ptr<Expr> rhs;
-
-  TestExpr(std::shared_ptr<Expr> lhs, const Token operation,
-           std::shared_ptr<Expr> rhs)
-      : lhs(lhs), operation(operation), rhs(rhs) {}
-  virtual ~TestExpr() = default;
-
-  virtual void print(const size_t depth = 0) const override;
-  virtual void visit(ASTVisitor &visitor) override;
-};
-
 struct VariableExpr : Expr {
   Variable variable;
   VariableExpr(const Variable &variable) : variable(variable) {}
@@ -171,14 +158,126 @@ struct LiteralExpr : Expr {
   virtual void visit(ASTVisitor &visitor) override;
 };
 
+enum class ComparisonOperation {
+  LessThan,
+  LessEqual,
+  GreaterThan,
+  GreaterEqual,
+  Equal,
+  NotEqual,
+};
+
+constexpr const char *
+comparison_operation_to_string(const ComparisonOperation op) {
+  switch (op) {
+  case ComparisonOperation::LessThan:
+    return "LessThan";
+  case ComparisonOperation::LessEqual:
+    return "LessEqual";
+  case ComparisonOperation::GreaterThan:
+    return "GreaterThan";
+  case ComparisonOperation::GreaterEqual:
+    return "GreaterEqual";
+  case ComparisonOperation::Equal:
+    return "Equal";
+  case ComparisonOperation::NotEqual:
+    return "NotEqual";
+  }
+}
+
+constexpr ComparisonOperation
+token_to_comparison_operation(const TokenKind operation) {
+  switch (operation) {
+  case TokenKind::Lt:
+    return ComparisonOperation::LessThan;
+  case TokenKind::Le:
+    return ComparisonOperation::LessEqual;
+  case TokenKind::Gt:
+    return ComparisonOperation::GreaterThan;
+  case TokenKind::Ge:
+    return ComparisonOperation::GreaterEqual;
+  case TokenKind::Eq:
+    return ComparisonOperation::Equal;
+  case TokenKind::Ne:
+    return ComparisonOperation::NotEqual;
+  default:
+    runtime_assert(false, "Could not convert invalid type " +
+                              token_kind_to_string(operation) +
+                              " to comparison operation");
+  }
+  __builtin_unreachable();
+}
+
+enum class BinaryOperation {
+  Add,
+  Sub,
+  Mul,
+  Div,
+  Mod,
+};
+
+constexpr inline const char *
+binary_operation_to_string(const BinaryOperation op) {
+  switch (op) {
+  case BinaryOperation::Add:
+    return "Add";
+  case BinaryOperation::Sub:
+    return "Sub";
+  case BinaryOperation::Mul:
+    return "Mul";
+  case BinaryOperation::Div:
+    return "Div";
+  case BinaryOperation::Mod:
+    return "Mod";
+  }
+}
+
+constexpr inline BinaryOperation
+token_to_binary_operation(const TokenKind operation) {
+  switch (operation) {
+  case TokenKind::Plus:
+    return BinaryOperation::Add;
+  case TokenKind::Minus:
+    return BinaryOperation::Sub;
+  case TokenKind::Star:
+    return BinaryOperation::Mul;
+  case TokenKind::Slash:
+    return BinaryOperation::Div;
+  case TokenKind::Pct:
+    return BinaryOperation::Mod;
+  default:
+    runtime_assert(false, "Could not convert invalid type " +
+                              token_kind_to_string(operation) +
+                              " to binary operation");
+  }
+  __builtin_unreachable();
+}
+
+struct TestExpr : Expr {
+
+  std::shared_ptr<Expr> lhs;
+  ComparisonOperation operation;
+  std::shared_ptr<Expr> rhs;
+
+  TestExpr(std::shared_ptr<Expr> lhs, const Token operation,
+           std::shared_ptr<Expr> rhs)
+      : lhs(lhs), operation(token_to_comparison_operation(operation.kind)),
+        rhs(rhs) {}
+  virtual ~TestExpr() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
+};
+
 struct BinaryExpr : Expr {
   std::shared_ptr<Expr> lhs;
-  Token operation;
+  BinaryOperation operation;
   std::shared_ptr<Expr> rhs;
 
   BinaryExpr(std::shared_ptr<Expr> lhs, const Token operation,
              std::shared_ptr<Expr> rhs)
-      : lhs(lhs), operation(operation), rhs(rhs) {}
+      : lhs(lhs), operation(token_to_binary_operation(operation.kind)),
+        rhs(rhs) {}
   virtual ~BinaryExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;

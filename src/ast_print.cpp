@@ -74,7 +74,8 @@ void TestExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "TestExpr {" << std::endl;
   std::cout << get_padding(depth + 1) << "lhs: " << std::endl;
   lhs->print(depth + 2);
-  std::cout << get_padding(depth + 1) << "operation: " << operation.lexeme
+  std::cout << get_padding(depth + 1)
+            << "operation: " << comparison_operation_to_string(operation)
             << std::endl;
   std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
   rhs->print(depth + 2);
@@ -97,7 +98,8 @@ void BinaryExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "BinaryExpr {" << std::endl;
   std::cout << get_padding(depth + 1) << "lhs: " << std::endl;
   lhs->print(depth + 2);
-  std::cout << get_padding(depth + 1) << "operation: " << operation.lexeme
+  std::cout << get_padding(depth + 1)
+            << "operation: " << binary_operation_to_string(operation)
             << std::endl;
   std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
   rhs->print(depth + 2);

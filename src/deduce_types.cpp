@@ -47,20 +47,21 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
   const auto type_pair = std::make_pair(lhs_type, rhs_type);
   runtime_assert(lhs_type != Type::Unknown, "Type deduction failed on lhs");
   runtime_assert(rhs_type != Type::Unknown, "Type deduction failed on rhs");
-  switch (expr.operation.kind) {
-  case TokenKind::Plus: {
+  switch (expr.operation) {
+  case BinaryOperation::Add: {
     runtime_assert(plus_types.count(type_pair) > 0, "Invalid types to +");
     expr.type = plus_types.at(type_pair);
   } break;
-  case TokenKind::Minus: {
+  case BinaryOperation::Sub: {
     runtime_assert(minus_types.count(type_pair) > 0, "Invalid types to -");
     expr.type = minus_types.at(type_pair);
   } break;
-  case TokenKind::Star:
-  case TokenKind::Slash:
-  case TokenKind::Pct: {
+  case BinaryOperation::Mul:
+  case BinaryOperation::Div:
+  case BinaryOperation::Mod: {
     runtime_assert(integer_types.count(type_pair) > 0,
-                   "Invalid types to " + expr.operation.lexeme);
+                   std::string("Invalid types to ") +
+                       binary_operation_to_string(expr.operation));
     expr.type = integer_types.at(type_pair);
   } break;
   default:
