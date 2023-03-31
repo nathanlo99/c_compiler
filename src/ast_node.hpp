@@ -12,13 +12,14 @@
 #include "util.hpp"
 
 struct ASTNode {
-  Type type;
   virtual ~ASTNode() {}
   virtual void print(const size_t depth) const = 0;
   virtual void visit(ASTVisitor &visitor) = 0;
 };
 
-struct Expr : ASTNode {};
+struct Expr : ASTNode {
+  Type type;
+};
 struct Statement : ASTNode {};
 
 struct Literal {

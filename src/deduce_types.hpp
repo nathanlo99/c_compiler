@@ -3,6 +3,7 @@
 
 #include "ast_visitor.hpp"
 #include "symbol_table.hpp"
+#include "types.hpp"
 #include <memory>
 
 struct DeduceTypesVisitor : ASTVisitor {
@@ -14,7 +15,13 @@ struct DeduceTypesVisitor : ASTVisitor {
   virtual void pre_visit(Procedure &procedure) {
     table.enter_procedure(procedure.name);
   }
-  virtual void post_visit(Procedure &) { table.leave_procedure(); }
+  virtual void post_visit(Procedure &procedure) {
+    runtime_assert(procedure.return_expr->type == procedure.return_type,
+                   "Unexpected return type for prodecure " + procedure.name +
+                       ": expected int, got " +
+                       type_to_string(procedure.return_expr->type));
+    table.leave_procedure();
+  }
 
   virtual void post_visit(VariableLValueExpr &);
   virtual void post_visit(DereferenceLValueExpr &);

@@ -44,8 +44,10 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
   case TokenKind::Star:
     return Literal(lhs_value * rhs_value, Type::Int);
   case TokenKind::Slash:
+    runtime_assert(rhs_value != 0, "Division by zero while constant folding");
     return Literal(lhs_value / rhs_value, Type::Int);
   case TokenKind::Pct:
+    runtime_assert(rhs_value != 0, "Modulo by zero while constant folding");
     return Literal(lhs_value % rhs_value, Type::Int);
   default:
     std::cout << "Unknown token type " << operation.lexeme << std::endl;
@@ -54,34 +56,85 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
   __builtin_unreachable();
 }
 
+std::shared_ptr<Expr>
+simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
+  const auto lhs = expr->lhs;
+  const auto rhs = expr->rhs;
+  const auto operation = expr->operation.kind;
+  if (is_literal(lhs) && is_literal(rhs)) {
+    const auto literal = evaluate_binary_expression(lhs, expr->operation, rhs);
+    return std::make_shared<LiteralExpr>(literal);
+  }
+  if (const auto lhs_literal = std::dynamic_pointer_cast<LiteralExpr>(lhs)) {
+    const int value = lhs_literal->literal.value;
+    // 0 + rhs == rhs
+    if (value == 0 && operation == TokenKind::Plus)
+      return rhs;
+    // 0 * rhs == 0
+    if (value == 0 && operation == TokenKind::Star)
+      return std::make_shared<LiteralExpr>(0, Type::Int);
+    // 1 * rhs == rhs
+    if (value == 1 && operation == TokenKind::Star)
+      return rhs;
+    // 0 / rhs == 0
+    if (value == 0 && operation == TokenKind::Slash)
+      return std::make_shared<LiteralExpr>(0, Type::Int);
+    // 0 % rhs == 0
+    if (value == 0 && operation == TokenKind::Pct)
+      return std::make_shared<LiteralExpr>(0, Type::Int);
+  }
+
+  if (const auto rhs_literal = std::dynamic_pointer_cast<LiteralExpr>(rhs)) {
+    const int value = rhs_literal->literal.value;
+    // lhs + 0 == lhs
+    if (value == 0 && operation == TokenKind::Plus)
+      return lhs;
+    // lhs - 0 == lhs
+    if (value == 0 && operation == TokenKind::Minus)
+      return lhs;
+    // lhs * 0 == 0
+    if (value == 0 && operation == TokenKind::Star)
+      return std::make_shared<LiteralExpr>(0, Type::Int);
+    // lhs * 1 == lhs
+    if (value == 1 && operation == TokenKind::Star)
+      return lhs;
+    // lhs / 1 == lhs
+    if (value == 1 && operation == TokenKind::Slash)
+      return lhs;
+    // lhs / 0 == ERROR
+    if (value == 0 && operation == TokenKind::Slash)
+      runtime_assert(false, "Division by zero");
+    // lhs % 1 == 0
+    if (value == 1 && operation == TokenKind::Pct)
+      return std::make_shared<LiteralExpr>(0, Type::Int);
+    // lhs % 0 == ERROR
+    if (value == 0 && operation == TokenKind::Pct)
+      runtime_assert(false, "Modulo by zero");
+  }
+
+  return expr;
+}
+
 std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr) {
   if (auto node = std::dynamic_pointer_cast<TestExpr>(expr)) {
-    const auto lhs = fold_constants(node->lhs);
-    const auto rhs = fold_constants(node->rhs);
-    if (is_literal(lhs) && is_literal(rhs)) {
+    node->lhs = fold_constants(node->lhs);
+    node->rhs = fold_constants(node->rhs);
+    if (is_literal(node->lhs) && is_literal(node->rhs)) {
       const auto literal =
-          evaluate_binary_expression(lhs, node->operation, rhs);
+          evaluate_binary_expression(node->lhs, node->operation, node->rhs);
       return std::make_shared<LiteralExpr>(literal);
-    } else {
-      return std::make_shared<TestExpr>(lhs, node->operation, rhs);
     }
+    return node;
   } else if (auto node = std::dynamic_pointer_cast<BinaryExpr>(expr)) {
-    const auto lhs = fold_constants(node->lhs);
-    const auto rhs = fold_constants(node->rhs);
-    if (is_literal(lhs) && is_literal(rhs)) {
-      const auto literal =
-          evaluate_binary_expression(lhs, node->operation, rhs);
-      return std::make_shared<LiteralExpr>(literal);
-    } else {
-      return std::make_shared<BinaryExpr>(lhs, node->operation, rhs);
-    }
+    node->lhs = fold_constants(node->lhs);
+    node->rhs = fold_constants(node->rhs);
+    return simplify_binary_expression(node);
   } else if (auto node = std::dynamic_pointer_cast<NewExpr>(expr)) {
     return std::make_shared<NewExpr>(fold_constants(node->rhs));
   } else if (auto node = std::dynamic_pointer_cast<FunctionCallExpr>(expr)) {
-    auto result = std::make_shared<FunctionCallExpr>(node->procedure_name);
-    for (const auto &arg : node->arguments)
-      result->arguments.push_back(fold_constants(arg));
-    return result;
+    for (auto &arg : node->arguments)
+      arg = fold_constants(arg);
+    return node;
   } else {
     return expr;
   }
