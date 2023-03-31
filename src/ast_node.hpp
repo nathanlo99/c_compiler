@@ -159,6 +159,7 @@ struct VariableExpr : Expr {
 struct LiteralExpr : Expr {
   Literal literal;
   LiteralExpr(const Literal &literal) : literal(literal) {}
+  LiteralExpr(const int32_t value, const Type type) : literal(value, type) {}
   virtual ~LiteralExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;

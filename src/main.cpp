@@ -1,5 +1,6 @@
 
 #include "ast_node.hpp"
+#include "fold_constants.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "util.hpp"
@@ -32,11 +33,11 @@ std::shared_ptr<Program> parse_program(const std::string &input) {
 void debug() {}
 
 int main() {
-  debug();
-  return 0;
   try {
     const std::string input = consume_stdin();
     const auto program = parse_program(input);
+    FoldConstantsVisitor fold_constants_visitor;
+    program->visit(fold_constants_visitor);
     program->print();
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
