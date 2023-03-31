@@ -55,13 +55,19 @@ void Program::print(const size_t depth) const {
 
 void VariableLValueExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "VariableLValueExpr(" << variable.name
-            << ")" << std::endl;
+            << ")";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void DereferenceLValueExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "DereferenceLValueExpr {" << std::endl;
   argument->print(depth + 1);
-  std::cout << get_padding(depth) << "}" << std::endl;
+  std::cout << get_padding(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void TestExpr::print(const size_t depth) const {
@@ -76,8 +82,10 @@ void TestExpr::print(const size_t depth) const {
 }
 
 void VariableExpr::print(const size_t depth) const {
-  std::cout << get_padding(depth) << "VariableExpr(" << variable.name << ")"
-            << std::endl;
+  std::cout << get_padding(depth) << "VariableExpr(" << variable.name << ")";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void LiteralExpr::print(const size_t depth) const {
@@ -93,19 +101,28 @@ void BinaryExpr::print(const size_t depth) const {
             << std::endl;
   std::cout << get_padding(depth + 1) << "rhs: " << std::endl;
   rhs->print(depth + 2);
-  std::cout << get_padding(depth) << "}" << std::endl;
+  std::cout << get_padding(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void AddressOfExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "AddressOfExpr {" << std::endl;
   argument->print(depth + 1);
-  std::cout << get_padding(depth) << "}" << std::endl;
+  std::cout << get_padding(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void NewExpr::print(const size_t depth) const {
   std::cout << get_padding(depth) << "NewExpr {" << std::endl;
   rhs->print(depth + 1);
-  std::cout << get_padding(depth) << "}" << std::endl;
+  std::cout << get_padding(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void FunctionCallExpr::print(const size_t depth) const {
@@ -117,7 +134,10 @@ void FunctionCallExpr::print(const size_t depth) const {
     expr->print(depth + 2);
   }
   std::cout << get_padding(depth + 1) << "]" << std::endl;
-  std::cout << get_padding(depth) << "}" << std::endl;
+  std::cout << get_padding(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
 }
 
 void AssignmentStatement::print(const size_t depth) const {

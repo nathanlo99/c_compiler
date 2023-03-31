@@ -26,6 +26,8 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
       return Literal(lhs_value + 4 * rhs_value, Type::IntStar);
     } else if (lhs_type == Type::Int && rhs_type == Type::IntStar) {
       return Literal(4 * lhs_value + rhs_value, Type::IntStar);
+    } else {
+      std::cout << "?" << std::endl;
     }
   } break;
   case TokenKind::Minus: {
@@ -35,6 +37,8 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
       return Literal(lhs_value - 4 * rhs_value, Type::IntStar);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::IntStar) {
       return Literal((lhs_value - rhs_value) / 4, Type::Int);
+    } else {
+      std::cout << "??" << std::endl;
     }
   } break;
   case TokenKind::Star:
@@ -44,6 +48,7 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
   case TokenKind::Pct:
     return Literal(lhs_value % rhs_value, Type::Int);
   default:
+    std::cout << "Unknown token type " << operation.lexeme << std::endl;
     break;
   }
   __builtin_unreachable();
@@ -68,7 +73,7 @@ std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr) {
           evaluate_binary_expression(lhs, node->operation, rhs);
       return std::make_shared<LiteralExpr>(literal);
     } else {
-      return std::make_shared<TestExpr>(lhs, node->operation, rhs);
+      return std::make_shared<BinaryExpr>(lhs, node->operation, rhs);
     }
   } else if (auto node = std::dynamic_pointer_cast<NewExpr>(expr)) {
     return std::make_shared<NewExpr>(fold_constants(node->rhs));

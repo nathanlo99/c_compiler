@@ -1,8 +1,10 @@
 
 #include "ast_node.hpp"
+#include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "populate_symbol_table.hpp"
 #include "util.hpp"
 
 #include "parse_node.hpp"
@@ -36,9 +38,22 @@ int main() {
   try {
     const std::string input = consume_stdin();
     const auto program = parse_program(input);
+
+    // Populate symbol table
+    PopulateSymbolTableVisitor symbol_table_visitor;
+    program->visit(symbol_table_visitor);
+    const SymbolTable table = symbol_table_visitor.table;
+
+    // Deduce types of intermediate expressions
+    DeduceTypesVisitor deduce_types_visitor(table);
+    program->visit(deduce_types_visitor);
+    program->print();
+
+    // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
     program->visit(fold_constants_visitor);
     program->print();
+
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }
