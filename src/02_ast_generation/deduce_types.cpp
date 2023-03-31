@@ -7,6 +7,7 @@ void DeduceTypesVisitor::pre_visit(Program &program) { table = program.table; }
 void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
   table.enter_procedure(procedure.name);
 }
+
 void DeduceTypesVisitor::post_visit(Procedure &procedure) {
   runtime_assert(procedure.return_expr->type == procedure.return_type,
                  "Unexpected return type for prodecure " + procedure.name +
@@ -96,7 +97,7 @@ void DeduceTypesVisitor::post_visit(NewExpr &expr) {
 void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
   const auto procedure_name = expr.procedure_name;
   const std::vector<Variable> expected_arguments =
-      table.arguments.at(procedure_name);
+      table.get_arguments(procedure_name);
 
   std::vector<Type> argument_types;
   runtime_assert(expr.arguments.size() == expected_arguments.size(),

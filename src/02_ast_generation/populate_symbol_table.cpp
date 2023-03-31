@@ -7,6 +7,7 @@ void PopulateSymbolTableVisitor::post_visit(Program &program) {
 
 void PopulateSymbolTableVisitor::pre_visit(Procedure &procedure) {
   const auto name = procedure.name;
+  table.add_procedure(name);
   for (const auto &variable : procedure.params) {
     table.add_parameter(name, variable);
   }
@@ -14,6 +15,11 @@ void PopulateSymbolTableVisitor::pre_visit(Procedure &procedure) {
   for (const auto &variable : procedure.decls) {
     table.add_variable(name, variable);
   }
+  table.enter_procedure(name);
+}
+
+void PopulateSymbolTableVisitor::post_visit(Procedure &) {
+  table.leave_procedure();
 }
 
 void PopulateSymbolTableVisitor::pre_visit(VariableExpr &expr) {
