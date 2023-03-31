@@ -32,8 +32,8 @@ std::shared_ptr<Program> parse_program(const std::string &input) {
 void debug() {}
 
 int main() {
-  // debug();
-  // return 0;
+  debug();
+  return 0;
   try {
     const std::string input = consume_stdin();
     const auto program = parse_program(input);

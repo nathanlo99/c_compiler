@@ -7,6 +7,7 @@
 
 #include "parse_node.hpp"
 
+#include "ast_visitor.hpp"
 #include "types.hpp"
 #include "util.hpp"
 
@@ -14,6 +15,7 @@ struct ASTNode {
   Type type;
   virtual ~ASTNode() {}
   virtual void print(const size_t depth) const = 0;
+  virtual void visit(ASTVisitor &visitor) = 0;
 };
 
 struct Expr : ASTNode {};
@@ -46,7 +48,8 @@ struct ParameterList : ASTNode {
       : parameters(variables) {}
   virtual ~ParameterList() = default;
 
-  virtual void print(const size_t) const { unreachable(""); }
+  virtual void print(const size_t) const override { unreachable(""); }
+  virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
 struct DeclarationList : ASTNode {
@@ -55,7 +58,8 @@ struct DeclarationList : ASTNode {
       : declarations(variables) {}
   virtual ~DeclarationList() = default;
 
-  virtual void print(const size_t) const { unreachable(""); }
+  virtual void print(const size_t) const override { unreachable(""); }
+  virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
 struct ArgumentList : ASTNode {
@@ -64,7 +68,8 @@ struct ArgumentList : ASTNode {
       : exprs(exprs) {}
   virtual ~ArgumentList() = default;
 
-  virtual void print(const size_t) const { unreachable(""); }
+  virtual void print(const size_t) const override { unreachable(""); }
+  virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
 struct Statements : Statement {
@@ -74,6 +79,7 @@ struct Statements : Statement {
   virtual ~Statements() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct Procedure : ASTNode {
@@ -95,6 +101,7 @@ struct Procedure : ASTNode {
   virtual ~Procedure() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct Program : ASTNode {
@@ -102,6 +109,7 @@ struct Program : ASTNode {
   virtual ~Program() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 // Expressions
@@ -113,6 +121,7 @@ struct VariableLValueExpr : LValueExpr {
   virtual ~VariableLValueExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct DereferenceLValueExpr : LValueExpr {
@@ -121,6 +130,7 @@ struct DereferenceLValueExpr : LValueExpr {
   virtual ~DereferenceLValueExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct TestExpr : Expr {
@@ -134,6 +144,7 @@ struct TestExpr : Expr {
   virtual ~TestExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct VariableExpr : Expr {
@@ -142,6 +153,7 @@ struct VariableExpr : Expr {
   virtual ~VariableExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct LiteralExpr : Expr {
@@ -150,6 +162,7 @@ struct LiteralExpr : Expr {
   virtual ~LiteralExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct BinaryExpr : Expr {
@@ -163,6 +176,7 @@ struct BinaryExpr : Expr {
   virtual ~BinaryExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct AddressOfExpr : Expr {
@@ -171,6 +185,7 @@ struct AddressOfExpr : Expr {
   virtual ~AddressOfExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct NewExpr : Expr {
@@ -179,6 +194,7 @@ struct NewExpr : Expr {
   virtual ~NewExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct FunctionCallExpr : Expr {
@@ -191,6 +207,7 @@ struct FunctionCallExpr : Expr {
   virtual ~FunctionCallExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 // Statements
@@ -204,6 +221,7 @@ struct AssignmentStatement : Statement {
   virtual ~AssignmentStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct IfStatement : Statement {
@@ -219,6 +237,7 @@ struct IfStatement : Statement {
   virtual ~IfStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct WhileStatement : Statement {
@@ -231,6 +250,7 @@ struct WhileStatement : Statement {
   virtual ~WhileStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct PrintStatement : Statement {
@@ -239,6 +259,7 @@ struct PrintStatement : Statement {
   virtual ~PrintStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 struct DeleteStatement : Statement {
@@ -247,6 +268,7 @@ struct DeleteStatement : Statement {
   virtual ~DeleteStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void visit(ASTVisitor &visitor) override;
 };
 
 std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node);

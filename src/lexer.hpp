@@ -5,6 +5,7 @@
 #include <bit>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <queue>
 #include <set>
@@ -167,8 +168,8 @@ DFA construct_wlp4_dfa();
 std::map<std::string, TokenKind> get_wlp4_keywords();
 
 struct Token {
-  const std::string lexeme;
-  const TokenKind kind;
+  std::string lexeme;
+  TokenKind kind;
 
   Token() : Token("", TokenKind::None) {}
   Token(const std::string &lexeme, const TokenKind &kind)
