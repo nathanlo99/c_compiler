@@ -131,7 +131,8 @@ std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr) {
     node->rhs = fold_constants(node->rhs);
     return simplify_binary_expression(node);
   } else if (auto node = std::dynamic_pointer_cast<NewExpr>(expr)) {
-    return std::make_shared<NewExpr>(fold_constants(node->rhs));
+    node->rhs = fold_constants(node->rhs);
+    return node;
   } else if (auto node = std::dynamic_pointer_cast<FunctionCallExpr>(expr)) {
     for (auto &arg : node->arguments)
       arg = fold_constants(arg);

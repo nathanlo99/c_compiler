@@ -52,7 +52,6 @@ int main() {
     const auto program0 = parse_program(input);
     const auto program = annotate_and_check_types(program0);
     const auto symbol_table = program->table;
-    std::cout << symbol_table << std::endl;
 
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
