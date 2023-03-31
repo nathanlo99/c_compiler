@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 
+#include "ast_base.hpp"
 #include "lexer.hpp"
 #include "parse_node.hpp"
+#include "symbol_table.hpp"
 
 #include "ast_visitor.hpp"
 #include "types.hpp"
@@ -22,27 +24,6 @@ struct Expr : ASTNode {
   Type type;
 };
 struct Statement : ASTNode {};
-
-struct Literal {
-  int32_t value = 0;
-  Type type = Type::Int;
-
-  Literal() = default;
-  Literal(const int32_t value, const Type type) : value(value), type(type) {}
-
-  void print(const size_t depth) const;
-};
-
-struct Variable {
-  std::string name;
-  Type type;
-  Literal initial_value;
-  Variable(const std::string &name, const Type type,
-           const Literal initial_value)
-      : name(name), type(type), initial_value(initial_value) {}
-
-  void print(const size_t depth) const;
-};
 
 struct ParameterList : ASTNode {
   std::vector<Variable> parameters;
@@ -108,6 +89,7 @@ struct Procedure : ASTNode {
 
 struct Program : ASTNode {
   std::vector<Procedure> procedures;
+  SymbolTable table;
   virtual ~Program() = default;
 
   virtual void print(const size_t depth = 0) const override;

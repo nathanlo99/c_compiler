@@ -32,22 +32,27 @@ std::shared_ptr<Program> parse_program(const std::string &input) {
   return program;
 }
 
+std::shared_ptr<Program>
+annotate_and_check_types(std::shared_ptr<Program> program) {
+  // Populate symbol table
+  PopulateSymbolTableVisitor symbol_table_visitor;
+  program->visit(symbol_table_visitor);
+
+  // Deduce types of intermediate expressions
+  DeduceTypesVisitor deduce_types_visitor;
+  program->visit(deduce_types_visitor);
+  return program;
+}
+
 void debug() {}
 
 int main() {
   try {
     const std::string input = consume_stdin();
-    const auto program = parse_program(input);
-
-    // Populate symbol table
-    PopulateSymbolTableVisitor symbol_table_visitor;
-    program->visit(symbol_table_visitor);
-    const SymbolTable table = symbol_table_visitor.table;
-
-    // Deduce types of intermediate expressions
-    DeduceTypesVisitor deduce_types_visitor(table);
-    program->visit(deduce_types_visitor);
-    program->print();
+    const auto program0 = parse_program(input);
+    const auto program = annotate_and_check_types(program0);
+    const auto symbol_table = program->table;
+    std::cout << symbol_table << std::endl;
 
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;

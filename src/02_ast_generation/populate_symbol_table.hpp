@@ -16,4 +16,9 @@ struct PopulateSymbolTableVisitor : ASTVisitor {
   virtual ~PopulateSymbolTableVisitor() = default;
 
   virtual void pre_visit(Procedure &procedure);
+  virtual void pre_visit(VariableExpr &expr);
+  virtual void pre_visit(VariableLValueExpr &expr);
+
+  // Update the program's table once we're done
+  virtual void post_visit(Program &program);
 };

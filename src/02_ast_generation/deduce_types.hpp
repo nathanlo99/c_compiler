@@ -9,19 +9,11 @@
 struct DeduceTypesVisitor : ASTVisitor {
   SymbolTable table;
 
-  DeduceTypesVisitor(const SymbolTable &table) : table(table) {}
   virtual ~DeduceTypesVisitor() = default;
 
-  virtual void pre_visit(Procedure &procedure) {
-    table.enter_procedure(procedure.name);
-  }
-  virtual void post_visit(Procedure &procedure) {
-    runtime_assert(procedure.return_expr->type == procedure.return_type,
-                   "Unexpected return type for prodecure " + procedure.name +
-                       ": expected int, got " +
-                       type_to_string(procedure.return_expr->type));
-    table.leave_procedure();
-  }
+  virtual void pre_visit(Program &program);
+  virtual void pre_visit(Procedure &procedure);
+  virtual void post_visit(Procedure &procedure);
 
   virtual void post_visit(VariableLValueExpr &);
   virtual void post_visit(DereferenceLValueExpr &);

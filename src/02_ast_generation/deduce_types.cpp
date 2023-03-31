@@ -2,6 +2,19 @@
 #include "deduce_types.hpp"
 #include "ast_node.hpp"
 
+void DeduceTypesVisitor::pre_visit(Program &program) { table = program.table; }
+
+void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
+  table.enter_procedure(procedure.name);
+}
+void DeduceTypesVisitor::post_visit(Procedure &procedure) {
+  runtime_assert(procedure.return_expr->type == procedure.return_type,
+                 "Unexpected return type for prodecure " + procedure.name +
+                     ": expected int, got " +
+                     type_to_string(procedure.return_expr->type));
+  table.leave_procedure();
+}
+
 void DeduceTypesVisitor::post_visit(VariableLValueExpr &expr) {
   expr.type = expr.variable.type = table.get_variable_type(expr.variable);
 }
@@ -82,21 +95,21 @@ void DeduceTypesVisitor::post_visit(NewExpr &expr) {
 
 void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
   const auto procedure_name = expr.procedure_name;
-  const std::vector<Type> expected_argument_types =
-      table.argument_types.at(procedure_name);
+  const std::vector<Variable> expected_arguments =
+      table.arguments.at(procedure_name);
 
   std::vector<Type> argument_types;
-  runtime_assert(expr.arguments.size() == expected_argument_types.size(),
+  runtime_assert(expr.arguments.size() == expected_arguments.size(),
                  "Wrong number of arguments to function call to " +
                      procedure_name + ": expected " +
-                     std::to_string(expected_argument_types.size()) +
-                     " but got " + std::to_string(expr.arguments.size()));
+                     std::to_string(expected_arguments.size()) + " but got " +
+                     std::to_string(expr.arguments.size()));
 
-  for (size_t i = 0; i < expected_argument_types.size(); ++i) {
-    runtime_assert(expr.arguments[i]->type == expected_argument_types[i],
+  for (size_t i = 0; i < expected_arguments.size(); ++i) {
+    runtime_assert(expr.arguments[i]->type == expected_arguments[i].type,
                    "The " + std::to_string(i) + "th argument to " +
                        procedure_name + " had the wrong type: expected " +
-                       type_to_string(expected_argument_types[i]) + ", got " +
+                       type_to_string(expected_arguments[i].type) + ", got " +
                        type_to_string(expr.arguments[i]->type));
   }
 
