@@ -5,6 +5,7 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
+#include "symbol_table.hpp"
 #include "util.hpp"
 
 #include "parse_node.hpp"
@@ -45,14 +46,25 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
 }
 
 void debug() {
-  const std::string input = "NULL + 1 + 2 + 3";
+  const std::string input = "a + 1 + 2 + 3";
+  const std::vector<Variable> variables = {
+      Variable("a", Type::Int),
+  };
+
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   const CFG cfg = load_cfg_from_file("tests/arithmetic.cfg");
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   const std::shared_ptr<Expr> expr = construct_ast<Expr>(parse_tree);
 
-  DeduceTypesVisitor deduce_types_visitor;
+  SymbolTable mocked_table;
+  mocked_table.add_procedure("MOCK");
+  mocked_table.enter_procedure("MOCK");
+  for (const Variable &variable : variables) {
+    mocked_table.add_variable("MOCK", variable);
+  }
+
+  DeduceTypesVisitor deduce_types_visitor(mocked_table);
   expr->visit(deduce_types_visitor);
 
   const std::shared_ptr<Expr> simplified_expr = fold_constants(expr);

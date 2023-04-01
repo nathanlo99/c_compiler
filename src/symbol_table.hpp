@@ -85,11 +85,11 @@ struct SymbolTable {
   }
 
   ProcedureTable &get_table(const std::string &name) {
-    runtime_assert(tables.count(name) > 0, "Unknown procedure " + name);
+    runtime_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
     return tables.at(name);
   }
   const ProcedureTable &get_table(const std::string &name) const {
-    runtime_assert(tables.count(name) > 0, "Unknown procedure " + name);
+    runtime_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
     return tables.at(name);
   }
 

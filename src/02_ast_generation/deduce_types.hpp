@@ -8,6 +8,11 @@
 
 struct DeduceTypesVisitor : ASTVisitor {
   SymbolTable table;
+  bool has_table;
+
+  DeduceTypesVisitor() : table(), has_table(false) {}
+  DeduceTypesVisitor(const SymbolTable &table)
+      : table(table), has_table(true) {}
 
   virtual ~DeduceTypesVisitor() = default;
 

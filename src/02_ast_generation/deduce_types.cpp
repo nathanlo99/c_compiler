@@ -2,7 +2,12 @@
 #include "deduce_types.hpp"
 #include "ast_node.hpp"
 
-void DeduceTypesVisitor::pre_visit(Program &program) { table = program.table; }
+void DeduceTypesVisitor::pre_visit(Program &program) {
+  if (!has_table) {
+    table = program.table;
+    has_table = true;
+  }
+}
 
 void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
   table.enter_procedure(procedure.name);
