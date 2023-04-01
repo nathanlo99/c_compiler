@@ -138,7 +138,8 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     const auto lhs = construct_ast<Expr>(node->children[0]);
     const auto op = node->children[1]->token;
     const auto rhs = construct_ast<Expr>(node->children[2]);
-    return std::make_shared<TestExpr>(lhs, op, rhs);
+    return std::make_shared<TestExpr>(
+        lhs, token_to_comparison_operation(op.kind), rhs);
   } else if (production_str == "expr -> expr PLUS term" ||
              production_str == "expr -> expr MINUS term" ||
              production_str == "term -> term STAR factor" ||
@@ -147,7 +148,8 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     const auto lhs = construct_ast<Expr>(node->children[0]);
     const auto op = node->children[1]->token;
     const auto rhs = construct_ast<Expr>(node->children[2]);
-    return std::make_shared<BinaryExpr>(lhs, op, rhs);
+    return std::make_shared<BinaryExpr>(lhs, token_to_binary_operation(op.kind),
+                                        rhs);
   } else if (production_str == "expr -> term") {
     return construct_ast(node->children[0]);
   } else if (production_str == "term -> factor") {

@@ -55,7 +55,7 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
   const std::map<std::pair<Type, Type>, Type> minus_types = {
       std::make_pair(std::make_pair(Type::Int, Type::Int), Type::Int),
       std::make_pair(std::make_pair(Type::IntStar, Type::Int), Type::IntStar),
-      std::make_pair(std::make_pair(Type::Int, Type::IntStar), Type::IntStar),
+      std::make_pair(std::make_pair(Type::IntStar, Type::IntStar), Type::Int),
   };
   const std::map<std::pair<Type, Type>, Type> integer_types = {
       std::make_pair(std::make_pair(Type::Int, Type::Int), Type::Int),

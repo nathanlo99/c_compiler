@@ -1,6 +1,6 @@
 int wain(int a, int b) {
-  int c = 0;
-  c = b - a; // Stretch goal
-  c = a + b + 2;
+  println(241);
+  println((b - a));
+  println(((a + b) + 2));
   return 1;
 }

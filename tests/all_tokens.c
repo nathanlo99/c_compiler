@@ -46,7 +46,7 @@ int collatz(int *num) {
 // Computes the first [numPrimes] primes, starting at [startNumber]
 // Then, prints the following Collatz sequence:
 // 40, 20, 10, 5, 16, 8, 4, 2, 1
-int wain(int numPrimes, int startNumber) {
+int wain(int startNumber, int numPrimes) {
   int *result = NULL;
   int idx = 0;
   int nextNumber = 0;
@@ -59,11 +59,13 @@ int wain(int numPrimes, int startNumber) {
     }
     *(result + idx) = nextNumber;
     nextNumber = nextNumber + 1;
+    idx = idx + 1;
   }
 
   idx = 0;
   while (idx < numPrimes) {
     println(*(result + idx));
+    idx = idx + 1;
   }
 
   nextNumber = 40;

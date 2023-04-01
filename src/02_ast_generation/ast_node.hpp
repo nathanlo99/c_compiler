@@ -267,10 +267,9 @@ struct TestExpr : Expr {
   ComparisonOperation operation;
   std::shared_ptr<Expr> rhs;
 
-  TestExpr(std::shared_ptr<Expr> lhs, const Token operation,
+  TestExpr(std::shared_ptr<Expr> lhs, const ComparisonOperation operation,
            std::shared_ptr<Expr> rhs)
-      : lhs(lhs), operation(token_to_comparison_operation(operation.kind)),
-        rhs(rhs) {}
+      : lhs(lhs), operation(operation), rhs(rhs) {}
   virtual ~TestExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -284,10 +283,9 @@ struct BinaryExpr : Expr {
   BinaryOperation operation;
   std::shared_ptr<Expr> rhs;
 
-  BinaryExpr(std::shared_ptr<Expr> lhs, const Token operation,
+  BinaryExpr(std::shared_ptr<Expr> lhs, const BinaryOperation operation,
              std::shared_ptr<Expr> rhs)
-      : lhs(lhs), operation(token_to_binary_operation(operation.kind)),
-        rhs(rhs) {}
+      : lhs(lhs), operation(operation), rhs(rhs) {}
   virtual ~BinaryExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;

@@ -46,9 +46,11 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
 }
 
 void debug() {
-  const std::string input = "a + 1 + 2 + 3";
+  const std::string input = "0 - (b - c)";
   const std::vector<Variable> variables = {
       Variable("a", Type::Int),
+      Variable("b", Type::IntStar),
+      Variable("c", Type::IntStar),
   };
 
   const std::vector<Token> token_stream = Lexer(input).token_stream();
@@ -73,8 +75,8 @@ void debug() {
 }
 
 int main() {
-  debug();
-  return 0;
+  // debug();
+  // return 0;
 
   try {
     const std::string input = consume_stdin();
@@ -85,8 +87,8 @@ int main() {
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
     program->visit(fold_constants_visitor);
-    program->print();
-    // program->emit_c(std::cout, 0);
+    // program->print();
+    program->emit_c(std::cout, 0);
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
