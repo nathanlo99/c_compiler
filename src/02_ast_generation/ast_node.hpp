@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,6 +18,7 @@
 struct ASTNode {
   virtual ~ASTNode() {}
   virtual void print(const size_t depth) const = 0;
+  virtual void emit_c(std::ostream &os, const size_t indent_level) const = 0;
   virtual void visit(ASTVisitor &visitor) = 0;
 };
 
@@ -32,6 +34,9 @@ struct ParameterList : ASTNode {
   virtual ~ParameterList() = default;
 
   virtual void print(const size_t) const override { unreachable(""); }
+  virtual void emit_c(std::ostream &, const size_t) const override {
+    unreachable("");
+  }
   virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
@@ -42,6 +47,9 @@ struct DeclarationList : ASTNode {
   virtual ~DeclarationList() = default;
 
   virtual void print(const size_t) const override { unreachable(""); }
+  virtual void emit_c(std::ostream &, const size_t) const override {
+    unreachable("");
+  }
   virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
@@ -52,6 +60,9 @@ struct ArgumentList : ASTNode {
   virtual ~ArgumentList() = default;
 
   virtual void print(const size_t) const override { unreachable(""); }
+  virtual void emit_c(std::ostream &, const size_t) const override {
+    unreachable("");
+  }
   virtual void visit(ASTVisitor &) override { unreachable(""); }
 };
 
@@ -62,6 +73,8 @@ struct Statements : Statement {
   virtual ~Statements() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -84,6 +97,8 @@ struct Procedure : ASTNode {
   virtual ~Procedure() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -93,6 +108,8 @@ struct Program : ASTNode {
   virtual ~Program() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -105,6 +122,8 @@ struct VariableLValueExpr : LValueExpr {
   virtual ~VariableLValueExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -114,6 +133,8 @@ struct DereferenceLValueExpr : LValueExpr {
   virtual ~DereferenceLValueExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -123,6 +144,8 @@ struct VariableExpr : Expr {
   virtual ~VariableExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -137,6 +160,8 @@ struct LiteralExpr : Expr {
   virtual ~LiteralExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -236,7 +261,6 @@ token_to_binary_operation(const TokenKind operation) {
 }
 
 struct TestExpr : Expr {
-
   std::shared_ptr<Expr> lhs;
   ComparisonOperation operation;
   std::shared_ptr<Expr> rhs;
@@ -248,6 +272,8 @@ struct TestExpr : Expr {
   virtual ~TestExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -263,6 +289,8 @@ struct BinaryExpr : Expr {
   virtual ~BinaryExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -272,6 +300,8 @@ struct AddressOfExpr : Expr {
   virtual ~AddressOfExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -281,6 +311,8 @@ struct NewExpr : Expr {
   virtual ~NewExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -294,6 +326,8 @@ struct FunctionCallExpr : Expr {
   virtual ~FunctionCallExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -308,6 +342,8 @@ struct AssignmentStatement : Statement {
   virtual ~AssignmentStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -324,6 +360,8 @@ struct IfStatement : Statement {
   virtual ~IfStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -337,6 +375,8 @@ struct WhileStatement : Statement {
   virtual ~WhileStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -346,6 +386,8 @@ struct PrintStatement : Statement {
   virtual ~PrintStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 
@@ -355,6 +397,8 @@ struct DeleteStatement : Statement {
   virtual ~DeleteStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
   virtual void visit(ASTVisitor &visitor) override;
 };
 

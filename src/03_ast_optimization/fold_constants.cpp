@@ -26,8 +26,6 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
       return Literal(lhs_value + 4 * rhs_value, Type::IntStar);
     } else if (lhs_type == Type::Int && rhs_type == Type::IntStar) {
       return Literal(4 * lhs_value + rhs_value, Type::IntStar);
-    } else {
-      std::cout << "?" << std::endl;
     }
   } break;
   case BinaryOperation::Sub: {
@@ -37,8 +35,6 @@ Literal evaluate_binary_expression(std::shared_ptr<Expr> lhs_expr,
       return Literal(lhs_value - 4 * rhs_value, Type::IntStar);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::IntStar) {
       return Literal((lhs_value - rhs_value) / 4, Type::Int);
-    } else {
-      std::cout << "??" << std::endl;
     }
   } break;
   case BinaryOperation::Mul:

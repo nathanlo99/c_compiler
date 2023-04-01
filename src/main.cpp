@@ -56,7 +56,8 @@ int main() {
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
     program->visit(fold_constants_visitor);
-    program->print();
+    // program->print();
+    program->emit_c(std::cout, 0);
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
