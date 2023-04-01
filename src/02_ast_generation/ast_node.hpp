@@ -21,6 +21,7 @@ struct ASTNode {
   virtual ~ASTNode() {}
   virtual void print(const size_t depth) const = 0;
   virtual void emit_c(std::ostream &os, const size_t indent_level) const = 0;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) = 0;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) = 0;
 };
 
@@ -41,6 +42,7 @@ struct ParameterList : ASTNode {
   virtual void emit_c(std::ostream &, const size_t) const override {
     unreachable("");
   }
+  virtual void accept_simple(ASTSimpleVisitor &) override { unreachable(""); }
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
@@ -56,6 +58,7 @@ struct DeclarationList : ASTNode {
   virtual void emit_c(std::ostream &, const size_t) const override {
     unreachable("");
   }
+  virtual void accept_simple(ASTSimpleVisitor &) override { unreachable(""); }
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
@@ -71,6 +74,7 @@ struct ArgumentList : ASTNode {
   virtual void emit_c(std::ostream &, const size_t) const override {
     unreachable("");
   }
+  virtual void accept_simple(ASTSimpleVisitor &) override { unreachable(""); }
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
@@ -85,6 +89,7 @@ struct Statements : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -111,6 +116,7 @@ struct Procedure : ASTNode {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -122,6 +128,7 @@ struct Program : ASTNode {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -136,6 +143,7 @@ struct VariableLValueExpr : LValueExpr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -147,6 +155,7 @@ struct DereferenceLValueExpr : LValueExpr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -159,6 +168,7 @@ struct VariableExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -172,6 +182,7 @@ struct LiteralExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -283,6 +294,7 @@ struct TestExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -299,6 +311,7 @@ struct BinaryExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -310,6 +323,7 @@ struct AddressOfExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -321,6 +335,7 @@ struct NewExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -336,6 +351,7 @@ struct FunctionCallExpr : Expr {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -352,6 +368,7 @@ struct AssignmentStatement : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -370,6 +387,7 @@ struct IfStatement : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -385,6 +403,7 @@ struct WhileStatement : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -396,6 +415,7 @@ struct PrintStatement : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
@@ -407,6 +427,7 @@ struct DeleteStatement : Statement {
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
                       const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
