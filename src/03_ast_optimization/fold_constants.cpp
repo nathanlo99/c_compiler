@@ -134,6 +134,17 @@ struct Sum {
   }
 };
 
+bool is_cancellable(std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs) {
+  // If lhs and rhs are variables with the same name, then they are cancellable
+  if (auto lhs_node = std::dynamic_pointer_cast<VariableExpr>(lhs)) {
+    if (auto rhs_node = std::dynamic_pointer_cast<VariableExpr>(rhs)) {
+      if (lhs_node->variable == rhs_node->variable)
+        return true;
+    }
+  }
+  return false;
+}
+
 std::shared_ptr<Expr>
 simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
   const auto lhs = expr->lhs = fold_constants(expr->lhs);
@@ -200,6 +211,12 @@ simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
     // lhs % 0 == ERROR
     if (value == 0 && operation == BinaryOperation::Mod)
       runtime_assert(false, "Modulo by zero");
+  }
+
+  // If neither side is a literal, but they're still cancellable, then cancel
+  // them
+  if (operation == BinaryOperation::Sub && is_cancellable(lhs, rhs)) {
+    return std::make_shared<LiteralExpr>(0, Type::Int);
   }
 
   return expr;
