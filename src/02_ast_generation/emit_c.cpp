@@ -27,8 +27,13 @@ void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
   }
   os << ") {" << std::endl;
   for (const auto &decl : decls) {
+    const std::string value_str =
+        (decl.initial_value.type == Type::IntStar &&
+         decl.initial_value.value == 0)
+            ? "NULL"
+            : std::to_string(decl.initial_value.value);
     os << get_padding(indent_level + 1) << type_to_string(decl.type) << " "
-       << decl.name << " = " << decl.initial_value.value << ";" << std::endl;
+       << decl.name << " = " << value_str << ";" << std::endl;
   }
   for (const auto &statement : statements) {
     statement->emit_c(os, indent_level + 1);
@@ -60,7 +65,10 @@ void VariableExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
-  os << literal.value;
+  if (literal.type == Type::IntStar && literal.value == 0)
+    os << "NULL";
+  else
+    os << literal.value;
 }
 
 void TestExpr::emit_c(std::ostream &os, const size_t) const {
@@ -153,7 +161,7 @@ void PrintStatement::emit_c(std::ostream &os, const size_t indent_level) const {
 
 void DeleteStatement::emit_c(std::ostream &os,
                              const size_t indent_level) const {
-  os << get_padding(indent_level) << "delete[] (";
+  os << get_padding(indent_level) << "delete[] ";
   expression->emit_c(os, 0);
-  os << ");" << std::endl;
+  os << ";" << std::endl;
 }

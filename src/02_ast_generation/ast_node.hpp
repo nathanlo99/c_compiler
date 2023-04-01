@@ -24,6 +24,8 @@ struct ASTNode {
 
 struct Expr : ASTNode {
   Type type;
+  Expr() : type(Type::Unknown) {}
+  Expr(Type type) : type(type) {}
 };
 struct Statement : ASTNode {};
 
@@ -142,7 +144,8 @@ struct DereferenceLValueExpr : LValueExpr {
 
 struct VariableExpr : Expr {
   Variable variable;
-  VariableExpr(const Variable &variable) : variable(variable) {}
+  VariableExpr(const Variable &variable)
+      : Expr(variable.type), variable(variable) {}
   virtual ~VariableExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -153,12 +156,9 @@ struct VariableExpr : Expr {
 
 struct LiteralExpr : Expr {
   Literal literal;
-  LiteralExpr(const Literal &literal) : literal(literal) {
-    this->type = literal.type;
-  }
-  LiteralExpr(const int32_t value, const Type type) : literal(value, type) {
-    this->type = type;
-  }
+  LiteralExpr(const Literal &literal) : Expr(literal.type), literal(literal) {}
+  LiteralExpr(const int32_t value, const Type type)
+      : Expr(type), literal(value, type) {}
   virtual ~LiteralExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;

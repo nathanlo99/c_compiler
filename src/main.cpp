@@ -88,6 +88,7 @@ int main() {
     FoldConstantsVisitor fold_constants_visitor;
     program->visit(fold_constants_visitor);
     // program->print();
+    std::cout << std::endl;
     program->emit_c(std::cout, 0);
 
   } catch (const std::exception &e) {
