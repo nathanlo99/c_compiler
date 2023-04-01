@@ -15,8 +15,6 @@
 
 enum class TokenKind {
   None,
-  Bof,
-  Eof,
   Id,
   Num,
   Lparen,
@@ -58,10 +56,6 @@ static std::string token_kind_to_string(const TokenKind kind) {
   switch (kind) {
   case TokenKind::None:
     return "NONE";
-  case TokenKind::Bof:
-    return "BOF";
-  case TokenKind::Eof:
-    return "EOF";
   case TokenKind::Id:
     return "ID";
   case TokenKind::Num:
@@ -198,14 +192,12 @@ struct Lexer {
 
   std::vector<Token> token_stream() {
     std::vector<Token> result;
-    result.push_back(Token("BOF", TokenKind::Bof));
     while (!done()) {
       const Token next_token = next();
       if (next_token.kind != TokenKind::Whitespace &&
           next_token.kind != TokenKind::Comment)
         result.push_back(next_token);
     }
-    result.push_back(Token("EOF", TokenKind::Eof));
     return result;
   }
 };

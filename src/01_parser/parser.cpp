@@ -24,15 +24,8 @@ CFG load_cfg_from_file(const std::string &filename) {
 
 void CFG::add_production(const std::string &product,
                          const std::vector<std::string> &ingredients) {
-  if (productions.empty()) {
-    start_symbol = "start";
-    productions.emplace_back(std::string("start"),
-                             std::vector<std::string>{"BOF", product, "EOF"});
-    is_non_terminal_symbol["start"] = true;
-    is_non_terminal_symbol["BOF"] = false;
-    is_non_terminal_symbol["EOF"] = false;
-  }
-
+  if (productions.empty())
+    start_symbol = product;
   productions.emplace_back(product, ingredients);
   is_non_terminal_symbol[product] = true;
   for (const std::string &ingredient : ingredients) {

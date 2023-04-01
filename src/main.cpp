@@ -44,9 +44,26 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
   return program;
 }
 
-void debug() {}
+void debug() {
+  const std::string input = "NULL + 1 + 2 + 3";
+  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  const CFG cfg = load_cfg_from_file("tests/arithmetic.cfg");
+  const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
+  const std::shared_ptr<Expr> expr = construct_ast<Expr>(parse_tree);
+
+  DeduceTypesVisitor deduce_types_visitor;
+  expr->visit(deduce_types_visitor);
+
+  const std::shared_ptr<Expr> simplified_expr = fold_constants(expr);
+
+  simplified_expr->print(0);
+}
 
 int main() {
+  debug();
+  return 0;
+
   try {
     const std::string input = consume_stdin();
     const auto program0 = parse_program(input);

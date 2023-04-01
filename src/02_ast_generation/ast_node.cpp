@@ -27,9 +27,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
   const CFG::Production production = node->production;
   const std::string production_str = production.to_string();
 
-  if (production_str == "start -> BOF procedures EOF") {
-    return construct_ast(node->children[1]);
-  } else if (production_str == "procedures -> procedure procedures") {
+  if (production_str == "procedures -> procedure procedures") {
     auto procedure = construct_ast<Procedure>(node->children[0]);
     auto program = construct_ast<Program>(node->children[1]);
     program->procedures.insert(program->procedures.begin(), *procedure);
