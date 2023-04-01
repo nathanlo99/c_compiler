@@ -5,6 +5,9 @@
 #include "lexer.hpp"
 #include "util.hpp"
 
+#include <algorithm>
+#include <iomanip>
+
 CFG load_cfg_from_file(const std::string &filename) {
   std::ifstream ifs(filename);
   std::string line;

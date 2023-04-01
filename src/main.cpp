@@ -37,11 +37,11 @@ std::shared_ptr<Program>
 annotate_and_check_types(std::shared_ptr<Program> program) {
   // Populate symbol table
   PopulateSymbolTableVisitor symbol_table_visitor;
-  program->visit(symbol_table_visitor);
+  program->accept_recursive(symbol_table_visitor);
 
   // Deduce types of intermediate expressions
   DeduceTypesVisitor deduce_types_visitor;
-  program->visit(deduce_types_visitor);
+  program->accept_recursive(deduce_types_visitor);
   return program;
 }
 
@@ -67,7 +67,7 @@ void debug() {
   }
 
   DeduceTypesVisitor deduce_types_visitor(mocked_table);
-  expr->visit(deduce_types_visitor);
+  expr->accept_recursive(deduce_types_visitor);
 
   const std::shared_ptr<Expr> simplified_expr = fold_constants(expr);
 
@@ -86,7 +86,7 @@ int main() {
 
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
-    program->visit(fold_constants_visitor);
+    program->accept_recursive(fold_constants_visitor);
     // program->print();
     std::cout << std::endl;
     program->emit_c(std::cout, 0);

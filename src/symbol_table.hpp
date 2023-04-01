@@ -5,6 +5,7 @@
 #include "types.hpp"
 #include "util.hpp"
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>

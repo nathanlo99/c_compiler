@@ -4,7 +4,10 @@
 #include <cassert>
 #include <fstream>
 #include <map>
+#include <memory>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "lexer.hpp"

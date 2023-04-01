@@ -126,6 +126,8 @@ static std::string token_kind_to_string(const TokenKind kind) {
     return "WHITESPACE";
   case TokenKind::Comment:
     return "COMMENT";
+  default:
+    return "??";
   }
 }
 

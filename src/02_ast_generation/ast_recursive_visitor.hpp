@@ -27,8 +27,8 @@ struct WhileStatement;
 struct PrintStatement;
 struct DeleteStatement;
 
-struct ASTVisitor {
-  virtual ~ASTVisitor() = default;
+struct ASTRecursiveVisitor {
+  virtual ~ASTRecursiveVisitor() = default;
 
   virtual void pre_visit(Program &) {}
   virtual void pre_visit(Procedure &) {}

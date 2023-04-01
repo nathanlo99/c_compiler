@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ast_visitor.hpp"
+#include "ast_recursive_visitor.hpp"
 #include <memory>
 
 struct Expr;
 std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr);
 
-struct FoldConstantsVisitor : ASTVisitor {
+struct FoldConstantsVisitor : ASTRecursiveVisitor {
   virtual ~FoldConstantsVisitor() = default;
 
   void pre_visit(Procedure &) override;
