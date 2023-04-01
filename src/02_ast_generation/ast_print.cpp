@@ -28,14 +28,18 @@ void Procedure::print(const size_t depth) const {
             << "return_type: " << type_to_string(return_type) << std::endl;
   std::cout << get_padding(depth + 1) << "parameters: " << std::endl;
   for (const Variable &variable : params) {
+    const bool is_used = table.is_variable_used(variable.name);
     std::cout << get_padding(depth + 2) << variable.name << ": "
-              << type_to_string(variable.type) << std::endl;
+              << type_to_string(variable.type) << " "
+              << (is_used ? "(used)" : "(unused)") << std::endl;
   }
   std::cout << get_padding(depth + 1) << "declarations: " << std::endl;
   for (const Variable &variable : decls) {
+    const bool is_used = table.is_variable_used(variable.name);
     std::cout << get_padding(depth + 2) << variable.name << ": "
               << type_to_string(variable.type) << " = "
-              << variable.initial_value.value << std::endl;
+              << variable.initial_value.value << " "
+              << (is_used ? "(used)" : "(unused)") << std::endl;
   }
   std::cout << get_padding(depth + 1) << "statements: " << std::endl;
   for (const auto &statement : statements) {

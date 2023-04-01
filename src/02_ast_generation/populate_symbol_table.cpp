@@ -3,6 +3,10 @@
 
 void PopulateSymbolTableVisitor::post_visit(Program &program) {
   program.table = table;
+
+  for (Procedure &procedure : program.procedures) {
+    procedure.table = table.get_table(procedure.name);
+  }
 }
 
 void PopulateSymbolTableVisitor::pre_visit(Procedure &procedure) {
