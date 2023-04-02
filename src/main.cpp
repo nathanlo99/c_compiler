@@ -3,6 +3,7 @@
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
+#include "naive_code_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
 #include "symbol_table.hpp"
@@ -89,7 +90,11 @@ int main() {
     program->accept_recursive(fold_constants_visitor);
     // program->print();
     std::cout << std::endl;
-    program->emit_c(std::cout, 0);
+    // program->emit_c(std::cout, 0);
+
+    NaiveCodeGenerator generator;
+    program->accept_simple(generator);
+    generator.print();
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

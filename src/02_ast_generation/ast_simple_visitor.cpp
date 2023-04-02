@@ -43,6 +43,7 @@ void NewExpr::accept_simple(ASTSimpleVisitor &visitor) { visitor.visit(*this); }
 void FunctionCallExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
+
 void Statements::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }

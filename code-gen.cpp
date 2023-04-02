@@ -37,7 +37,7 @@ enum Opcode {
   NumOpcodes,
 };
 
-struct Instruction {
+struct MIPSInstruction {
   Opcode opcode;
   int s, t, d;
   int32_t i;
@@ -51,73 +51,83 @@ struct Instruction {
       "bne",  "jr",  "jalr", "word",  "[label]", "[raw]", "[comment]"};
 
 private:
-  Instruction(Opcode opcode, int s, int t, int d, int32_t i,
-              bool has_label = false, const std::string &label_name = "")
+  MIPSInstruction(Opcode opcode, int s, int t, int d, int32_t i,
+                  bool has_label = false, const std::string &label_name = "")
       : opcode(opcode), s(s), t(t), d(d), i(i), has_label(has_label),
         label_name(label_name) {}
-  Instruction(const std::string &label_name)
+  MIPSInstruction(const std::string &label_name)
       : opcode(Label), s(0), t(0), d(0), i(0), label_name(label_name),
         has_label(true) {}
 
 public:
-  static Instruction add(int d, int s, int t) {
-    return Instruction(Add, s, t, d, 0);
+  static MIPSInstruction add(int d, int s, int t) {
+    return MIPSInstruction(Add, s, t, d, 0);
   }
-  static Instruction sub(int d, int s, int t) {
-    return Instruction(Sub, s, t, d, 0);
+  static MIPSInstruction sub(int d, int s, int t) {
+    return MIPSInstruction(Sub, s, t, d, 0);
   }
-  static Instruction mult(int s, int t) {
-    return Instruction(Mult, s, t, 0, 0);
+  static MIPSInstruction mult(int s, int t) {
+    return MIPSInstruction(Mult, s, t, 0, 0);
   }
-  static Instruction multu(int s, int t) {
-    return Instruction(Multu, s, t, 0, 0);
+  static MIPSInstruction multu(int s, int t) {
+    return MIPSInstruction(Multu, s, t, 0, 0);
   }
-  static Instruction div(int s, int t) { return Instruction(Div, s, t, 0, 0); }
-  static Instruction divu(int s, int t) {
-    return Instruction(Divu, s, t, 0, 0);
+  static MIPSInstruction div(int s, int t) {
+    return MIPSInstruction(Div, s, t, 0, 0);
   }
-  static Instruction mfhi(int d) { return Instruction(Mfhi, 0, 0, d, 0); }
-  static Instruction mflo(int d) { return Instruction(Mflo, 0, 0, d, 0); }
-  static Instruction lis(int d) { return Instruction(Lis, 0, 0, d, 0); }
-  static Instruction lw(int t, int32_t i, int s) {
-    return Instruction(Lw, s, t, 0, i);
+  static MIPSInstruction divu(int s, int t) {
+    return MIPSInstruction(Divu, s, t, 0, 0);
   }
-  static Instruction sw(int t, int32_t i, int s) {
-    return Instruction(Sw, s, t, 0, i);
+  static MIPSInstruction mfhi(int d) {
+    return MIPSInstruction(Mfhi, 0, 0, d, 0);
   }
-  static Instruction slt(int d, int s, int t) {
-    return Instruction(Slt, s, t, d, 0);
+  static MIPSInstruction mflo(int d) {
+    return MIPSInstruction(Mflo, 0, 0, d, 0);
   }
-  static Instruction sltu(int d, int s, int t) {
-    return Instruction(Sltu, s, t, d, 0);
+  static MIPSInstruction lis(int d) { return MIPSInstruction(Lis, 0, 0, d, 0); }
+  static MIPSInstruction lw(int t, int32_t i, int s) {
+    return MIPSInstruction(Lw, s, t, 0, i);
   }
-  static Instruction beq(int s, int t, int i) {
-    return Instruction(Beq, s, t, 0, i);
+  static MIPSInstruction sw(int t, int32_t i, int s) {
+    return MIPSInstruction(Sw, s, t, 0, i);
   }
-  static Instruction beq(int s, int t, const std::string &label) {
-    return Instruction(Beq, s, t, 0, 0, true, label);
+  static MIPSInstruction slt(int d, int s, int t) {
+    return MIPSInstruction(Slt, s, t, d, 0);
   }
-  static Instruction bne(int s, int t, int i) {
-    return Instruction(Bne, s, t, 0, i);
+  static MIPSInstruction sltu(int d, int s, int t) {
+    return MIPSInstruction(Sltu, s, t, d, 0);
   }
-  static Instruction bne(int s, int t, const std::string &label) {
-    return Instruction(Bne, s, t, 0, 0, true, label);
+  static MIPSInstruction beq(int s, int t, int i) {
+    return MIPSInstruction(Beq, s, t, 0, i);
+  }
+  static MIPSInstruction beq(int s, int t, const std::string &label) {
+    return MIPSInstruction(Beq, s, t, 0, 0, true, label);
+  }
+  static MIPSInstruction bne(int s, int t, int i) {
+    return MIPSInstruction(Bne, s, t, 0, i);
+  }
+  static MIPSInstruction bne(int s, int t, const std::string &label) {
+    return MIPSInstruction(Bne, s, t, 0, 0, true, label);
   }
 
-  static Instruction jr(int s) { return Instruction(Jr, s, 0, 0, 0); }
-  static Instruction jalr(int s) { return Instruction(Jalr, s, 0, 0, 0); }
-  static Instruction word(int32_t i) { return Instruction(Word, 0, 0, 0, i); }
-  static Instruction word(const std::string &label) {
-    return Instruction(Word, 0, 0, 0, 0, true, label);
+  static MIPSInstruction jr(int s) { return MIPSInstruction(Jr, s, 0, 0, 0); }
+  static MIPSInstruction jalr(int s) {
+    return MIPSInstruction(Jalr, s, 0, 0, 0);
   }
-  static Instruction label(const std::string &name) {
-    return Instruction(name);
+  static MIPSInstruction word(int32_t i) {
+    return MIPSInstruction(Word, 0, 0, 0, i);
   }
-  static Instruction import(const std::string &value) {
-    return Instruction(Import, 0, 0, 0, 0, true, value);
+  static MIPSInstruction word(const std::string &label) {
+    return MIPSInstruction(Word, 0, 0, 0, 0, true, label);
   }
-  static Instruction comment(const std::string &value) {
-    return Instruction(Comment, 0, 0, 0, 0, true, value);
+  static MIPSInstruction label(const std::string &name) {
+    return MIPSInstruction(name);
+  }
+  static MIPSInstruction import(const std::string &value) {
+    return MIPSInstruction(Import, 0, 0, 0, 0, true, value);
+  }
+  static MIPSInstruction comment(const std::string &value) {
+    return MIPSInstruction(Comment, 0, 0, 0, 0, true, value);
   }
 
   std::string to_string() const {
@@ -798,7 +808,7 @@ void infer_and_check_types(SymbolTable &table,
 
 // Code generation
 struct Assembly {
-  std::vector<Instruction> instructions;
+  std::vector<MIPSInstruction> instructions;
 
   Assembly() = default;
 
@@ -816,22 +826,22 @@ struct Assembly {
   }
 
   void push(const int reg) {
-    instructions.push_back(Instruction::sw(reg, -4, 30));
-    instructions.push_back(Instruction::sub(30, 30, 4));
+    instructions.push_back(MIPSInstruction::sw(reg, -4, 30));
+    instructions.push_back(MIPSInstruction::sub(30, 30, 4));
   }
 
   void pop(const int reg) {
-    instructions.push_back(Instruction::add(30, 30, 4));
-    instructions.push_back(Instruction::lw(reg, -4, 30));
+    instructions.push_back(MIPSInstruction::add(30, 30, 4));
+    instructions.push_back(MIPSInstruction::lw(reg, -4, 30));
   }
 
   void load_const(const int reg, const int value) {
-    instructions.push_back(Instruction::lis(reg));
-    instructions.push_back(Instruction::word(value));
+    instructions.push_back(MIPSInstruction::lis(reg));
+    instructions.push_back(MIPSInstruction::word(value));
   }
   void load_const(const int reg, const std::string &label) {
-    instructions.push_back(Instruction::lis(reg));
-    instructions.push_back(Instruction::word(label));
+    instructions.push_back(MIPSInstruction::lis(reg));
+    instructions.push_back(MIPSInstruction::word(label));
   }
 
   void save_registers() {
@@ -855,10 +865,10 @@ struct Assembly {
     // The second option is better when stack_size > 3
     if (num_values > 3) {
       load_const(3, num_values * 4);
-      instructions.push_back(Instruction::add(30, 30, 3));
+      instructions.push_back(MIPSInstruction::add(30, 30, 3));
     } else {
       for (int i = 0; i < num_values; ++i)
-        instructions.push_back(Instruction::add(30, 30, 4));
+        instructions.push_back(MIPSInstruction::add(30, 30, 4));
     }
   }
 
@@ -884,14 +894,14 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
 
   if (production == "start BOF procedures EOF") {
     if (table.use_print) {
-      instructions.push_back(Instruction::import("print"));
+      instructions.push_back(MIPSInstruction::import("print"));
     }
     if (table.use_memory) {
-      instructions.push_back(Instruction::import("init"));
-      instructions.push_back(Instruction::import("new"));
-      instructions.push_back(Instruction::import("delete"));
+      instructions.push_back(MIPSInstruction::import("init"));
+      instructions.push_back(MIPSInstruction::import("new"));
+      instructions.push_back(MIPSInstruction::import("delete"));
     }
-    instructions.push_back(Instruction::beq(0, 0, "wain"));
+    instructions.push_back(MIPSInstruction::beq(0, 0, "wain"));
     generate_code(node->children[1], table);
   } else if (production == "procedures procedure procedures") {
     generate_code(node->children[0], table);
@@ -908,26 +918,26 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
         table.get_number_of_local_variables(procedure_name);
 
     instructions.push_back(
-        Instruction::comment("Code for procedure " + procedure_name));
+        MIPSInstruction::comment("Code for procedure " + procedure_name));
     table.enter_procedure(procedure_name);
-    instructions.push_back(Instruction::label(procedure_name));
-    instructions.push_back(Instruction::sub(29, 30, 4));
+    instructions.push_back(MIPSInstruction::label(procedure_name));
+    instructions.push_back(MIPSInstruction::sub(29, 30, 4));
     instructions.push_back(
-        Instruction::comment("Decls for procedure " + procedure_name));
+        MIPSInstruction::comment("Decls for procedure " + procedure_name));
     generate_code(decls, table);
     instructions.push_back(
-        Instruction::comment("Stmts for procedure " + procedure_name));
+        MIPSInstruction::comment("Stmts for procedure " + procedure_name));
     generate_code(statements, table);
-    instructions.push_back(
-        Instruction::comment("Return value for procedure " + procedure_name));
+    instructions.push_back(MIPSInstruction::comment(
+        "Return value for procedure " + procedure_name));
     generate_code(expr, table);
-    instructions.push_back(Instruction::comment(
+    instructions.push_back(MIPSInstruction::comment(
         "Popping local variables for procedure " + procedure_name));
     pop_and_discard(num_local_variables);
-    instructions.push_back(Instruction::jr(31));
+    instructions.push_back(MIPSInstruction::jr(31));
     table.leave_procedure();
-    instructions.push_back(
-        Instruction::comment("Finished code for procedure " + procedure_name));
+    instructions.push_back(MIPSInstruction::comment(
+        "Finished code for procedure " + procedure_name));
 
   } else if (production == "main INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE "
                            "dcls statements RETURN expr SEMI RBRACE") {
@@ -938,8 +948,8 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     const auto expr = node->children[11];
 
     table.enter_procedure("wain");
-    instructions.push_back(Instruction::comment("Code for procedure wain"));
-    instructions.push_back(Instruction::label("wain"));
+    instructions.push_back(MIPSInstruction::comment("Code for procedure wain"));
+    instructions.push_back(MIPSInstruction::label("wain"));
     load_const(4, 4);
     annotate("Convention: $4 = 4");
     if (table.use_print) {
@@ -954,18 +964,20 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
 
     // NOTE: We set $29 = $30 - 4 _AFTER_ pushing $1 and $2 to maintain
     // consistency with other procedure calls.
-    instructions.push_back(Instruction::sub(29, 30, 4));
-    instructions.push_back(Instruction::comment("Decls for procedure wain"));
+    instructions.push_back(MIPSInstruction::sub(29, 30, 4));
+    instructions.push_back(
+        MIPSInstruction::comment("Decls for procedure wain"));
     generate_code(decls, table);
-    instructions.push_back(Instruction::comment("Stmts for procedure wain"));
+    instructions.push_back(
+        MIPSInstruction::comment("Stmts for procedure wain"));
     generate_code(statements, table);
     instructions.push_back(
-        Instruction::comment("Return value for procedure wain"));
+        MIPSInstruction::comment("Return value for procedure wain"));
     generate_code(expr, table);
-    instructions.push_back(Instruction::jr(31));
+    instructions.push_back(MIPSInstruction::jr(31));
     table.leave_procedure();
     instructions.push_back(
-        Instruction::comment("Finished code for procedure wain"));
+        MIPSInstruction::comment("Finished code for procedure wain"));
   } else if (production == "params .EMPTY") {
   } else if (production == "params paramlist") {
     generate_code(node->children[0], table);
@@ -1003,11 +1015,11 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     generate_code(node->children[0], table);
     generate_code(node->children[1], table);
   } else if (production == "statement lvalue BECOMES expr SEMI") {
-    generate_code(node->children[0], table);          // $3 = addr of lvalue
-    push(3);                                          // push addr onto stack
-    generate_code(node->children[2], table);          // $3 = expr
-    pop(5);                                           // $5 = addr
-    instructions.push_back(Instruction::lw(3, 0, 5)); // MEM[$5 + 0] = $3
+    generate_code(node->children[0], table); // $3 = addr of lvalue
+    push(3);                                 // push addr onto stack
+    generate_code(node->children[2], table); // $3 = expr
+    pop(5);                                  // $5 = addr
+    instructions.push_back(MIPSInstruction::lw(3, 0, 5)); // MEM[$5 + 0] = $3
   } else if (production == "statement IF LPAREN test RPAREN LBRACE statements "
                            "RBRACE ELSE LBRACE statements RBRACE") {
     const auto test = node->children[2];
@@ -1017,12 +1029,12 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     const std::string endif_label = generate_label("if_statement_endif");
 
     generate_code(test, table);
-    instructions.push_back(Instruction::beq(3, 0, else_label));
+    instructions.push_back(MIPSInstruction::beq(3, 0, else_label));
     generate_code(true_statements, table);
-    instructions.push_back(Instruction::beq(0, 0, endif_label));
-    instructions.push_back(Instruction::label(else_label));
+    instructions.push_back(MIPSInstruction::beq(0, 0, endif_label));
+    instructions.push_back(MIPSInstruction::label(else_label));
     generate_code(false_statements, table);
-    instructions.push_back(Instruction::label(endif_label));
+    instructions.push_back(MIPSInstruction::label(endif_label));
   } else if (production ==
              "statement WHILE LPAREN test RPAREN LBRACE statements RBRACE") {
     const auto test = node->children[2];
@@ -1030,74 +1042,74 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     const auto loop_label = generate_label("while_loop");
     const auto end_while_label = generate_label("while_end_while");
 
-    instructions.push_back(Instruction::label(loop_label));
+    instructions.push_back(MIPSInstruction::label(loop_label));
     generate_code(test, table);
-    instructions.push_back(Instruction::beq(3, 0, end_while_label));
+    instructions.push_back(MIPSInstruction::beq(3, 0, end_while_label));
     generate_code(statements, table);
-    instructions.push_back(Instruction::beq(0, 0, loop_label));
-    instructions.push_back(Instruction::label(end_while_label));
+    instructions.push_back(MIPSInstruction::beq(0, 0, loop_label));
+    instructions.push_back(MIPSInstruction::label(end_while_label));
   } else if (production == "statement PRINTLN LPAREN expr RPAREN SEMI") {
     push(1);
     generate_code(node->children[2], table);
-    instructions.push_back(Instruction::add(1, 3, 0));
+    instructions.push_back(MIPSInstruction::add(1, 3, 0));
     push(31);
-    instructions.push_back(Instruction::jalr(10));
+    instructions.push_back(MIPSInstruction::jalr(10));
     pop(31);
     pop(1);
   } else if (production == "statement DELETE LBRACK RBRACK expr SEMI") {
     const auto expr = node->children[3];
     const auto skip_delete_label = generate_label("delete_skip_delete");
     generate_code(expr, table);
-    instructions.push_back(Instruction::beq(3, 11, skip_delete_label));
-    instructions.push_back(Instruction::add(1, 3, 0));
+    instructions.push_back(MIPSInstruction::beq(3, 11, skip_delete_label));
+    instructions.push_back(MIPSInstruction::add(1, 3, 0));
     push(31);
     load_const(5, "delete");
-    instructions.push_back(Instruction::jalr(5));
+    instructions.push_back(MIPSInstruction::jalr(5));
     pop(31);
-    instructions.push_back(Instruction::label(skip_delete_label));
+    instructions.push_back(MIPSInstruction::label(skip_delete_label));
   } else if (production == "test expr EQ expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(6, 3, 5));  // $6 = ($3 < $5)
-    instructions.push_back(Instruction::slt(3, 5, 3));  // $3 = ($5 < $3)
-    instructions.push_back(Instruction::add(3, 3, 6));  // $3 = ($3 != $5)
-    instructions.push_back(Instruction::sub(3, 11, 3)); // $3 = 1 - $3
+    instructions.push_back(MIPSInstruction::slt(6, 3, 5));  // $6 = ($3 < $5)
+    instructions.push_back(MIPSInstruction::slt(3, 5, 3));  // $3 = ($5 < $3)
+    instructions.push_back(MIPSInstruction::add(3, 3, 6));  // $3 = ($3 != $5)
+    instructions.push_back(MIPSInstruction::sub(3, 11, 3)); // $3 = 1 - $3
   } else if (production == "test expr NE expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(6, 3, 5)); // $6 = ($3 < $5)
-    instructions.push_back(Instruction::slt(3, 5, 3)); // $3 = ($5 < $3)
-    instructions.push_back(Instruction::add(3, 3, 6)); // $3 = ($3 != $5)
+    instructions.push_back(MIPSInstruction::slt(6, 3, 5)); // $6 = ($3 < $5)
+    instructions.push_back(MIPSInstruction::slt(3, 5, 3)); // $3 = ($5 < $3)
+    instructions.push_back(MIPSInstruction::add(3, 3, 6)); // $3 = ($3 != $5)
   } else if (production == "test expr LT expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(3, 5, 3));
+    instructions.push_back(MIPSInstruction::slt(3, 5, 3));
   } else if (production == "test expr LE expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(3, 3, 5));
-    instructions.push_back(Instruction::sub(3, 11, 3));
+    instructions.push_back(MIPSInstruction::slt(3, 3, 5));
+    instructions.push_back(MIPSInstruction::sub(3, 11, 3));
   } else if (production == "test expr GE expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(3, 5, 3));
-    instructions.push_back(Instruction::sub(3, 11, 3));
+    instructions.push_back(MIPSInstruction::slt(3, 5, 3));
+    instructions.push_back(MIPSInstruction::sub(3, 11, 3));
   } else if (production == "test expr GT expr") {
     generate_code(node->children[0], table);
     push(3);
     generate_code(node->children[2], table);
     pop(5);
-    instructions.push_back(Instruction::slt(3, 3, 5));
+    instructions.push_back(MIPSInstruction::slt(3, 3, 5));
   } else if (production == "expr term") {
     generate_code(node->children[0], table);
   } else if (production == "expr expr PLUS term") {
@@ -1107,23 +1119,23 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
       push(3);                   // push expr1 onto stack
       generate_code(rhs, table); // $3 = expr2
       pop(5);                    // $5 = expr1
-      instructions.push_back(Instruction::add(3, 5, 3)); // $3 = $5 + $3
+      instructions.push_back(MIPSInstruction::add(3, 5, 3)); // $3 = $5 + $3
     } else if (lhs->type == Type::IntStar && rhs->type == Type::Int) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);
-      instructions.push_back(Instruction::mult(3, 4));
-      instructions.push_back(Instruction::mflo(3));
+      instructions.push_back(MIPSInstruction::mult(3, 4));
+      instructions.push_back(MIPSInstruction::mflo(3));
       pop(5);
-      instructions.push_back(Instruction::add(3, 5, 3));
+      instructions.push_back(MIPSInstruction::add(3, 5, 3));
     } else if (lhs->type == Type::Int && rhs->type == Type::IntStar) {
       generate_code(lhs, table);
-      instructions.push_back(Instruction::mult(3, 4));
-      instructions.push_back(Instruction::mflo(3));
+      instructions.push_back(MIPSInstruction::mult(3, 4));
+      instructions.push_back(MIPSInstruction::mflo(3));
       push(3);
       generate_code(rhs, table);
       pop(5);
-      instructions.push_back(Instruction::add(3, 5, 3));
+      instructions.push_back(MIPSInstruction::add(3, 5, 3));
     } else {
       unreachable("Invalid operand types for addition, typecheck should've "
                   "caught this");
@@ -1135,23 +1147,23 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
       push(3);                                 // push expr1 onto stack
       generate_code(node->children[2], table); // $3 = expr2
       pop(5);                                  // $5 = expr1
-      instructions.push_back(Instruction::sub(3, 5, 3)); // $3 = $5 - $3
+      instructions.push_back(MIPSInstruction::sub(3, 5, 3)); // $3 = $5 - $3
     } else if (lhs->type == Type::IntStar && rhs->type == Type::Int) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);
-      instructions.push_back(Instruction::mult(3, 4));
-      instructions.push_back(Instruction::mflo(3));
+      instructions.push_back(MIPSInstruction::mult(3, 4));
+      instructions.push_back(MIPSInstruction::mflo(3));
       pop(5);
-      instructions.push_back(Instruction::sub(3, 5, 3));
+      instructions.push_back(MIPSInstruction::sub(3, 5, 3));
     } else if (lhs->type == Type::IntStar && rhs->type == Type::IntStar) {
       generate_code(lhs, table);
       push(3);
       generate_code(rhs, table);
       pop(5);
-      instructions.push_back(Instruction::sub(3, 5, 3));
-      instructions.push_back(Instruction::div(3, 4));
-      instructions.push_back(Instruction::mflo(3));
+      instructions.push_back(MIPSInstruction::sub(3, 5, 3));
+      instructions.push_back(MIPSInstruction::div(3, 4));
+      instructions.push_back(MIPSInstruction::mflo(3));
     } else {
       unreachable("Invalid operand types for subtraction, typecheck should've "
                   "caught this");
@@ -1159,31 +1171,31 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
   } else if (production == "term factor") {
     generate_code(node->children[0], table);
   } else if (production == "term term STAR factor") {
-    generate_code(node->children[0], table);         // $3 = expr1
-    push(3);                                         // push expr1 onto stack
-    generate_code(node->children[2], table);         // $3 = expr2
-    pop(5);                                          // $5 = expr1
-    instructions.push_back(Instruction::mult(5, 3)); // hi:lo = $5 * $3
-    instructions.push_back(Instruction::mflo(3));    // $3 = lo
+    generate_code(node->children[0], table); // $3 = expr1
+    push(3);                                 // push expr1 onto stack
+    generate_code(node->children[2], table); // $3 = expr2
+    pop(5);                                  // $5 = expr1
+    instructions.push_back(MIPSInstruction::mult(5, 3)); // hi:lo = $5 * $3
+    instructions.push_back(MIPSInstruction::mflo(3));    // $3 = lo
   } else if (production == "term term SLASH factor") {
-    generate_code(node->children[0], table);        // $3 = expr1
-    push(3);                                        // push expr1 onto stack
-    generate_code(node->children[2], table);        // $3 = expr2
-    pop(5);                                         // $5 = expr1
-    instructions.push_back(Instruction::div(5, 3)); // lo = $5 / $3
-    instructions.push_back(Instruction::mflo(3));   // $3 = lo
+    generate_code(node->children[0], table);            // $3 = expr1
+    push(3);                                            // push expr1 onto stack
+    generate_code(node->children[2], table);            // $3 = expr2
+    pop(5);                                             // $5 = expr1
+    instructions.push_back(MIPSInstruction::div(5, 3)); // lo = $5 / $3
+    instructions.push_back(MIPSInstruction::mflo(3));   // $3 = lo
   } else if (production == "term term PCT factor") {
-    generate_code(node->children[0], table);        // $3 = expr1
-    push(3);                                        // push expr1 onto stack
-    generate_code(node->children[2], table);        // $3 = expr2
-    pop(5);                                         // $5 = expr1
-    instructions.push_back(Instruction::div(5, 3)); // hi = $5 % $3
-    instructions.push_back(Instruction::mfhi(3));   // $3 = hi
+    generate_code(node->children[0], table);            // $3 = expr1
+    push(3);                                            // push expr1 onto stack
+    generate_code(node->children[2], table);            // $3 = expr2
+    pop(5);                                             // $5 = expr1
+    instructions.push_back(MIPSInstruction::div(5, 3)); // hi = $5 % $3
+    instructions.push_back(MIPSInstruction::mfhi(3));   // $3 = hi
   } else if (production == "factor ID") {
     const std::string variable_name = node->children[0]->lexeme;
     const int offset =
         table.get_variable_offset(table.current_procedure, variable_name);
-    instructions.push_back(Instruction::lw(3, offset, 29));
+    instructions.push_back(MIPSInstruction::lw(3, offset, 29));
     annotate("Grabbing ID: " + variable_name + " at offset " +
              std::to_string(offset));
   } else if (production == "factor NUM") {
@@ -1193,7 +1205,7 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
   } else if (production == "factor NULL") {
     // NOTE: We want dereferencing NULL to crash, so we set it to 1 instead of 0
     // so MIPS crashes on an unaligned memory access
-    instructions.push_back(Instruction::add(3, 0, 11));
+    instructions.push_back(MIPSInstruction::add(3, 0, 11));
   } else if (production == "factor LPAREN expr RPAREN") {
     generate_code(node->children[1], table);
   } else if (production == "factor AMP lvalue") {
@@ -1201,24 +1213,24 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     generate_code(node->children[1], table);
   } else if (production == "factor STAR factor") {
     generate_code(node->children[1], table);
-    instructions.push_back(Instruction::lw(3, 0, 3)); // $3 = MEM[$3 + 0]
+    instructions.push_back(MIPSInstruction::lw(3, 0, 3)); // $3 = MEM[$3 + 0]
   } else if (production == "factor NEW INT LBRACK expr RBRACK") {
     const auto expr = node->children[3];
     generate_code(expr, table);
-    instructions.push_back(Instruction::add(1, 3, 0));
+    instructions.push_back(MIPSInstruction::add(1, 3, 0));
     push(31);
     load_const(5, "new");
-    instructions.push_back(Instruction::jalr(5));
+    instructions.push_back(MIPSInstruction::jalr(5));
     pop(31);
-    instructions.push_back(Instruction::bne(3, 0, 1));
-    instructions.push_back(Instruction::add(3, 11, 0));
+    instructions.push_back(MIPSInstruction::bne(3, 0, 1));
+    instructions.push_back(MIPSInstruction::add(3, 11, 0));
   } else if (production == "factor ID LPAREN RPAREN") {
     const auto procedure_name = node->children[0]->lexeme;
     push(29);
     push(31);
     save_registers();
     load_const(5, procedure_name);
-    instructions.push_back(Instruction::jalr(5));
+    instructions.push_back(MIPSInstruction::jalr(5));
     pop_registers();
     pop(31);
     pop(29);
@@ -1231,7 +1243,7 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     save_registers();
     generate_code(node->children[2], table);
     load_const(5, procedure_name);
-    instructions.push_back(Instruction::jalr(5));
+    instructions.push_back(MIPSInstruction::jalr(5));
     pop_and_discard(num_arguments);
     pop_registers();
     pop(31);
@@ -1247,8 +1259,8 @@ void Assembly::generate_code(std::shared_ptr<ParseNode> node,
     const std::string variable_name = node->children[0]->lexeme;
     const int offset =
         table.get_variable_offset(table.current_procedure, variable_name);
-    load_const(3, offset);                              // $3 = offset
-    instructions.push_back(Instruction::add(3, 29, 3)); // $3 = $29 + $3
+    load_const(3, offset);                                  // $3 = offset
+    instructions.push_back(MIPSInstruction::add(3, 29, 3)); // $3 = $29 + $3
   } else if (production == "lvalue STAR factor") {
     // Because 'factor' must be a pointer, and lvalue's code generation expects
     // the address of the lvalue, we simply copy the factor's result into $3
