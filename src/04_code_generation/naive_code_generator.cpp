@@ -102,11 +102,13 @@ void NaiveCodeGenerator::visit(VariableLValueExpr &expr) {
   const int offset = table.get_offset(expr.variable);
   load_const(3, offset);
   add(3, 29, 3);
+  annotate("Grabbing address of lvalue " + expr.variable.name + ": offset " + std::to_string(offset));
 }
 
 void NaiveCodeGenerator::visit(DereferenceLValueExpr &expr) {
+  // Since an l-value puts its address into $3, dereferencing it as an lvalue 
+  // is a no-op
   expr.argument->accept_simple(*this);
-  lw(3, 0, 3);
 }
 
 void NaiveCodeGenerator::visit(TestExpr &expr) {

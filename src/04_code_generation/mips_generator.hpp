@@ -69,12 +69,16 @@ struct MIPSGenerator {
 
   void push(int reg) {
     instructions.push_back(MIPSInstruction::sw(reg, -4, 30));
+    annotate("  push " + std::to_string(reg));
     instructions.push_back(MIPSInstruction::sub(30, 30, 4));
+    annotate("        ^");
   }
 
   void pop(int reg) {
     instructions.push_back(MIPSInstruction::add(30, 30, 4));
+    annotate("  pop " + std::to_string(reg));
     instructions.push_back(MIPSInstruction::lw(reg, -4, 30));
+    annotate("  ^");
   }
 
   void print() {

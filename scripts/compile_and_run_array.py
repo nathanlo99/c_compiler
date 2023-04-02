@@ -23,10 +23,10 @@ if option not in run_commands:
 run_command = run_commands[option]
 
 commands = [
-  "cmake --build build",
+  "cmake --build build -j8",
   "build/compiler_cpp < {} > output/output.asm".format(input_file),
   "cs241.linkasm < output/output.asm > output/output.merl",
-  "cs241.linker output/output.merl references/print.merl references/alloc.merl > linked.merl",
+  "cs241.linker output/output.merl references/print.merl references/alloc.merl > output/linked.merl",
   "cs241.merl 0 < output/linked.merl > output/final.mips 2> /dev/null",
   "{} output/final.mips".format(run_command)
 ]
