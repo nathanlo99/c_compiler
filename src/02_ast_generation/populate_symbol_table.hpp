@@ -11,15 +11,18 @@
 #include "symbol_table.hpp"
 
 struct PopulateSymbolTableVisitor : ASTRecursiveVisitor {
+  using ASTRecursiveVisitor::pre_visit;
+  using ASTRecursiveVisitor::post_visit;
+  
   SymbolTable table;
 
-  virtual ~PopulateSymbolTableVisitor() = default;
+  ~PopulateSymbolTableVisitor() = default;
 
-  virtual void pre_visit(Procedure &procedure) override;
-  virtual void pre_visit(VariableExpr &expr) override;
-  virtual void pre_visit(VariableLValueExpr &expr) override;
+  void pre_visit(Procedure &procedure) override;
+  void pre_visit(VariableExpr &expr) override;
+  void pre_visit(VariableLValueExpr &expr) override;
 
   // Update the program's table once we're done
-  virtual void post_visit(Procedure &procedure) override;
-  virtual void post_visit(Program &program) override;
+  void post_visit(Procedure &procedure) override;
+  void post_visit(Program &program) override;
 };

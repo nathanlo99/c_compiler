@@ -210,7 +210,10 @@ comparison_operation_to_string(const ComparisonOperation op) {
     return "Equal";
   case ComparisonOperation::NotEqual:
     return "NotEqual";
+  default:
+    unreachable("");
   }
+  __builtin_unreachable();
 }
 
 constexpr ComparisonOperation
@@ -257,7 +260,10 @@ binary_operation_to_string(const BinaryOperation op) {
     return "Div";
   case BinaryOperation::Mod:
     return "Mod";
+  default:
+    unreachable("");
   }
+  __builtin_unreachable();
 }
 
 constexpr inline BinaryOperation

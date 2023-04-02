@@ -30,7 +30,9 @@ struct CFG {
       return os << production.to_string();
     }
 
-    bool operator==(const Production &other) const = default;
+    bool operator==(const Production &other) const {
+      return product == other.product && ingredients == other.ingredients; 
+    }
   };
 
   std::map<std::string, bool> is_non_terminal_symbol;
@@ -81,7 +83,9 @@ struct StateItem {
 
   friend std::ostream &operator<<(std::ostream &os, const StateItem &item);
 
-  bool operator==(const StateItem &other) const = default;
+  bool operator==(const StateItem &other) const {
+    return origin_idx == other.origin_idx && dot == other.dot && production == other.production;
+  }
 };
 
 struct EarleyTable {

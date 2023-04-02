@@ -129,6 +129,8 @@ void NaiveCodeGenerator::visit(TestExpr &expr) {
     add(3, 6, 7);
     sub(3, 11, 3);
     break;
+  default:
+    runtime_assert(false, "Unknown comparison operation");
   }
 }
 
@@ -195,6 +197,8 @@ void NaiveCodeGenerator::visit(BinaryExpr &expr) {
     div(5, 3);
     mfhi(3);
     break;
+  default:
+    runtime_assert(false, "Unknown binary operation");
   }
 }
 

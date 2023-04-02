@@ -6,25 +6,27 @@
 #include <iostream>
 
 struct NaiveCodeGenerator : ASTSimpleVisitor, MIPSGenerator {
+  using ASTSimpleVisitor::visit;
+  
   SymbolTable table;
 
-  virtual ~NaiveCodeGenerator() = default;
+  ~NaiveCodeGenerator() = default;
 
-  virtual void visit(Program &) override;
-  virtual void visit(Procedure &) override;
-  virtual void visit(VariableLValueExpr &) override;
-  virtual void visit(DereferenceLValueExpr &) override;
-  virtual void visit(TestExpr &) override;
-  virtual void visit(VariableExpr &) override;
-  virtual void visit(LiteralExpr &) override;
-  virtual void visit(BinaryExpr &) override;
-  virtual void visit(AddressOfExpr &) override;
-  virtual void visit(NewExpr &) override;
-  virtual void visit(FunctionCallExpr &) override;
-  virtual void visit(Statements &) override;
-  virtual void visit(AssignmentStatement &) override;
-  virtual void visit(IfStatement &) override;
-  virtual void visit(WhileStatement &) override;
-  virtual void visit(PrintStatement &) override;
-  virtual void visit(DeleteStatement &) override;
+  void visit(Program &) override;
+  void visit(Procedure &) override;
+  void visit(VariableLValueExpr &) override;
+  void visit(DereferenceLValueExpr &) override;
+  void visit(TestExpr &) override;
+  void visit(VariableExpr &) override;
+  void visit(LiteralExpr &) override;
+  void visit(BinaryExpr &) override;
+  void visit(AddressOfExpr &) override;
+  void visit(NewExpr &) override;
+  void visit(FunctionCallExpr &) override;
+  void visit(Statements &) override;
+  void visit(AssignmentStatement &) override;
+  void visit(IfStatement &) override;
+  void visit(WhileStatement &) override;
+  void visit(PrintStatement &) override;
+  void visit(DeleteStatement &) override;
 };

@@ -12,7 +12,9 @@ struct Literal {
 
   void print(const size_t depth) const;
 
-  bool operator==(const Literal &other) const = default;
+  bool operator==(const Literal &other) const {
+    return value == other.value && type == other.type; 
+  }
 };
 
 struct Variable {
@@ -25,5 +27,7 @@ struct Variable {
 
   void print(const size_t depth) const;
 
-  bool operator==(const Variable &other) const = default;
+  bool operator==(const Variable &other) const {
+    return type == other.type && name == other.name && initial_value == other.initial_value;
+  }
 };

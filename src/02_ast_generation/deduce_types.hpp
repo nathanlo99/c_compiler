@@ -7,6 +7,9 @@
 #include <memory>
 
 struct DeduceTypesVisitor : ASTRecursiveVisitor {
+  using ASTRecursiveVisitor::pre_visit;
+  using ASTRecursiveVisitor::post_visit;
+
   SymbolTable table;
   bool has_table;
 
@@ -14,23 +17,23 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
   DeduceTypesVisitor(const SymbolTable &table)
       : table(table), has_table(true) {}
 
-  virtual ~DeduceTypesVisitor() = default;
+  ~DeduceTypesVisitor() = default;
 
-  virtual void pre_visit(Program &program) override;
-  virtual void pre_visit(Procedure &procedure) override;
-  virtual void post_visit(Procedure &procedure) override;
+  void pre_visit(Program &program) override;
+  void pre_visit(Procedure &procedure) override;
+  void post_visit(Procedure &procedure) override;
 
-  virtual void post_visit(VariableLValueExpr &) override;
-  virtual void post_visit(DereferenceLValueExpr &) override;
-  virtual void post_visit(TestExpr &) override;
-  virtual void post_visit(VariableExpr &) override;
-  virtual void post_visit(LiteralExpr &) override;
-  virtual void post_visit(BinaryExpr &) override;
-  virtual void post_visit(AddressOfExpr &) override;
-  virtual void post_visit(NewExpr &) override;
-  virtual void post_visit(FunctionCallExpr &) override;
+  void post_visit(VariableLValueExpr &) override;
+  void post_visit(DereferenceLValueExpr &) override;
+  void post_visit(TestExpr &) override;
+  void post_visit(VariableExpr &) override;
+  void post_visit(LiteralExpr &) override;
+  void post_visit(BinaryExpr &) override;
+  void post_visit(AddressOfExpr &) override;
+  void post_visit(NewExpr &) override;
+  void post_visit(FunctionCallExpr &) override;
 
-  virtual void post_visit(AssignmentStatement &) override;
-  virtual void post_visit(PrintStatement &) override;
-  virtual void post_visit(DeleteStatement &) override;
+  void post_visit(AssignmentStatement &) override;
+  void post_visit(PrintStatement &) override;
+  void post_visit(DeleteStatement &) override;
 };
