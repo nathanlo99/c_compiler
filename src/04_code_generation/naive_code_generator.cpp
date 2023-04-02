@@ -7,7 +7,7 @@ void NaiveCodeGenerator::visit(Program &program) {
   table = program.table;
 
   // Emit the C code
-  comment("Simplified C code:");
+  comment("// Simplified C code:");
   std::stringstream ss;
   program.emit_c(ss, 0);
   std::string line;
@@ -15,7 +15,6 @@ void NaiveCodeGenerator::visit(Program &program) {
     comment(line);
   }
 
-  // TODO: Add global imports and things
   import("print");
   import("init");
   import("new");
@@ -24,14 +23,15 @@ void NaiveCodeGenerator::visit(Program &program) {
   load_const(10, "print");
   load_const(11, 1);
 
-  // TODO: Call init
-
   beq(0, 0, "wain");
   annotate("Done prologue, jumping to wain");
 
   for (auto &procedure : program.procedures) {
     procedure.accept_simple(*this);
   }
+
+  comment("Number of assembly instructions: " +
+          std::to_string(num_assembly_instructions()));
 }
 
 void NaiveCodeGenerator::visit(Procedure &procedure) {
@@ -46,6 +46,17 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
   if (is_wain) {
     push(1);
     push(2);
+
+    comment("Calling init");
+    const bool first_arg_is_array =
+        table.get_arguments("wain")[0].type == Type::IntStar;
+    if (!first_arg_is_array) {
+      add(2, 0, 0);
+    }
+    push(31);
+    load_and_jalr("init");
+    pop(31);
+    comment("Done calling init");
   }
   sub(29, 30, 4);
   save_registers();
@@ -62,10 +73,16 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
   }
   comment("Code for return value:");
   procedure.return_expr->accept_simple(*this);
-  comment("Done evaluating result, popping decls and saved registers");
-  pop_and_discard(procedure.decls.size());
-  pop_registers();
+
+  // We only have to do clean-up if we aren't wain
+  if (procedure_name != "wain") {
+    comment("Done evaluating result, popping decls and saved registers");
+    pop_and_discard(procedure.decls.size());
+    pop_registers();
+  }
+
   jr(31);
+  annotate("Done generating code for " + procedure_name);
 
   table.leave_procedure();
 }
@@ -194,8 +211,7 @@ void NaiveCodeGenerator::visit(NewExpr &expr) {
   // Push $31, the linked register address
   push(31);
   // Jump to 'new'
-  load_const(5, "new");
-  jalr(5);
+  load_and_jalr("new");
   // Once we're back, restore $31
   pop(31);
   // The result is stored in $1, copy it to $3, and return NULL if it was 0
@@ -210,13 +226,13 @@ void NaiveCodeGenerator::visit(FunctionCallExpr &expr) {
   push(29);
   push(31);
   for (size_t i = 0; i < num_arguments; ++i) {
+    comment("Pushing argument " + params[i].name);
     auto &argument = expr.arguments[i];
     argument->accept_simple(*this);
     push(3);
-    annotate("Pushing argument " + params[i].name);
+    comment("Done pushing argument " + params[i].name);
   }
-  load_const(5, procedure_name);
-  jalr(5);
+  load_and_jalr(procedure_name);
   pop_and_discard(num_arguments);
   pop(31);
   pop(29);
@@ -263,8 +279,7 @@ void NaiveCodeGenerator::visit(PrintStatement &statement) {
   statement.expression->accept_simple(*this);
   add(1, 3, 0);
   push(31);
-  load_const(5, "print");
-  jalr(5);
+  load_and_jalr("print");
   pop(31);
 }
 
@@ -274,8 +289,7 @@ void NaiveCodeGenerator::visit(DeleteStatement &statement) {
   beq(3, 11, skip_label);
   add(1, 3, 0);
   push(31);
-  load_const(5, "delete");
-  jalr(5);
+  load_and_jalr("delete");
   pop(31);
   label(skip_label);
 }

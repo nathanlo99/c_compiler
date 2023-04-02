@@ -219,7 +219,7 @@ public:
       ss << ".import " << string_value;
       break;
     case Opcode::Comment:
-      ss << "; " << string_value;
+      ss << std::string(20, ' ') << "; " << string_value;
       break;
     default:
       runtime_assert(false, "Invalid opcode");

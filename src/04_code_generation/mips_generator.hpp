@@ -12,7 +12,6 @@ struct MIPSGenerator {
 
   void save_registers() {
     instructions.push_back(MIPSInstruction::comment("Saving registers"));
-    // TODO: Do this more efficiently by using offsets and a single lis
     push(1);
     push(2);
     push(6);
@@ -21,7 +20,6 @@ struct MIPSGenerator {
 
   void pop_registers() {
     instructions.push_back(MIPSInstruction::comment("Pop registers"));
-    // TODO: Do this more efficiently by using offsets and a single lis
     pop(7);
     pop(6);
     pop(2);
@@ -64,6 +62,11 @@ struct MIPSGenerator {
     instructions.push_back(MIPSInstruction::word(label));
   }
 
+  void load_and_jalr(const std::string &label) {
+    load_const(5, label);
+    jalr(5);
+  }
+
   void push(int reg) {
     instructions.push_back(MIPSInstruction::sw(reg, -4, 30));
     instructions.push_back(MIPSInstruction::sub(30, 30, 4));
@@ -80,8 +83,17 @@ struct MIPSGenerator {
     }
   }
 
-  // Convenience functions
+  size_t num_assembly_instructions() const {
+    size_t result = 0;
+    for (const auto &instruction : instructions) {
+      if (instruction.opcode != Opcode::Comment &&
+          instruction.opcode != Opcode::Label)
+        result++;
+    }
+    return result;
+  }
 
+  // Convenience functions
   void add(int d, int s, int t) {
     instructions.push_back(MIPSInstruction::add(d, s, t));
   }
