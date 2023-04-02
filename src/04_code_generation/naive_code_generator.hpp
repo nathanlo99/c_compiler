@@ -7,7 +7,7 @@
 
 struct NaiveCodeGenerator : ASTSimpleVisitor, MIPSGenerator {
   using ASTSimpleVisitor::visit;
-  
+
   SymbolTable table;
 
   ~NaiveCodeGenerator() = default;

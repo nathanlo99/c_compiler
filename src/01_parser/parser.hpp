@@ -31,7 +31,7 @@ struct CFG {
     }
 
     bool operator==(const Production &other) const {
-      return product == other.product && ingredients == other.ingredients; 
+      return product == other.product && ingredients == other.ingredients;
     }
   };
 
@@ -84,7 +84,8 @@ struct StateItem {
   friend std::ostream &operator<<(std::ostream &os, const StateItem &item);
 
   bool operator==(const StateItem &other) const {
-    return origin_idx == other.origin_idx && dot == other.dot && production == other.production;
+    return origin_idx == other.origin_idx && dot == other.dot &&
+           production == other.production;
   }
 };
 

@@ -69,7 +69,7 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
     }
   }
   sub(29, 30, 4);
-  
+
   for (const auto &variable : procedure.decls) {
     load_const(3, variable.initial_value.value);
     push(3);

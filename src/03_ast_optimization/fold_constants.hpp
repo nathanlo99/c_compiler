@@ -7,8 +7,8 @@ struct Expr;
 std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr);
 
 struct FoldConstantsVisitor : ASTRecursiveVisitor {
-  using ASTRecursiveVisitor::pre_visit;
   using ASTRecursiveVisitor::post_visit;
+  using ASTRecursiveVisitor::pre_visit;
 
   ~FoldConstantsVisitor() = default;
 

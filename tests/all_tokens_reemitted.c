@@ -25,7 +25,7 @@ int isPrime(int n) {
   return answer;
 }
 
-int collatz(int* num) {
+int collatz(int *num) {
   int value = 0;
   value = *num;
   if (value >= 2) {
@@ -41,7 +41,7 @@ int collatz(int* num) {
 }
 
 int wain(int startNumber, int numPrimes) {
-  int* result = NULL;
+  int *result = NULL;
   int idx = 0;
   int nextNumber = 0;
   result = new int[numPrimes];
@@ -67,4 +67,3 @@ int wain(int startNumber, int numPrimes) {
   delete[] result;
   return 0;
 }
-

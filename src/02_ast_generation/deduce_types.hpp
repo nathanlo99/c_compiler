@@ -7,8 +7,8 @@
 #include <memory>
 
 struct DeduceTypesVisitor : ASTRecursiveVisitor {
-  using ASTRecursiveVisitor::pre_visit;
   using ASTRecursiveVisitor::post_visit;
+  using ASTRecursiveVisitor::pre_visit;
 
   SymbolTable table;
   bool has_table;

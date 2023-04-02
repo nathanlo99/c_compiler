@@ -173,7 +173,7 @@ struct Token {
 
   bool operator==(const Token &other) const {
     return lexeme == other.lexeme && kind == other.kind;
-  } 
+  }
 
   friend std::ostream &operator<<(std::ostream &os, const Token &token) {
     return os << token_kind_to_string(token.kind) << " (" << token.lexeme
