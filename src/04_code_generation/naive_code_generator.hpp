@@ -1,11 +1,12 @@
 
 #include "ast_simple_visitor.hpp"
-#include "mips_instruction.hpp"
+#include "mips_generator.hpp"
+#include "symbol_table.hpp"
 
 #include <iostream>
 
-struct NaiveCodeGenerator : ASTSimpleVisitor {
-  std::vector<MIPSInstruction> instructions;
+struct NaiveCodeGenerator : ASTSimpleVisitor, MIPSGenerator {
+  SymbolTable table;
 
   virtual ~NaiveCodeGenerator() = default;
 
@@ -26,10 +27,4 @@ struct NaiveCodeGenerator : ASTSimpleVisitor {
   virtual void visit(WhileStatement &) override;
   virtual void visit(PrintStatement &) override;
   virtual void visit(DeleteStatement &) override;
-
-  void print() {
-    for (const auto &instruction : instructions) {
-      std::cout << instruction.to_string() << std::endl;
-    }
-  }
 };

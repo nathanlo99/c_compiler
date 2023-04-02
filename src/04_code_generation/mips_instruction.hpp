@@ -44,24 +44,46 @@ struct MIPSInstruction {
   std::string label_name;
   std::string comment_value;
 
-  static inline const std::map<Opcode, const char *> opcode_to_string = {
-      std::make_pair(Opcode::Add, "add"),
-      std::make_pair(Opcode::Sub, "sub"),
-      std::make_pair(Opcode::Mult, "mult"),
-      std::make_pair(Opcode::Multu, "multu"),
-      std::make_pair(Opcode::Div, "div"),
-      std::make_pair(Opcode::Divu, "divu"),
-      std::make_pair(Opcode::Mfhi, "mfhi"),
-      std::make_pair(Opcode::Mflo, "mflo"),
-      std::make_pair(Opcode::Lis, "lis"),
-      std::make_pair(Opcode::Lw, "lw"),
-      std::make_pair(Opcode::Sw, "sw"),
-      std::make_pair(Opcode::Slt, "slt"),
-      std::make_pair(Opcode::Sltu, "sltu"),
-      std::make_pair(Opcode::Beq, "beq"),
-      std::make_pair(Opcode::Bne, "bne"),
-      std::make_pair(Opcode::Jr, "jr"),
-      std::make_pair(Opcode::Jalr, "jalr")};
+  static inline const char *opcode_to_string(const Opcode op) {
+    switch (op) {
+    case Opcode::Add:
+      return "add";
+    case Opcode::Sub:
+      return "sub";
+    case Opcode::Mult:
+      return "mult";
+    case Opcode::Multu:
+      return "multu";
+    case Opcode::Div:
+      return "div";
+    case Opcode::Divu:
+      return "divu";
+    case Opcode::Mfhi:
+      return "mfhi";
+    case Opcode::Mflo:
+      return "mflo";
+    case Opcode::Lis:
+      return "lis";
+    case Opcode::Lw:
+      return "lw";
+    case Opcode::Sw:
+      return "sw";
+    case Opcode::Slt:
+      return "slt";
+    case Opcode::Sltu:
+      return "sltu";
+    case Opcode::Beq:
+      return "beq";
+    case Opcode::Bne:
+      return "bne";
+    case Opcode::Jr:
+      return "jr";
+    case Opcode::Jalr:
+      return "jalr";
+    default:
+      return "";
+    }
+  }
 
 private:
   MIPSInstruction(Opcode opcode, int s, int t, int d, int32_t i,
@@ -124,7 +146,6 @@ public:
   static MIPSInstruction bne(int s, int t, const std::string &label) {
     return MIPSInstruction(Opcode::Bne, s, t, 0, 0, true, label);
   }
-
   static MIPSInstruction jr(int s) {
     return MIPSInstruction(Opcode::Jr, s, 0, 0, 0);
   }
@@ -149,7 +170,7 @@ public:
 
   std::string to_string() const {
     std::stringstream ss;
-    const std::string name = opcode_to_string.at(opcode);
+    const std::string name = opcode_to_string(opcode);
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
