@@ -33,3 +33,14 @@ void PopulateSymbolTableVisitor::pre_visit(VariableExpr &expr) {
 void PopulateSymbolTableVisitor::pre_visit(VariableLValueExpr &expr) {
   table.record_variable_write(expr.variable);
 }
+
+// Populate import flags
+void PopulateSymbolTableVisitor::pre_visit(PrintStatement&) {
+  table.use_print = true;
+}
+void PopulateSymbolTableVisitor::pre_visit(DeleteStatement&) { 
+  table.use_memory = true;
+}
+void PopulateSymbolTableVisitor::pre_visit(NewExpr&) {
+  table.use_memory = true;
+}

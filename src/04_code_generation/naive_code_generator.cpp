@@ -15,12 +15,20 @@ void NaiveCodeGenerator::visit(Program &program) {
     comment(line);
   }
 
-  import("print");
-  import("init");
-  import("new");
-  import("delete");
+  if (table.use_print) {
+    import("print");
+  }
+
+  if (table.use_memory) {
+    import("init");
+    import("new");
+    import("delete");
+  }
+
   load_const(4, 4);
-  load_const(10, "print");
+  if (table.use_print) {
+    load_const(10, "print");
+  }
   load_const(11, 1);
 
   beq(0, 0, "wain");
@@ -47,25 +55,28 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
     push(1);
     push(2);
 
-    comment("Calling init");
-    const bool first_arg_is_array =
-        table.get_arguments("wain")[0].type == Type::IntStar;
-    if (!first_arg_is_array) {
-      add(2, 0, 0);
+    if (table.use_memory) {
+      comment("Calling init");
+      const bool first_arg_is_array =
+          table.get_arguments("wain")[0].type == Type::IntStar;
+      if (!first_arg_is_array) {
+        add(2, 0, 0);
+      }
+      push(31);
+      load_and_jalr("init");
+      pop(31);
+      comment("Done calling init");
     }
-    push(31);
-    load_and_jalr("init");
-    pop(31);
-    comment("Done calling init");
   }
   sub(29, 30, 4);
-  save_registers();
-
+  
   for (const auto &variable : procedure.decls) {
     load_const(3, variable.initial_value.value);
     push(3);
     annotate("Variable " + variable.name);
   }
+
+  save_registers();
 
   comment("Code for statements:");
   for (const auto &statement : procedure.statements) {
@@ -77,8 +88,8 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
   // We only have to do clean-up if we aren't wain
   if (procedure_name != "wain") {
     comment("Done evaluating result, popping decls and saved registers");
-    pop_and_discard(procedure.decls.size());
     pop_registers();
+    pop_and_discard(procedure.decls.size());
   }
 
   jr(31);
@@ -249,6 +260,10 @@ void NaiveCodeGenerator::visit(Statements &statements) {
 }
 
 void NaiveCodeGenerator::visit(AssignmentStatement &statement) {
+  std::stringstream ss;
+  statement.emit_c(ss, 0);
+  comment(ss.str());
+
   statement.lhs->accept_simple(*this);
   push(3);
   statement.rhs->accept_simple(*this);
@@ -257,8 +272,8 @@ void NaiveCodeGenerator::visit(AssignmentStatement &statement) {
 }
 
 void NaiveCodeGenerator::visit(IfStatement &statement) {
-  const auto else_label = generate_label("if_else");
-  const auto endif_label = generate_label("if_endif");
+  const auto else_label = generate_label("ifelse");
+  const auto endif_label = generate_label("ifendif");
   statement.test_expression->accept_simple(*this);
   beq(3, 0, else_label);
   statement.true_statement->accept_simple(*this);
@@ -269,8 +284,8 @@ void NaiveCodeGenerator::visit(IfStatement &statement) {
 }
 
 void NaiveCodeGenerator::visit(WhileStatement &statement) {
-  const auto loop_label = generate_label("while_loop");
-  const auto end_label = generate_label("while_end");
+  const auto loop_label = generate_label("whileloop");
+  const auto end_label = generate_label("whileend");
   label(loop_label);
   statement.test_expression->accept_simple(*this);
   beq(3, 0, end_label);
@@ -288,7 +303,7 @@ void NaiveCodeGenerator::visit(PrintStatement &statement) {
 }
 
 void NaiveCodeGenerator::visit(DeleteStatement &statement) {
-  const auto skip_label = generate_label("delete_skip");
+  const auto skip_label = generate_label("deleteskip");
   statement.expression->accept_simple(*this);
   beq(3, 11, skip_label);
   add(1, 3, 0);

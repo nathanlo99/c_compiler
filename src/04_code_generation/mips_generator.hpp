@@ -45,7 +45,7 @@ struct MIPSGenerator {
   std::string generate_label(const std::string &label_type) {
     static std::map<std::string, int> next_idx;
     const int idx = next_idx[label_type]++;
-    return "_" + label_type + "_" + std::to_string(idx);
+    return label_type + std::to_string(idx);
   }
 
   void load_const(int reg, int value) {

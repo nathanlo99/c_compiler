@@ -88,6 +88,9 @@ struct SymbolTable {
   std::map<std::string, ProcedureTable> tables;
   mutable std::string current_procedure = "";
 
+  bool use_print = false;
+  bool use_memory = false;
+
   void enter_procedure(const std::string &name) { current_procedure = name; }
   void leave_procedure() { current_procedure.clear(); }
 
@@ -155,6 +158,8 @@ struct SymbolTable {
   }
 
   friend std::ostream &operator<<(std::ostream &os, const SymbolTable &table) {
+    os << "use_print: " << (table.use_print ? "true" : "false") << std::endl;
+    os << "use_memory: " << (table.use_memory ? "true" : "false") << std::endl;
     for (const auto &[procedure, procedure_table] : table.tables) {
       os << "In procedure " << procedure << ": " << std::endl;
       os << procedure_table << std::endl;
