@@ -3,3 +3,4 @@ build/
 .cache/
 a.out
 tmp.cpp
+output/
