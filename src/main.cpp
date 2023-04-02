@@ -88,9 +88,6 @@ int main() {
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
     program->accept_recursive(fold_constants_visitor);
-    // program->print();
-    std::cout << std::endl;
-    program->emit_c(std::cout, 0);
 
     NaiveCodeGenerator generator;
     program->accept_simple(generator);

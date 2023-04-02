@@ -18,19 +18,22 @@ struct ProcedureTable {
   Type return_type;
   std::set<std::string> used_variables;
 
+  std::map<std::string, int> offsets;
+  int next_offset = 0;
+
   ProcedureTable(const std::string &name) : name(name) {}
 
   void add_parameter(const Variable &variable) {
-    types[variable.name] = variable.type;
     arguments.push_back(variable);
-    // TODO: Add offsets and things
+    add_variable(variable);
   }
 
   void set_return_type(const Type type) { return_type = type; }
 
   void add_variable(const Variable &variable) {
     types[variable.name] = variable.type;
-    // TODO: Add offsets and things
+    offsets[variable.name] = next_offset;
+    next_offset -= 4;
   }
 
   void remove_parameter(const Variable &variable) {
@@ -41,7 +44,7 @@ struct ProcedureTable {
 
   void remove_variable(const Variable &variable) {
     types.erase(variable.name);
-    // TODO: Remove offsets too
+    offsets.erase(variable.name);
   }
 
   void record_variable_read(const Variable &variable) {
@@ -59,6 +62,12 @@ struct ProcedureTable {
     return types.at(variable.name);
   }
 
+  int get_offset(const Variable &variable) const {
+    const int raw_offset = offsets.at(variable.name);
+    const int num_params = arguments.size();
+    return raw_offset + 4 * num_params;
+  }
+
   bool is_variable_used(const std::string &variable) const {
     return used_variables.count(variable) > 0;
   }
@@ -67,7 +76,8 @@ struct ProcedureTable {
                                   const ProcedureTable &table) {
     for (const auto &[variable, type] : table.types) {
       const bool is_used = table.is_variable_used(variable);
-      os << "  " << variable << ": " << type_to_string(type) << " "
+      os << "  " << variable << ": " << type_to_string(type) << " @ "
+         << table.get_offset(Variable(variable, type)) << " "
          << (is_used ? "(used)" : "(unused)") << std::endl;
     }
     return os;
@@ -125,6 +135,10 @@ struct SymbolTable {
 
   Type get_variable_type(const Variable &variable) const {
     return get_table(current_procedure).get_variable_type(variable);
+  }
+
+  int get_offset(const Variable &variable) const {
+    return get_table(current_procedure).get_offset(variable);
   }
 
   std::vector<Variable> get_arguments(const std::string &procedure) const {

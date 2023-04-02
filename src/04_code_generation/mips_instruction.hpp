@@ -41,7 +41,7 @@ struct MIPSInstruction {
   int32_t i;
 
   bool has_label;
-  std::string label_name;
+  std::string string_value;
   std::string comment_value;
 
   static inline const char *opcode_to_string(const Opcode op) {
@@ -89,10 +89,10 @@ private:
   MIPSInstruction(Opcode opcode, int s, int t, int d, int32_t i,
                   bool has_label = false, const std::string &label_name = "")
       : opcode(opcode), s(s), t(t), d(d), i(i), has_label(has_label),
-        label_name(label_name) {}
+        string_value(label_name) {}
   MIPSInstruction(const std::string &label_name)
       : opcode(Opcode::Label), s(0), t(0), d(0), i(0), has_label(true),
-        label_name(label_name) {}
+        string_value(label_name) {}
 
 public:
   static MIPSInstruction add(int d, int s, int t) {
@@ -196,7 +196,7 @@ public:
     case Opcode::Beq:
     case Opcode::Bne:
       if (has_label) {
-        ss << name << " $" << s << ", $" << t << ", " << label_name;
+        ss << name << " $" << s << ", $" << t << ", " << string_value;
       } else {
         ss << name << " $" << s << ", $" << t << ", " << i;
       }
@@ -207,19 +207,19 @@ public:
       break;
     case Opcode::Word:
       if (has_label) {
-        ss << ".word " << label_name;
+        ss << ".word " << string_value;
       } else {
         ss << ".word " << i;
       }
       break;
     case Opcode::Label:
-      ss << label_name << ":";
+      ss << string_value << ":";
       break;
     case Opcode::Import:
-      ss << ".import " << label_name;
+      ss << ".import " << string_value;
       break;
     case Opcode::Comment:
-      ss << "; " << label_name;
+      ss << "; " << string_value;
       break;
     default:
       runtime_assert(false, "Invalid opcode");
@@ -230,6 +230,7 @@ public:
         std::max(0, instruction_width - static_cast<int>(ss.str().size()));
     if (comment_value != "")
       ss << std::string(padding, ' ') << "; " << comment_value;
+
     return ss.str();
   }
 };
