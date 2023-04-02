@@ -17,6 +17,7 @@ struct VariableExpr;
 struct LiteralExpr;
 struct BinaryExpr;
 struct AddressOfExpr;
+struct DereferenceExpr;
 struct NewExpr;
 struct FunctionCallExpr;
 
@@ -39,6 +40,7 @@ struct ASTSimpleVisitor {
   virtual void visit(LiteralExpr &) {}
   virtual void visit(BinaryExpr &) {}
   virtual void visit(AddressOfExpr &) {}
+  virtual void visit(DereferenceExpr &) {}
   virtual void visit(NewExpr &) {}
   virtual void visit(FunctionCallExpr &) {}
   virtual void visit(Statements &) {}

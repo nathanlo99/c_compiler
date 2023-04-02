@@ -221,6 +221,11 @@ void NaiveCodeGenerator::visit(AddressOfExpr &expr) {
   expr.argument->accept_simple(*this);
 }
 
+void NaiveCodeGenerator::visit(DereferenceExpr &expr) {
+  expr.argument->accept_simple(*this);
+  lw(3, 0, 3);
+}
+
 void NaiveCodeGenerator::visit(NewExpr &expr) {
   // Let $1 be the result of the expression
   expr.rhs->accept_simple(*this);

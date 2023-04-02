@@ -333,6 +333,18 @@ struct AddressOfExpr : Expr {
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
+struct DereferenceExpr : Expr {
+  std::shared_ptr<Expr> argument;
+  DereferenceExpr(std::shared_ptr<Expr> argument) : argument(argument) {}
+  virtual ~DereferenceExpr() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+};
+
 struct NewExpr : Expr {
   std::shared_ptr<Expr> rhs;
   NewExpr(std::shared_ptr<Expr> rhs) : rhs(rhs) {}

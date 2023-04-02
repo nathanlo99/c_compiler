@@ -110,6 +110,11 @@ void AddressOfExpr::emit_c(std::ostream &os, const size_t) const {
   argument->emit_c(os, 0);
 }
 
+void DereferenceExpr::emit_c(std::ostream &os, const size_t) const {
+  os << "*";
+  argument->emit_c(os, 0);
+}
+
 void NewExpr::emit_c(std::ostream &os, const size_t) const {
   os << "new int[";
   rhs->emit_c(os, 0);

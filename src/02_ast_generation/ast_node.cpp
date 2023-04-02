@@ -170,7 +170,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return std::make_shared<AddressOfExpr>(rhs);
   } else if (production_str == "factor -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);
-    return std::make_shared<DereferenceLValueExpr>(rhs);
+    return std::make_shared<DereferenceExpr>(rhs);
   } else if (production_str == "factor -> NEW INT LBRACK expr RBRACK") {
     const auto rhs = construct_ast<Expr>(node->children[3]);
     return std::make_shared<NewExpr>(rhs);

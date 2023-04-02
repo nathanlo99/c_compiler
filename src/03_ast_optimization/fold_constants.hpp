@@ -17,6 +17,7 @@ struct FoldConstantsVisitor : ASTRecursiveVisitor {
   void pre_visit(TestExpr &) override;
   void pre_visit(BinaryExpr &) override;
   void pre_visit(NewExpr &) override;
+  void pre_visit(DereferenceExpr &) override;
   void pre_visit(FunctionCallExpr &) override;
   void pre_visit(DereferenceLValueExpr &) override;
 

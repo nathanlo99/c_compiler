@@ -273,6 +273,10 @@ void FoldConstantsVisitor::pre_visit(NewExpr &expr) {
   expr.rhs = fold_constants(expr.rhs);
 }
 
+void FoldConstantsVisitor::pre_visit(DereferenceExpr &expr) {
+  expr.argument = fold_constants(expr.argument);
+}
+
 void FoldConstantsVisitor::pre_visit(FunctionCallExpr &expr) {
   for (auto &argument : expr.arguments) {
     argument = fold_constants(argument);

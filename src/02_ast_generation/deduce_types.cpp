@@ -94,6 +94,13 @@ void DeduceTypesVisitor::post_visit(AddressOfExpr &expr) {
   expr.type = Type::IntStar;
 }
 
+void DeduceTypesVisitor::post_visit(DereferenceExpr &expr) {
+  runtime_assert(expr.argument->type == Type::IntStar,
+                 "Dereference expected 'int*', got " +
+                     type_to_string(expr.argument->type));
+  expr.type = Type::Int;
+}
+
 void DeduceTypesVisitor::post_visit(NewExpr &expr) {
   runtime_assert(expr.rhs->type == Type::Int, "Argument to new must be int");
   expr.type = Type::IntStar;

@@ -38,6 +38,10 @@ void AddressOfExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
 
+void DereferenceExpr::accept_simple(ASTSimpleVisitor &visitor) {
+  visitor.visit(*this);
+}
+
 void NewExpr::accept_simple(ASTSimpleVisitor &visitor) { visitor.visit(*this); }
 
 void FunctionCallExpr::accept_simple(ASTSimpleVisitor &visitor) {

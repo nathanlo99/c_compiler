@@ -57,6 +57,12 @@ void AddressOfExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.post_visit(*this);
 }
 
+void DereferenceExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  argument->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
 void NewExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   rhs->accept_recursive(visitor);

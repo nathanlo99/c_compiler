@@ -17,6 +17,7 @@ struct VariableExpr;
 struct LiteralExpr;
 struct BinaryExpr;
 struct AddressOfExpr;
+struct DereferenceExpr;
 struct NewExpr;
 struct FunctionCallExpr;
 
@@ -39,6 +40,7 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(LiteralExpr &) {}
   virtual void pre_visit(BinaryExpr &) {}
   virtual void pre_visit(AddressOfExpr &) {}
+  virtual void pre_visit(DereferenceExpr &) {}
   virtual void pre_visit(NewExpr &) {}
   virtual void pre_visit(FunctionCallExpr &) {}
   virtual void pre_visit(Statements &) {}
@@ -57,6 +59,7 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(LiteralExpr &) {}
   virtual void post_visit(BinaryExpr &) {}
   virtual void post_visit(AddressOfExpr &) {}
+  virtual void post_visit(DereferenceExpr &) {}
   virtual void post_visit(NewExpr &) {}
   virtual void post_visit(FunctionCallExpr &) {}
   virtual void post_visit(Statements &) {}

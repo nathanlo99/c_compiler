@@ -21,6 +21,7 @@ struct NaiveCodeGenerator : ASTSimpleVisitor, MIPSGenerator {
   void visit(LiteralExpr &) override;
   void visit(BinaryExpr &) override;
   void visit(AddressOfExpr &) override;
+  void visit(DereferenceExpr &) override;
   void visit(NewExpr &) override;
   void visit(FunctionCallExpr &) override;
   void visit(Statements &) override;
