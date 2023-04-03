@@ -1,0 +1,39 @@
+We use a variant of BRIL (https://capra.cs.cornell.edu/bril/tools/text.html)
+
+First, an example:
+
+The following C code
+```c
+int wain(int a, int b) {
+  int* addr_a = NULL;
+  addr_a = &a;
+  b = 0;
+  a = 69;
+  b = b + a; // b = 69
+  *addr_a = 420;
+  b = b + a; // b = 489
+  return b; // 489 = 0x1e9
+}
+```
+
+translates to the following BRIL code (with the memory extension) in SSA-form
+```bril
+@wain(a: int, b: int) : int {
+  addr_a : ptr<int> = 1;            // int* addr_a = NULL;
+  addr_a : ptr<int> = addressof a;  // addr_a = &a;
+  b : int = const 0;                // b = 0;
+  a : int = const 69;               // a = 69;
+  b : int = add b a;                // b = b + a;
+  tmp : int = 420;                  // 
+  store addr_a tmp;                 // *addr_a = 420;
+  b : int = add b a;                // b = b + a;
+  ret b;
+}
+```
+
+First steps, if we initialize a pointer to the address of a variable, we may 
+assume it only gets dereferenced to read or write to the underlying variable.
+Anything else is undefined behaviour in C, and thus WLP4.
+
+Thus, we can run a BRIL pass to collapse these reads and writes. This removes 
+the need for the addressof
