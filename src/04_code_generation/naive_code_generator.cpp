@@ -227,16 +227,12 @@ void NaiveCodeGenerator::visit(DereferenceExpr &expr) {
 }
 
 void NaiveCodeGenerator::visit(NewExpr &expr) {
-  // Let $1 be the result of the expression
   expr.rhs->accept_simple(*this);
   add(1, 3, 0);
-  // Push $31, the linked register address
   push(31);
-  // Jump to 'new'
   load_and_jalr("new");
-  // Once we're back, restore $31
   pop(31);
-  // The result is stored in $1, copy it to $3, and return NULL if it was 0
+  // The result is stored in $1: copy it to $3, and return NULL (1) if it was 0
   bne(3, 0, 1);
   add(3, 11, 0);
 }

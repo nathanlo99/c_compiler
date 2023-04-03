@@ -11,19 +11,19 @@ struct MIPSGenerator {
   }
 
   void save_registers() {
-    instructions.push_back(MIPSInstruction::comment("Saving registers"));
-    push(1);
-    push(2);
-    push(6);
-    push(7);
+    // instructions.push_back(MIPSInstruction::comment("Saving registers"));
+    // push(1);
+    // push(2);
+    // push(6);
+    // push(7);
   }
 
   void pop_registers() {
-    instructions.push_back(MIPSInstruction::comment("Pop registers"));
-    pop(7);
-    pop(6);
-    pop(2);
-    pop(1);
+    // instructions.push_back(MIPSInstruction::comment("Pop registers"));
+    // pop(7);
+    // pop(6);
+    // pop(2);
+    // pop(1);
   }
 
   void pop_and_discard(const size_t num_values) {

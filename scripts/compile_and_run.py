@@ -10,7 +10,7 @@ run_commands = {
 }
 options_help_string = "|".join(run_commands.keys())
 if len(sys.argv) < 3:
-  print("Usage: {program} input.c [{help_string}]".format(program = sys.argv[0], help_string = options_help_string))
+  print("Usage: {program} input.wlp4 [{help_string}]".format(program = sys.argv[0], help_string = options_help_string))
   sys.exit(1)
 
 input_file = sys.argv[1]
@@ -23,7 +23,7 @@ if option not in run_commands:
 run_command = run_commands[option]
 
 commands = [
-  "cmake --build build -j8",
+  "cmake --build build -j8", # Replace this with your compilation command
   "build/compiler_cpp < {} > output/output.asm".format(input_file),
   "cs241.linkasm < output/output.asm > output/output.merl",
   "cs241.linker output/output.merl references/print.merl references/alloc.merl > output/linked.merl",
