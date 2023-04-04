@@ -94,7 +94,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "dcls -> dcls dcl BECOMES NULL SEMI") {
     auto rest = construct_ast<DeclarationList>(node->children[0]);
     auto decl = parse_node_to_variable(node->children[1]);
-    decl.initial_value = Literal(0, Type::IntStar);
+    decl.initial_value = Literal::null();
     rest->declarations.push_back(decl);
     return rest;
   } else if (production_str == "dcl -> type ID") {
@@ -162,7 +162,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     const auto value = std::stoi(node->children[0]->token.lexeme);
     return std::make_shared<LiteralExpr>(Literal(value, Type::Int));
   } else if (production_str == "factor -> NULL") {
-    return std::make_shared<LiteralExpr>(Literal(0, Type::IntStar));
+    return std::make_shared<LiteralExpr>(Literal::null());
   } else if (production_str == "factor -> LPAREN expr RPAREN") {
     return construct_ast(node->children[1]);
   } else if (production_str == "factor -> AMP lvalue") {
@@ -170,6 +170,14 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return std::make_shared<AddressOfExpr>(rhs);
   } else if (production_str == "factor -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);
+    // *(&value) == value1, where [value] on the left is an lvalue, and [value1]
+    // is the associated rvalue
+    if (auto address_of_expr = std::dynamic_pointer_cast<AddressOfExpr>(rhs)) {
+      if (auto variable_expr = std::dynamic_pointer_cast<VariableLValueExpr>(
+              address_of_expr->argument)) {
+        return std::make_shared<VariableExpr>(variable_expr->variable);
+      }
+    }
     return std::make_shared<DereferenceExpr>(rhs);
   } else if (production_str == "factor -> NEW INT LBRACK expr RBRACK") {
     const auto rhs = construct_ast<Expr>(node->children[3]);
@@ -196,6 +204,10 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return std::make_shared<VariableLValueExpr>(variable);
   } else if (production_str == "lvalue -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);
+    // *(&value) == value, as lvalues
+    if (auto address_of_expr = std::dynamic_pointer_cast<AddressOfExpr>(rhs)) {
+      return address_of_expr->argument;
+    }
     return std::make_shared<DereferenceLValueExpr>(rhs);
   } else if (production_str == "lvalue -> LPAREN lvalue RPAREN") {
     return construct_ast(node->children[1]);

@@ -155,13 +155,9 @@ void NaiveMIPSGenerator::visit(VariableExpr &expr) {
 }
 
 void NaiveMIPSGenerator::visit(LiteralExpr &expr) {
-  if (expr.literal.type == Type::IntStar && expr.literal.value == 0) {
-    add(3, 0, 11);
-    annotate("Loading the literal NULL");
-  } else {
-    load_const(3, expr.literal.value);
-    annotate("Loading the literal " + std::to_string(expr.literal.value));
-  }
+
+  load_const(3, expr.literal.value);
+  annotate("Loading the literal " + expr.literal.value_to_string());
 }
 
 void NaiveMIPSGenerator::visit(BinaryExpr &expr) {

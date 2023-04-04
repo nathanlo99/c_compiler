@@ -7,10 +7,16 @@ struct Literal {
   int32_t value = 0;
   Type type = Type::Int;
 
-  Literal() = default;
-  Literal(const int32_t value, const Type type) : value(value), type(type) {}
+  constexpr Literal() = default;
+  constexpr Literal(const int32_t value, const Type type)
+      : value(value), type(type) {}
 
   void print(const size_t depth) const;
+  inline std::string value_to_string() const {
+    return *this == null() ? "NULL" : std::to_string(value);
+  }
+
+  static constexpr inline Literal null() { return Literal(1, Type::IntStar); }
 
   bool operator==(const Literal &other) const {
     return value == other.value && type == other.type;

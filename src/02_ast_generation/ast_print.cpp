@@ -6,8 +6,8 @@ inline std::string get_padding(const size_t depth) {
 }
 
 void Literal::print(const size_t depth) const {
-  std::cout << get_padding(depth) << value << ": " << type_to_string(type)
-            << std::endl;
+  std::cout << get_padding(depth) << value_to_string() << ": "
+            << type_to_string(type) << std::endl;
 }
 
 void Variable::print(const size_t depth) const {

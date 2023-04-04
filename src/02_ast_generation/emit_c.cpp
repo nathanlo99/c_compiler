@@ -27,13 +27,9 @@ void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
   }
   os << ") {" << std::endl;
   for (const auto &decl : decls) {
-    const std::string value_str =
-        (decl.initial_value.type == Type::IntStar &&
-         decl.initial_value.value == 0)
-            ? "NULL"
-            : std::to_string(decl.initial_value.value);
     os << get_padding(indent_level + 1) << type_to_string(decl.type) << " "
-       << decl.name << " = " << value_str << ";" << std::endl;
+       << decl.name << " = " << decl.initial_value.value_to_string() << ";"
+       << std::endl;
   }
   for (const auto &statement : statements) {
     statement->emit_c(os, indent_level + 1);
@@ -65,10 +61,7 @@ void VariableExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
-  if (literal.type == Type::IntStar && literal.value == 0)
-    os << "NULL";
-  else
-    os << literal.value;
+  os << literal.value_to_string();
 }
 
 void TestExpr::emit_c(std::ostream &os, const size_t) const {

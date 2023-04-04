@@ -3,6 +3,7 @@
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
+#include "naive_bril_generator.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
@@ -75,6 +76,12 @@ void debug() {
   simplified_expr->print(0);
 }
 
+void emit_bril(std::shared_ptr<Program> program) {
+  bril::NaiveBRILGenerator generator;
+  program->accept_simple(generator);
+  std::cout << generator.program() << std::endl;
+}
+
 int main() {
   // debug();
   // return 0;
@@ -91,9 +98,13 @@ int main() {
     FoldConstantsVisitor fold_constants_visitor;
     program->accept_recursive(fold_constants_visitor);
 
-    NaiveMIPSGenerator generator;
-    program->accept_simple(generator);
-    generator.print();
+    program->print();
+    program->emit_c(std::cerr, 0);
+
+    emit_bril(program);
+    // NaiveMIPSGenerator generator;
+    // program->accept_simple(generator);
+    // generator.print();
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

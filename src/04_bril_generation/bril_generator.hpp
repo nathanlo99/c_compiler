@@ -51,6 +51,16 @@ public:
   inline void emit(const Instruction &instruction) {
     function().instructions.push_back(instruction);
   }
+  inline std::string last_result() const {
+    runtime_assert(function().instructions.size() > 1,
+                   "Cannot grab last result: no instructions in " +
+                       current_function);
+    return function().instructions.back().destination;
+  }
+  inline std::string temp() const {
+    static int next_idx = 0;
+    return "tmp_" + std::to_string(next_idx++);
+  }
 
   inline void add(const std::string &dest, const std::string &lhs,
                   const std::string &rhs) {

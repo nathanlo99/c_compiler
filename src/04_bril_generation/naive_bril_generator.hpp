@@ -18,7 +18,7 @@ struct NaiveBRILGenerator : BRILGenerator, ASTSimpleVisitor {
 
   ~NaiveBRILGenerator() = default;
 
-  void visit(Program &) override;
+  void visit(::Program &) override;
   void visit(Procedure &) override;
   void visit(VariableLValueExpr &) override;
   void visit(DereferenceLValueExpr &) override;
