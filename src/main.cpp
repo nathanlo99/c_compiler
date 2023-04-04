@@ -3,7 +3,7 @@
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
-#include "naive_code_generator.hpp"
+#include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
 #include "symbol_table.hpp"
@@ -91,7 +91,7 @@ int main() {
     FoldConstantsVisitor fold_constants_visitor;
     program->accept_recursive(fold_constants_visitor);
 
-    NaiveCodeGenerator generator;
+    NaiveMIPSGenerator generator;
     program->accept_simple(generator);
     generator.print();
 

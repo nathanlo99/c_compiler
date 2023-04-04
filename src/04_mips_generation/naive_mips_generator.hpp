@@ -5,12 +5,12 @@
 
 #include <iostream>
 
-struct NaiveCodeGenerator : ASTSimpleVisitor, MIPSGenerator {
+struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   using ASTSimpleVisitor::visit;
 
   SymbolTable table;
 
-  ~NaiveCodeGenerator() = default;
+  ~NaiveMIPSGenerator() = default;
 
   void visit(Program &) override;
   void visit(Procedure &) override;

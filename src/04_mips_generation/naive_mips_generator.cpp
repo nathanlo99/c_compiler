@@ -1,9 +1,9 @@
 
-#include "naive_code_generator.hpp"
+#include "naive_mips_generator.hpp"
 #include "ast_node.hpp"
 #include "mips_instruction.hpp"
 
-void NaiveCodeGenerator::visit(Program &program) {
+void NaiveMIPSGenerator::visit(Program &program) {
   table = program.table;
 
   // Emit the C code
@@ -42,7 +42,7 @@ void NaiveCodeGenerator::visit(Program &program) {
           std::to_string(num_assembly_instructions()));
 }
 
-void NaiveCodeGenerator::visit(Procedure &procedure) {
+void NaiveMIPSGenerator::visit(Procedure &procedure) {
   const std::string procedure_name = procedure.name;
   const bool is_wain = procedure_name == "wain";
 
@@ -98,20 +98,21 @@ void NaiveCodeGenerator::visit(Procedure &procedure) {
   table.leave_procedure();
 }
 
-void NaiveCodeGenerator::visit(VariableLValueExpr &expr) {
+void NaiveMIPSGenerator::visit(VariableLValueExpr &expr) {
   const int offset = table.get_offset(expr.variable);
   load_const(3, offset);
   add(3, 29, 3);
-  annotate("Grabbing address of lvalue " + expr.variable.name + ": offset " + std::to_string(offset));
+  annotate("Grabbing address of lvalue " + expr.variable.name + ": offset " +
+           std::to_string(offset));
 }
 
-void NaiveCodeGenerator::visit(DereferenceLValueExpr &expr) {
-  // Since an l-value puts its address into $3, dereferencing it as an lvalue 
+void NaiveMIPSGenerator::visit(DereferenceLValueExpr &expr) {
+  // Since an l-value puts its address into $3, dereferencing it as an lvalue
   // is a no-op
   expr.argument->accept_simple(*this);
 }
 
-void NaiveCodeGenerator::visit(TestExpr &expr) {
+void NaiveMIPSGenerator::visit(TestExpr &expr) {
   expr.lhs->accept_simple(*this);
   push(3);
   expr.rhs->accept_simple(*this);
@@ -147,13 +148,13 @@ void NaiveCodeGenerator::visit(TestExpr &expr) {
   }
 }
 
-void NaiveCodeGenerator::visit(VariableExpr &expr) {
+void NaiveMIPSGenerator::visit(VariableExpr &expr) {
   const int offset = table.get_offset(expr.variable);
   lw(3, offset, 29);
   annotate("Loading " + expr.variable.name);
 }
 
-void NaiveCodeGenerator::visit(LiteralExpr &expr) {
+void NaiveMIPSGenerator::visit(LiteralExpr &expr) {
   if (expr.literal.type == Type::IntStar && expr.literal.value == 0) {
     add(3, 0, 11);
     annotate("Loading the literal NULL");
@@ -163,7 +164,7 @@ void NaiveCodeGenerator::visit(LiteralExpr &expr) {
   }
 }
 
-void NaiveCodeGenerator::visit(BinaryExpr &expr) {
+void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
   const auto lhs_type = expr.lhs->type;
   const auto rhs_type = expr.rhs->type;
   expr.lhs->accept_simple(*this);
@@ -215,18 +216,18 @@ void NaiveCodeGenerator::visit(BinaryExpr &expr) {
   }
 }
 
-void NaiveCodeGenerator::visit(AddressOfExpr &expr) {
+void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {
   // Since the code generated for an lvalue is its address,
   // we don't have to modify it in any way
   expr.argument->accept_simple(*this);
 }
 
-void NaiveCodeGenerator::visit(DereferenceExpr &expr) {
+void NaiveMIPSGenerator::visit(DereferenceExpr &expr) {
   expr.argument->accept_simple(*this);
   lw(3, 0, 3);
 }
 
-void NaiveCodeGenerator::visit(NewExpr &expr) {
+void NaiveMIPSGenerator::visit(NewExpr &expr) {
   expr.rhs->accept_simple(*this);
   add(1, 3, 0);
   push(31);
@@ -237,7 +238,7 @@ void NaiveCodeGenerator::visit(NewExpr &expr) {
   add(3, 11, 0);
 }
 
-void NaiveCodeGenerator::visit(FunctionCallExpr &expr) {
+void NaiveMIPSGenerator::visit(FunctionCallExpr &expr) {
   const std::string procedure_name = expr.procedure_name;
   const auto params = table.get_arguments(procedure_name);
   const size_t num_arguments = params.size();
@@ -256,13 +257,13 @@ void NaiveCodeGenerator::visit(FunctionCallExpr &expr) {
   pop(29);
 }
 
-void NaiveCodeGenerator::visit(Statements &statements) {
+void NaiveMIPSGenerator::visit(Statements &statements) {
   for (auto &statement : statements.statements) {
     statement->accept_simple(*this);
   }
 }
 
-void NaiveCodeGenerator::visit(AssignmentStatement &statement) {
+void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
   std::stringstream ss;
   statement.emit_c(ss, 0);
   comment(ss.str());
@@ -274,7 +275,7 @@ void NaiveCodeGenerator::visit(AssignmentStatement &statement) {
   sw(3, 0, 5);
 }
 
-void NaiveCodeGenerator::visit(IfStatement &statement) {
+void NaiveMIPSGenerator::visit(IfStatement &statement) {
   const auto else_label = generate_label("ifelse");
   const auto endif_label = generate_label("ifendif");
   statement.test_expression->accept_simple(*this);
@@ -286,7 +287,7 @@ void NaiveCodeGenerator::visit(IfStatement &statement) {
   label(endif_label);
 }
 
-void NaiveCodeGenerator::visit(WhileStatement &statement) {
+void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   const auto loop_label = generate_label("whileloop");
   const auto end_label = generate_label("whileend");
   label(loop_label);
@@ -297,7 +298,7 @@ void NaiveCodeGenerator::visit(WhileStatement &statement) {
   label(end_label);
 }
 
-void NaiveCodeGenerator::visit(PrintStatement &statement) {
+void NaiveMIPSGenerator::visit(PrintStatement &statement) {
   statement.expression->accept_simple(*this);
   add(1, 3, 0);
   push(31);
@@ -305,7 +306,7 @@ void NaiveCodeGenerator::visit(PrintStatement &statement) {
   pop(31);
 }
 
-void NaiveCodeGenerator::visit(DeleteStatement &statement) {
+void NaiveMIPSGenerator::visit(DeleteStatement &statement) {
   const auto skip_label = generate_label("deleteskip");
   statement.expression->accept_simple(*this);
   beq(3, 11, skip_label);
