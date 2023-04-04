@@ -19,3 +19,7 @@ inline std::string type_to_string(const Type type) {
     return "??";
   }
 }
+
+inline std::ostream &operator<<(std::ostream &os, const Type &type) {
+  return os << type_to_string(type);
+}
