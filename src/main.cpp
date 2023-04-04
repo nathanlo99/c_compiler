@@ -3,10 +3,10 @@
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
-#include "naive_bril_generator.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
+#include "simple_bril_generator.hpp"
 #include "symbol_table.hpp"
 #include "util.hpp"
 
@@ -77,7 +77,7 @@ void debug() {
 }
 
 void emit_bril(std::shared_ptr<Program> program) {
-  bril::NaiveBRILGenerator generator;
+  bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
   const bril::Program bril_program = generator.program();
   std::cout << bril_program << std::endl;

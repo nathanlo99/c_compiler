@@ -6,7 +6,7 @@
 
 namespace bril {
 
-struct NaiveBRILGenerator : BRILGenerator, ASTSimpleVisitor {
+struct SimpleBRILGenerator : BRILGenerator, ASTSimpleVisitor {
   using ASTSimpleVisitor::visit;
 
   SymbolTable table;
@@ -16,7 +16,7 @@ struct NaiveBRILGenerator : BRILGenerator, ASTSimpleVisitor {
     table.enter_procedure(function);
   }
 
-  ~NaiveBRILGenerator() = default;
+  ~SimpleBRILGenerator() = default;
 
   void visit(::Program &) override;
   void visit(Procedure &) override;
