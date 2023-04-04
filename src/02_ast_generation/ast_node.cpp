@@ -20,7 +20,7 @@ Type parse_node_to_type(std::shared_ptr<ParseNode> node) {
 Variable parse_node_to_variable(std::shared_ptr<ParseNode> node) {
   const auto type = parse_node_to_type(node->children[0]);
   const auto name = node->children[1]->token.lexeme;
-  return Variable(name, type, Literal());
+  return Variable(name, type);
 }
 
 std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
@@ -156,7 +156,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return construct_ast(node->children[0]);
   } else if (production_str == "factor -> ID") {
     const auto variable_name = node->children[0]->token.lexeme;
-    const auto variable = Variable(variable_name, Type::Unknown, Literal());
+    const auto variable = Variable(variable_name, Type::Unknown);
     return std::make_shared<VariableExpr>(variable);
   } else if (production_str == "factor -> NUM") {
     const auto value = std::stoi(node->children[0]->token.lexeme);
@@ -167,7 +167,17 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return construct_ast(node->children[1]);
   } else if (production_str == "factor -> AMP lvalue") {
     const auto rhs = construct_ast<LValueExpr>(node->children[1]);
-    return std::make_shared<AddressOfExpr>(rhs);
+    // &(*expr) == expr
+    if (const auto dereference_node =
+            std::dynamic_pointer_cast<DereferenceLValueExpr>(rhs)) {
+      return dereference_node->argument;
+    } else if (const auto variable_node =
+                   std::dynamic_pointer_cast<VariableLValueExpr>(rhs)) {
+      return std::make_shared<AddressOfExpr>(variable_node);
+    } else {
+      runtime_assert(false, "lvalue argument to address-of operator was "
+                            "neither dereference nor variable");
+    }
   } else if (production_str == "factor -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);
     // *(&value) == value1, where [value] on the left is an lvalue, and [value1]
@@ -200,7 +210,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return rest;
   } else if (production_str == "lvalue -> ID") {
     const std::string variable_name = node->children[0]->token.lexeme;
-    const Variable variable(variable_name, Type::Unknown, Literal());
+    const Variable variable(variable_name, Type::Unknown);
     return std::make_shared<VariableLValueExpr>(variable);
   } else if (production_str == "lvalue -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);

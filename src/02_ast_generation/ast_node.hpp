@@ -322,8 +322,9 @@ struct BinaryExpr : Expr {
 };
 
 struct AddressOfExpr : Expr {
-  std::shared_ptr<LValueExpr> argument;
-  AddressOfExpr(std::shared_ptr<LValueExpr> argument) : argument(argument) {}
+  std::shared_ptr<VariableLValueExpr> argument;
+  AddressOfExpr(std::shared_ptr<VariableLValueExpr> argument)
+      : argument(argument) {}
   virtual ~AddressOfExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;

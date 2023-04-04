@@ -23,6 +23,16 @@ public:
     return program;
   }
 
+  inline std::string temp() const {
+    static int next_idx = 0;
+    return "tmp_" + std::to_string(next_idx++);
+  }
+  inline std::string generate_label(const std::string label_type) {
+    static std::map<std::string, int> next_indices;
+    const int next_idx = next_indices[label_type];
+    return "." + label_type + "_" + std::to_string(next_idx);
+  }
+
   void add_function(const std::string &name,
                     const std::vector<Variable> &arguments,
                     const Type return_type) {
@@ -52,14 +62,10 @@ public:
     function().instructions.push_back(instruction);
   }
   inline std::string last_result() const {
-    runtime_assert(function().instructions.size() > 1,
+    runtime_assert(function().instructions.size() > 0,
                    "Cannot grab last result: no instructions in " +
                        current_function);
     return function().instructions.back().destination;
-  }
-  inline std::string temp() const {
-    static int next_idx = 0;
-    return "tmp_" + std::to_string(next_idx++);
   }
 
   inline void add(const std::string &dest, const std::string &lhs,

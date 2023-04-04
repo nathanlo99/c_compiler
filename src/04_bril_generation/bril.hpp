@@ -17,16 +17,31 @@ enum class Type {
   IntStar,
 };
 
+constexpr Type type_from_ast_type(const ::Type type) {
+  switch (type) {
+  case ::Type::Int:
+    return Type::Int;
+  case ::Type::IntStar:
+    return Type::IntStar;
+  case ::Type::Unknown:
+    return Type::Void;
+  }
+}
+
 inline std::ostream &operator<<(std::ostream &os, const Type type) {
   switch (type) {
   case Type::Void:
     os << "void";
+    break;
   case Type::Bool:
     os << "bool";
+    break;
   case Type::Int:
     os << "int";
+    break;
   case Type::IntStar:
     os << "ptr<int>";
+    break;
   }
   return os;
 }
@@ -34,6 +49,8 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
 struct Variable {
   std::string name;
   Type type;
+
+  Variable(const std::string &name, const Type type) : name(name), type(type) {}
 };
 
 enum class Opcode {
@@ -75,7 +92,6 @@ enum class Opcode {
 
 struct Instruction {
   Opcode opcode;
-  std::string label_value; // Only if opcode == Label
   std::string destination;
   Type type;
 
@@ -83,13 +99,12 @@ struct Instruction {
   std::vector<std::string> funcs;
   std::vector<std::string> labels;
 
-  Instruction(const Opcode opcode, const std::string &label,
-              const std::string &destination, const Type type,
-              const std::vector<std::string> &arguments,
+  Instruction(const Opcode opcode, const std::string &destination,
+              const Type type, const std::vector<std::string> &arguments,
               const std::vector<std::string> &funcs,
               const std::vector<std::string> &labels)
-      : opcode(opcode), label_value(label), destination(destination),
-        type(type), arguments(arguments), funcs(funcs), labels(labels) {}
+      : opcode(opcode), destination(destination), type(type),
+        arguments(arguments), funcs(funcs), labels(labels) {}
 
   Instruction(const Opcode opcode, const std::string &destination,
               const std::vector<std::string> &arguments)
@@ -140,17 +155,18 @@ struct Instruction {
     return Instruction(Opcode::Ne, dest, {lhs, rhs});
   }
   static inline Instruction jmp(const std::string &dest) {
-    return Instruction(Opcode::Jmp, dest, "", Type::Void, {}, {}, {});
+    return Instruction(Opcode::Jmp, "", Type::Void, {}, {}, {dest});
   }
   static inline Instruction br(const std::string &dest,
                                const std::string &true_label,
                                const std::string &false_label) {
-    return Instruction(Opcode::Br, dest, {true_label, false_label});
+    return Instruction(Opcode::Br, "", Type::Void, {dest}, {},
+                       {true_label, false_label});
   }
   static inline Instruction call(const std::string &destination,
                                  const std::string &function,
                                  const std::vector<std::string> &arguments) {
-    return Instruction(Opcode::Call, "", destination, Type::Int, arguments,
+    return Instruction(Opcode::Call, destination, Type::Int, arguments,
                        {function}, {});
   }
   static inline Instruction ret(const std::string &arg) {
@@ -193,12 +209,12 @@ struct Instruction {
     return Instruction(Opcode::AddressOf, destination, {argument});
   }
   static inline Instruction label(const std::string &label_value) {
-    return Instruction(Opcode::Label, label_value, "", Type::Void, {}, {}, {});
+    return Instruction(Opcode::Label, "", Type::Void, {}, {}, {label_value});
   }
   static inline Instruction phi(const std::string &destination,
                                 const std::vector<std::string> &values,
                                 const std::vector<std::string> &labels) {
-    return Instruction(Opcode::Phi, "", destination, Type::Void, values, {},
+    return Instruction(Opcode::Phi, destination, Type::Void, values, {},
                        labels);
   }
 
@@ -310,7 +326,7 @@ struct Instruction {
       break;
 
     case Opcode::Label:
-      os << "." << instruction.labels[0];
+      os << instruction.labels[0] << ":";
       break;
 
     case Opcode::Phi:
@@ -333,7 +349,7 @@ struct Function {
 
   Function(const std::string &name, const std::vector<Variable> &arguments,
            const Type return_type)
-      : name(name), arguments(arguments), return_type(return_type) {}
+      : name("@" + name), arguments(arguments), return_type(return_type) {}
 
   friend std::ostream &operator<<(std::ostream &os, const Function &function) {
     os << function.name;
@@ -341,8 +357,8 @@ struct Function {
       os << "(";
       bool first = true;
       for (const auto &argument : function.arguments) {
-        if (!first)
-          first = true;
+        if (first)
+          first = false;
         else
           os << ", ";
         os << argument.name << ": " << argument.type;

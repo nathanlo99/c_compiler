@@ -1,6 +1,8 @@
 
 #include "naive_bril_generator.hpp"
 #include "ast_node.hpp"
+#include "util.hpp"
+#include <memory>
 
 namespace bril {
 
@@ -11,15 +13,34 @@ void NaiveBRILGenerator::visit(::Program &program) {
 }
 
 void NaiveBRILGenerator::visit(Procedure &procedure) {
-  // TODO
+  const std::string name = procedure.name;
+  std::vector<bril::Variable> params;
+  for (const auto &param : procedure.params) {
+    params.emplace_back(param.name, type_from_ast_type(param.type));
+  }
+  add_function(name, params, type_from_ast_type(procedure.return_type));
+
+  enter_function(name);
+  for (const auto &decl : procedure.decls) {
+    constant(decl.name, std::to_string(decl.initial_value.value));
+  }
+  for (const auto &statement : procedure.statements) {
+    statement->accept_simple(*this);
+  }
+  procedure.return_expr->accept_simple(*this);
+  ret(last_result());
+
+  leave_function();
 }
 
-void NaiveBRILGenerator::visit(VariableLValueExpr &) {
-  unreachable("BRIL generation for lvalue should be handled in assignment");
+void NaiveBRILGenerator::visit(VariableLValueExpr &expr) {
+  unreachable("BRIL generation for variable lvalue (" + expr.variable.name +
+              ") should be handled in assignment");
 }
 
 void NaiveBRILGenerator::visit(DereferenceLValueExpr &) {
-  unreachable("BRIL generation for lvalue should be handled in assignment");
+  unreachable(
+      "BRIL generation for dereference should be handled in assignment");
 }
 
 void NaiveBRILGenerator::visit(TestExpr &expr) {
@@ -61,47 +82,130 @@ void NaiveBRILGenerator::visit(LiteralExpr &expr) {
 }
 
 void NaiveBRILGenerator::visit(BinaryExpr &expr) {
-  // TODO
+  expr.lhs->accept_simple(*this);
+  const std::string lhs_variable = last_result();
+  expr.rhs->accept_simple(*this);
+  const std::string rhs_variable = last_result();
+  const std::string destination = temp();
+  switch (expr.operation) {
+  case BinaryOperation::Add:
+    add(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::Sub:
+    sub(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::Mul:
+    mul(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::Div:
+    div(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::Mod:
+    mod(destination, lhs_variable, rhs_variable);
+    break;
+  }
 }
 
 void NaiveBRILGenerator::visit(AddressOfExpr &expr) {
-  // TODO
+  const std::string argument = expr.argument->variable.name;
+  const std::string destination = temp();
+  addressof(destination, argument);
 }
 
 void NaiveBRILGenerator::visit(DereferenceExpr &expr) {
-  // TODO
+  expr.argument->accept_simple(*this);
+  const std::string argument = last_result();
+  const std::string destination = temp();
+  load(destination, argument);
 }
 
 void NaiveBRILGenerator::visit(NewExpr &expr) {
-  // TODO
+  expr.rhs->accept_simple(*this);
+  const std::string argument = last_result();
+  const std::string destination = temp();
+  alloc(destination, argument);
 }
 
 void NaiveBRILGenerator::visit(FunctionCallExpr &expr) {
-  // TODO
+  std::vector<std::string> argument_names;
+  const std::string destination = temp();
+  for (auto &argument : expr.arguments) {
+    argument->accept_simple(*this);
+    const std::string argument_name = last_result();
+    argument_names.push_back(argument_name);
+  }
+  call(destination, "@" + expr.procedure_name, argument_names);
 }
 
 void NaiveBRILGenerator::visit(Statements &statements) {
-  // TODO
+  for (auto &statement : statements.statements) {
+    statement->accept_simple(*this);
+  }
 }
 
 void NaiveBRILGenerator::visit(AssignmentStatement &statement) {
-  // TODO
+  statement.rhs->accept_simple(*this);
+  const std::string rhs_variable = last_result();
+
+  if (const auto &lhs =
+          std::dynamic_pointer_cast<VariableLValueExpr>(statement.lhs)) {
+    id(lhs->variable.name, rhs_variable);
+  } else if (const auto &lhs = std::dynamic_pointer_cast<DereferenceLValueExpr>(
+                 statement.lhs)) {
+    lhs->argument->accept_simple(*this);
+    const std::string lhs_variable = last_result();
+    store(lhs_variable, rhs_variable);
+  } else {
+    runtime_assert(false, "Assigning to unknown kind of lvalue: was neither "
+                          "variable nor dereference");
+  }
 }
 
 void NaiveBRILGenerator::visit(IfStatement &statement) {
-  // TODO
+  const std::string true_label = generate_label("if_true");
+  const std::string false_label = generate_label("if_false");
+  const std::string endif_label = generate_label("if_endif");
+
+  statement.test_expression->accept_simple(*this);
+  const std::string cond = last_result();
+  br(cond, true_label, false_label);
+
+  label(true_label);
+  statement.true_statement->accept_simple(*this);
+  jmp(endif_label);
+
+  label(false_label);
+  statement.false_statement->accept_simple(*this);
+  jmp(endif_label); // Technically unnecessary but good for now
+
+  label(endif_label);
 }
 
 void NaiveBRILGenerator::visit(WhileStatement &statement) {
-  // TODO
+  const std::string loop_label = generate_label("while_loop");
+  const std::string end_label = generate_label("while_end");
+  const std::string body_label = generate_label("while_body");
+
+  label(loop_label);
+  statement.test_expression->accept_simple(*this);
+  const std::string cond = last_result();
+  br(cond, body_label, end_label);
+  label(body_label);
+  statement.body_statement->accept_simple(*this);
+  jmp(loop_label);
+  label(end_label);
 }
 
 void NaiveBRILGenerator::visit(PrintStatement &statement) {
-  // TODO
+  statement.expression->accept_simple(*this);
+  const std::string result = last_result();
+  print(result);
 }
 
 void NaiveBRILGenerator::visit(DeleteStatement &statement) {
-  // TODO
+  statement.expression->accept_simple(*this);
+  const std::string result = last_result();
+  free(result);
 }
 
 } // namespace bril

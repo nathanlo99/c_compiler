@@ -11,9 +11,9 @@ struct NaiveBRILGenerator : BRILGenerator, ASTSimpleVisitor {
 
   SymbolTable table;
 
-  void enter_procedure(const std::string &procedure) {
-    BRILGenerator::enter_function(procedure);
-    table.enter_procedure(procedure);
+  void enter_function(const std::string &function) {
+    BRILGenerator::enter_function(function);
+    table.enter_procedure(function);
   }
 
   ~NaiveBRILGenerator() = default;

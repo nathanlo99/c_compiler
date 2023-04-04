@@ -79,7 +79,8 @@ void debug() {
 void emit_bril(std::shared_ptr<Program> program) {
   bril::NaiveBRILGenerator generator;
   program->accept_simple(generator);
-  std::cout << generator.program() << std::endl;
+  const bril::Program bril_program = generator.program();
+  std::cout << bril_program << std::endl;
 }
 
 int main() {
@@ -98,7 +99,7 @@ int main() {
     FoldConstantsVisitor fold_constants_visitor;
     program->accept_recursive(fold_constants_visitor);
 
-    program->print();
+    // program->print();
     program->emit_c(std::cerr, 0);
 
     emit_bril(program);
