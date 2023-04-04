@@ -326,13 +326,17 @@ struct Instruction {
 };
 
 struct Function {
-  std::string procedure_name;
-  std::vector<Variable> arguments;
+  std::string name;
+  std::vector<bril::Variable> arguments;
   Type return_type;
-  std::vector<Instruction> instructions;
+  std::vector<bril::Instruction> instructions;
+
+  Function(const std::string &name, const std::vector<Variable> &arguments,
+           const Type return_type)
+      : name(name), arguments(arguments), return_type(return_type) {}
 
   friend std::ostream &operator<<(std::ostream &os, const Function &function) {
-    os << function.procedure_name;
+    os << function.name;
     if (function.arguments.size() > 0) {
       os << "(";
       bool first = true;
