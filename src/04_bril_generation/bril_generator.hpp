@@ -67,6 +67,12 @@ public:
                        current_function);
     return function().instructions.back().destination;
   }
+  inline Type last_type() const {
+    runtime_assert(function().instructions.size() > 0,
+                   "Cannot grab last result: no instructions in " +
+                       current_function);
+    return function().instructions.back().type;
+  }
 
   inline void add(const std::string &dest, const std::string &lhs,
                   const std::string &rhs) {
@@ -122,11 +128,12 @@ public:
     emit(Instruction::call(destination, function, arguments));
   }
   void ret(const std::string &arg) { emit(Instruction::ret(arg)); }
-  void constant(const std::string &destination, const std::string &value) {
+  void constant(const std::string &destination, const Literal &value) {
     emit(Instruction::constant(destination, value));
   }
-  void id(const std::string &destination, const std::string &value) {
-    emit(Instruction::id(destination, value));
+  void id(const std::string &destination, const std::string &value,
+          const Type type) {
+    emit(Instruction::id(destination, value, type));
   }
   void print(const std::string &value) { emit(Instruction::print(value)); }
   void nop() { emit(Instruction::nop()); }

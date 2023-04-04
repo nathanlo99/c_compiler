@@ -22,7 +22,7 @@ void NaiveBRILGenerator::visit(Procedure &procedure) {
 
   enter_function(name);
   for (const auto &decl : procedure.decls) {
-    constant(decl.name, std::to_string(decl.initial_value.value));
+    constant(decl.name, decl.initial_value);
   }
   for (const auto &statement : procedure.statements) {
     statement->accept_simple(*this);
@@ -73,12 +73,12 @@ void NaiveBRILGenerator::visit(TestExpr &expr) {
 
 void NaiveBRILGenerator::visit(VariableExpr &expr) {
   const std::string destination = temp();
-  id(destination, expr.variable.name);
+  id(destination, expr.variable.name, type_from_ast_type(expr.variable.type));
 }
 
 void NaiveBRILGenerator::visit(LiteralExpr &expr) {
   const std::string destination = temp();
-  constant(destination, std::to_string(expr.literal.value));
+  constant(destination, expr.literal);
 }
 
 void NaiveBRILGenerator::visit(BinaryExpr &expr) {
@@ -149,7 +149,8 @@ void NaiveBRILGenerator::visit(AssignmentStatement &statement) {
 
   if (const auto &lhs =
           std::dynamic_pointer_cast<VariableLValueExpr>(statement.lhs)) {
-    id(lhs->variable.name, rhs_variable);
+    const Type type = last_type();
+    id(lhs->variable.name, rhs_variable, type);
   } else if (const auto &lhs = std::dynamic_pointer_cast<DereferenceLValueExpr>(
                  statement.lhs)) {
     lhs->argument->accept_simple(*this);

@@ -15,6 +15,7 @@ enum class Type {
   Bool,
   Int,
   IntStar,
+  Unknown,
 };
 
 constexpr Type type_from_ast_type(const ::Type type) {
@@ -31,7 +32,7 @@ constexpr Type type_from_ast_type(const ::Type type) {
 inline std::ostream &operator<<(std::ostream &os, const Type type) {
   switch (type) {
   case Type::Void:
-    os << "void";
+    os << "";
     break;
   case Type::Bool:
     os << "bool";
@@ -41,6 +42,9 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
     break;
   case Type::IntStar:
     os << "ptr<int>";
+    break;
+  case Type::Unknown:
+    os << "?";
     break;
   }
   return os;
@@ -92,8 +96,8 @@ enum class Opcode {
 
 struct Instruction {
   Opcode opcode;
+  Type type = Type::Void;
   std::string destination;
-  Type type;
 
   std::vector<std::string> arguments;
   std::vector<std::string> funcs;
@@ -103,56 +107,58 @@ struct Instruction {
               const Type type, const std::vector<std::string> &arguments,
               const std::vector<std::string> &funcs,
               const std::vector<std::string> &labels)
-      : opcode(opcode), destination(destination), type(type),
+      : opcode(opcode), type(type), destination(destination),
         arguments(arguments), funcs(funcs), labels(labels) {}
 
-  Instruction(const Opcode opcode, const std::string &destination,
+  Instruction(const Opcode opcode, const Type type,
+              const std::string &destination,
               const std::vector<std::string> &arguments)
-      : opcode(opcode), destination(destination), arguments(arguments) {}
+      : opcode(opcode), type(type), destination(destination),
+        arguments(arguments) {}
 
   static inline Instruction add(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
-    return Instruction(Opcode::Add, dest, {lhs, rhs});
+    return Instruction(Opcode::Add, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction sub(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
-    return Instruction(Opcode::Sub, dest, {lhs, rhs});
+    return Instruction(Opcode::Sub, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction mul(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
-    return Instruction(Opcode::Mul, dest, {lhs, rhs});
+    return Instruction(Opcode::Mul, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction div(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
-    return Instruction(Opcode::Div, dest, {lhs, rhs});
+    return Instruction(Opcode::Div, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction mod(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
-    return Instruction(Opcode::Mod, dest, {lhs, rhs});
+    return Instruction(Opcode::Mod, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction lt(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Lt, dest, {lhs, rhs});
+    return Instruction(Opcode::Lt, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction le(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Le, dest, {lhs, rhs});
+    return Instruction(Opcode::Le, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction gt(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Gt, dest, {lhs, rhs});
+    return Instruction(Opcode::Gt, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction ge(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Ge, dest, {lhs, rhs});
+    return Instruction(Opcode::Ge, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction eq(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Eq, dest, {lhs, rhs});
+    return Instruction(Opcode::Eq, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction ne(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Ne, dest, {lhs, rhs});
+    return Instruction(Opcode::Ne, Type::Bool, dest, {lhs, rhs});
   }
   static inline Instruction jmp(const std::string &dest) {
     return Instruction(Opcode::Jmp, "", Type::Void, {}, {}, {dest});
@@ -170,43 +176,49 @@ struct Instruction {
                        {function}, {});
   }
   static inline Instruction ret(const std::string &arg) {
-    return Instruction(Opcode::Ret, "", {arg});
+    return Instruction(Opcode::Ret, Type::Void, "", {arg});
   }
   static inline Instruction constant(const std::string &destination,
-                                     const std::string &value) {
-    return Instruction(Opcode::Const, destination, {value});
+                                     const Literal &literal) {
+    const Type type = type_from_ast_type(literal.type);
+    return Instruction(Opcode::Const, type, destination,
+                       {std::to_string(literal.value)});
   }
   static inline Instruction id(const std::string &destination,
-                               const std::string &value) {
-    return Instruction(Opcode::Id, destination, {value});
+                               const std::string &value, const Type type) {
+    return Instruction(Opcode::Id, type, destination, {value});
   }
   static inline Instruction print(const std::string &value) {
-    return Instruction(Opcode::Print, "", {value});
+    return Instruction(Opcode::Print, Type::Void, "", {value});
   }
-  static inline Instruction nop() { return Instruction(Opcode::Nop, "", {}); }
+  static inline Instruction nop() {
+    return Instruction(Opcode::Nop, Type::Void, "", {});
+  }
   static inline Instruction alloc(const std::string &destination,
                                   const std::string &argument) {
-    return Instruction(Opcode::Alloc, destination, {argument});
+    return Instruction(Opcode::Alloc, Type::IntStar, destination, {argument});
   }
   static inline Instruction free(const std::string &argument) {
-    return Instruction(Opcode::Free, "", {argument});
+    return Instruction(Opcode::Free, Type::Void, "", {argument});
   }
   static inline Instruction store(const std::string &destination,
                                   const std::string &argument) {
-    return Instruction(Opcode::Store, "", {destination, argument});
+    return Instruction(Opcode::Store, Type::Void, "", {destination, argument});
   }
   static inline Instruction load(const std::string &destination,
                                  const std::string &argument) {
-    return Instruction(Opcode::Load, destination, {argument});
+    return Instruction(Opcode::Load, Type::Int, destination, {argument});
   }
   static inline Instruction ptradd(const std::string &destination,
                                    const std::string &lhs,
                                    const std::string &rhs) {
-    return Instruction(Opcode::PointerAdd, destination, {lhs, rhs});
+    return Instruction(Opcode::PointerAdd, Type::IntStar, destination,
+                       {lhs, rhs});
   }
   static inline Instruction addressof(const std::string &destination,
                                       const std::string &argument) {
-    return Instruction(Opcode::AddressOf, destination, {argument});
+    return Instruction(Opcode::AddressOf, Type::IntStar, destination,
+                       {argument});
   }
   static inline Instruction label(const std::string &label_value) {
     return Instruction(Opcode::Label, "", Type::Void, {}, {}, {label_value});
@@ -222,107 +234,108 @@ struct Instruction {
                                   const Instruction &instruction) {
     switch (instruction.opcode) {
     case Opcode::Add:
-      os << instruction.destination << " : " << instruction.type << " = add "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = add "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Sub:
-      os << instruction.destination << " : " << instruction.type << " = sub "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = sub "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Mul:
-      os << instruction.destination << " : " << instruction.type << " = mul "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = mul "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Div:
-      os << instruction.destination << " : " << instruction.type << " = div "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = div "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Mod:
-      os << instruction.destination << " : " << instruction.type << " = mod "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = mod "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
 
     case Opcode::Lt:
-      os << instruction.destination << " : " << instruction.type << " = lt "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = lt "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Le:
-      os << instruction.destination << " : " << instruction.type << " = le "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = le "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Gt:
-      os << instruction.destination << " : " << instruction.type << " = gt "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = gt "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Ge:
-      os << instruction.destination << " : " << instruction.type << " = ge "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = ge "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Eq:
-      os << instruction.destination << " : " << instruction.type << " = eq "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = eq "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::Ne:
-      os << instruction.destination << " : " << instruction.type << " = ne "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = ne "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
 
     case Opcode::Jmp:
-      os << "jmp " << instruction.labels[0];
+      os << "jmp " << instruction.labels[0] << ";";
       break;
     case Opcode::Br:
       os << "br " << instruction.arguments[0] << " " << instruction.labels[0]
-         << " " << instruction.labels[1];
+         << " " << instruction.labels[1] << ";";
       break;
     case Opcode::Call:
       os << "call " << instruction.funcs[0];
       for (const auto &argument : instruction.arguments)
         os << " " << argument;
+      os << ";";
       break;
     case Opcode::Ret:
       if (instruction.arguments.empty())
-        os << "ret";
+        os << "ret;";
       else
-        os << "ret " << instruction.arguments[0];
+        os << "ret " << instruction.arguments[0] << ";";
       break;
 
     case Opcode::Const:
-      os << instruction.destination << " : " << instruction.type << " = const "
-         << instruction.arguments[0];
+      os << instruction.destination << ": " << instruction.type << " = const "
+         << instruction.arguments[0] << ";";
       break;
     case Opcode::Id:
-      os << instruction.destination << " : " << instruction.type << " = id "
-         << instruction.arguments[0];
+      os << instruction.destination << ": " << instruction.type << " = id "
+         << instruction.arguments[0] << ";";
       break;
     case Opcode::Print:
-      os << "print " << instruction.arguments[0];
+      os << "print " << instruction.arguments[0] << ";";
       break;
     case Opcode::Nop:
-      os << "nop";
+      os << "nop;";
       break;
 
     case Opcode::Alloc:
-      os << instruction.destination << " : " << instruction.type << " = alloc "
-         << instruction.arguments[0];
+      os << instruction.destination << ": " << instruction.type << " = alloc "
+         << instruction.arguments[0] << ";";
       break;
     case Opcode::Free:
-      os << "free " << instruction.arguments[0];
+      os << "free " << instruction.arguments[0] << ";";
       break;
     case Opcode::Store:
       os << "store " << instruction.arguments[0] << " "
-         << instruction.arguments[1];
+         << instruction.arguments[1] << ";";
       break;
     case Opcode::Load:
-      os << instruction.destination << " : " << instruction.type << " = load "
-         << instruction.arguments[0];
+      os << instruction.destination << ": " << instruction.type << " = load "
+         << instruction.arguments[0] << ";";
       break;
     case Opcode::PointerAdd:
-      os << instruction.destination << " : " << instruction.type << " = ptradd "
-         << instruction.arguments[0] << " " << instruction.arguments[1];
+      os << instruction.destination << ": " << instruction.type << " = ptradd "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::AddressOf:
-      os << instruction.destination << " : " << instruction.type
-         << " = addressof " << instruction.arguments[0];
+      os << instruction.destination << ": " << instruction.type
+         << " = addressof " << instruction.arguments[0] << ";";
       break;
 
     case Opcode::Label:
@@ -330,11 +343,12 @@ struct Instruction {
       break;
 
     case Opcode::Phi:
-      os << instruction.destination << " : " << instruction.type << " = phi ";
+      os << instruction.destination << ": " << instruction.type << " = phi ";
       const size_t n = instruction.arguments.size();
       for (size_t i = 0; i < n; ++i) {
         os << " " << instruction.labels[i] << " " << instruction.arguments[i];
       }
+      os << ";";
       break;
     }
     return os;
@@ -365,7 +379,7 @@ struct Function {
       }
       os << ")";
     }
-    os << " : " << function.return_type << " {" << std::endl;
+    os << ": " << function.return_type << " {" << std::endl;
 
     for (const auto &instruction : function.instructions) {
       if (instruction.opcode == Opcode::Label) {
