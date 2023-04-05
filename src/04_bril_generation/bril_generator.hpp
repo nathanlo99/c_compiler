@@ -18,7 +18,7 @@ public:
   Program program() const {
     Program program;
     for (const auto &[name, function] : functions) {
-      program.functions.push_back(function);
+      program.cfgs.push_back(ControlFlowGraph(function));
     }
     return program;
   }

@@ -461,6 +461,7 @@ struct ControlFlowGraph {
       os << exiting_block << ", ";
     }
     os << "\b\b]" << std::endl;
+    os << separator << std::endl;
     return os;
   }
 
@@ -470,11 +471,11 @@ private:
 };
 
 struct Program {
-  std::vector<Function> functions;
+  std::vector<ControlFlowGraph> cfgs;
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
-    for (const auto &function : program.functions) {
-      os << function << std::endl;
+    for (const auto &cfgs : program.cfgs) {
+      os << cfgs << std::endl;
     }
     return os;
   }

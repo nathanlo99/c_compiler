@@ -82,11 +82,6 @@ void emit_bril(std::shared_ptr<Program> program) {
   const bril::Program bril_program = generator.program();
 
   std::cout << bril_program << std::endl;
-
-  for (const auto &function : bril_program.functions) {
-    const auto cfg = bril::ControlFlowGraph(function);
-    std::cout << cfg << std::endl;
-  }
 }
 
 int main() {
