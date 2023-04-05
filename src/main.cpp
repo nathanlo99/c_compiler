@@ -1,11 +1,13 @@
 
 #include "ast_node.hpp"
+#include "bril.hpp"
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
+#include "remove_unused_assignments.hpp"
 #include "simple_bril_generator.hpp"
 #include "symbol_table.hpp"
 #include "util.hpp"
@@ -47,7 +49,7 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
   return program;
 }
 
-void debug() {
+void debug_constant_folding() {
   const std::string input = "0 - (b - c)";
   const std::vector<Variable> variables = {
       Variable("a", Type::Int),
@@ -76,17 +78,65 @@ void debug() {
   simplified_expr->print(0);
 }
 
+void debug_dead_code_elimination() {
+  using namespace bril;
+  Function function("main", {}, bril::Type::Int);
+  function.instructions = {
+      bril::Instruction::constant("a", Literal(4, ::Type::Int)),
+      bril::Instruction::constant("a", Literal(3, ::Type::Int)),
+      bril::Instruction::constant("b", Literal(2, ::Type::Int)),
+      bril::Instruction::constant("c", Literal(1, ::Type::Int)),
+      bril::Instruction::add("d", "a", "b"),
+      bril::Instruction::add("e", "c", "d"),
+      bril::Instruction::add("e", "e", "e"),
+      bril::Instruction::ret("d"),
+  };
+  ControlFlowGraph graph(function);
+  std::cout << graph << std::endl;
+
+  size_t num_iterations = 0;
+  while (true) {
+    bool changed = false;
+    changed |= remove_global_unused_assignments(graph);
+    changed |= graph.apply_local_pass(remove_local_unused_assignments);
+    num_iterations += changed;
+    if (!changed)
+      break;
+    std::cout << "After iteration " << num_iterations << std::endl;
+    std::cout << graph << std::endl;
+  }
+
+  std::cout << "Converged after " << num_iterations << " iterations"
+            << std::endl;
+}
+
 void emit_bril(std::shared_ptr<Program> program) {
   bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
-  const bril::Program bril_program = generator.program();
+  bril::Program bril_program = generator.program();
 
+  std::cout << "BEFORE: " << std::endl;
+  std::cout << bril_program << std::endl;
+
+  size_t num_iterations = 0;
+  while (true) {
+    num_iterations++;
+    bool have_changed = false;
+    have_changed |=
+        bril_program.apply_global_pass(bril::remove_global_unused_assignments);
+    if (!have_changed)
+      break;
+  }
+  std::cout << "Converged after " << num_iterations << " iterations"
+            << std::endl;
+
+  std::cout << "AFTER: " << std::endl;
   std::cout << bril_program << std::endl;
 }
 
 int main() {
-  // debug();
-  // return 0;
+  debug_dead_code_elimination();
+  return 0;
 
   try {
     const std::string input = consume_stdin();

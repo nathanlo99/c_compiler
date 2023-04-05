@@ -15,7 +15,7 @@ CFG load_cfg_from_file(const std::string &filename) {
   while (std::getline(ifs, line)) {
     if (line.size() > 0 && line[0] == '#')
       continue;
-    const auto tokens = split(line);
+    const auto tokens = util::split(line);
     runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
     const std::string product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,

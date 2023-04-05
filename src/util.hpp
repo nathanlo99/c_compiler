@@ -16,6 +16,7 @@
   __builtin_unreachable();
 }
 
+namespace util {
 [[maybe_unused]] static std::vector<std::string> split(const std::string &str) {
   std::stringstream ss(str);
   std::string token;
@@ -24,3 +25,10 @@
     result.push_back(token);
   return result;
 }
+
+static inline bool contains(const std::vector<std::string> &list,
+                            const std::string &str) {
+  return std::find(list.begin(), list.end(), str) == list.end();
+}
+
+} // namespace util

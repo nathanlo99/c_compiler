@@ -4,5 +4,6 @@ int wain(int a, int b) {
   int var = 142;
   int *ptr = NULL;
   int *null = NULL;
+  var = var + var;
   return meow;
 }

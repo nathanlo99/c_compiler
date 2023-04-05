@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "ast_node.hpp"
 #include <iostream>
 #include <string>
@@ -118,6 +120,11 @@ struct Instruction {
 
   inline bool is_jump() const {
     return opcode == Opcode::Jmp || opcode == Opcode::Br;
+  }
+  inline bool is_memory() const {
+    return opcode == Opcode::Alloc || opcode == Opcode::Free ||
+           opcode == Opcode::Store || opcode == Opcode::Load ||
+           opcode == Opcode::PointerAdd || opcode == Opcode::AddressOf;
   }
 
   static inline Instruction add(const std::string &dest, const std::string &lhs,
@@ -447,6 +454,13 @@ struct ControlFlowGraph {
     blocks.back().idx = blocks.size() - 1;
   }
 
+  template <typename Func> bool apply_local_pass(const Func &func) {
+    bool have_changed = false;
+    for (auto &block : blocks)
+      have_changed |= func(block);
+    return have_changed;
+  }
+
   friend std::ostream &operator<<(std::ostream &os,
                                   const ControlFlowGraph &graph) {
     const std::string separator = std::string(80, '-');
@@ -475,10 +489,24 @@ struct Program {
   std::vector<ControlFlowGraph> cfgs;
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
-    for (const auto &cfgs : program.cfgs) {
-      os << cfgs << std::endl;
+    for (const auto &cfg : program.cfgs) {
+      os << cfg << std::endl;
     }
     return os;
+  }
+
+  template <typename Func> bool apply_global_pass(const Func &func) {
+    bool have_changed = false;
+    for (auto &cfg : cfgs)
+      have_changed |= func(cfg);
+    return have_changed;
+  }
+
+  template <typename Func> bool apply_local_pass(const Func &func) {
+    bool have_changed = false;
+    for (auto &cfg : cfgs)
+      have_changed |= cfg.apply_local_pass(func);
+    return have_changed;
   }
 };
 
