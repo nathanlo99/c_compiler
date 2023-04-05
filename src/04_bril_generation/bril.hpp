@@ -414,6 +414,7 @@ struct Block {
 
   std::set<size_t> incoming_blocks;
   std::set<size_t> outgoing_blocks;
+  bool is_exiting = false;
 
   friend std::ostream &operator<<(std::ostream &os, const Block &block) {
     if (!block.incoming_blocks.empty()) {

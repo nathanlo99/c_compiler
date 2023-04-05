@@ -33,6 +33,8 @@ inline bool remove_global_unused_assignments(ControlFlowGraph &graph) {
       const std::string destination = instruction.destination;
       if (destination != "" && used_variables.count(destination) == 0 &&
           addressed_variables.count(destination) == 0) {
+        std::cerr << "Removing globally unused assignment " << instruction
+                  << std::endl;
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
         have_changed = true;
@@ -69,14 +71,20 @@ bool remove_local_unused_assignments(Block &block) {
       last_def[destination] = idx;
     }
   }
-  // Any definitions unused by the end of the block can also be deleted
-  for (const auto &[variable, def] : last_def) {
-    to_delete.insert(def);
+
+  // Any definitions unused by the end of an exiting block can also be deleted
+  if (block.is_exiting) {
+    for (const auto &[variable, def] : last_def) {
+      to_delete.insert(def);
+    }
   }
 
+  // Loop over the indices to delete in reverse order to keep indices valid
   bool changed = false;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
     const auto idx = *rit;
+    std::cerr << "Removing locally unused assignment "
+              << block.instructions[idx] << std::endl;
     block.instructions.erase(block.instructions.begin() + idx);
     changed = true;
   }

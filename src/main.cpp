@@ -28,7 +28,7 @@ std::string consume_stdin() {
   return buffer.str();
 }
 
-std::shared_ptr<Program> parse_program(const std::string &input) {
+std::shared_ptr<Program> program(const std::string &input) {
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   const CFG cfg = load_cfg_from_file("references/productions.cfg");
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
@@ -110,37 +110,32 @@ void debug_dead_code_elimination() {
             << std::endl;
 }
 
-void emit_bril(std::shared_ptr<Program> program) {
+bril::Program get_bril(std::shared_ptr<Program> program) {
   bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
-  bril::Program bril_program = generator.program();
+  return generator.program();
+}
 
-  std::cout << "BEFORE: " << std::endl;
-  std::cout << bril_program << std::endl;
-
+void apply_optimizations(bril::Program &program) {
+  using namespace bril;
   size_t num_iterations = 0;
   while (true) {
-    num_iterations++;
-    bool have_changed = false;
-    have_changed |=
-        bril_program.apply_global_pass(bril::remove_global_unused_assignments);
-    if (!have_changed)
+    bool changed = false;
+    changed |= program.apply_global_pass(remove_global_unused_assignments);
+    changed |= program.apply_local_pass(remove_local_unused_assignments);
+    num_iterations += changed;
+    if (!changed)
       break;
   }
-  std::cout << "Converged after " << num_iterations << " iterations"
-            << std::endl;
-
-  std::cout << "AFTER: " << std::endl;
-  std::cout << bril_program << std::endl;
 }
 
 int main() {
-  debug_dead_code_elimination();
-  return 0;
+  // debug_dead_code_elimination();
+  // return 0;
 
   try {
     const std::string input = consume_stdin();
-    const auto program0 = parse_program(input);
+    const auto program0 = program(input);
     const auto program = annotate_and_check_types(program0);
     const auto symbol_table = program->table;
 
@@ -153,10 +148,11 @@ int main() {
     // program->print();
     program->emit_c(std::cerr, 0);
 
-    emit_bril(program);
-    // NaiveMIPSGenerator generator;
-    // program->accept_simple(generator);
-    // generator.print();
+    bril::Program bril_program = get_bril(program);
+    std::cout << bril_program << std::endl;
+
+    apply_optimizations(bril_program);
+    std::cout << bril_program << std::endl;
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

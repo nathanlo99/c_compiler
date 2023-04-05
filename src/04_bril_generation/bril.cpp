@@ -35,6 +35,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
       current_block.instructions.push_back(instruction);
       const size_t current_block_idx = blocks.size();
       exiting_blocks.insert(current_block_idx);
+      current_block.is_exiting = true;
       add_block(current_block);
       current_block = Block();
     } else {
