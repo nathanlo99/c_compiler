@@ -291,7 +291,8 @@ struct Instruction {
          << " " << instruction.labels[1] << ";";
       break;
     case Opcode::Call:
-      os << "call " << instruction.funcs[0];
+      os << instruction.destination << ": " << instruction.type << " = call "
+         << instruction.funcs[0];
       for (const auto &argument : instruction.arguments)
         os << " " << argument;
       os << ";";

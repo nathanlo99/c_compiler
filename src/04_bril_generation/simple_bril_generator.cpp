@@ -128,12 +128,12 @@ void SimpleBRILGenerator::visit(NewExpr &expr) {
 
 void SimpleBRILGenerator::visit(FunctionCallExpr &expr) {
   std::vector<std::string> argument_names;
-  const std::string destination = temp();
   for (auto &argument : expr.arguments) {
     argument->accept_simple(*this);
     const std::string argument_name = last_result();
     argument_names.push_back(argument_name);
   }
+  const std::string destination = temp();
   call(destination, "@" + expr.procedure_name, argument_names);
 }
 

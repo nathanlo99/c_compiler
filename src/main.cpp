@@ -94,7 +94,7 @@ int main() {
     const auto program = annotate_and_check_types(program0);
     const auto symbol_table = program->table;
 
-    std::cerr << symbol_table << std::endl;
+    // std::cerr << symbol_table << std::endl;
 
     // Fold constants
     FoldConstantsVisitor fold_constants_visitor;
