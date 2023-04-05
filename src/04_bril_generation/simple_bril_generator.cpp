@@ -177,7 +177,6 @@ void SimpleBRILGenerator::visit(IfStatement &statement) {
 
   label(false_label);
   statement.false_statement->accept_simple(*this);
-  jmp(endif_label); // Technically unnecessary but good for now
 
   label(endif_label);
 }

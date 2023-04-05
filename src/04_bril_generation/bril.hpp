@@ -32,7 +32,7 @@ constexpr Type type_from_ast_type(const ::Type type) {
 inline std::ostream &operator<<(std::ostream &os, const Type type) {
   switch (type) {
   case Type::Void:
-    os << "";
+    os << "void";
     break;
   case Type::Bool:
     os << "bool";
@@ -115,6 +115,10 @@ struct Instruction {
               const std::vector<std::string> &arguments)
       : opcode(opcode), type(type), destination(destination),
         arguments(arguments) {}
+
+  inline bool is_jump() const {
+    return opcode == Opcode::Jmp || opcode == Opcode::Br;
+  }
 
   static inline Instruction add(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
@@ -392,6 +396,77 @@ struct Function {
     os << "}" << std::endl;
     return os;
   }
+};
+
+struct Block {
+  size_t idx;
+  std::vector<std::string> entry_labels;
+  std::vector<Instruction> instructions;
+  std::vector<std::string> exit_labels;
+
+  std::set<size_t> incoming_blocks;
+  std::set<size_t> outgoing_blocks;
+
+  friend std::ostream &operator<<(std::ostream &os, const Block &block) {
+    if (!block.incoming_blocks.empty()) {
+      os << "incoming_blocks: [";
+      for (const auto &block_idx : block.incoming_blocks) {
+        os << block_idx << ", ";
+      }
+      os << "\b\b]" << std::endl;
+    }
+    if (!block.outgoing_blocks.empty()) {
+      os << "outgoing_blocks: [";
+      for (const auto &block_idx : block.outgoing_blocks) {
+        os << block_idx << ", ";
+      }
+      os << "\b\b]" << std::endl;
+    }
+
+    os << "instructions: " << std::endl;
+    for (const auto &instruction : block.instructions) {
+      os << "  " << instruction << std::endl;
+    }
+    return os;
+  }
+};
+
+// Stores the CFG for a single procedure
+struct ControlFlowGraph {
+  std::string name;
+  std::vector<Block> blocks;
+  std::set<size_t> exiting_blocks;
+
+  ControlFlowGraph(const Function &function);
+
+  void add_block(const Block &block) {
+    if (block.instructions.empty())
+      return;
+    blocks.push_back(block);
+    blocks.back().idx = blocks.size() - 1;
+  }
+
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const ControlFlowGraph &graph) {
+    const std::string separator = std::string(80, '-');
+    os << "CFG for " << graph.name << std::endl;
+    for (size_t i = 0; i < graph.blocks.size(); ++i) {
+      os << separator << std::endl;
+      os << "index: " << i << std::endl;
+      os << graph.blocks[i];
+    }
+    os << separator << std::endl;
+    os << "exiting blocks: [";
+    for (size_t exiting_block : graph.exiting_blocks) {
+      os << exiting_block << ", ";
+    }
+    os << "\b\b]" << std::endl;
+    return os;
+  }
+
+private:
+  void add_directed_edge(const size_t source, const size_t target);
+  void compute_edges();
 };
 
 struct Program {
