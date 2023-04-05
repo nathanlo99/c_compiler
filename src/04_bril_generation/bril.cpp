@@ -3,7 +3,8 @@
 
 namespace bril {
 ControlFlowGraph::ControlFlowGraph(const Function &function)
-    : name(function.name) {
+    : name(function.name), arguments(function.arguments),
+      return_type(function.return_type) {
   /*
   loop over the instructions in function:
     - labels start new blocks

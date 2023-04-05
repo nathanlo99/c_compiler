@@ -443,6 +443,9 @@ struct Block {
 // Stores the CFG for a single procedure
 struct ControlFlowGraph {
   std::string name;
+  std::vector<bril::Variable> arguments;
+  Type return_type;
+
   std::vector<Block> blocks;
   std::set<size_t> exiting_blocks;
 
@@ -465,7 +468,18 @@ struct ControlFlowGraph {
   friend std::ostream &operator<<(std::ostream &os,
                                   const ControlFlowGraph &graph) {
     const std::string separator = std::string(80, '-');
-    os << "CFG for " << graph.name << std::endl;
+    os << "CFG for " << graph.name << "(";
+
+    bool first = true;
+    for (const auto &argument : graph.arguments) {
+      if (first)
+        first = false;
+      else
+        os << ", ";
+      os << argument.name << ": " << argument.type;
+    }
+    os << ") : " << graph.return_type << std::endl;
+
     for (size_t i = 0; i < graph.blocks.size(); ++i) {
       os << separator << std::endl;
       os << "index: " << i << std::endl;
