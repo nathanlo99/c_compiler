@@ -458,11 +458,11 @@ struct ControlFlowGraph {
     blocks.back().idx = blocks.size() - 1;
   }
 
-  template <typename Func> bool apply_local_pass(const Func &func) {
-    bool have_changed = false;
+  template <typename Func> size_t apply_local_pass(const Func &func) {
+    size_t num_removed_lines = false;
     for (auto &block : blocks)
-      have_changed |= func(block);
-    return have_changed;
+      num_removed_lines += func(block);
+    return num_removed_lines;
   }
 
   friend std::ostream &operator<<(std::ostream &os,
@@ -510,18 +510,18 @@ struct Program {
     return os;
   }
 
-  template <typename Func> bool apply_global_pass(const Func &func) {
-    bool have_changed = false;
+  template <typename Func> size_t apply_global_pass(const Func &func) {
+    size_t num_removed_lines = 0;
     for (auto &cfg : cfgs)
-      have_changed |= func(cfg);
-    return have_changed;
+      num_removed_lines += func(cfg);
+    return num_removed_lines;
   }
 
-  template <typename Func> bool apply_local_pass(const Func &func) {
-    bool have_changed = false;
+  template <typename Func> size_t apply_local_pass(const Func &func) {
+    size_t num_removed_lines = 0;
     for (auto &cfg : cfgs)
-      have_changed |= cfg.apply_local_pass(func);
-    return have_changed;
+      num_removed_lines += cfg.apply_local_pass(func);
+    return num_removed_lines;
   }
 };
 

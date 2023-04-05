@@ -94,13 +94,14 @@ void debug_dead_code_elimination() {
   ControlFlowGraph graph(function);
   std::cout << graph << std::endl;
 
-  size_t num_iterations = 0;
+  size_t num_iterations = 0, num_removed_lines = 0;
   while (true) {
-    bool changed = false;
-    changed |= remove_global_unused_assignments(graph);
-    changed |= graph.apply_local_pass(remove_local_unused_assignments);
-    num_iterations += changed;
-    if (!changed)
+    num_iterations++;
+    const size_t old_num_removed_lines = num_removed_lines;
+    num_removed_lines += remove_global_unused_assignments(graph);
+    num_removed_lines +=
+        graph.apply_local_pass(remove_local_unused_assignments);
+    if (num_removed_lines == old_num_removed_lines)
       break;
     std::cout << "After iteration " << num_iterations << std::endl;
     std::cout << graph << std::endl;
@@ -116,17 +117,20 @@ bril::Program get_bril(std::shared_ptr<Program> program) {
   return generator.program();
 }
 
-void apply_optimizations(bril::Program &program) {
+size_t apply_optimizations(bril::Program &program) {
   using namespace bril;
-  size_t num_iterations = 0;
+  size_t num_removed_lines = 0;
   while (true) {
     bool changed = false;
-    changed |= program.apply_global_pass(remove_global_unused_assignments);
-    changed |= program.apply_local_pass(remove_local_unused_assignments);
-    num_iterations += changed;
-    if (!changed)
+    const size_t old_num_removed_lines = num_removed_lines;
+    num_removed_lines +=
+        program.apply_global_pass(remove_global_unused_assignments);
+    num_removed_lines +=
+        program.apply_local_pass(remove_local_unused_assignments);
+    if (num_removed_lines == old_num_removed_lines)
       break;
   }
+  return num_removed_lines;
 }
 
 int main() {
@@ -151,8 +155,10 @@ int main() {
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
 
-    apply_optimizations(bril_program);
+    const size_t num_removed_lines = apply_optimizations(bril_program);
     std::cout << bril_program << std::endl;
+    std::cout << "Optimizations removed " << num_removed_lines << " lines"
+              << std::endl;
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

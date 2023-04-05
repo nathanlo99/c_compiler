@@ -5,11 +5,11 @@
 
 namespace bril {
 
-inline bool remove_global_unused_assignments(ControlFlowGraph &graph) {
+inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   // For any given assignment 'var = value'
   // - If we never use 'var' anywhere else in the function, remove the
   //   assignment
-  bool have_changed = false;
+  size_t num_removed_lines = 0;
   std::set<std::string> used_variables;
   std::set<std::string> addressed_variables;
   for (const auto &block : graph.blocks) {
@@ -37,15 +37,15 @@ inline bool remove_global_unused_assignments(ControlFlowGraph &graph) {
                   << std::endl;
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
-        have_changed = true;
+        num_removed_lines += 1;
       }
     }
   }
 
-  return have_changed;
+  return num_removed_lines;
 }
 
-bool remove_local_unused_assignments(Block &block) {
+inline size_t remove_local_unused_assignments(Block &block) {
   std::set<size_t> to_delete;
   std::map<std::string, size_t> last_def;
   for (size_t idx = 0; idx < block.instructions.size(); ++idx) {
@@ -80,15 +80,15 @@ bool remove_local_unused_assignments(Block &block) {
   }
 
   // Loop over the indices to delete in reverse order to keep indices valid
-  bool changed = false;
+  size_t num_removed_lines = 0;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
     const auto idx = *rit;
     std::cerr << "Removing locally unused assignment "
               << block.instructions[idx] << std::endl;
     block.instructions.erase(block.instructions.begin() + idx);
-    changed = true;
+    num_removed_lines += 1;
   }
-  return changed;
+  return num_removed_lines;
 }
 
 } // namespace bril
