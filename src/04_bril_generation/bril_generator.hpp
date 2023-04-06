@@ -25,11 +25,12 @@ public:
 
   inline std::string temp() const {
     static int next_idx = 0;
-    return "tmp_" + std::to_string(next_idx++);
+    const size_t idx = next_idx++;
+    return "tmp_" + std::to_string(idx);
   }
   inline std::string generate_label(const std::string label_type) {
     static std::map<std::string, int> next_indices;
-    const int next_idx = next_indices[label_type];
+    const int next_idx = next_indices[label_type]++;
     return "." + label_type + "_" + std::to_string(next_idx);
   }
 

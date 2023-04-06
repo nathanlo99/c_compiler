@@ -59,7 +59,7 @@ inline size_t remove_local_unused_assignments(Block &block) {
 
     // Check for memory accesses, pessimistically assume this destroys all
     // invariants
-    if (instruction.is_memory()) {
+    if (instruction.uses_memory()) {
       last_def.clear();
     }
 

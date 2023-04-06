@@ -96,11 +96,75 @@ enum class Opcode {
   Phi,
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
+  switch (opcode) {
+  case Opcode::Add:
+    return os << "add";
+  case Opcode::Sub:
+    return os << "sub";
+  case Opcode::Mul:
+    return os << "add";
+  case Opcode::Div:
+    return os << "div";
+  case Opcode::Mod:
+    return os << "mod";
+  case Opcode::Lt:
+    return os << "lt";
+  case Opcode::Le:
+    return os << "le";
+  case Opcode::Gt:
+    return os << "gt";
+  case Opcode::Ge:
+    return os << "ge";
+  case Opcode::Eq:
+    return os << "eq";
+  case Opcode::Ne:
+    return os << "ne";
+  case Opcode::Jmp:
+    return os << "jmp";
+  case Opcode::Br:
+    return os << "br";
+  case Opcode::Call:
+    return os << "call";
+  case Opcode::Ret:
+    return os << "ret";
+  case Opcode::Const:
+    return os << "const";
+  case Opcode::Id:
+    return os << "id";
+  case Opcode::Print:
+    return os << "print";
+  case Opcode::Nop:
+
+    return os << "nop";
+  case Opcode::Alloc:
+    return os << "alloc";
+  case Opcode::Free:
+    return os << "free";
+  case Opcode::Store:
+    return os << "store";
+  case Opcode::Load:
+    return os << "load";
+  case Opcode::PointerAdd:
+    return os << "ptradd";
+  case Opcode::AddressOf:
+
+    return os << "addressof";
+  case Opcode::Label:
+
+    return os << "label";
+  case Opcode::Phi:
+    return os << "phi";
+  }
+  return os;
+}
+
 struct Instruction {
   Opcode opcode;
   Type type = Type::Void;
   std::string destination;
 
+  int value;
   std::vector<std::string> arguments;
   std::vector<std::string> funcs;
   std::vector<std::string> labels;
@@ -118,10 +182,14 @@ struct Instruction {
       : opcode(opcode), type(type), destination(destination),
         arguments(arguments) {}
 
+  Instruction(const std::string &destination, const int value, const Type type)
+      : opcode(Opcode::Const), type(type), destination(destination),
+        value(value) {}
+
   inline bool is_jump() const {
     return opcode == Opcode::Jmp || opcode == Opcode::Br;
   }
-  inline bool is_memory() const {
+  inline bool uses_memory() const {
     return opcode == Opcode::Alloc || opcode == Opcode::Free ||
            opcode == Opcode::Store || opcode == Opcode::Load ||
            opcode == Opcode::PointerAdd || opcode == Opcode::AddressOf;
@@ -192,8 +260,7 @@ struct Instruction {
   static inline Instruction constant(const std::string &destination,
                                      const Literal &literal) {
     const Type type = type_from_ast_type(literal.type);
-    return Instruction(Opcode::Const, type, destination,
-                       {std::to_string(literal.value)});
+    return Instruction(destination, literal.value, type);
   }
   static inline Instruction id(const std::string &destination,
                                const std::string &value, const Type type) {
@@ -313,7 +380,7 @@ struct Instruction {
 
     case Opcode::Const:
       os << instruction.destination << ": " << instruction.type << " = const "
-         << instruction.arguments[0] << ";";
+         << instruction.value << ";";
       break;
     case Opcode::Id:
       os << instruction.destination << ": " << instruction.type << " = id "
@@ -416,6 +483,14 @@ struct Block {
   std::set<size_t> outgoing_blocks;
   bool is_exiting = false;
 
+  bool uses_pointers() const {
+    for (const auto &instruction : instructions) {
+      if (instruction.uses_memory())
+        return true;
+    }
+    return false;
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const Block &block) {
     if (!block.incoming_blocks.empty()) {
       os << "incoming_blocks: [";
@@ -449,7 +524,7 @@ struct ControlFlowGraph {
   std::vector<Block> blocks;
   std::set<size_t> exiting_blocks;
 
-  ControlFlowGraph(const Function &function);
+  explicit ControlFlowGraph(const Function &function);
 
   void add_block(const Block &block) {
     if (block.instructions.empty())

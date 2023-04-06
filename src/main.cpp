@@ -1,13 +1,14 @@
 
 #include "ast_node.hpp"
 #include "bril.hpp"
+#include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "lexer.hpp"
+#include "local_value_numbering.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
-#include "remove_unused_assignments.hpp"
 #include "simple_bril_generator.hpp"
 #include "symbol_table.hpp"
 #include "util.hpp"
@@ -123,6 +124,7 @@ size_t apply_optimizations(bril::Program &program) {
   while (true) {
     bool changed = false;
     const size_t old_num_removed_lines = num_removed_lines;
+    num_removed_lines += program.apply_local_pass(local_value_numbering);
     num_removed_lines +=
         program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=
@@ -146,8 +148,8 @@ int main() {
     // std::cerr << symbol_table << std::endl;
 
     // Fold constants
-    FoldConstantsVisitor fold_constants_visitor;
-    program->accept_recursive(fold_constants_visitor);
+    // FoldConstantsVisitor fold_constants_visitor;
+    // program->accept_recursive(fold_constants_visitor);
 
     // program->print();
     program->emit_c(std::cerr, 0);
