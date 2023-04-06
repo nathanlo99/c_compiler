@@ -118,6 +118,13 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     const auto false_statements = construct_ast<Statements>(node->children[9]);
     return std::make_shared<IfStatement>(test, true_statements,
                                          false_statements);
+  } else if (production_str == "statement -> IF LPAREN test RPAREN LBRACE "
+                               "statements RBRACE") {
+    const auto test = construct_ast<TestExpr>(node->children[2]);
+    const auto true_statements = construct_ast<Statements>(node->children[5]);
+    const auto false_statements = std::make_shared<Statements>();
+    return std::make_shared<IfStatement>(test, true_statements,
+                                         false_statements);
   } else if (production_str ==
              "statement -> WHILE LPAREN test RPAREN LBRACE statements RBRACE") {
     const auto test = construct_ast<TestExpr>(node->children[2]);

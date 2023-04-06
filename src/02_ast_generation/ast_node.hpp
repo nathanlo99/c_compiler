@@ -27,8 +27,7 @@ struct ASTNode {
 
 struct Expr : ASTNode {
   Type type;
-  Expr() : type(Type::Unknown) {}
-  Expr(Type type) : type(type) {}
+  Expr(Type type = Type::Unknown) : type(type) {}
 };
 struct Statement : ASTNode {};
 
