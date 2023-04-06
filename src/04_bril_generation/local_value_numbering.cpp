@@ -118,8 +118,8 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
 }
 
 std::string LocalValueTable::canonical_name(const std::string &variable) const {
-  if (env.count(variable) == 0)
-    return variable;
+  runtime_assert(env.count(variable) > 0,
+                 "Variable " + variable + " was not present in the table");
   const size_t idx = env.at(variable);
   return canonical_variables[idx];
 }
@@ -171,6 +171,18 @@ size_t local_value_numbering(Block &block) {
       // replace the arguments by their canonical variables
       for (auto &argument : instruction.arguments) {
         argument = table.canonical_name(argument);
+      }
+
+      // The destinations for function calls still need to be inserted as
+      // standalone values in the table, because they may still appear as
+      // arguments and make us cry
+      if (instruction.opcode == Opcode::Call) {
+        const std::string destination = instruction.destination;
+        const size_t num = table.values.size();
+        const LocalValueNumber value(Opcode::Id, {num});
+        table.values.push_back(value);
+        table.canonical_variables.push_back(destination);
+        table.env[destination] = num;
       }
       continue;
     }

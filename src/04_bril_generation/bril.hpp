@@ -199,6 +199,9 @@ struct Instruction {
            opcode == Opcode::Store || opcode == Opcode::Load ||
            opcode == Opcode::PointerAdd || opcode == Opcode::AddressOf;
   }
+  inline bool is_load_or_store() const {
+    return opcode == Opcode::Load || opcode == Opcode::Store;
+  }
 
   static inline Instruction add(const std::string &dest, const std::string &lhs,
                                 const std::string &rhs) {
@@ -494,6 +497,13 @@ struct Block {
   bool uses_pointers() const {
     for (const auto &instruction : instructions) {
       if (instruction.uses_memory())
+        return true;
+    }
+    return false;
+  }
+  bool has_loads_or_stores() const {
+    for (const auto &instruction : instructions) {
+      if (instruction.is_load_or_store())
         return true;
     }
     return false;
