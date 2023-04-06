@@ -10,6 +10,7 @@
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
 #include "simple_bril_generator.hpp"
+#include "solve_generic_data_flow.hpp"
 #include "symbol_table.hpp"
 #include "util.hpp"
 
