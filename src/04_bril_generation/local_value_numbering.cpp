@@ -118,6 +118,8 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
 }
 
 std::string LocalValueTable::canonical_name(const std::string &variable) const {
+  if (env.count(variable) == 0)
+    return variable;
   const size_t idx = env.at(variable);
   return canonical_variables[idx];
 }
@@ -175,8 +177,11 @@ size_t local_value_numbering(Block &block) {
 
     // Construct value
     std::vector<size_t> arguments;
-    for (const auto &argument : instruction.arguments)
+    for (const auto &argument : instruction.arguments) {
+      runtime_assert(table.env.count(argument) > 0,
+                     "Argument " + argument + " not found in env");
       arguments.push_back(table.env.at(argument));
+    }
     const LocalValueNumber value =
         (instruction.opcode == Opcode::Const)
             ? LocalValueNumber(instruction.value)
@@ -201,6 +206,9 @@ size_t local_value_numbering(Block &block) {
 
     if (instruction.destination != "") {
       const std::string original_destination = instruction.destination;
+      runtime_assert(last_write.count(original_destination) > 0,
+                     "Destination " + original_destination +
+                         " not in last_write");
       const bool dest_overwritten = last_write.at(original_destination) > i;
 
       const std::string fresh_name =

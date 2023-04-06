@@ -40,16 +40,16 @@ struct LocalValueTable {
 
     for (size_t i = 0; i < num_entries; ++i) {
       const auto lvn = table.values[i];
-      os << "{ index: " << i << ", variable: " << table.canonical_variables[i]
+      os << "index: " << i << ", variable: " << table.canonical_variables[i]
          << ", ";
       if (lvn.opcode == Opcode::Const) {
-        os << "value: const " << lvn.value << " }" << std::endl;
+        os << "value: const " << lvn.value << std::endl;
       } else {
         os << "value: " << lvn.opcode;
         for (const auto &argument : lvn.arguments) {
           os << " ." << argument;
         }
-        os << " }" << std::endl;
+        os << std::endl;
       }
     }
     return os;
