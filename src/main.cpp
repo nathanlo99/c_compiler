@@ -164,6 +164,39 @@ int main() {
     std::cout << "Optimizations removed " << num_removed_lines << " lines"
               << std::endl;
 
+    const std::string separator(80, '-');
+    for (const auto &cfg : bril_program.cfgs) {
+      const auto result = bril::ReachingDefinitions::solve(cfg);
+      std::cout << "For procedure " << cfg.name << ": " << std::endl;
+      for (size_t i = 0; i < cfg.blocks.size(); ++i) {
+        std::cout << separator << std::endl;
+        std::cout << "Block idx " << i << std::endl;
+        const auto block_in = result.in[i];
+        const auto block_out = result.out[i];
+        const auto block = cfg.blocks[i];
+
+        std::cout << "  Reaching definitions in: " << std::endl;
+        for (const auto &[block_idx, instruction_idx] : block_in) {
+          const auto instruction =
+              cfg.blocks[block_idx].instructions[instruction_idx];
+          std::cout << "    " << instruction << std::endl;
+        }
+
+        std::cout << std::endl;
+        for (const auto &instruction : block.instructions) {
+          std::cout << instruction << std::endl;
+        }
+        std::cout << std::endl;
+
+        std::cout << "  Reaching definitions out: " << std::endl;
+        for (const auto &[block_idx, instruction_idx] : block_out) {
+          const auto instruction =
+              cfg.blocks[block_idx].instructions[instruction_idx];
+          std::cout << "    " << instruction << std::endl;
+        }
+      }
+    }
+
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
   }

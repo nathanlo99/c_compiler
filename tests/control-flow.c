@@ -1,7 +1,8 @@
 int wain(int a, int b) {
   int c = 3;
-  while (a < c) {
+  if (a < c) {
     a = a + 1;
+  } else {
   }
   return a;
 }
