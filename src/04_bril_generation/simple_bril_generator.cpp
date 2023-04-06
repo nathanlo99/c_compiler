@@ -68,6 +68,8 @@ void SimpleBRILGenerator::visit(TestExpr &expr) {
   case ComparisonOperation::NotEqual:
     ne(destination, lhs_variable, rhs_variable);
     break;
+  default:
+    unreachable("Unknown comparison operation");
   }
 }
 
@@ -87,12 +89,27 @@ void SimpleBRILGenerator::visit(BinaryExpr &expr) {
   expr.rhs->accept_simple(*this);
   const std::string rhs_variable = last_result();
   const std::string destination = temp();
+
+  const bool left_is_pointer = expr.lhs->type == ::Type::IntStar;
+  const bool right_is_pointer = expr.rhs->type == ::Type::IntStar;
   switch (expr.operation) {
   case BinaryOperation::Add:
-    add(destination, lhs_variable, rhs_variable);
+    if (left_is_pointer) {
+      ptradd(destination, lhs_variable, rhs_variable);
+    } else if (right_is_pointer) {
+      ptradd(destination, rhs_variable, lhs_variable);
+    } else {
+      add(destination, lhs_variable, rhs_variable);
+    }
     break;
   case BinaryOperation::Sub:
-    sub(destination, lhs_variable, rhs_variable);
+    if (left_is_pointer && !right_is_pointer) {
+      ptrsub(destination, lhs_variable, rhs_variable);
+    } else if (left_is_pointer && right_is_pointer) {
+      ptrdiff(destination, lhs_variable, rhs_variable);
+    } else {
+      sub(destination, lhs_variable, rhs_variable);
+    }
     break;
   case BinaryOperation::Mul:
     mul(destination, lhs_variable, rhs_variable);
@@ -103,6 +120,8 @@ void SimpleBRILGenerator::visit(BinaryExpr &expr) {
   case BinaryOperation::Mod:
     mod(destination, lhs_variable, rhs_variable);
     break;
+  default:
+    unreachable("Unknown binary operation");
   }
 }
 

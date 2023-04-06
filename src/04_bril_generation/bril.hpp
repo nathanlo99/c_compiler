@@ -93,6 +93,8 @@ enum class Opcode {
   Store,
   Load,
   PointerAdd,
+  PointerSub,
+  PointerDiff,
   AddressOf,
 
   // Label
@@ -152,6 +154,10 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
     return os << "load";
   case Opcode::PointerAdd:
     return os << "ptradd";
+  case Opcode::PointerSub:
+    return os << "ptrsub";
+  case Opcode::PointerDiff:
+    return os << "ptrdiff";
   case Opcode::AddressOf:
     return os << "addressof";
   case Opcode::Label:
@@ -197,7 +203,8 @@ struct Instruction {
   inline bool uses_memory() const {
     return opcode == Opcode::Alloc || opcode == Opcode::Free ||
            opcode == Opcode::Store || opcode == Opcode::Load ||
-           opcode == Opcode::PointerAdd || opcode == Opcode::AddressOf;
+           opcode == Opcode::PointerAdd || opcode == Opcode::PointerSub ||
+           opcode == Opcode::PointerDiff || opcode == Opcode::AddressOf;
   }
   inline bool is_load_or_store() const {
     return opcode == Opcode::Load || opcode == Opcode::Store;
@@ -300,6 +307,17 @@ struct Instruction {
                                    const std::string &rhs) {
     return Instruction(Opcode::PointerAdd, Type::IntStar, destination,
                        {lhs, rhs});
+  }
+  static inline Instruction ptrsub(const std::string &destination,
+                                   const std::string &lhs,
+                                   const std::string &rhs) {
+    return Instruction(Opcode::PointerSub, Type::IntStar, destination,
+                       {lhs, rhs});
+  }
+  static inline Instruction ptrdiff(const std::string &destination,
+                                    const std::string &lhs,
+                                    const std::string &rhs) {
+    return Instruction(Opcode::PointerDiff, Type::Int, destination, {lhs, rhs});
   }
   static inline Instruction addressof(const std::string &destination,
                                       const std::string &argument) {
@@ -418,6 +436,14 @@ struct Instruction {
       break;
     case Opcode::PointerAdd:
       os << instruction.destination << ": " << instruction.type << " = ptradd "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
+      break;
+    case Opcode::PointerSub:
+      os << instruction.destination << ": " << instruction.type << " = ptrsub "
+         << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
+      break;
+    case Opcode::PointerDiff:
+      os << instruction.destination << ": " << instruction.type << " = ptrdiff "
          << instruction.arguments[0] << " " << instruction.arguments[1] << ";";
       break;
     case Opcode::AddressOf:

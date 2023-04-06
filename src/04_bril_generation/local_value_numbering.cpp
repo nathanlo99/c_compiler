@@ -131,11 +131,6 @@ std::string LocalValueTable::fresh_name(const std::string &current_name) const {
 }
 
 size_t local_value_numbering(Block &block) {
-  // Pessimistically assume nothing is possible if we have pointers
-  // TODO: More careful analysis
-  if (block.uses_pointers())
-    return 0;
-
   // Compute the last indices every destination is written to
   std::map<std::string, size_t> last_write;
   std::set<std::string> read_before_written;
@@ -165,6 +160,10 @@ size_t local_value_numbering(Block &block) {
 
   for (size_t i = 0; i < block.instructions.size(); ++i) {
     auto &instruction = block.instructions[i];
+    // Pessimistically assume loads and stores break every invariant in
+    // existence
+    if (instruction.is_load_or_store())
+      break;
 
     if (instruction.destination == "" || instruction.opcode == Opcode::Call) {
       // If the instruction is an effect operation, or a call, then simply

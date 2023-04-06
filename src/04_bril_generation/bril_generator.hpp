@@ -152,6 +152,14 @@ public:
               const std::string &rhs) {
     emit(Instruction::ptradd(destination, lhs, rhs));
   }
+  void ptrsub(const std::string &destination, const std::string &lhs,
+              const std::string &rhs) {
+    emit(Instruction::ptrsub(destination, lhs, rhs));
+  }
+  void ptrdiff(const std::string &destination, const std::string &lhs,
+               const std::string &rhs) {
+    emit(Instruction::ptrdiff(destination, lhs, rhs));
+  }
   void addressof(const std::string &destination, const std::string &argument) {
     emit(Instruction::addressof(destination, argument));
   }
