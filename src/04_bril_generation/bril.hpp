@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ast_node.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -28,6 +29,9 @@ constexpr Type type_from_ast_type(const ::Type type) {
     return Type::IntStar;
   case ::Type::Unknown:
     return Type::Void;
+  default:
+    unreachable("");
+    return Type::Unknown;
   }
 }
 
@@ -48,6 +52,8 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
   case Type::Unknown:
     os << "?";
     break;
+  default:
+    runtime_assert(false, "Unknown type in operator<<");
   }
   return os;
 }
@@ -135,7 +141,6 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
   case Opcode::Print:
     return os << "print";
   case Opcode::Nop:
-
     return os << "nop";
   case Opcode::Alloc:
     return os << "alloc";
@@ -148,13 +153,13 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
   case Opcode::PointerAdd:
     return os << "ptradd";
   case Opcode::AddressOf:
-
     return os << "addressof";
   case Opcode::Label:
-
     return os << "label";
   case Opcode::Phi:
     return os << "phi";
+  default:
+    runtime_assert(false, "Unknown opcode type in operator<<");
   }
   return os;
 }
@@ -421,14 +426,17 @@ struct Instruction {
       os << instruction.labels[0] << ":";
       break;
 
-    case Opcode::Phi:
+    case Opcode::Phi: {
       os << instruction.destination << ": " << instruction.type << " = phi ";
       const size_t n = instruction.arguments.size();
       for (size_t i = 0; i < n; ++i) {
         os << " " << instruction.labels[i] << " " << instruction.arguments[i];
       }
       os << ";";
-      break;
+    } break;
+
+    default:
+      unreachable("");
     }
     return os;
   }

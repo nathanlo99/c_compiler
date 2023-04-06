@@ -28,13 +28,8 @@ struct LocalValueTable {
   std::map<std::string, size_t> last_write;
 
   static inline size_t NOT_FOUND = -1;
-  void add_parameter(const std::string &param);
-  size_t add_definition(const LocalValueNumber &value, const std::string &dest);
-  void update_env(const std::string &variable, const size_t num);
-  size_t query_env(const std::string &variable);
-  std::string canonical_name(const std::string &variable);
-
-  std::optional<int> fold_constants(const LocalValueNumber &value);
+  std::string canonical_name(const std::string &variable) const;
+  std::optional<int> fold_constants(const LocalValueNumber &value) const;
 
   size_t query_row(const LocalValueNumber &value) const;
   std::string fresh_name(const std::string &current_name) const;
@@ -45,13 +40,17 @@ struct LocalValueTable {
 
     for (size_t i = 0; i < num_entries; ++i) {
       const auto lvn = table.values[i];
-      os << i << ":" << std::endl;
-      os << "  variable: " << table.canonical_variables[i] << std::endl;
-      os << "  value: " << lvn.opcode;
-      for (const auto &argument : lvn.arguments) {
-        os << " #" << argument;
+      os << "{ index: " << i << ", variable: " << table.canonical_variables[i]
+         << ", ";
+      if (lvn.opcode == Opcode::Const) {
+        os << "value: const " << lvn.value << " }" << std::endl;
+      } else {
+        os << "value: " << lvn.opcode;
+        for (const auto &argument : lvn.arguments) {
+          os << " ." << argument;
+        }
+        os << " }" << std::endl;
       }
-      os << " (value = " << lvn.value << ")" << std::endl;
     }
     return os;
   }

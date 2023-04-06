@@ -1,8 +1,9 @@
 
-
 #include "local_value_numbering.hpp"
 #include "bril.hpp"
 #include "util.hpp"
+
+#include <functional>
 #include <optional>
 
 namespace bril {
@@ -21,7 +22,7 @@ LocalValueNumber::LocalValueNumber(const int value)
     : opcode(Opcode::Const), value(value) {}
 
 std::optional<int>
-LocalValueTable::fold_constants(const LocalValueNumber &value) {
+LocalValueTable::fold_constants(const LocalValueNumber &value) const {
   using BinaryFunc = std::function<int(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
       std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
@@ -106,26 +107,6 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) {
   return result;
 }
 
-void LocalValueTable::add_parameter(const std::string &param) {
-  const size_t num = values.size();
-  const LocalValueNumber value(Opcode::Id, {num});
-  add_definition(value, param);
-  env[param] = num;
-}
-
-size_t LocalValueTable::add_definition(const LocalValueNumber &value,
-                                       const std::string &dest) {
-  const size_t num = values.size();
-  values.push_back(value);
-  canonical_variables.push_back(dest);
-  return num;
-}
-
-void LocalValueTable::update_env(const std::string &variable,
-                                 const size_t num) {
-  env[variable] = num;
-}
-
 size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
   if (value.opcode == Opcode::Id)
     return value.arguments[0];
@@ -136,21 +117,15 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
   return idx;
 }
 
-size_t LocalValueTable::query_env(const std::string &variable) {
-  if (env.count(variable) == 0)
-    add_parameter(variable);
-  return env.at(variable);
-}
-
-std::string LocalValueTable::canonical_name(const std::string &variable) {
-  const size_t idx = query_env(variable);
+std::string LocalValueTable::canonical_name(const std::string &variable) const {
+  const size_t idx = env.at(variable);
   return canonical_variables[idx];
 }
 
 std::string LocalValueTable::fresh_name(const std::string &current_name) const {
   static size_t next_idx = 0;
   const size_t idx = next_idx++;
-  return "lvn_" + current_name + "_" + std::to_string(idx);
+  return "lvn_" + std::to_string(idx) + "_" + current_name;
 }
 
 size_t local_value_numbering(Block &block) {
@@ -160,8 +135,6 @@ size_t local_value_numbering(Block &block) {
     return 0;
 
   // Compute the last indices every destination is written to
-  // A variable is read before written to:
-
   std::map<std::string, size_t> last_write;
   std::set<std::string> read_before_written;
   for (size_t i = 0; i < block.instructions.size(); ++i) {
@@ -183,8 +156,9 @@ size_t local_value_numbering(Block &block) {
   for (const auto &var : read_before_written) {
     const size_t num = table.values.size();
     const LocalValueNumber value(Opcode::Id, {num});
-    table.add_definition(value, var);
-    table.update_env(var, num);
+    table.values.push_back(value);
+    table.canonical_variables.push_back(var);
+    table.env[var] = num;
   }
 
   for (size_t i = 0; i < block.instructions.size(); ++i) {
@@ -202,7 +176,7 @@ size_t local_value_numbering(Block &block) {
     // Construct value
     std::vector<size_t> arguments;
     for (const auto &argument : instruction.arguments)
-      arguments.push_back(table.query_env(argument));
+      arguments.push_back(table.env.at(argument));
     const LocalValueNumber value =
         (instruction.opcode == Opcode::Const)
             ? LocalValueNumber(instruction.value)
@@ -213,7 +187,7 @@ size_t local_value_numbering(Block &block) {
       // If the value is already in the table, then replace the instruction with
       // an id
       const std::string destination = instruction.destination;
-      table.update_env(destination, idx);
+      table.env[destination] = idx;
       const bool entry_is_const = table.values[idx].opcode == Opcode::Const;
       if (entry_is_const) {
         const int value = table.values[idx].value;

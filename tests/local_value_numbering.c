@@ -1,9 +1,9 @@
 
 int wain(int a, int b) {
-  println(a);
-  a = 3;
-  println(a);
-  a = 4;
-  println(a);
-  return 0;
+  int c = 0;
+  b = 2;
+  c = a + b;
+  a = 100;
+  b = 50 + 50;
+  return a + b + c;
 }

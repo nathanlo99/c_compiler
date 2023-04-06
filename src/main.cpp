@@ -99,6 +99,7 @@ void debug_dead_code_elimination() {
   while (true) {
     num_iterations++;
     const size_t old_num_removed_lines = num_removed_lines;
+    num_removed_lines += graph.apply_local_pass(local_value_numbering);
     num_removed_lines += remove_global_unused_assignments(graph);
     num_removed_lines +=
         graph.apply_local_pass(remove_local_unused_assignments);
