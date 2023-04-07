@@ -85,25 +85,79 @@ void ControlFlowGraph::compute_edges() {
 void ControlFlowGraph::compute_dominators() {
   const size_t num_blocks = blocks.size();
   const std::vector<bool> everything(num_blocks, true);
-  dominators = std::vector<std::vector<bool>>(num_blocks, everything);
-  dominators[0] = std::vector<bool>(num_blocks, false);
-  dominators[0][0] = true;
+  raw_dominators = std::vector<std::vector<bool>>(num_blocks, everything);
+  raw_dominators[0] = std::vector<bool>(num_blocks, false);
+  raw_dominators[0][0] = true;
 
   while (true) {
     bool changed = false;
     for (size_t i = 1; i < num_blocks; ++i) {
-      const auto old_set = dominators[i];
-      dominators[i] = everything;
+      const auto old_set = raw_dominators[i];
+      raw_dominators[i] = everything;
       for (size_t pred : blocks[i].incoming_blocks) {
         for (size_t k = 0; k < num_blocks; ++k)
-          dominators[i][k] = dominators[i][k] && dominators[pred][k];
+          raw_dominators[i][k] =
+              raw_dominators[i][k] && raw_dominators[pred][k];
       }
-      dominators[i][i] = true;
-      changed |= old_set != dominators[i];
+      raw_dominators[i][i] = true;
+      changed |= old_set != raw_dominators[i];
     }
     if (!changed)
       break;
   }
+
+  // Set up memoized versions of the dominator queries
+  dominators = std::vector<std::set<size_t>>(num_blocks);
+  immediate_dominators = std::vector<size_t>(num_blocks);
+  dominance_frontiers = std::vector<std::set<size_t>>(num_blocks);
+  for (size_t i = 0; i < num_blocks; ++i) {
+    for (size_t j = 0; j < num_blocks; ++j) {
+      if (_dominates(j, i))
+        dominators[j].insert(i);
+      if (_immediately_dominates(j, i))
+        immediate_dominators[j] = i;
+      if (_is_in_dominance_frontier(j, i))
+        dominance_frontiers[j].insert(i);
+    }
+  }
+}
+
+// Does every path through 'target' pass through 'source'?
+bool ControlFlowGraph::_dominates(const size_t source,
+                                  const size_t target) const {
+  return raw_dominators[target][source];
+}
+
+bool ControlFlowGraph::_strictly_dominates(const size_t source,
+                                           const size_t target) const {
+  return source != target && _dominates(source, target);
+}
+
+// 'source' immediately dominates 'target' if 'source' strictly dominates
+// 'target', but 'source' does not strictly dominate any other node that
+// strictly dominates 'target'
+bool ControlFlowGraph::_immediately_dominates(const size_t source,
+                                              const size_t target) const {
+  if (!_strictly_dominates(source, target))
+    return false;
+  for (size_t k = 0; k < blocks.size(); ++k) {
+    if (_strictly_dominates(source, k) && _strictly_dominates(k, target))
+      return false;
+  }
+  return true;
+}
+
+// The domination frontier of 'source' contains 'target' if 'source' does
+// NOT dominate 'target' but 'source' dominates a predecessor of 'target'
+bool ControlFlowGraph::_is_in_dominance_frontier(const size_t source,
+                                                 const size_t target) const {
+  if (_dominates(source, target))
+    return false;
+  for (const size_t pred : blocks[target].incoming_blocks) {
+    if (_dominates(source, pred))
+      return true;
+  }
+  return false;
 }
 
 } // namespace bril

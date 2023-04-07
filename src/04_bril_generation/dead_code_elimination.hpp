@@ -34,8 +34,6 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
       if (destination != "" && used_variables.count(destination) == 0 &&
           addressed_variables.count(destination) == 0 &&
           instruction.opcode != Opcode::Call) {
-        // std::cerr << "Removing globally unused assignment " << instruction
-        //           << std::endl;
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
         num_removed_lines += 1;
@@ -86,8 +84,6 @@ inline size_t remove_local_unused_assignments(Block &block) {
   size_t num_removed_lines = 0;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
     const auto idx = *rit;
-    // std::cerr << "Removing locally unused assignment "
-    //           << block.instructions[idx] << std::endl;
     block.instructions.erase(block.instructions.begin() + idx);
     num_removed_lines += 1;
   }

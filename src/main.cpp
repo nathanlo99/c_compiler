@@ -206,13 +206,18 @@ int main() {
     bril_program.apply_global_pass([](bril::ControlFlowGraph &cfg) {
       std::cerr << "In function " << cfg.name << ": " << std::endl;
       const size_t num_blocks = cfg.blocks.size();
+      for (size_t i = 1; i < num_blocks; ++i) {
+        std::cerr << "Block " << i << " is immediately dominated by "
+                  << cfg.immediate_dominators[i] << std::endl;
+      }
+      std::cerr << std::endl;
+
       for (size_t i = 0; i < num_blocks; ++i) {
-        std::cerr << "Block " << i << " is immediately dominated by"
-                  << std::endl;
-        for (size_t j = 0; j < num_blocks; ++j) {
-          if (cfg.immediately_dominates(j, i))
-            std::cerr << " - Block " << j << std::endl;
+        std::cerr << "The dominance frontier of block " << i << " is: ";
+        for (const auto &block_idx : cfg.dominance_frontiers[i]) {
+          std::cerr << block_idx << " ";
         }
+        std::cerr << std::endl;
       }
       std::cerr << std::endl;
 

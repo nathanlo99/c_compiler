@@ -568,8 +568,13 @@ struct ControlFlowGraph {
   std::vector<Block> blocks;
   std::set<size_t> exiting_blocks;
 
-  std::vector<std::vector<bool>> dominators;
+  // Dominator data structures
+  std::vector<std::vector<bool>> raw_dominators;
+  std::vector<std::set<size_t>> dominators;
+  std::vector<size_t> immediate_dominators;
+  std::vector<std::set<size_t>> dominance_frontiers;
 
+  // Construct a CFG from a function
   explicit ControlFlowGraph(const Function &function);
 
   void add_block(const Block &block) {
@@ -579,6 +584,8 @@ struct ControlFlowGraph {
     blocks.back().idx = blocks.size() - 1;
   }
 
+  // Applies a local pass to each block in the CFG and returns the number of
+  // removed lines
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = false;
     for (auto &block : blocks)
@@ -586,48 +593,11 @@ struct ControlFlowGraph {
     return num_removed_lines;
   }
 
-  void compute_dominators();
-
-  // Does every path through 'target' pass through 'source'?
-  inline bool dominates(const size_t source,
-                        const size_t target) const noexcept {
-    return dominators[target][source];
-  }
-
-  inline bool strictly_dominates(const size_t source,
-                                 const size_t target) const {
-    return source != target && dominates(source, target);
-  }
-
-  // 'source' immediately dominates 'target' if 'source' strictly dominates
-  // 'target', but 'source' does not strictly dominate any other node that
-  // strictly dominates 'target'
-  inline bool immediately_dominates(const size_t source,
-                                    const size_t target) const {
-    if (!strictly_dominates(source, target))
-      return false;
-    for (size_t k = 0; k < blocks.size(); ++k) {
-      if (strictly_dominates(source, k) && strictly_dominates(k, target))
-        return false;
-    }
-    return true;
-  }
-
-  // The domination frontier of 'source' contains 'target' if 'source' does
-  // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
-  inline bool is_in_dominance_frontier(const size_t source,
-                                       const size_t target) {
-    if (dominates(source, target))
-      return false;
-    for (const size_t pred : blocks[target].incoming_blocks) {
-      if (dominates(source, pred))
-        return true;
-    }
-    return false;
-  }
-
+  // Returns the label of the block at the given index
   std::string label(const size_t idx) const {
-    return idx == 0 ? name : blocks[idx].entry_labels[0];
+    return idx == 0                           ? name
+           : blocks[idx].entry_labels.empty() ? "(no label)"
+                                              : blocks[idx].entry_labels[0];
   }
 
   friend std::ostream &operator<<(std::ostream &os,
@@ -663,6 +633,22 @@ struct ControlFlowGraph {
 private:
   void add_directed_edge(const size_t source, const size_t target);
   void compute_edges();
+  void compute_dominators();
+
+  // Does every path through 'target' pass through 'source'?
+  bool _dominates(const size_t source, const size_t target) const;
+
+  bool _strictly_dominates(const size_t source, const size_t target) const;
+
+  // 'source' immediately dominates 'target' if 'source' strictly dominates
+  // 'target', but 'source' does not strictly dominate any other node that
+  // strictly dominates 'target'
+  bool _immediately_dominates(const size_t source, const size_t target) const;
+
+  // The domination frontier of 'source' contains 'target' if 'source' does
+  // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
+  bool _is_in_dominance_frontier(const size_t source,
+                                 const size_t target) const;
 };
 
 struct Program {
