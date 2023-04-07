@@ -180,12 +180,12 @@ int main(int argc, char **argv) {
   // return 0;
 
   try {
-    const std::string input_file = argc > 1 ? argv[1] : "";
-    const std::string input = read_file(input_file);
+    const std::string input = argc > 1 ? read_file(argv[1]) : consume_stdin();
     const auto program0 = program(input);
     const auto program = annotate_and_check_types(program0);
-    const auto symbol_table = program->table;
 
+    // program->emit_c(std::cerr, 0); // before constant folding
+    // const auto symbol_table = program->table;
     // std::cerr << symbol_table << std::endl;
 
     // Fold constants
@@ -193,7 +193,8 @@ int main(int argc, char **argv) {
     program->accept_recursive(fold_constants_visitor);
 
     // program->print();
-    // program->emit_c(std::cerr, 0);
+    program->emit_c(std::cerr, 0); // after constant folding
+    // return 0;
 
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;

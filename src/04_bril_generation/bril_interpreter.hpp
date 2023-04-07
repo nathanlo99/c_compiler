@@ -2,6 +2,7 @@
 #pragma once
 
 #include "bril.hpp"
+#include "util.hpp"
 #include <stdexcept>
 
 namespace bril {
@@ -168,16 +169,85 @@ struct BRILContext {
   }
 
   // Allocate a new heap memory block
-  size_t alloc(size_t size) {
+  BRILValue alloc(size_t size) {
     const size_t index = heap_memory.size();
-    heap_memory.push_back(
-        {std::vector<BRILValue>(size, BRILValue::integer(0)), true});
-    return index;
+    heap_memory.push_back({std::vector<BRILValue>(size), true});
+    return BRILValue::heap_pointer(index, 0);
   }
-  void free(const size_t idx) { heap_memory[idx].active = false; }
-  BRILValue read(const size_t idx, const size_t offset) {
+
+  void free(const BRILValue value) {
+    runtime_assert(value.type == BRILValue::Type::HeapPointer,
+                   "Freed object was not heap pointer");
+    runtime_assert(value.heap_offset == 0, "Freed object was not base pointer");
+    const size_t heap_idx = value.heap_idx;
+    runtime_assert(heap_idx < heap_memory.size(), "Invalid heap index");
+    runtime_assert(heap_memory[heap_idx].active, "Double free");
+    heap_memory[heap_idx].active = false;
+  }
+
+  BRILValue load(const BRILValue pointer) {
+    if (pointer.type == BRILValue::Type::Address) {
+      return get_value(pointer.string_value);
+    }
+    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
+                   "Writing to non-heap pointer");
+    const size_t idx = pointer.heap_idx;
+    const size_t offset = pointer.heap_offset;
+    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
     runtime_assert(heap_memory[idx].active, "Reading from freed memory");
     return heap_memory[idx].values[offset];
+  }
+
+  void store(const BRILValue pointer, const BRILValue value) {
+    if (pointer.type == BRILValue::Type::Address) {
+      write_value(pointer.string_value, value);
+      return;
+    }
+    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
+                   "Writing to non-heap pointer");
+    const size_t idx = pointer.heap_idx;
+    const size_t offset = pointer.heap_offset;
+    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
+    runtime_assert(heap_memory[idx].active, "Writing to freed memory");
+    heap_memory[idx].values[offset] = value;
+  }
+
+  // Pointer arithmetic
+  BRILValue pointer_add(const BRILValue pointer, const int offset) {
+    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
+                   "Adding to non-heap pointer");
+    const size_t idx = pointer.heap_idx;
+    const size_t old_offset = pointer.heap_offset;
+    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
+    runtime_assert(heap_memory[idx].active, "Adding to freed memory");
+    return BRILValue::heap_pointer(idx, old_offset + offset);
+  }
+
+  BRILValue pointer_sub(const BRILValue pointer, const int offset) {
+    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
+                   "Subtracting from non-heap pointer");
+    const size_t idx = pointer.heap_idx;
+    const size_t old_offset = pointer.heap_offset;
+    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
+    runtime_assert(heap_memory[idx].active, "Subtracting from freed memory");
+    return BRILValue::heap_pointer(idx, old_offset - offset);
+  }
+
+  int pointer_diff(const BRILValue p1, const BRILValue p2) {
+    runtime_assert(p1.type == BRILValue::Type::HeapPointer,
+                   "Subtracting non-heap pointer");
+    runtime_assert(p2.type == BRILValue::Type::HeapPointer,
+                   "Subtracting non-heap pointer");
+    const size_t idx1 = p1.heap_idx;
+    const size_t idx2 = p2.heap_idx;
+    const size_t offset1 = p1.heap_offset;
+    const size_t offset2 = p2.heap_offset;
+    runtime_assert(idx1 < heap_memory.size(), "Invalid heap index");
+    runtime_assert(idx2 < heap_memory.size(), "Invalid heap index");
+    runtime_assert(heap_memory[idx1].active, "Subtracting from freed memory");
+    runtime_assert(heap_memory[idx2].active, "Subtracting from freed memory");
+    runtime_assert(idx1 == idx2, "Subtracting pointers to different objects");
+    return offset1 - offset2;
   }
 };
 
@@ -190,7 +260,7 @@ struct BRILInterpreter {
   void run(std::ostream &os) {
     std::vector<BRILValue> arguments(2);
     const bool wain_is_array =
-        program.get_function("wain").arguments[0].type == Type::IntStar;
+        program.wain().arguments[0].type == Type::IntStar;
     if (wain_is_array) {
       runtime_assert(false, "Array arguments not supported");
     } else {
@@ -203,11 +273,10 @@ struct BRILInterpreter {
       arguments[1] = BRILValue::integer(second_arg);
     }
 
-    const BRILValue result =
-        interpret(program.get_function("wain"), arguments, os);
-    os << "wain returned " << result << std::endl;
-    os << "Number of dynamic instructions: " << num_dynamic_instructions
-       << std::endl;
+    const BRILValue result = interpret(program.wain(), arguments, os);
+    std::cerr << "wain returned " << result << std::endl;
+    std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
+              << std::endl;
   }
 
   // Interpret a bril function, piping the output to the given stream

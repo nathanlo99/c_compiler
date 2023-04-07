@@ -656,9 +656,16 @@ private:
 struct Program {
   std::map<std::string, ControlFlowGraph> cfgs;
 
+  ControlFlowGraph wain() const {
+    runtime_assert(cfgs.count("wain") > 0, "wain not found");
+    return cfgs.at("wain");
+  }
+
   ControlFlowGraph get_function(const std::string &name) const {
-    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
-    return cfgs.at(name);
+    const std::string stripped_name = name.substr(1);
+    runtime_assert(cfgs.count(stripped_name) > 0,
+                   "Function " + stripped_name + " not found");
+    return cfgs.at(stripped_name);
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {

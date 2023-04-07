@@ -11,7 +11,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                                      std::ostream &os) {
   BRILContext context;
   for (size_t idx = 0; idx < arguments.size(); ++idx) {
-    context.variables[graph.arguments[idx].name] = arguments[idx];
+    context.write_value(graph.arguments[idx].name, arguments[idx]);
   }
 
   size_t block_idx = 0, instruction_idx = 0;
@@ -23,6 +23,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                    "Instruction idx out of range");
     const auto &instruction =
         graph.blocks[block_idx].instructions[instruction_idx];
+    std::cerr << "Interpreting instruction: " << instruction << std::endl;
 
     // 2. Advance the instruction pointer
     ++instruction_idx;
@@ -166,15 +167,67 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       // Do nothing
     } break;
 
+    // Memory instructions
+    case Opcode::Alloc: {
+      const int size = context.get_int(instruction.arguments[0]);
+      runtime_assert(size > 0, "Allocation size must be positive");
+      const BRILValue result = context.alloc(size);
+      context.write_value(instruction.destination, result);
+    } break;
+
+    case Opcode::Free: {
+      const BRILValue pointer = context.get_value(instruction.arguments[0]);
+      context.free(pointer);
+    } break;
+
+    case Opcode::Store: {
+      const BRILValue pointer = context.get_value(instruction.arguments[0]);
+      const BRILValue value = context.get_value(instruction.arguments[1]);
+      context.store(pointer, value);
+    } break;
+
+    case Opcode::Load: {
+      const BRILValue pointer = context.get_value(instruction.arguments[0]);
+      const BRILValue value = context.load(pointer);
+      context.write_value(instruction.destination, value);
+    } break;
+
+    case Opcode::PointerAdd: {
+      const BRILValue pointer = context.get_value(instruction.arguments[0]);
+      const int offset = context.get_int(instruction.arguments[1]);
+      const BRILValue result = context.pointer_add(pointer, offset);
+      context.write_value(instruction.destination, result);
+    } break;
+
+    case Opcode::PointerSub: {
+      const BRILValue pointer = context.get_value(instruction.arguments[0]);
+      const int offset = context.get_int(instruction.arguments[1]);
+      const BRILValue result = context.pointer_sub(pointer, offset);
+      context.write_value(instruction.destination, result);
+    } break;
+
+    case Opcode::PointerDiff: {
+      const BRILValue lhs = context.get_value(instruction.arguments[0]);
+      const BRILValue rhs = context.get_value(instruction.arguments[1]);
+      const int result = context.pointer_diff(lhs, rhs);
+      context.write_int(instruction.destination, result);
+    } break;
+
+    case Opcode::AddressOf: {
+      const BRILValue result = BRILValue::address(instruction.arguments[0]);
+      context.write_value(instruction.destination, result);
+    } break;
+
     case Opcode::Label: {
       // TODO: Keep track of labels for phi nodes
     } break;
 
+    case Opcode::Phi: {
+      // TODO: Implement phi nodes
+    } break;
+
     default:
-      runtime_assert(false,
-                     "Opcode " +
-                         std::to_string(static_cast<int>(instruction.opcode)) +
-                         " not implemented");
+      unreachable("Invalid opcode");
     }
   }
 }
