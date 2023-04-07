@@ -6,6 +6,52 @@
 namespace bril {
 namespace interpreter {
 
+void BRILInterpreter::run(std::ostream &os) {
+  context.clear();
+  std::vector<BRILValue> arguments(2);
+  const bool wain_is_array = program.wain().arguments[0].type == Type::IntStar;
+  if (wain_is_array) {
+    size_t num_elements;
+    int value;
+    std::cout << "Enter the number of elements in the array: " << std::flush;
+    std::cin >> num_elements;
+    const auto array = context.alloc(num_elements);
+    for (size_t idx = 0; idx < num_elements; ++idx) {
+      std::cout << "Enter the value of element " << idx << ": " << std::flush;
+      std::cin >> value;
+      context.store(BRILValue::heap_pointer(0, idx), BRILValue::integer(value));
+    }
+    arguments[0] = array;
+    arguments[1] = BRILValue::integer(num_elements);
+  } else {
+    int first_arg, second_arg;
+    std::cout << "Enter the value of the first argument: " << std::flush;
+    std::cin >> first_arg;
+    std::cout << "Enter the value of the second argument: " << std::flush;
+    std::cin >> second_arg;
+    arguments[0] = BRILValue::integer(first_arg);
+    arguments[1] = BRILValue::integer(second_arg);
+  }
+
+  const BRILValue result = interpret(program.wain(), arguments, os);
+  std::cerr << "wain returned " << result << std::endl;
+  std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
+            << std::endl;
+
+  // Free the input array's memory
+  if (wain_is_array) {
+    context.free(BRILValue::heap_pointer(0, 0));
+  }
+
+  for (size_t heap_idx = 0; heap_idx < context.heap_memory.size(); ++heap_idx) {
+    if (context.heap_memory[heap_idx].active) {
+      std::cerr << "Memory leak: Memory region heap[" << heap_idx
+                << "] of size " << context.heap_memory[heap_idx].values.size()
+                << " is still allocated at the end of execution" << std::endl;
+    }
+  }
+}
+
 BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                                      const std::vector<BRILValue> &arguments,
                                      std::ostream &os) {

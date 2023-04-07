@@ -296,28 +296,7 @@ struct BRILInterpreter {
 
   BRILInterpreter(const bril::Program &program) : program(program) {}
 
-  void run(std::ostream &os) {
-    context.clear();
-    std::vector<BRILValue> arguments(2);
-    const bool wain_is_array =
-        program.wain().arguments[0].type == Type::IntStar;
-    if (wain_is_array) {
-      runtime_assert(false, "Array arguments not supported");
-    } else {
-      int first_arg, second_arg;
-      std::cout << "Enter the value of the first argument: " << std::flush;
-      std::cin >> first_arg;
-      std::cout << "Enter the value of the second argument: " << std::flush;
-      std::cin >> second_arg;
-      arguments[0] = BRILValue::integer(first_arg);
-      arguments[1] = BRILValue::integer(second_arg);
-    }
-
-    const BRILValue result = interpret(program.wain(), arguments, os);
-    std::cerr << "wain returned " << result << std::endl;
-    std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
-              << std::endl;
-  }
+  void run(std::ostream &os);
 
   // Interpret a bril function, piping the output to the given stream
   BRILValue interpret(const bril::ControlFlowGraph &graph,

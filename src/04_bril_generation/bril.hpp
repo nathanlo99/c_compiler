@@ -197,6 +197,12 @@ struct Instruction {
       : opcode(Opcode::Const), type(type), destination(destination),
         value(value) {}
 
+  inline bool is_pure() const {
+    return opcode != Opcode::Call && opcode != Opcode::Print &&
+           opcode != Opcode::Alloc && opcode != Opcode::Free &&
+           opcode != Opcode::Load && opcode != Opcode::Store;
+  }
+
   inline bool is_jump() const {
     return opcode == Opcode::Jmp || opcode == Opcode::Br;
   }
