@@ -36,8 +36,8 @@ struct BRILValue {
   static BRILValue raw_pointer(const int value) {
     return BRILValue(Type::RawPointer, value, "");
   }
-  static BRILValue address(const std::string &name) {
-    return BRILValue(Type::Address, 0, name);
+  static BRILValue address(const size_t stack_depth, const std::string &name) {
+    return BRILValue(Type::Address, stack_depth, name);
   }
   static BRILValue heap_pointer(const size_t idx, const size_t offset) {
     return BRILValue(idx, offset);
@@ -129,9 +129,8 @@ struct BRILAlloc {
   bool active;
 };
 
-struct BRILContext {
+struct BRILStackFrame {
   std::map<std::string, BRILValue> variables;
-  std::vector<BRILAlloc> heap_memory;
 
   // Get the value of a variable
   bool get_bool(const std::string &name) {
@@ -167,6 +166,41 @@ struct BRILContext {
   void write_value(const std::string &name, const BRILValue &value) {
     variables[name] = value;
   }
+};
+
+struct BRILContext {
+  std::vector<BRILStackFrame> stack_frames;
+  std::vector<BRILAlloc> heap_memory;
+
+  void clear() {
+    stack_frames.clear();
+    heap_memory.clear();
+  }
+
+  // Get the value of a variable
+  inline bool get_bool(const std::string &name) {
+    return stack_frames.back().get_bool(name);
+  }
+  inline int get_int(const std::string &name) {
+    return stack_frames.back().get_int(name);
+  }
+  inline BRILValue get_value(const std::string &name) {
+    return stack_frames.back().get_value(name);
+  }
+
+  // Set the value of a variable
+  void write_int(const std::string &name, const int value) {
+    stack_frames.back().write_int(name, value);
+  }
+  void write_raw_pointer(const std::string &name, const int value) {
+    stack_frames.back().write_raw_pointer(name, value);
+  }
+  void write_bool(const std::string &name, const bool value) {
+    stack_frames.back().write_bool(name, value);
+  }
+  void write_value(const std::string &name, const BRILValue &value) {
+    stack_frames.back().write_value(name, value);
+  }
 
   // Allocate a new heap memory block
   BRILValue alloc(size_t size) {
@@ -187,7 +221,9 @@ struct BRILContext {
 
   BRILValue load(const BRILValue pointer) {
     if (pointer.type == BRILValue::Type::Address) {
-      return get_value(pointer.string_value);
+      const size_t stack_depth = pointer.int_value;
+      runtime_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
+      return stack_frames[stack_depth].get_value(pointer.string_value);
     }
     runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
                    "Writing to non-heap pointer");
@@ -200,7 +236,9 @@ struct BRILContext {
 
   void store(const BRILValue pointer, const BRILValue value) {
     if (pointer.type == BRILValue::Type::Address) {
-      write_value(pointer.string_value, value);
+      const size_t stack_depth = pointer.int_value;
+      runtime_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
+      stack_frames[stack_depth].write_value(pointer.string_value, value);
       return;
     }
     runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
@@ -253,11 +291,13 @@ struct BRILContext {
 
 struct BRILInterpreter {
   bril::Program program;
+  BRILContext context;
   size_t num_dynamic_instructions = 0;
 
   BRILInterpreter(const bril::Program &program) : program(program) {}
 
   void run(std::ostream &os) {
+    context.clear();
     std::vector<BRILValue> arguments(2);
     const bool wain_is_array =
         program.wain().arguments[0].type == Type::IntStar;

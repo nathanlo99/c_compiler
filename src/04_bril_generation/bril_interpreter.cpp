@@ -9,7 +9,7 @@ namespace interpreter {
 BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                                      const std::vector<BRILValue> &arguments,
                                      std::ostream &os) {
-  BRILContext context;
+  context.stack_frames.emplace_back();
   for (size_t idx = 0; idx < arguments.size(); ++idx) {
     context.write_value(graph.arguments[idx].name, arguments[idx]);
   }
@@ -23,7 +23,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                    "Instruction idx out of range");
     const auto &instruction =
         graph.blocks[block_idx].instructions[instruction_idx];
-    std::cerr << "Interpreting instruction: " << instruction << std::endl;
+    // std::cerr << "Interpreting: " << instruction << std::endl;
 
     // 2. Advance the instruction pointer
     ++instruction_idx;
@@ -134,9 +134,12 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Ret: {
       if (instruction.arguments.empty()) {
+        context.stack_frames.pop_back();
         return BRILValue();
       } else {
-        return context.get_value(instruction.arguments[0]);
+        const auto result = context.get_value(instruction.arguments[0]);
+        context.stack_frames.pop_back();
+        return result;
       }
     } break;
 
@@ -214,7 +217,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::AddressOf: {
-      const BRILValue result = BRILValue::address(instruction.arguments[0]);
+      const BRILValue result = BRILValue::address(
+          context.stack_frames.size() - 1, instruction.arguments[0]);
       context.write_value(instruction.destination, result);
     } break;
 
