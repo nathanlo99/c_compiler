@@ -47,6 +47,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   add_block(current_block);
 
   compute_edges();
+  compute_dominators();
 }
 
 void ControlFlowGraph::add_directed_edge(const size_t source,
@@ -78,6 +79,30 @@ void ControlFlowGraph::compute_edges() {
     if (!blocks[idx - 1].instructions.back().is_jump()) {
       add_directed_edge(idx - 1, idx);
     }
+  }
+}
+
+void ControlFlowGraph::compute_dominators() {
+  const size_t num_blocks = blocks.size();
+  const std::vector<bool> everything(num_blocks, true);
+  dominators = std::vector<std::vector<bool>>(num_blocks, everything);
+  dominators[0] = std::vector<bool>(num_blocks, false);
+  dominators[0][0] = true;
+
+  while (true) {
+    bool changed = false;
+    for (size_t i = 1; i < num_blocks; ++i) {
+      const auto old_set = dominators[i];
+      dominators[i] = everything;
+      for (size_t pred : blocks[i].incoming_blocks) {
+        for (size_t k = 0; k < num_blocks; ++k)
+          dominators[i][k] = dominators[i][k] && dominators[pred][k];
+      }
+      dominators[i][i] = true;
+      changed |= old_set != dominators[i];
+    }
+    if (!changed)
+      break;
   }
 }
 

@@ -6,12 +6,10 @@ int isPrime(int n) {
 
   if (n <= 3) {
     continueLooping = 0;
-  } else {
   }
   while (continueLooping != 0) {
     if (n % i == 0) {
       answer = 0;
-    } else {
     }
     i = i + 1;
 
@@ -20,7 +18,6 @@ int isPrime(int n) {
     } else {
       if (answer == 0) {
         continueLooping = 0;
-      } else {
       }
     }
   }

@@ -568,6 +568,8 @@ struct ControlFlowGraph {
   std::vector<Block> blocks;
   std::set<size_t> exiting_blocks;
 
+  std::vector<std::vector<bool>> dominators;
+
   explicit ControlFlowGraph(const Function &function);
 
   void add_block(const Block &block) {
@@ -582,6 +584,50 @@ struct ControlFlowGraph {
     for (auto &block : blocks)
       num_removed_lines += func(block);
     return num_removed_lines;
+  }
+
+  void compute_dominators();
+
+  // Does every path through 'target' pass through 'source'?
+  inline bool dominates(const size_t source,
+                        const size_t target) const noexcept {
+    return dominators[target][source];
+  }
+
+  inline bool strictly_dominates(const size_t source,
+                                 const size_t target) const {
+    return source != target && dominates(source, target);
+  }
+
+  // 'source' immediately dominates 'target' if 'source' strictly dominates
+  // 'target', but 'source' does not strictly dominate any other node that
+  // strictly dominates 'target'
+  inline bool immediately_dominates(const size_t source,
+                                    const size_t target) const {
+    if (!strictly_dominates(source, target))
+      return false;
+    for (size_t k = 0; k < blocks.size(); ++k) {
+      if (strictly_dominates(source, k) && strictly_dominates(k, target))
+        return false;
+    }
+    return true;
+  }
+
+  // The domination frontier of 'source' contains 'target' if 'source' does
+  // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
+  inline bool is_in_dominance_frontier(const size_t source,
+                                       const size_t target) {
+    if (dominates(source, target))
+      return false;
+    for (const size_t pred : blocks[target].incoming_blocks) {
+      if (dominates(source, pred))
+        return true;
+    }
+    return false;
+  }
+
+  std::string label(const size_t idx) const {
+    return idx == 0 ? name : blocks[idx].entry_labels[0];
   }
 
   friend std::ostream &operator<<(std::ostream &os,

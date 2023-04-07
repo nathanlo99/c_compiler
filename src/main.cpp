@@ -137,6 +137,41 @@ size_t apply_optimizations(bril::Program &program) {
   return num_removed_lines;
 }
 
+void compute_reaching_definitions(bril::Program &bril_program) {
+  const std::string separator(80, '-');
+  for (const auto &cfg : bril_program.cfgs) {
+    const auto result = bril::ReachingDefinitions::solve(cfg);
+    std::cout << "For procedure " << cfg.name << ": " << std::endl;
+    for (size_t i = 0; i < cfg.blocks.size(); ++i) {
+      std::cout << separator << std::endl;
+      std::cout << "Block idx " << i << std::endl;
+      const auto block_in = result.in[i];
+      const auto block_out = result.out[i];
+      const auto block = cfg.blocks[i];
+
+      std::cout << "  Reaching definitions in: " << std::endl;
+      for (const auto &[block_idx, instruction_idx] : block_in) {
+        const auto instruction =
+            cfg.blocks[block_idx].instructions[instruction_idx];
+        std::cout << "    " << instruction << std::endl;
+      }
+
+      std::cout << std::endl;
+      for (const auto &instruction : block.instructions) {
+        std::cout << instruction << std::endl;
+      }
+      std::cout << std::endl;
+
+      std::cout << "  Reaching definitions out: " << std::endl;
+      for (const auto &[block_idx, instruction_idx] : block_out) {
+        const auto instruction =
+            cfg.blocks[block_idx].instructions[instruction_idx];
+        std::cout << "    " << instruction << std::endl;
+      }
+    }
+  }
+}
+
 int main() {
   // debug_dead_code_elimination();
   // return 0;
@@ -150,11 +185,15 @@ int main() {
     // std::cerr << symbol_table << std::endl;
 
     // Fold constants
-    // FoldConstantsVisitor fold_constants_visitor;
-    // program->accept_recursive(fold_constants_visitor);
+    FoldConstantsVisitor fold_constants_visitor;
+    program->accept_recursive(fold_constants_visitor);
 
     // program->print();
-    program->emit_c(std::cerr, 0);
+    // program->emit_c(std::cerr, 0);
+    NaiveMIPSGenerator generator;
+    program->accept_simple(generator);
+    generator.print();
+    return 0;
 
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
@@ -164,38 +203,20 @@ int main() {
     std::cout << "Optimizations removed " << num_removed_lines << " lines"
               << std::endl;
 
-    const std::string separator(80, '-');
-    for (const auto &cfg : bril_program.cfgs) {
-      const auto result = bril::ReachingDefinitions::solve(cfg);
-      std::cout << "For procedure " << cfg.name << ": " << std::endl;
-      for (size_t i = 0; i < cfg.blocks.size(); ++i) {
-        std::cout << separator << std::endl;
-        std::cout << "Block idx " << i << std::endl;
-        const auto block_in = result.in[i];
-        const auto block_out = result.out[i];
-        const auto block = cfg.blocks[i];
+    bril_program.apply_global_pass([](bril::ControlFlowGraph &cfg) {
+      const size_t num_blocks = cfg.blocks.size();
 
-        std::cout << "  Reaching definitions in: " << std::endl;
-        for (const auto &[block_idx, instruction_idx] : block_in) {
-          const auto instruction =
-              cfg.blocks[block_idx].instructions[instruction_idx];
-          std::cout << "    " << instruction << std::endl;
-        }
-
-        std::cout << std::endl;
-        for (const auto &instruction : block.instructions) {
-          std::cout << instruction << std::endl;
-        }
-        std::cout << std::endl;
-
-        std::cout << "  Reaching definitions out: " << std::endl;
-        for (const auto &[block_idx, instruction_idx] : block_out) {
-          const auto instruction =
-              cfg.blocks[block_idx].instructions[instruction_idx];
-          std::cout << "    " << instruction << std::endl;
+      for (size_t i = 0; i < num_blocks; ++i) {
+        std::cout << "Block " << i << " is immediately dominated by"
+                  << std::endl;
+        for (size_t j = 0; j < num_blocks; ++j) {
+          if (cfg.immediately_dominates(j, i))
+            std::cout << " - Block " << j << std::endl;
         }
       }
-    }
+
+      return 0;
+    });
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
