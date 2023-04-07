@@ -527,6 +527,7 @@ struct Block {
     }
     return false;
   }
+
   bool has_loads_or_stores() const {
     for (const auto &instruction : instructions) {
       if (instruction.is_load_or_store())
@@ -567,6 +568,7 @@ struct ControlFlowGraph {
 
   std::vector<Block> blocks;
   std::set<size_t> exiting_blocks;
+  std::map<std::string, size_t> label_to_block;
 
   // Dominator data structures
   std::vector<std::vector<bool>> raw_dominators;
@@ -652,10 +654,15 @@ private:
 };
 
 struct Program {
-  std::vector<ControlFlowGraph> cfgs;
+  std::map<std::string, ControlFlowGraph> cfgs;
+
+  ControlFlowGraph get_function(const std::string &name) const {
+    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
+    return cfgs.at(name);
+  }
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
-    for (const auto &cfg : program.cfgs) {
+    for (const auto &[name, cfg] : program.cfgs) {
       os << cfg << std::endl;
     }
     return os;
@@ -663,14 +670,14 @@ struct Program {
 
   template <typename Func> size_t apply_global_pass(const Func &func) {
     size_t num_removed_lines = 0;
-    for (auto &cfg : cfgs)
+    for (auto &[name, cfg] : cfgs)
       num_removed_lines += func(cfg);
     return num_removed_lines;
   }
 
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = 0;
-    for (auto &cfg : cfgs)
+    for (auto &[name, cfg] : cfgs)
       num_removed_lines += cfg.apply_local_pass(func);
     return num_removed_lines;
   }

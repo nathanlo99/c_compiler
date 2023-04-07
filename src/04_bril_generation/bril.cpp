@@ -57,20 +57,19 @@ void ControlFlowGraph::add_directed_edge(const size_t source,
 }
 
 void ControlFlowGraph::compute_edges() {
-  std::map<std::string, size_t> label_to_idx;
   for (size_t idx = 0; idx < blocks.size(); ++idx) {
     auto &block = blocks[idx];
     for (const auto &entry_label : block.entry_labels) {
-      label_to_idx[entry_label] = idx;
+      label_to_block[entry_label] = idx;
     }
   }
 
   for (size_t idx = 0; idx < blocks.size(); ++idx) {
     auto &block = blocks[idx];
     for (const auto &exit_label : block.exit_labels) {
-      runtime_assert(label_to_idx.count(exit_label) > 0,
+      runtime_assert(label_to_block.count(exit_label) > 0,
                      "Exit label " + exit_label + " not found in label map");
-      const size_t next_idx = label_to_idx.at(exit_label);
+      const size_t next_idx = label_to_block.at(exit_label);
       add_directed_edge(idx, next_idx);
     }
   }

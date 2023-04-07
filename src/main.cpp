@@ -1,6 +1,7 @@
 
 #include "ast_node.hpp"
 #include "bril.hpp"
+#include "bril_interpreter.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
@@ -139,9 +140,9 @@ size_t apply_optimizations(bril::Program &program) {
 
 void compute_reaching_definitions(bril::Program &bril_program) {
   const std::string separator(80, '-');
-  for (const auto &cfg : bril_program.cfgs) {
+  for (const auto &[name, cfg] : bril_program.cfgs) {
     const auto result = bril::ReachingDefinitions::solve(cfg);
-    std::cout << "For procedure " << cfg.name << ": " << std::endl;
+    std::cout << "For procedure " << name << ": " << std::endl;
     for (size_t i = 0; i < cfg.blocks.size(); ++i) {
       std::cout << separator << std::endl;
       std::cout << "Block idx " << i << std::endl;
@@ -172,12 +173,15 @@ void compute_reaching_definitions(bril::Program &bril_program) {
   }
 }
 
-int main() {
+int main(int argc, char **argv) {
+  using namespace bril::interpreter;
+
   // debug_dead_code_elimination();
   // return 0;
 
   try {
-    const std::string input = consume_stdin();
+    const std::string input_file = argc > 1 ? argv[1] : "";
+    const std::string input = read_file(input_file);
     const auto program0 = program(input);
     const auto program = annotate_and_check_types(program0);
     const auto symbol_table = program->table;
@@ -189,11 +193,7 @@ int main() {
     program->accept_recursive(fold_constants_visitor);
 
     // program->print();
-    program->emit_c(std::cerr, 0);
-    // NaiveMIPSGenerator generator;
-    // program->accept_simple(generator);
-    // generator.print();
-    // return 0;
+    // program->emit_c(std::cerr, 0);
 
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
@@ -203,26 +203,8 @@ int main() {
     std::cout << "Optimizations removed " << num_removed_lines << " lines"
               << std::endl;
 
-    bril_program.apply_global_pass([](bril::ControlFlowGraph &cfg) {
-      std::cerr << "In function " << cfg.name << ": " << std::endl;
-      const size_t num_blocks = cfg.blocks.size();
-      for (size_t i = 1; i < num_blocks; ++i) {
-        std::cerr << "Block " << i << " is immediately dominated by "
-                  << cfg.immediate_dominators[i] << std::endl;
-      }
-      std::cerr << std::endl;
-
-      for (size_t i = 0; i < num_blocks; ++i) {
-        std::cerr << "The dominance frontier of block " << i << " is: ";
-        for (const auto &block_idx : cfg.dominance_frontiers[i]) {
-          std::cerr << block_idx << " ";
-        }
-        std::cerr << std::endl;
-      }
-      std::cerr << std::endl;
-
-      return 0;
-    });
+    BRILInterpreter interpreter(bril_program);
+    interpreter.run(std::cerr);
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
