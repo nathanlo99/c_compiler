@@ -2,6 +2,8 @@
 #include "naive_mips_generator.hpp"
 #include "ast_node.hpp"
 #include "mips_instruction.hpp"
+#include "util.hpp"
+#include <memory>
 
 void NaiveMIPSGenerator::visit(Program &program) {
   table = program.table;
@@ -155,7 +157,6 @@ void NaiveMIPSGenerator::visit(VariableExpr &expr) {
 }
 
 void NaiveMIPSGenerator::visit(LiteralExpr &expr) {
-
   load_const(3, expr.literal.value);
   annotate("Loading the literal " + expr.literal.value_to_string());
 }
@@ -213,9 +214,17 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
 }
 
 void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {
-  // Since the code generated for an lvalue is its address,
-  // we don't have to modify it in any way
-  expr.argument->accept_simple(*this);
+  if (const auto lhs =
+          std::dynamic_pointer_cast<VariableLValueExpr>(expr.argument)) {
+    const int offset = table.get_offset(lhs->variable);
+    load_const(3, offset);
+    add(3, 3, 29);
+  } else if (const auto lhs = std::dynamic_pointer_cast<DereferenceLValueExpr>(
+                 expr.argument)) {
+    expr.argument->accept_simple(*this);
+  } else {
+    unreachable("Unknown lvalue type");
+  }
 }
 
 void NaiveMIPSGenerator::visit(DereferenceExpr &expr) {
@@ -264,11 +273,22 @@ void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
   statement.emit_c(ss, 0);
   comment(ss.str());
 
-  statement.lhs->accept_simple(*this);
-  push(3);
-  statement.rhs->accept_simple(*this);
-  pop(5);
-  sw(3, 0, 5);
+  if (const auto lvalue =
+          std::dynamic_pointer_cast<VariableLValueExpr>(statement.lhs)) {
+    const int offset = table.get_offset(lvalue->variable);
+    statement.rhs->accept_simple(*this);
+    sw(3, offset, 29);
+  } else if (const auto lvalue =
+                 std::dynamic_pointer_cast<DereferenceLValueExpr>(
+                     statement.lhs)) {
+    statement.lhs->accept_simple(*this);
+    push(3);
+    statement.rhs->accept_simple(*this);
+    pop(5);
+    sw(3, 0, 5);
+  } else {
+    unreachable("Unknown lvalue type");
+  }
 }
 
 void NaiveMIPSGenerator::visit(IfStatement &statement) {
