@@ -18,11 +18,13 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
     std::sort(this->arguments.begin(), this->arguments.end());
 }
 
-LocalValueNumber::LocalValueNumber(const int value)
-    : opcode(Opcode::Const), value(value) {}
+LocalValueNumber::LocalValueNumber(const int value, const Type type)
+    : opcode(Opcode::Const), value(value), type(type) {}
 
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
+  if (value.type != Type::Int)
+    return std::nullopt;
   using BinaryFunc = std::function<int(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
       std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
@@ -194,8 +196,8 @@ size_t local_value_numbering(Block &block) {
       arguments.push_back(table.env.at(argument));
     }
     const LocalValueNumber value =
-        (instruction.opcode == Opcode::Const)
-            ? LocalValueNumber(instruction.value)
+        instruction.opcode == Opcode::Const
+            ? LocalValueNumber(instruction.value, instruction.type)
             : LocalValueNumber(instruction.opcode, arguments);
     const size_t idx = table.query_row(value);
 
@@ -229,7 +231,7 @@ size_t local_value_numbering(Block &block) {
       const auto folded_result = table.fold_constants(value);
 
       if (folded_result.has_value()) {
-        const LocalValueNumber folded_value(folded_result.value());
+        const LocalValueNumber folded_value(folded_result.value(), Type::Int);
         const size_t num = table.values.size();
         instruction = bril::Instruction(fresh_name, folded_result.value(),
                                         instruction.type);

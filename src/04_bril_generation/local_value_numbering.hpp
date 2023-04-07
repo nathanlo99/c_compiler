@@ -9,14 +9,15 @@ struct LocalValueNumber {
   Opcode opcode;
   std::vector<size_t> arguments;
   int value = 42069;
+  Type type = Type::Unknown;
 
   // Construct and canonicalize
   LocalValueNumber(const Opcode opcode, const std::vector<size_t> &arguments);
-  LocalValueNumber(const int value);
+  LocalValueNumber(const int value, const Type type);
 
   bool operator==(const LocalValueNumber &other) const {
     return opcode == other.opcode && arguments == other.arguments &&
-           value == other.value;
+           value == other.value && type == other.type;
   }
 };
 
@@ -43,7 +44,7 @@ struct LocalValueTable {
       os << "index: " << i << ", variable: " << table.canonical_variables[i]
          << ", ";
       if (lvn.opcode == Opcode::Const) {
-        os << "value: const " << lvn.value << std::endl;
+        os << "value: const " << lvn.value << ": " << lvn.type << std::endl;
       } else {
         os << "value: " << lvn.opcode;
         for (const auto &argument : lvn.arguments) {
