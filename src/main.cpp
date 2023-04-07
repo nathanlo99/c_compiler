@@ -189,11 +189,11 @@ int main() {
     program->accept_recursive(fold_constants_visitor);
 
     // program->print();
-    // program->emit_c(std::cerr, 0);
-    NaiveMIPSGenerator generator;
-    program->accept_simple(generator);
-    generator.print();
-    return 0;
+    program->emit_c(std::cerr, 0);
+    // NaiveMIPSGenerator generator;
+    // program->accept_simple(generator);
+    // generator.print();
+    // return 0;
 
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
@@ -204,16 +204,17 @@ int main() {
               << std::endl;
 
     bril_program.apply_global_pass([](bril::ControlFlowGraph &cfg) {
+      std::cerr << "In function " << cfg.name << ": " << std::endl;
       const size_t num_blocks = cfg.blocks.size();
-
       for (size_t i = 0; i < num_blocks; ++i) {
-        std::cout << "Block " << i << " is immediately dominated by"
+        std::cerr << "Block " << i << " is immediately dominated by"
                   << std::endl;
         for (size_t j = 0; j < num_blocks; ++j) {
           if (cfg.immediately_dominates(j, i))
-            std::cout << " - Block " << j << std::endl;
+            std::cerr << " - Block " << j << std::endl;
         }
       }
+      std::cerr << std::endl;
 
       return 0;
     });

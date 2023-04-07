@@ -98,7 +98,7 @@ void NaiveMIPSGenerator::visit(VariableLValueExpr &) {
   unreachable("Variable lvalue code is handled in addressof and assignment");
 }
 
-void NaiveMIPSGenerator::visit(DereferenceLValueExpr &expr) {
+void NaiveMIPSGenerator::visit(DereferenceLValueExpr &) {
   unreachable("Dereference lvalue code is handled in addressof and assignment");
 }
 
