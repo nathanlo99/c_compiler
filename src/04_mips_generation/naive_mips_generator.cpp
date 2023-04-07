@@ -27,12 +27,7 @@ void NaiveMIPSGenerator::visit(Program &program) {
     import("delete");
   }
 
-  load_const(4, 4);
-  if (table.use_print) {
-    load_const(10, "print");
-  }
-  load_const(11, 1);
-
+  init_constants();
   beq(0, 0, "wain");
   annotate("Done prologue, jumping to wain");
 
@@ -73,12 +68,11 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   sub(29, 30, 4);
 
   for (const auto &variable : procedure.decls) {
-    load_const(3, variable.initial_value.value);
-    push(3);
+    push_const(3, variable.initial_value.value);
     annotate("Variable " + variable.name);
   }
 
-  save_registers();
+  // save_registers();
 
   comment("Code for statements:");
   for (const auto &statement : procedure.statements) {
@@ -90,7 +84,7 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   // We only have to do clean-up if we aren't wain
   if (procedure_name != "wain") {
     comment("Done evaluating result, popping decls and saved registers");
-    pop_registers();
+    // pop_registers();
     pop_and_discard(procedure.decls.size());
   }
 
@@ -102,11 +96,6 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
 
 void NaiveMIPSGenerator::visit(VariableLValueExpr &) {
   unreachable("Variable lvalue code is handled in addressof and assignment");
-  // const int offset = table.get_offset(expr.variable);
-  // load_const(3, offset);
-  // add(3, 29, 3);
-  // annotate("Grabbing address of lvalue " + expr.variable.name + ": offset " +
-  //          std::to_string(offset));
 }
 
 void NaiveMIPSGenerator::visit(DereferenceLValueExpr &expr) {
@@ -271,7 +260,6 @@ void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
   std::stringstream ss;
   statement.emit_c(ss, 0);
   comment(ss.str());
-
   if (const auto lvalue =
           std::dynamic_pointer_cast<VariableLValueExpr>(statement.lhs)) {
     const int offset = table.get_offset(lvalue->variable);

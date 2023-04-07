@@ -5,25 +5,19 @@
 
 struct MIPSGenerator {
   std::vector<MIPSInstruction> instructions;
+  bool constants_init = false;
 
   void annotate(const std::string &comment) {
     instructions.back().comment_value = comment;
   }
 
-  void save_registers() {
-    // instructions.push_back(MIPSInstruction::comment("Saving registers"));
-    // push(1);
-    // push(2);
-    // push(6);
-    // push(7);
-  }
-
-  void pop_registers() {
-    // instructions.push_back(MIPSInstruction::comment("Pop registers"));
-    // pop(7);
-    // pop(6);
-    // pop(2);
-    // pop(1);
+  void init_constants() {
+    if (constants_init) 
+      return;
+    load_const(4, 4);
+    load_const(10, "print");
+    slt(11, 0, 4); // $11 = $0 < $4 = 1
+    constants_init = true;
   }
 
   void pop_and_discard(const size_t num_values) {
@@ -35,10 +29,10 @@ struct MIPSGenerator {
       // the return value of a function is computed, and we don't want to
       // clobber it
       load_const(5, num_values * 4);
-      instructions.push_back(MIPSInstruction::add(30, 30, 5));
+      add(30, 30, 5);
     } else {
       for (size_t i = 0; i < num_values; ++i)
-        instructions.push_back(MIPSInstruction::add(30, 30, 4));
+        add(30, 30, 4);
     }
   }
 
@@ -50,16 +44,33 @@ struct MIPSGenerator {
 
   void load_const(int reg, int value) {
     if (value == 0) {
-      instructions.push_back(MIPSInstruction::add(reg, 0, 0));
+      add(reg, 0, 0);
+    } else if (value == 1 && constants_init) {
+      add(reg, 0, 11);
+    } else if (value == 4 && constants_init) {
+      add(reg, 0, 4);
     } else {
-      instructions.push_back(MIPSInstruction::lis(reg));
-      instructions.push_back(MIPSInstruction::word(value));
+      lis(reg);
+      word(value);
     }
   }
 
   void load_const(int reg, const std::string &label) {
-    instructions.push_back(MIPSInstruction::lis(reg));
-    instructions.push_back(MIPSInstruction::word(label));
+    lis(reg);
+    word(label);
+  }
+
+  void push_const(int reg, int value) {
+    if (value == 0) {
+      push(0);
+    } else if (value == 1 && constants_init) {
+      push(11);
+    } else if (value == 4 && constants_init) {
+      push(4);
+    } else {
+      load_const(reg, value);
+      push(reg);
+    }
   }
 
   void load_and_jalr(const std::string &label) {
@@ -68,16 +79,16 @@ struct MIPSGenerator {
   }
 
   void push(int reg) {
-    instructions.push_back(MIPSInstruction::sw(reg, -4, 30));
-    annotate("  push " + std::to_string(reg));
-    instructions.push_back(MIPSInstruction::sub(30, 30, 4));
+    sw(reg, -4, 30);
+    annotate("  push $" + std::to_string(reg));
+    sub(30, 30, 4);
     annotate("  ^");
   }
 
   void pop(int reg) {
-    instructions.push_back(MIPSInstruction::add(30, 30, 4));
-    annotate("  pop " + std::to_string(reg));
-    instructions.push_back(MIPSInstruction::lw(reg, -4, 30));
+    add(30, 30, 4);
+    annotate("  pop $" + std::to_string(reg));
+    lw(reg, -4, 30);
     annotate("  ^");
   }
 

@@ -171,6 +171,7 @@ public:
   std::string to_string() const {
     std::stringstream ss;
     const std::string name = opcode_to_string(opcode);
+    const int instruction_width = 32;
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
@@ -219,13 +220,13 @@ public:
       ss << ".import " << string_value;
       break;
     case Opcode::Comment:
-      ss << std::string(20, ' ') << "; " << string_value;
+      ss << std::string(instruction_width, ' ') << "; " << string_value;
       break;
     default:
       runtime_assert(false, "Invalid opcode");
     }
 
-    const int instruction_width = 20;
+    
     const int padding =
         std::max(0, instruction_width - static_cast<int>(ss.str().size()));
     if (comment_value != "")
