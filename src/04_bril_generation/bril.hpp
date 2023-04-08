@@ -556,7 +556,7 @@ struct ControlFlowGraph {
   std::vector<std::set<size_t>> dominance_frontiers;
 
   // Construct a CFG from a function
-  explicit ControlFlowGraph(const Function &function);
+  explicit ControlFlowGraph(Function function);
 
   void add_block(const Block &block) {
     if (block.instructions.empty())

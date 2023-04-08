@@ -2,7 +2,7 @@
 #include "bril.hpp"
 
 namespace bril {
-ControlFlowGraph::ControlFlowGraph(const Function &function)
+ControlFlowGraph::ControlFlowGraph(Function function)
     : name(function.name), arguments(function.arguments),
       return_type(function.return_type) {
   /*
@@ -13,6 +13,12 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     - extract exiting labels from the last instruction in the block, if it's a
         jump
   */
+
+  const std::string entry_label = function.name + "_entry";
+  function.instructions.insert(function.instructions.begin(),
+                               Instruction::jmp(entry_label));
+  function.instructions.insert(function.instructions.begin() + 1,
+                               Instruction::label(entry_label));
 
   Block current_block;
   for (size_t idx = 0; idx < function.instructions.size(); ++idx) {
@@ -108,6 +114,13 @@ void ControlFlowGraph::compute_edges() {
       }
     }
   }
+
+  for (size_t idx = 1; idx < blocks.size(); ++idx) {
+    if (!blocks[idx - 1].instructions.back().is_jump()) {
+      blocks[idx - 1].instructions.push_back(
+          Instruction::jmp(".bb_" + std::to_string(idx)));
+    }
+  }
 }
 
 void ControlFlowGraph::compute_dominators() {
@@ -166,7 +179,7 @@ bool ControlFlowGraph::_strictly_dominates(const size_t source,
 // strictly dominates 'target'
 bool ControlFlowGraph::_immediately_dominates(const size_t source,
                                               const size_t target) const {
-  if (!_strictly_dominates(source, target))
+  if (!_dominates(source, target))
     return false;
   for (size_t k = 0; k < blocks.size(); ++k) {
     if (_strictly_dominates(source, k) && _strictly_dominates(k, target))
@@ -179,7 +192,7 @@ bool ControlFlowGraph::_immediately_dominates(const size_t source,
 // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
 bool ControlFlowGraph::_is_in_dominance_frontier(const size_t source,
                                                  const size_t target) const {
-  if (_dominates(source, target))
+  if (_strictly_dominates(source, target))
     return false;
   for (const size_t pred : blocks[target].incoming_blocks) {
     if (_dominates(source, pred))

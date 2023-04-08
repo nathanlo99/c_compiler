@@ -23,6 +23,10 @@ void bril::ControlFlowGraph::convert_to_ssa() {
       }
     }
   }
+  // for (const auto &argument : arguments) {
+  //   defs[argument.name].insert(0);
+  //   num_defs[argument.name] += 1;
+  // }
 
   for (const auto &[var, blocks_with_var] : defs) {
     std::cerr << "Variable " << var << " is defined " << num_defs[var]
@@ -34,22 +38,21 @@ void bril::ControlFlowGraph::convert_to_ssa() {
   }
 
   // 1. Add phi nodes
+
   for (const auto &[var, blocks_with_var] : defs) {
-    if (num_defs[var] <= 1)
-      continue;
     std::cerr << "Adding phi nodes for variable " << var << std::endl;
 
     std::set<size_t> queue = blocks_with_var;
     std::set<size_t> has_def = blocks_with_var;
+    std::set<size_t> has_phi;
     while (!queue.empty()) {
       const size_t block_idx = *queue.begin();
       queue.erase(queue.begin());
 
       for (const auto &frontier_idx : dominance_frontiers[block_idx]) {
-        if (has_def.count(frontier_idx) > 0)
+        if (has_phi.count(frontier_idx) > 0)
           continue;
 
-        // TODO: Add a phi node
         std::cerr << "Adding phi node for variable " << var << " in block "
                   << frontier_idx << std::endl;
         std::vector<std::string> arguments;
@@ -61,6 +64,7 @@ void bril::ControlFlowGraph::convert_to_ssa() {
         const Instruction phi_node = Instruction::phi(var, arguments, labels);
         blocks[frontier_idx].instructions.insert(
             blocks[frontier_idx].instructions.begin(), phi_node);
+        has_phi.insert(frontier_idx);
 
         queue.insert(frontier_idx);
         has_def.insert(frontier_idx);
@@ -68,14 +72,13 @@ void bril::ControlFlowGraph::convert_to_ssa() {
     }
   }
 
+  std::cerr << "CFG after adding phi nodes:" << std::endl;
+  std::cerr << *this << std::endl;
+
   std::map<std::string, std::vector<std::string>> definitions;
   std::map<std::string, size_t> next_idx;
-  for (auto &argument : arguments) {
-    const auto old_name = argument.name;
-    const auto new_name = old_name + ".0";
-    argument.name = new_name;
-    definitions[old_name] = {new_name};
-    next_idx[old_name] = 1;
+  for (const auto &argument : arguments) {
+    definitions[argument.name] = {argument.name};
   }
   rename_variables(0, definitions, next_idx);
 }
@@ -109,21 +112,29 @@ void ControlFlowGraph::rename_variables(
   }
 
   for (const size_t succ : block.outgoing_blocks) {
-    for (auto &instruction : blocks[succ].instructions) {
+    std::cerr << "Updating phi nodes in block " << succ << std::endl;
+    for (size_t i = 0; i < blocks[succ].instructions.size(); ++i) {
+      auto &instruction = blocks[succ].instructions[i];
       if (instruction.opcode != Opcode::Phi)
         continue;
+      std::cerr << "Updating " << instruction << std::endl;
       for (size_t i = 0; i < instruction.arguments.size(); ++i) {
         if (instruction.labels[i] == ".bb_" + std::to_string(block_idx)) {
           instruction.arguments[i] =
               definitions[instruction.destination].back();
+          break;
         }
       }
     }
   }
 
+  std::cerr << "Renaming variables in immediate dominatees of block "
+            << block_idx << std::endl;
   for (size_t succ = 0; succ < blocks.size(); ++succ) {
-    if (_immediately_dominates(block_idx, succ))
+    if (succ != block_idx && _immediately_dominates(block_idx, succ)) {
+      std::cerr << block_idx << " -> " << succ << std::endl;
       rename_variables(succ, definitions, next_idx);
+    }
   }
 }
 
