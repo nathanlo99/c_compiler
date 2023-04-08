@@ -20,6 +20,10 @@
 
 std::string read_file(const std::string &filename) {
   std::ifstream ifs(filename);
+  if (!ifs.good()) {
+    std::cerr << "Error: cannot open file " << filename << std::endl;
+    exit(1);
+  }
   std::stringstream buffer;
   buffer << ifs.rdbuf();
   return buffer.str();
@@ -198,17 +202,17 @@ int main(int argc, char **argv) {
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
 
-    const size_t num_removed_lines = apply_optimizations(bril_program);
-    std::cout << bril_program << std::endl;
-    std::cout << "Optimizations removed " << num_removed_lines << " lines"
-              << std::endl;
-
     for (auto &[name, cfg] : bril_program.cfgs) {
       if (!cfg.uses_pointers())
         cfg.convert_to_ssa();
     }
 
+    const size_t num_removed_lines = apply_optimizations(bril_program);
     std::cout << bril_program << std::endl;
+    std::cout << "Optimizations removed " << num_removed_lines << " lines"
+              << std::endl;
+
+    // std::cout << bril_program << std::endl;
 
     BRILInterpreter interpreter(bril_program);
     interpreter.run(std::cerr);

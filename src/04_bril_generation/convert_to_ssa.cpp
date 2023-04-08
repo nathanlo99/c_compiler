@@ -14,12 +14,14 @@ void bril::ControlFlowGraph::convert_to_ssa() {
   // 0. Gather variables and the blocks they're defined in
   std::map<std::string, std::set<size_t>> defs;
   std::map<std::string, size_t> num_defs;
+  std::map<std::string, Type> types;
   for (size_t block_idx = 0; block_idx < blocks.size(); block_idx++) {
     const auto &block = blocks[block_idx];
     for (const auto &instruction : block.instructions) {
       if (instruction.destination != "") {
         defs[instruction.destination].insert(block_idx);
         num_defs[instruction.destination] += 1;
+        types[instruction.destination] = instruction.type;
       }
     }
   }
@@ -61,7 +63,9 @@ void bril::ControlFlowGraph::convert_to_ssa() {
           arguments.push_back(var);
           labels.push_back(".bb_" + std::to_string(pred));
         }
-        const Instruction phi_node = Instruction::phi(var, arguments, labels);
+        // TODO: Annotate with correct type
+        const Instruction phi_node =
+            Instruction::phi(var, types[var], arguments, labels);
         blocks[frontier_idx].instructions.insert(
             blocks[frontier_idx].instructions.begin(), phi_node);
         has_phi.insert(frontier_idx);
@@ -91,16 +95,27 @@ void ControlFlowGraph::rename_variables(
   std::cerr << "Renaming variables in block " << block_idx << std::endl;
 
   Block &block = blocks[block_idx];
-  for (size_t i = 0; i < block.instructions.size(); ++i) {
-    auto &instruction = block.instructions[i];
-    if (instruction.opcode != Opcode::Phi) {
-      for (auto &argument : instruction.arguments) {
-        runtime_assert(definitions.count(argument) > 0,
-                       "Variable " + argument + " not defined");
-        argument = definitions[argument].back();
-      }
-    }
 
+  // First, rename phi-node destinations
+  for (auto &instruction : block.instructions) {
+    if (instruction.opcode != Opcode::Phi)
+      break;
+    const std::string new_name =
+        instruction.destination + "." +
+        std::to_string(next_idx[instruction.destination]);
+    next_idx[instruction.destination] += 1;
+    definitions[instruction.destination].push_back(new_name);
+    instruction.destination = new_name;
+  }
+
+  for (auto &instruction : block.instructions) {
+    if (instruction.opcode == Opcode::Phi)
+      continue;
+    for (auto &argument : instruction.arguments) {
+      runtime_assert(definitions.count(argument) > 0,
+                     "Variable " + argument + " not defined");
+      argument = definitions[argument].back();
+    }
     if (instruction.destination != "") {
       const std::string new_name =
           instruction.destination + "." +
@@ -112,18 +127,23 @@ void ControlFlowGraph::rename_variables(
   }
 
   for (const size_t succ : block.outgoing_blocks) {
-    std::cerr << "Updating phi nodes in block " << succ << std::endl;
-    for (size_t i = 0; i < blocks[succ].instructions.size(); ++i) {
-      auto &instruction = blocks[succ].instructions[i];
+    std::cerr << "Updating phi nodes in successor " << succ << " of "
+              << block_idx << std::endl;
+    for (auto &instruction : blocks[succ].instructions) {
       if (instruction.opcode != Opcode::Phi)
         continue;
       std::cerr << "Updating " << instruction << std::endl;
-      for (size_t i = 0; i < instruction.arguments.size(); ++i) {
-        if (instruction.labels[i] == ".bb_" + std::to_string(block_idx)) {
-          instruction.arguments[i] =
-              definitions[instruction.destination].back();
-          break;
-        }
+      const std::string target_label = ".bb_" + std::to_string(block_idx);
+      const auto it = std::find(instruction.labels.begin(),
+                                instruction.labels.end(), target_label);
+      runtime_assert(it != instruction.labels.end(),
+                     "Label " + target_label + " not found in phi node");
+      const size_t idx = it - instruction.labels.begin();
+      const std::string old_argument = instruction.arguments[idx];
+      if (definitions[old_argument].empty()) {
+        instruction.arguments[idx] = "__undefined";
+      } else {
+        instruction.arguments[idx] = definitions[old_argument].back();
       }
     }
   }

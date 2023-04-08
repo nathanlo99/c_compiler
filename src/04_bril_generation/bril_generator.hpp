@@ -166,10 +166,10 @@ public:
   void label(const std::string &label_value) {
     emit(Instruction::label(label_value));
   }
-  void phi(const std::string &destination,
+  void phi(const std::string &destination, const Type type,
            const std::vector<std::string> &values,
            const std::vector<std::string> &labels) {
-    emit(Instruction::phi(destination, values, labels));
+    emit(Instruction::phi(destination, type, values, labels));
   }
 };
 } // namespace bril

@@ -9,7 +9,7 @@ namespace bril {
 namespace interpreter {
 
 struct BRILValue {
-  enum class Type { Int, Bool, RawPointer, Address, HeapPointer, Void };
+  enum class Type { Int, Bool, RawPointer, Address, HeapPointer, Undefined };
 
   // If the type is Int or Bool, the value is stored in int_value
   // If the type is Address, the name of the variable is stored in string_value
@@ -20,7 +20,7 @@ struct BRILValue {
   int int_value;
   size_t heap_idx, heap_offset;
 
-  BRILValue() : type(Type::Void) {}
+  BRILValue() : type(Type::Undefined) {}
   BRILValue(const Type type, const int int_value,
             const std::string &string_value)
       : type(type), string_value(string_value), int_value(int_value) {}
@@ -61,8 +61,8 @@ struct BRILValue {
       os << "heap_alloc #" << value.heap_idx << " + " << value.heap_offset
          << ": int*";
       break;
-    case Type::Void:
-      os << "(void)";
+    case Type::Undefined:
+      os << "__undefined";
       break;
     }
     return os;
@@ -148,6 +148,8 @@ struct BRILStackFrame {
     return variables[name].int_value;
   }
   BRILValue get_value(const std::string &name) {
+    if (name == "__undefined")
+      return BRILValue();
     runtime_assert(variables.count(name) > 0,
                    "Variable " + name + " not found");
     return variables[name];
@@ -179,12 +181,18 @@ struct BRILContext {
 
   // Get the value of a variable
   inline bool get_bool(const std::string &name) {
+    runtime_assert(name != "__undefined",
+                   "Reading from uninitialized variable");
     return stack_frames.back().get_bool(name);
   }
   inline int get_int(const std::string &name) {
+    runtime_assert(name != "__undefined",
+                   "Reading from uninitialized variable");
     return stack_frames.back().get_int(name);
   }
   inline BRILValue get_value(const std::string &name) {
+    if (name == "__undefined")
+      return BRILValue();
     return stack_frames.back().get_value(name);
   }
 

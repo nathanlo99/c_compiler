@@ -69,17 +69,14 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                    "Instruction idx out of range");
     const auto &instruction =
         graph.blocks[block_idx].instructions[instruction_idx];
-    std::cerr << "Interpreting (" << block_idx << ", " << instruction_idx
-              << "): " << instruction << std::endl;
+    // std::cerr << "Interpreting (" << block_idx << ", " << instruction_idx
+    //           << "): " << instruction << std::endl;
 
     // 2. Advance the instruction pointer
     ++instruction_idx;
-    if (instruction_idx >= graph.blocks[block_idx].instructions.size()) {
-      instruction_idx = 0;
-      last_block = block_idx;
-      ++block_idx;
-    }
     ++num_dynamic_instructions;
+    if (instruction_idx >= graph.blocks[block_idx].instructions.size())
+      runtime_assert(instruction.is_jump(), "Last instruction must be jump");
 
     // 3. Interpret the instruction
     const std::string destination = instruction.destination;
@@ -281,14 +278,15 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::Phi: {
-      std::cerr << "Last block: " << last_block << std::endl;
+      // std::cerr << "Last block: " << last_block << std::endl;
       runtime_assert(last_block != static_cast<size_t>(-1),
                      "Reached phi instruction before any jumps or branches");
       const std::string label = ".bb_" + std::to_string(last_block);
       bool done = false;
       for (size_t i = 0; i < instruction.labels.size() && !done; ++i) {
         if (instruction.labels[i] == label) {
-          const BRILValue value = context.get_value(instruction.arguments[i]);
+          const auto variable = instruction.arguments[i];
+          const BRILValue value = context.get_value(variable);
           context.write_value(instruction.destination, value);
           done = true;
         }

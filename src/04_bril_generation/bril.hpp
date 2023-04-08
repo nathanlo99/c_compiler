@@ -204,7 +204,8 @@ struct Instruction {
   }
 
   inline bool is_jump() const {
-    return opcode == Opcode::Jmp || opcode == Opcode::Br;
+    return opcode == Opcode::Jmp || opcode == Opcode::Br ||
+           opcode == Opcode::Ret;
   }
   inline bool uses_memory() const {
     return opcode == Opcode::Alloc || opcode == Opcode::Free ||
@@ -333,11 +334,10 @@ struct Instruction {
   static inline Instruction label(const std::string &label_value) {
     return Instruction(Opcode::Label, "", Type::Void, {}, {}, {label_value});
   }
-  static inline Instruction phi(const std::string &destination,
+  static inline Instruction phi(const std::string &destination, const Type type,
                                 const std::vector<std::string> &values,
                                 const std::vector<std::string> &labels) {
-    return Instruction(Opcode::Phi, destination, Type::Void, values, {},
-                       labels);
+    return Instruction(Opcode::Phi, destination, type, values, {}, labels);
   }
 
   friend std::ostream &operator<<(std::ostream &os,
