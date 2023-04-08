@@ -202,15 +202,19 @@ int main(int argc, char **argv) {
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
 
+    const size_t pre_ssa_removed_lines = apply_optimizations(bril_program);
+
     for (auto &[name, cfg] : bril_program.cfgs) {
-      if (!cfg.uses_pointers())
-        cfg.convert_to_ssa();
+      cfg.convert_to_ssa();
     }
 
-    const size_t num_removed_lines = apply_optimizations(bril_program);
+    const size_t post_ssa_removed_lines = apply_optimizations(bril_program);
+
     std::cout << bril_program << std::endl;
-    std::cout << "Optimizations removed " << num_removed_lines << " lines"
-              << std::endl;
+    std::cout << "Pre-SSA optimizations removed " << pre_ssa_removed_lines
+              << " lines" << std::endl;
+    std::cout << "Post-SSA optimizations removed " << post_ssa_removed_lines
+              << " lines" << std::endl;
 
     // std::cout << bril_program << std::endl;
 

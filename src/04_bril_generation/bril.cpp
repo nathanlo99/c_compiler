@@ -33,17 +33,13 @@ ControlFlowGraph::ControlFlowGraph(Function function)
       current_block.entry_labels.push_back(instruction.labels[0]);
       current_block.instructions.push_back(instruction);
     } else if (instruction.is_jump()) {
-      // Jump, branch
+      // Jump, branch, return
       current_block.instructions.push_back(instruction);
       current_block.exit_labels = instruction.labels;
-      add_block(current_block);
-      current_block = Block();
-    } else if (instruction.opcode == Opcode::Ret) {
-      // Return: add this block's index to the exiting block list
-      current_block.instructions.push_back(instruction);
-      const size_t current_block_idx = blocks.size();
-      exiting_blocks.insert(current_block_idx);
-      current_block.is_exiting = true;
+      if (instruction.opcode == Opcode::Ret) {
+        exiting_blocks.insert(blocks.size());
+        current_block.is_exiting = true;
+      }
       add_block(current_block);
       current_block = Block();
     } else {

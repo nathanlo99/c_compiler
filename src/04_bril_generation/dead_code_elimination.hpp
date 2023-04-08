@@ -86,8 +86,9 @@ inline size_t remove_local_unused_assignments(Block &block) {
   // Loop over the indices to delete in reverse order to keep indices valid
   size_t num_removed_lines = 0;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
-    std::cout << "Removing instruction " << *rit << std::endl;
     const auto idx = *rit;
+    std::cout << "Removing locally unused instruction "
+              << block.instructions[idx] << std::endl;
     block.instructions.erase(block.instructions.begin() + idx);
     num_removed_lines += 1;
   }
