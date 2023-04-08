@@ -194,7 +194,6 @@ int main(int argc, char **argv) {
 
     // program->print();
     program->emit_c(std::cerr, 0); // after constant folding
-    // return 0;
 
     bril::Program bril_program = get_bril(program);
     std::cout << bril_program << std::endl;
@@ -204,8 +203,17 @@ int main(int argc, char **argv) {
     std::cout << "Optimizations removed " << num_removed_lines << " lines"
               << std::endl;
 
+    for (auto &[name, cfg] : bril_program.cfgs) {
+      if (!cfg.uses_pointers())
+        cfg.convert_to_ssa();
+    }
+
+    std::cout << bril_program << std::endl;
+
     BRILInterpreter interpreter(bril_program);
     interpreter.run(std::cerr);
+
+    // std::cout << bril_program << std::endl;
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

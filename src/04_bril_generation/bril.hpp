@@ -462,7 +462,7 @@ struct Instruction {
       break;
 
     case Opcode::Phi: {
-      os << instruction.destination << ": " << instruction.type << " = phi ";
+      os << instruction.destination << ": " << instruction.type << " = phi";
       const size_t n = instruction.arguments.size();
       for (size_t i = 0; i < n; ++i) {
         os << " " << instruction.labels[i] << " " << instruction.arguments[i];
@@ -486,34 +486,6 @@ struct Function {
   Function(const std::string &name, const std::vector<Variable> &arguments,
            const Type return_type)
       : name("@" + name), arguments(arguments), return_type(return_type) {}
-
-  friend std::ostream &operator<<(std::ostream &os, const Function &function) {
-    os << function.name;
-    if (function.arguments.size() > 0) {
-      os << "(";
-      bool first = true;
-      for (const auto &argument : function.arguments) {
-        if (first)
-          first = false;
-        else
-          os << ", ";
-        os << argument.name << ": " << argument.type;
-      }
-      os << ")";
-    }
-    os << ": " << function.return_type << " {" << std::endl;
-
-    for (const auto &instruction : function.instructions) {
-      if (instruction.opcode == Opcode::Label) {
-        os << instruction << std::endl;
-      } else {
-        os << "  " << instruction << std::endl;
-      }
-    }
-
-    os << "}" << std::endl;
-    return os;
-  }
 };
 
 struct Block {
@@ -559,6 +531,7 @@ struct Block {
     }
 
     os << "instructions: " << std::endl;
+    os << ".bb_" << block.idx << ":" << std::endl;
     for (const auto &instruction : block.instructions) {
       os << "  " << instruction << std::endl;
     }
@@ -591,6 +564,21 @@ struct ControlFlowGraph {
     blocks.push_back(block);
     blocks.back().idx = blocks.size() - 1;
   }
+
+  bool uses_pointers() const {
+    for (const auto &block : blocks) {
+      if (block.uses_pointers())
+        return true;
+    }
+    return false;
+  }
+
+  // Convert the CFG to SSA form, if it has no memory accesses
+  void convert_to_ssa();
+  void
+  rename_variables(const size_t block_idx,
+                   std::map<std::string, std::vector<std::string>> definitions,
+                   std::map<std::string, size_t> &next_idx);
 
   // Applies a local pass to each block in the CFG and returns the number of
   // removed lines

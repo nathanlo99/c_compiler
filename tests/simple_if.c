@@ -1,8 +1,10 @@
 
 int wain(int a, int b) {
-  if (a == 0) {
-    println(b);
+  if (b % 2 == 0) {
+    a = a * a;
   } else {
+    a = a + a;
   }
+  println(a);
   return a;
 }

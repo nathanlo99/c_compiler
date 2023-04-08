@@ -13,6 +13,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     - extract exiting labels from the last instruction in the block, if it's a
         jump
   */
+
   Block current_block;
   for (size_t idx = 0; idx < function.instructions.size(); ++idx) {
     const Instruction &instruction = function.instructions[idx];
@@ -57,6 +58,9 @@ void ControlFlowGraph::add_directed_edge(const size_t source,
 }
 
 void ControlFlowGraph::compute_edges() {
+  // 1. Add edges
+
+  // First, construct a map from label to block index
   for (size_t idx = 0; idx < blocks.size(); ++idx) {
     auto &block = blocks[idx];
     for (const auto &entry_label : block.entry_labels) {
@@ -64,6 +68,7 @@ void ControlFlowGraph::compute_edges() {
     }
   }
 
+  // Then, for each outgoing label, add an edge
   for (size_t idx = 0; idx < blocks.size(); ++idx) {
     auto &block = blocks[idx];
     for (const auto &exit_label : block.exit_labels) {
@@ -74,9 +79,33 @@ void ControlFlowGraph::compute_edges() {
     }
   }
 
+  // Then, add edges for all the fallthroughs
   for (size_t idx = 1; idx < blocks.size(); ++idx) {
     if (!blocks[idx - 1].instructions.back().is_jump()) {
       add_directed_edge(idx - 1, idx);
+    }
+  }
+
+  // 2. Canonicalize the label names
+
+  // Loop through and replace all the labels with block indices
+  for (auto &block : blocks) {
+    // Remove all the labels
+    for (size_t i = 0; i < block.instructions.size(); ++i) {
+      if (block.instructions[i].opcode == Opcode::Label) {
+        block.instructions.erase(block.instructions.begin() + i);
+        --i;
+      }
+    }
+
+    for (auto &instruction : block.instructions) {
+      if (instruction.opcode == Opcode::Label)
+        continue;
+      for (auto &label : instruction.labels) {
+        runtime_assert(label_to_block.count(label) > 0,
+                       "Label " + label + " not found in label map");
+        label = ".bb_" + std::to_string(label_to_block.at(label));
+      }
     }
   }
 }

@@ -60,7 +60,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     context.write_value(graph.arguments[idx].name, arguments[idx]);
   }
 
-  size_t block_idx = 0, instruction_idx = 0;
+  size_t block_idx = 0, instruction_idx = 0, last_block = -1;
   while (true) {
     // 1. Get the current instruction
     runtime_assert(block_idx < graph.blocks.size(), "Block idx out of range");
@@ -69,12 +69,14 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                    "Instruction idx out of range");
     const auto &instruction =
         graph.blocks[block_idx].instructions[instruction_idx];
-    // std::cerr << "Interpreting: " << instruction << std::endl;
+    std::cerr << "Interpreting (" << block_idx << ", " << instruction_idx
+              << "): " << instruction << std::endl;
 
     // 2. Advance the instruction pointer
     ++instruction_idx;
     if (instruction_idx >= graph.blocks[block_idx].instructions.size()) {
       instruction_idx = 0;
+      last_block = block_idx;
       ++block_idx;
     }
     ++num_dynamic_instructions;
@@ -154,7 +156,10 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Jmp: {
       const std::string label = instruction.labels[0];
-      block_idx = graph.label_to_block.at(label);
+      runtime_assert(label.substr(0, 4) == ".bb_",
+                     "Label must start with .bb_");
+      last_block = block_idx;
+      block_idx = std::stoi(label.substr(4));
       instruction_idx = 0;
       continue;
     } break;
@@ -162,7 +167,10 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     case Opcode::Br: {
       const bool condition = context.get_bool(instruction.arguments[0]);
       const std::string label = instruction.labels[condition ? 0 : 1];
-      block_idx = graph.label_to_block.at(label);
+      runtime_assert(label.substr(0, 4) == ".bb_",
+                     "Label must start with .bb_");
+      last_block = block_idx;
+      block_idx = std::stoi(label.substr(4));
       instruction_idx = 0;
       continue;
     } break;
@@ -269,11 +277,23 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::Label: {
-      // TODO: Keep track of labels for phi nodes
+      // No-op
     } break;
 
     case Opcode::Phi: {
-      // TODO: Implement phi nodes
+      std::cerr << "Last block: " << last_block << std::endl;
+      runtime_assert(last_block != static_cast<size_t>(-1),
+                     "Reached phi instruction before any jumps or branches");
+      const std::string label = ".bb_" + std::to_string(last_block);
+      bool done = false;
+      for (size_t i = 0; i < instruction.labels.size() && !done; ++i) {
+        if (instruction.labels[i] == label) {
+          const BRILValue value = context.get_value(instruction.arguments[i]);
+          context.write_value(instruction.destination, value);
+          done = true;
+        }
+      }
+      runtime_assert(done, "No matching label for phi instruction");
     } break;
 
     default:

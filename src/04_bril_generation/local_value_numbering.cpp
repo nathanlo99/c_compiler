@@ -133,6 +133,9 @@ std::string LocalValueTable::fresh_name(const std::string &current_name) const {
 }
 
 size_t local_value_numbering(Block &block) {
+  if (block.has_loads_or_stores())
+    return 0;
+
   // Compute the last indices every destination is written to
   std::map<std::string, size_t> last_write;
   std::set<std::string> read_before_written;
@@ -162,11 +165,6 @@ size_t local_value_numbering(Block &block) {
 
   for (size_t i = 0; i < block.instructions.size(); ++i) {
     auto &instruction = block.instructions[i];
-    // Pessimistically assume loads and stores break every invariant in
-    // existence
-    if (instruction.is_load_or_store())
-      break;
-
     if (instruction.destination == "" || instruction.opcode == Opcode::Call) {
       // If the instruction is an effect operation, or a call, then simply
       // replace the arguments by their canonical variables
@@ -255,40 +253,5 @@ size_t local_value_numbering(Block &block) {
 
   return 0;
 }
-
-/*
-
-lvn(block):
-  env (var2num): a mapping from variables to their row index
-  value_to_num : a mapping from value to their row index
-
-  canonical_variables : a mapping from row index to canonical variable
-  constants     : a mapping from row index to constant values
-
-
-  1. For each variable read before being written to,
-    a) Add them to the table, and env[var] = num
-    b) canonical_variables[num] = var
-
-  2. For each instruction,
-    1. Convert all the arguments into row numbers
-    2. For each non-call value operation,
-      a) Construct a value using the opcode and the converted arguments
-      b) If the value is already in the table, (do id-folding here)
-        - env[dest] = num
-        - Replace the instruction with either a copy or a constant, depending on
-          whether the num is in constants or values
-      c) Otherwise, if the result produces a result, give it a number:
-        - Add the destination to table (say, at num)
-        - If the opcode is const, add it to the constant table
-        - If the instruction is not the last write, create a fresh name
-        - Let var be the unused destination name
-        - canonical_variables[num] = var
-        - Set the instruction's destination to var
-        - If the value is valid, then try folding it and place the result into
-          the constant table, otherwise place it into the variable table
-      d) In all cases, update the argument variables to canonical names
-
-*/
 
 } // namespace bril

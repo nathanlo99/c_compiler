@@ -34,6 +34,8 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
       if (destination != "" && used_variables.count(destination) == 0 &&
           addressed_variables.count(destination) == 0 &&
           instruction.is_pure()) {
+        std::cout << "Removing globally unused instruction " << instruction
+                  << std::endl;
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
         num_removed_lines += 1;
@@ -84,6 +86,7 @@ inline size_t remove_local_unused_assignments(Block &block) {
   // Loop over the indices to delete in reverse order to keep indices valid
   size_t num_removed_lines = 0;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
+    std::cout << "Removing instruction " << *rit << std::endl;
     const auto idx = *rit;
     block.instructions.erase(block.instructions.begin() + idx);
     num_removed_lines += 1;
