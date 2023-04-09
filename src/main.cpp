@@ -177,6 +177,18 @@ void compute_reaching_definitions(bril::Program &bril_program) {
   }
 }
 
+void test_to_ssa(const std::string &filename) {
+  using namespace bril::interpreter;
+  const std::string input = read_file(filename);
+  const auto program0 = program(input);
+  const auto program = annotate_and_check_types(program0);
+  auto bril_program = get_bril(program);
+  for (auto &[name, cfg] : bril_program.cfgs) {
+    cfg.convert_to_ssa();
+  }
+  bril_program.print_flattened();
+}
+
 int main(int argc, char **argv) {
   using namespace bril::interpreter;
 
@@ -184,44 +196,31 @@ int main(int argc, char **argv) {
   // return 0;
 
   try {
-    const std::string input = argc > 1 ? read_file(argv[1]) : consume_stdin();
-    const auto program0 = program(input);
-    const auto program = annotate_and_check_types(program0);
+    runtime_assert(argc == 3, "Expected a filename and an option");
+    const std::string argument = argv[2], filename = argv[1];
 
-    // program->emit_c(std::cerr, 0); // before constant folding
-    // const auto symbol_table = program->table;
-    // std::cerr << symbol_table << std::endl;
-
-    // Fold constants
-    FoldConstantsVisitor fold_constants_visitor;
-    program->accept_recursive(fold_constants_visitor);
-
-    // program->print();
-    program->emit_c(std::cerr, 0); // after constant folding
-
-    bril::Program bril_program = get_bril(program);
-    std::cout << bril_program << std::endl;
-
-    const size_t pre_ssa_removed_lines = apply_optimizations(bril_program);
-
-    for (auto &[name, cfg] : bril_program.cfgs) {
-      cfg.convert_to_ssa();
+    if (argument == "--emit-c") {
+      const std::string input = read_file(filename);
+      const auto program0 = program(input);
+      const auto program = annotate_and_check_types(program0);
+      program->emit_c(std::cerr, 0);
+      return 0;
     }
 
-    const size_t post_ssa_removed_lines = apply_optimizations(bril_program);
+    if (argument == "--ssa") {
+      test_to_ssa(filename);
+      return 0;
+    }
 
-    std::cout << bril_program << std::endl;
-    std::cout << "Pre-SSA optimizations removed " << pre_ssa_removed_lines
-              << " lines" << std::endl;
-    std::cout << "Post-SSA optimizations removed " << post_ssa_removed_lines
-              << " lines" << std::endl;
-
-    // std::cout << bril_program << std::endl;
-
-    BRILInterpreter interpreter(bril_program);
-    interpreter.run(std::cerr);
-
-    // std::cout << bril_program << std::endl;
+    if (argument == "--emit-mips") {
+      const std::string input = read_file(filename);
+      const auto program0 = program(input);
+      auto program = annotate_and_check_types(program0);
+      NaiveMIPSGenerator generator;
+      program->accept_simple(generator);
+      generator.print();
+      return 0;
+    }
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

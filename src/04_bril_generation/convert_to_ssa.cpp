@@ -23,6 +23,11 @@ void bril::ControlFlowGraph::convert_to_ssa() {
       }
     }
   }
+  for (const auto &argument : arguments) {
+    defs[argument.name].insert(0);
+    num_defs[argument.name] += 1;
+    types[argument.name] = argument.type;
+  }
 
   // 1. Add phi nodes
   for (const auto &[var, blocks_with_var] : defs) {

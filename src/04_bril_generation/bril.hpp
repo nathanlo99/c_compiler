@@ -669,6 +669,29 @@ struct Program {
     return os;
   }
 
+  void print_flattened() const {
+    for (const auto &[name, cfg] : cfgs) {
+      std::cout << "@" << name << "(";
+      bool first = true;
+      for (const auto &argument : cfg.arguments) {
+        if (first)
+          first = false;
+        else
+          std::cout << ", ";
+        std::cout << argument.name << ": " << argument.type;
+      }
+      std::cout << ") : " << cfg.return_type << " {" << std::endl;
+      for (size_t i = 0; i < cfg.blocks.size(); ++i) {
+        if (i != 0)
+          std::cout << cfg.label(i) << ":" << std::endl;
+        for (const auto &instruction : cfg.blocks[i].instructions) {
+          std::cout << "  " << instruction << std::endl;
+        }
+      }
+      std::cout << "}\n" << std::endl;
+    }
+  }
+
   template <typename Func> size_t apply_global_pass(const Func &func) {
     size_t num_removed_lines = 0;
     for (auto &[name, cfg] : cfgs)

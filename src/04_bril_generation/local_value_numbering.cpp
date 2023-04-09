@@ -25,13 +25,23 @@ std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
   if (value.type != Type::Int)
     return std::nullopt;
-  using BinaryFunc = std::function<int(int, int)>;
+  using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
       std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
       std::make_pair(Opcode::Sub, [](int a, int b) { return a - b; }),
       std::make_pair(Opcode::Mul, [](int a, int b) { return a * b; }),
-      std::make_pair(Opcode::Div, [](int a, int b) { return a / b; }),
-      std::make_pair(Opcode::Mod, [](int a, int b) { return a % b; }),
+      std::make_pair(Opcode::Div,
+                     [](int a, int b) -> std::optional<int> {
+                       if (b == 0)
+                         return std::nullopt;
+                       return a / b;
+                     }),
+      std::make_pair(Opcode::Mod,
+                     [](int a, int b) -> std::optional<int> {
+                       if (b == 0)
+                         return std::nullopt;
+                       return a % b;
+                     }),
       std::make_pair(Opcode::Lt, [](int a, int b) { return a < b; }),
       std::make_pair(Opcode::Le, [](int a, int b) { return a <= b; }),
       std::make_pair(Opcode::Gt, [](int a, int b) { return a > b; }),
@@ -105,8 +115,7 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
     return std::nullopt;
   }
 
-  const int result = foldable_ops.at(value.opcode)(lhs, rhs);
-  return result;
+  return foldable_ops.at(value.opcode)(lhs, rhs);
 }
 
 size_t LocalValueTable::query_row(const LocalValueNumber &value) const {

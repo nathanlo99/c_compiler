@@ -7,5 +7,5 @@
 namespace bril {
 
 bril::Program import_bril(const std::string &filename);
-// TODO
+
 } // namespace bril

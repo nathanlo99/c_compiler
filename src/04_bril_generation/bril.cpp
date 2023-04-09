@@ -14,7 +14,7 @@ ControlFlowGraph::ControlFlowGraph(Function function)
         jump
   */
 
-  const std::string entry_label = function.name + "_entry";
+  const std::string entry_label = "." + function.name.substr(1) + "_entry";
   function.instructions.insert(function.instructions.begin(),
                                Instruction::jmp(entry_label));
   function.instructions.insert(function.instructions.begin() + 1,
@@ -130,7 +130,6 @@ void ControlFlowGraph::compute_dominators() {
     bool changed = false;
     for (size_t i = 1; i < num_blocks; ++i) {
       const auto old_set = raw_dominators[i];
-      raw_dominators[i] = everything;
       for (size_t pred : blocks[i].incoming_blocks) {
         for (size_t k = 0; k < num_blocks; ++k)
           raw_dominators[i][k] =
