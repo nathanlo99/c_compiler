@@ -49,7 +49,7 @@ void bril::ControlFlowGraph::convert_to_ssa() {
         std::vector<std::string> labels;
         for (const size_t pred : blocks[frontier_idx].incoming_blocks) {
           arguments.push_back(var);
-          labels.push_back(".bb_" + std::to_string(pred));
+          labels.push_back(get_label(pred));
         }
         // TODO: Annotate with correct type
         const Instruction phi_node =
@@ -113,7 +113,7 @@ void ControlFlowGraph::rename_variables(
     for (auto &instruction : blocks[succ].instructions) {
       if (instruction.opcode != Opcode::Phi)
         continue;
-      const std::string target_label = ".bb_" + std::to_string(block_idx);
+      const std::string target_label = get_label(block_idx);
       const auto it = std::find(instruction.labels.begin(),
                                 instruction.labels.end(), target_label);
       runtime_assert(it != instruction.labels.end(),

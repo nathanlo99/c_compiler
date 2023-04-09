@@ -565,6 +565,10 @@ struct ControlFlowGraph {
     blocks.back().idx = blocks.size() - 1;
   }
 
+  inline std::string get_label(const size_t block_idx) const {
+    return ".bb_" + std::to_string(block_idx);
+  }
+
   bool uses_pointers() const {
     for (const auto &block : blocks) {
       if (block.uses_pointers())
@@ -594,6 +598,17 @@ struct ControlFlowGraph {
     return idx == 0                           ? name
            : blocks[idx].entry_labels.empty() ? "(no label)"
                                               : blocks[idx].entry_labels[0];
+  }
+
+  std::vector<Instruction> flatten() const {
+    std::vector<Instruction> instructions;
+    for (const auto &block : blocks) {
+      instructions.push_back(Instruction::label(get_label(block.idx)));
+      for (const auto &instruction : block.instructions) {
+        instructions.push_back(instruction);
+      }
+    }
+    return instructions;
   }
 
   friend std::ostream &operator<<(std::ostream &os,
@@ -681,12 +696,11 @@ struct Program {
         std::cout << argument.name << ": " << argument.type;
       }
       std::cout << ") : " << cfg.return_type << " {" << std::endl;
-      for (size_t i = 0; i < cfg.blocks.size(); ++i) {
-        if (i != 0)
-          std::cout << cfg.label(i) << ":" << std::endl;
-        for (const auto &instruction : cfg.blocks[i].instructions) {
+      for (const auto &instruction : cfg.flatten()) {
+        if (instruction.opcode == Opcode::Label)
+          std::cout << instruction.labels[0] << ":" << std::endl;
+        else
           std::cout << "  " << instruction << std::endl;
-        }
       }
       std::cout << "}\n" << std::endl;
     }

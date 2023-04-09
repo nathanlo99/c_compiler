@@ -106,15 +106,14 @@ void ControlFlowGraph::compute_edges() {
       for (auto &label : instruction.labels) {
         runtime_assert(label_to_block.count(label) > 0,
                        "Label " + label + " not found in label map");
-        label = ".bb_" + std::to_string(label_to_block.at(label));
+        label = get_label(label_to_block.at(label));
       }
     }
   }
 
   for (size_t idx = 1; idx < blocks.size(); ++idx) {
     if (!blocks[idx - 1].instructions.back().is_jump()) {
-      blocks[idx - 1].instructions.push_back(
-          Instruction::jmp(".bb_" + std::to_string(idx)));
+      blocks[idx - 1].instructions.push_back(Instruction::jmp(get_label(idx)));
     }
   }
 }

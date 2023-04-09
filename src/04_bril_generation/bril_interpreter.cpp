@@ -281,7 +281,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       // std::cerr << "Last block: " << last_block << std::endl;
       runtime_assert(last_block != static_cast<size_t>(-1),
                      "Reached phi instruction before any jumps or branches");
-      const std::string label = ".bb_" + std::to_string(last_block);
+      const std::string label = graph.get_label(last_block);
       bool done = false;
       for (size_t i = 0; i < instruction.labels.size() && !done; ++i) {
         if (instruction.labels[i] == label) {
