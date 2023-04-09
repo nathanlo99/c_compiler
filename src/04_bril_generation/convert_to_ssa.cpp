@@ -51,7 +51,6 @@ void bril::ControlFlowGraph::convert_to_ssa() {
           arguments.push_back(var);
           labels.push_back(get_label(pred));
         }
-        // TODO: Annotate with correct type
         const Instruction phi_node =
             Instruction::phi(var, types[var], arguments, labels);
         blocks[frontier_idx].instructions.insert(

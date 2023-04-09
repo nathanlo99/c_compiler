@@ -116,6 +116,17 @@ void ControlFlowGraph::compute_edges() {
       blocks[idx - 1].instructions.push_back(Instruction::jmp(get_label(idx)));
     }
   }
+
+  for (size_t i = 0; i < blocks.size(); ++i) {
+    blocks[i].entry_labels = {get_label(i)};
+    blocks[i].instructions.insert(blocks[i].instructions.begin(),
+                                  Instruction::label(get_label(i)));
+  }
+}
+
+void ControlFlowGraph::recompute_graph() {
+  compute_edges();
+  compute_dominators();
 }
 
 void ControlFlowGraph::compute_dominators() {

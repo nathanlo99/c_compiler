@@ -12,7 +12,8 @@ struct LocalValueNumber {
   Type type = Type::Unknown;
 
   // Construct and canonicalize
-  LocalValueNumber(const Opcode opcode, const std::vector<size_t> &arguments);
+  LocalValueNumber(const Opcode opcode, const std::vector<size_t> &arguments,
+                   const Type type);
   LocalValueNumber(const int value, const Type type);
 
   bool operator==(const LocalValueNumber &other) const {

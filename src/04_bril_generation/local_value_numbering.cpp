@@ -9,8 +9,9 @@
 namespace bril {
 
 LocalValueNumber::LocalValueNumber(const Opcode opcode,
-                                   const std::vector<size_t> &arguments)
-    : opcode(opcode), arguments(arguments) {
+                                   const std::vector<size_t> &arguments,
+                                   const Type type)
+    : opcode(opcode), arguments(arguments), type(type) {
   runtime_assert(opcode != Opcode::Const,
                  "Const LVN should use other constructor");
   // Canonicalize arguments of commutative operations
@@ -23,7 +24,7 @@ LocalValueNumber::LocalValueNumber(const int value, const Type type)
 
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
-  if (value.type != Type::Int)
+  if (value.type != Type::Int && value.type != Type::Bool)
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
@@ -145,28 +146,30 @@ size_t local_value_numbering(Block &block) {
   if (block.has_loads_or_stores())
     return 0;
 
+  LocalValueTable table;
+
   // Compute the last indices every destination is written to
-  std::map<std::string, size_t> last_write;
   std::set<std::string> read_before_written;
+  std::map<std::string, Type> types;
   for (size_t i = 0; i < block.instructions.size(); ++i) {
     const auto &instruction = block.instructions[i];
     const std::string destination = instruction.destination;
+
     for (const auto &argument : instruction.arguments) {
-      if (last_write.count(argument) == 0) {
+      if (table.last_write.count(argument) == 0) {
         read_before_written.insert(argument);
       }
     }
     if (destination != "") {
-      last_write[destination] = i;
+      table.last_write[destination] = i;
+      types[destination] = instruction.type;
     }
   }
 
-  LocalValueTable table;
-  table.last_write = last_write;
-
   for (const auto &var : read_before_written) {
+    const Type type = types[var];
     const size_t num = table.values.size();
-    const LocalValueNumber value(Opcode::Id, {num});
+    const LocalValueNumber value(Opcode::Id, {num}, type);
     table.values.push_back(value);
     table.canonical_variables.push_back(var);
     table.env[var] = num;
@@ -186,12 +189,32 @@ size_t local_value_numbering(Block &block) {
       // arguments and make us cry
       if (instruction.opcode == Opcode::Call) {
         const std::string destination = instruction.destination;
+        const Type type = instruction.type;
         const size_t num = table.values.size();
-        const LocalValueNumber value(Opcode::Id, {num});
+        const LocalValueNumber value(Opcode::Id, {num}, type);
         table.values.push_back(value);
         table.canonical_variables.push_back(destination);
         table.env[destination] = num;
       }
+
+      // If the instruction is a branch, and the arguments are constants, then
+      // resolve the branch
+      if (instruction.opcode == Opcode::Br) {
+        const std::string cond = instruction.arguments[0];
+        const size_t cond_idx = table.env.at(cond);
+        const LocalValueNumber cond_value = table.values[cond_idx];
+        if (cond_value.opcode == Opcode::Const) {
+          const bool cond_value_bool = cond_value.value != 0;
+          std::cerr << "Resolving the branch " << instruction
+                    << " since the condition is always "
+                    << (cond_value_bool ? "true" : "false") << std::endl;
+          const std::string target =
+              instruction.labels[cond_value_bool ? 0 : 1];
+          // instruction = bril::Instruction::jmp(target);
+          // TODO: Update the graph
+        }
+      }
+
       continue;
     }
 
@@ -205,7 +228,7 @@ size_t local_value_numbering(Block &block) {
     const LocalValueNumber value =
         instruction.opcode == Opcode::Const
             ? LocalValueNumber(instruction.value, instruction.type)
-            : LocalValueNumber(instruction.opcode, arguments);
+            : LocalValueNumber(instruction.opcode, arguments, instruction.type);
     const size_t idx = table.query_row(value);
 
     if (idx != table.NOT_FOUND) {
@@ -226,10 +249,11 @@ size_t local_value_numbering(Block &block) {
 
     if (instruction.destination != "") {
       const std::string original_destination = instruction.destination;
-      runtime_assert(last_write.count(original_destination) > 0,
+      runtime_assert(table.last_write.count(original_destination) > 0,
                      "Destination " + original_destination +
                          " not in last_write");
-      const bool dest_overwritten = last_write.at(original_destination) > i;
+      const bool dest_overwritten =
+          table.last_write.at(original_destination) > i;
 
       const std::string fresh_name =
           dest_overwritten ? table.fresh_name(original_destination)

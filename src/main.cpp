@@ -35,7 +35,7 @@ std::string consume_stdin() {
   return buffer.str();
 }
 
-std::shared_ptr<Program> program(const std::string &input) {
+std::shared_ptr<Program> get_program(const std::string &input) {
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   const CFG cfg = load_cfg_from_file("references/productions.cfg");
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
@@ -54,69 +54,6 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
   DeduceTypesVisitor deduce_types_visitor;
   program->accept_recursive(deduce_types_visitor);
   return program;
-}
-
-void debug_constant_folding() {
-  const std::string input = "0 - (b - c)";
-  const std::vector<Variable> variables = {
-      Variable("a", Type::Int),
-      Variable("b", Type::IntStar),
-      Variable("c", Type::IntStar),
-  };
-
-  const std::vector<Token> token_stream = Lexer(input).token_stream();
-  const CFG cfg = load_cfg_from_file("tests/arithmetic.cfg");
-  const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
-  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-  const std::shared_ptr<Expr> expr = construct_ast<Expr>(parse_tree);
-
-  SymbolTable mocked_table;
-  mocked_table.add_procedure("MOCK");
-  mocked_table.enter_procedure("MOCK");
-  for (const Variable &variable : variables) {
-    mocked_table.add_variable("MOCK", variable);
-  }
-
-  DeduceTypesVisitor deduce_types_visitor(mocked_table);
-  expr->accept_recursive(deduce_types_visitor);
-
-  const std::shared_ptr<Expr> simplified_expr = fold_constants(expr);
-
-  simplified_expr->print(0);
-}
-
-void debug_dead_code_elimination() {
-  using namespace bril;
-  Function function("main", {}, bril::Type::Int);
-  function.instructions = {
-      bril::Instruction::constant("a", Literal(4, ::Type::Int)),
-      bril::Instruction::constant("a", Literal(3, ::Type::Int)),
-      bril::Instruction::constant("b", Literal(2, ::Type::Int)),
-      bril::Instruction::constant("c", Literal(1, ::Type::Int)),
-      bril::Instruction::add("d", "a", "b"),
-      bril::Instruction::add("e", "c", "d"),
-      bril::Instruction::add("e", "e", "e"),
-      bril::Instruction::ret("d"),
-  };
-  ControlFlowGraph graph(function);
-  std::cout << graph << std::endl;
-
-  size_t num_iterations = 0, num_removed_lines = 0;
-  while (true) {
-    num_iterations++;
-    const size_t old_num_removed_lines = num_removed_lines;
-    num_removed_lines += graph.apply_local_pass(local_value_numbering);
-    num_removed_lines += remove_global_unused_assignments(graph);
-    num_removed_lines +=
-        graph.apply_local_pass(remove_local_unused_assignments);
-    if (num_removed_lines == old_num_removed_lines)
-      break;
-    std::cout << "After iteration " << num_iterations << std::endl;
-    std::cout << graph << std::endl;
-  }
-
-  std::cout << "Converged after " << num_iterations << " iterations"
-            << std::endl;
 }
 
 bril::Program get_bril(std::shared_ptr<Program> program) {
@@ -180,20 +117,37 @@ void compute_reaching_definitions(bril::Program &bril_program) {
 void test_to_ssa(const std::string &filename) {
   using namespace bril::interpreter;
   const std::string input = read_file(filename);
-  const auto program0 = program(input);
+  const auto program0 = get_program(input);
   const auto program = annotate_and_check_types(program0);
   auto bril_program = get_bril(program);
+  apply_optimizations(bril_program);
   for (auto &[name, cfg] : bril_program.cfgs) {
     cfg.convert_to_ssa();
   }
   bril_program.print_flattened();
 }
 
+void interpret(const std::string &filename) {
+  // Calls the BRIL interpreter on the given file.
+  using namespace bril::interpreter;
+  const std::string input = read_file(filename);
+  const auto program0 = get_program(input);
+  const auto program = annotate_and_check_types(program0);
+  auto bril_program = get_bril(program);
+  apply_optimizations(bril_program);
+  for (auto &[name, cfg] : bril_program.cfgs) {
+    cfg.convert_to_ssa();
+  }
+  apply_optimizations(bril_program);
+
+  BRILInterpreter interpreter(bril_program);
+  program->emit_c(std::cerr, 0);
+  bril_program.print_flattened();
+  interpreter.run(std::cout);
+}
+
 int main(int argc, char **argv) {
   using namespace bril::interpreter;
-
-  // debug_dead_code_elimination();
-  // return 0;
 
   try {
     runtime_assert(argc == 3, "Expected a filename and an option");
@@ -201,7 +155,7 @@ int main(int argc, char **argv) {
 
     if (argument == "--emit-c") {
       const std::string input = read_file(filename);
-      const auto program0 = program(input);
+      const auto program0 = get_program(input);
       const auto program = annotate_and_check_types(program0);
       program->emit_c(std::cerr, 0);
       return 0;
@@ -214,13 +168,20 @@ int main(int argc, char **argv) {
 
     if (argument == "--emit-mips") {
       const std::string input = read_file(filename);
-      const auto program0 = program(input);
+      const auto program0 = get_program(input);
       auto program = annotate_and_check_types(program0);
       NaiveMIPSGenerator generator;
       program->accept_simple(generator);
       generator.print();
       return 0;
     }
+
+    if (argument == "--interp") {
+      interpret(filename);
+      return 0;
+    }
+
+    std::cerr << "Unknown option: " << argument << std::endl;
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

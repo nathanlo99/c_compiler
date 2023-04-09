@@ -410,10 +410,15 @@ struct Instruction {
         os << "ret " << instruction.arguments[0] << ";";
       break;
 
-    case Opcode::Const:
+    case Opcode::Const: {
+      const std::string value_string =
+          instruction.type == Type::Int ? std::to_string(instruction.value)
+          : instruction.type == Type::Bool
+              ? (instruction.value ? "true" : "false")
+              : std::to_string(instruction.value);
       os << instruction.destination << ": " << instruction.type << " = const "
-         << instruction.value << ";";
-      break;
+         << value_string << ";";
+    } break;
     case Opcode::Id:
       os << instruction.destination << ": " << instruction.type << " = id "
          << instruction.arguments[0] << ";";
@@ -531,9 +536,11 @@ struct Block {
     }
 
     os << "instructions: " << std::endl;
-    os << ".bb_" << block.idx << ":" << std::endl;
     for (const auto &instruction : block.instructions) {
-      os << "  " << instruction << std::endl;
+      if (instruction.opcode == Opcode::Label)
+        os << instruction.labels[0] << ":" << std::endl;
+      else
+        os << "  " << instruction << std::endl;
     }
     return os;
   }
@@ -590,20 +597,15 @@ struct ControlFlowGraph {
     size_t num_removed_lines = false;
     for (auto &block : blocks)
       num_removed_lines += func(block);
+    recompute_graph();
     return num_removed_lines;
   }
 
-  // Returns the label of the block at the given index
-  std::string label(const size_t idx) const {
-    return idx == 0                           ? name
-           : blocks[idx].entry_labels.empty() ? "(no label)"
-                                              : blocks[idx].entry_labels[0];
-  }
+  void recompute_graph();
 
   std::vector<Instruction> flatten() const {
     std::vector<Instruction> instructions;
     for (const auto &block : blocks) {
-      instructions.push_back(Instruction::label(get_label(block.idx)));
       for (const auto &instruction : block.instructions) {
         instructions.push_back(instruction);
       }

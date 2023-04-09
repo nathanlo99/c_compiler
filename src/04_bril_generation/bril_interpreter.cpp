@@ -202,6 +202,9 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       case Type::IntStar: {
         context.write_raw_pointer(destination, instruction.value);
       } break;
+      case Type::Bool: {
+        context.write_bool(destination, instruction.value);
+      } break;
       default:
         runtime_assert(false, "Invalid type for const instruction");
       }
