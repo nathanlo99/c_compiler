@@ -143,7 +143,7 @@ void interpret(const std::string &filename) {
   BRILInterpreter interpreter(bril_program);
   program->emit_c(std::cerr, 0);
   bril_program.print_flattened();
-  interpreter.run(std::cout);
+  interpreter.run(std::cerr);
 }
 
 int main(int argc, char **argv) {

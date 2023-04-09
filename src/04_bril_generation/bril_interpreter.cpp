@@ -217,7 +217,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Print: {
       const int value = context.get_int(instruction.arguments[0]);
-      os << value << std::endl;
+      os << value << std::flush << std::endl;
     } break;
 
     case Opcode::Nop: {

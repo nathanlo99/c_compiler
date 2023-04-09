@@ -210,8 +210,8 @@ size_t local_value_numbering(Block &block) {
                     << (cond_value_bool ? "true" : "false") << std::endl;
           const std::string target =
               instruction.labels[cond_value_bool ? 0 : 1];
-          // instruction = bril::Instruction::jmp(target);
           // TODO: Update the graph
+          // instruction = bril::Instruction::jmp(target);
         }
       }
 

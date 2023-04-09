@@ -265,7 +265,6 @@ struct BRILContext {
     const size_t idx = pointer.heap_idx;
     const size_t old_offset = pointer.heap_offset;
     runtime_assert(idx < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[idx].active, "Adding to freed memory");
     return BRILValue::heap_pointer(idx, old_offset + offset);
   }
 
@@ -275,7 +274,6 @@ struct BRILContext {
     const size_t idx = pointer.heap_idx;
     const size_t old_offset = pointer.heap_offset;
     runtime_assert(idx < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[idx].active, "Subtracting from freed memory");
     return BRILValue::heap_pointer(idx, old_offset - offset);
   }
 
@@ -290,8 +288,6 @@ struct BRILContext {
     const size_t offset2 = p2.heap_offset;
     runtime_assert(idx1 < heap_memory.size(), "Invalid heap index");
     runtime_assert(idx2 < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[idx1].active, "Subtracting from freed memory");
-    runtime_assert(heap_memory[idx2].active, "Subtracting from freed memory");
     runtime_assert(idx1 == idx2, "Subtracting pointers to different objects");
     return offset1 - offset2;
   }
