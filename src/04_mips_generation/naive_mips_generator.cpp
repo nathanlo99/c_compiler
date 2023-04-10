@@ -17,14 +17,15 @@ void NaiveMIPSGenerator::visit(Program &program) {
     comment(line);
   }
 
-  if (table.use_print) {
-    import("print");
-  }
-
   if (table.use_memory) {
     import("init");
     import("new");
     import("delete");
+  }
+
+  if (table.use_print) {
+    import("print");
+    load_const(10, "print");
   }
 
   init_constants();
@@ -35,7 +36,6 @@ void NaiveMIPSGenerator::visit(Program &program) {
     procedure.accept_simple(*this);
   }
 
-  // TODO: Post-process with a peephole optimization
   const MIPSInstruction push_3_0 = MIPSInstruction::sw(3, -4, 30);
   const MIPSInstruction push_3_1 = MIPSInstruction::sub(30, 30, 4);
   const MIPSInstruction pop_5_0 = MIPSInstruction::add(30, 30, 4);
@@ -49,8 +49,20 @@ void NaiveMIPSGenerator::visit(Program &program) {
       const bool is_pop_5 =
           instructions[j] == pop_5_0 && instructions[j + 1] == pop_5_1;
       const auto &instruction = instructions[j];
-      // If the instruction is a jump, label, branch, or uses 5, we can't
-      // optimize
+
+      if (is_pop_5) {
+        instructions[i] = MIPSInstruction::add(5, 3, 0);
+        instructions[i].comment_value = "Peephole optimization: push 3, pop 5";
+        instructions.erase(instructions.begin() + j + 1);
+        instructions.erase(instructions.begin() + j);
+        instructions.erase(instructions.begin() + i + 1);
+        std::cerr << "Optimized push/pop 3 into add 5, 3, 0 at indices " << i
+                  << ", " << j << ", " << j + 1 << std::endl;
+        break;
+      } 
+
+      // Otherwise, if the instruction is a jump, label, branch, or uses 5, we 
+      // can't optimize
       if (instruction.opcode == Opcode::Jalr ||
           instruction.opcode == Opcode::Jr ||
           instruction.opcode == Opcode::Label ||
@@ -59,15 +71,6 @@ void NaiveMIPSGenerator::visit(Program &program) {
           instruction.s == 5 || instruction.t == 5) {
         break;
       }
-      if (!is_pop_5)
-        continue;
-      instructions[i] = MIPSInstruction::add(5, 3, 0);
-      instructions[i].comment_value = "Peephole optimization: push 3, pop 5";
-      instructions.erase(instructions.begin() + j + 1);
-      instructions.erase(instructions.begin() + j);
-      instructions.erase(instructions.begin() + i + 1);
-      // std::cerr << "Optimized push/pop 3 into add 5, 3, 0 at indices " << i
-      //           << ", " << j << ", " << j + 1 << std::endl;
     }
   }
 

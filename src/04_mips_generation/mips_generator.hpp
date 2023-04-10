@@ -15,8 +15,8 @@ struct MIPSGenerator {
     if (constants_init)
       return;
     load_const(4, 4);
-    load_const(10, "print");
-    slt(11, 0, 4); // $11 = $0 < $4 = 1
+    slt(11, 0, 4);
+    annotate("$11 = ($0 < $4) = 1");
     constants_init = true;
   }
 
@@ -52,13 +52,13 @@ struct MIPSGenerator {
     } else if (value == -1 && constants_init) {
       sub(reg, 0, 1);
     } else if (value == 1 && constants_init) {
-      add(reg, 0, 11);
+      add(reg, 11, 0);
     } else if (value == 2 && constants_init) {
       add(reg, 11, 11);
     } else if (value == 3 && constants_init) {
       sub(reg, 4, 11);
     } else if (value == 4 && constants_init) {
-      add(reg, 0, 4);
+      add(reg, 4, 0);
     } else if (value == 5 && constants_init) {
       add(reg, 11, 4);
     } else if (value == 8 && constants_init) {

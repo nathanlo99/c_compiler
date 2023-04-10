@@ -170,6 +170,10 @@ int main(int argc, char **argv) {
       const std::string input = read_file(filename);
       const auto program0 = get_program(input);
       auto program = annotate_and_check_types(program0);
+
+      FoldConstantsVisitor fold_constants;
+      program->accept_recursive(fold_constants);
+
       NaiveMIPSGenerator generator;
       program->accept_simple(generator);
       generator.print();
