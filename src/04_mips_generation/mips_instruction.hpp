@@ -226,12 +226,16 @@ public:
       runtime_assert(false, "Invalid opcode");
     }
 
-    
     const int padding =
         std::max(0, instruction_width - static_cast<int>(ss.str().size()));
     if (comment_value != "")
       ss << std::string(padding, ' ') << "; " << comment_value;
 
     return ss.str();
+  }
+
+  bool operator==(const MIPSInstruction &other) const {
+    return opcode == other.opcode && s == other.s && t == other.t &&
+           d == other.d && i == other.i;
   }
 };

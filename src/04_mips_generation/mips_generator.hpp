@@ -12,7 +12,7 @@ struct MIPSGenerator {
   }
 
   void init_constants() {
-    if (constants_init) 
+    if (constants_init)
       return;
     load_const(4, 4);
     load_const(10, "print");
@@ -45,10 +45,24 @@ struct MIPSGenerator {
   void load_const(int reg, int value) {
     if (value == 0) {
       add(reg, 0, 0);
+    } else if (value == -4 && constants_init) {
+      sub(reg, 0, 4);
+    } else if (value == -3 && constants_init) {
+      sub(reg, 11, 4);
+    } else if (value == -1 && constants_init) {
+      sub(reg, 0, 1);
     } else if (value == 1 && constants_init) {
       add(reg, 0, 11);
+    } else if (value == 2 && constants_init) {
+      add(reg, 11, 11);
+    } else if (value == 3 && constants_init) {
+      sub(reg, 4, 11);
     } else if (value == 4 && constants_init) {
       add(reg, 0, 4);
+    } else if (value == 5 && constants_init) {
+      add(reg, 11, 4);
+    } else if (value == 8 && constants_init) {
+      add(reg, 4, 4);
     } else {
       lis(reg);
       word(value);

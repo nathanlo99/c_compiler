@@ -35,6 +35,42 @@ void NaiveMIPSGenerator::visit(Program &program) {
     procedure.accept_simple(*this);
   }
 
+  // TODO: Post-process with a peephole optimization
+  const MIPSInstruction push_3_0 = MIPSInstruction::sw(3, -4, 30);
+  const MIPSInstruction push_3_1 = MIPSInstruction::sub(30, 30, 4);
+  const MIPSInstruction pop_5_0 = MIPSInstruction::add(30, 30, 4);
+  const MIPSInstruction pop_5_1 = MIPSInstruction::lw(5, -4, 30);
+  for (size_t i = 0; i + 1 < instructions.size(); ++i) {
+    const bool is_push_3 =
+        instructions[i] == push_3_0 && instructions[i + 1] == push_3_1;
+    if (!is_push_3)
+      continue;
+    for (size_t j = i + 2; j + 1 < instructions.size(); ++j) {
+      const bool is_pop_5 =
+          instructions[j] == pop_5_0 && instructions[j + 1] == pop_5_1;
+      const auto &instruction = instructions[j];
+      // If the instruction is a jump, label, branch, or uses 5, we can't
+      // optimize
+      if (instruction.opcode == Opcode::Jalr ||
+          instruction.opcode == Opcode::Jr ||
+          instruction.opcode == Opcode::Label ||
+          instruction.opcode == Opcode::Beq ||
+          instruction.opcode == Opcode::Bne || instruction.d == 5 ||
+          instruction.s == 5 || instruction.t == 5) {
+        break;
+      }
+      if (!is_pop_5)
+        continue;
+      instructions[i] = MIPSInstruction::add(5, 3, 0);
+      instructions[i].comment_value = "Peephole optimization: push 3, pop 5";
+      instructions.erase(instructions.begin() + j + 1);
+      instructions.erase(instructions.begin() + j);
+      instructions.erase(instructions.begin() + i + 1);
+      // std::cerr << "Optimized push/pop 3 into add 5, 3, 0 at indices " << i
+      //           << ", " << j << ", " << j + 1 << std::endl;
+    }
+  }
+
   comment("Number of assembly instructions: " +
           std::to_string(num_assembly_instructions()));
 }
