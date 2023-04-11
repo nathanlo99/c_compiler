@@ -122,6 +122,19 @@ struct MIPSGenerator {
     return result;
   }
 
+  // Optimizations
+  void optimize() {
+    while (true) {
+      bool changed = false;
+      changed |= peephole_optimize();
+      // changed |= optimize_moves();
+      if (!changed)
+        break;
+    }
+  }
+  bool peephole_optimize();
+  bool optimize_moves();
+
   // Convenience functions
   void add(int d, int s, int t) {
     instructions.push_back(MIPSInstruction::add(d, s, t));

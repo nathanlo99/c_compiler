@@ -36,43 +36,7 @@ void NaiveMIPSGenerator::visit(Program &program) {
     procedure.accept_simple(*this);
   }
 
-  const MIPSInstruction push_3_0 = MIPSInstruction::sw(3, -4, 30);
-  const MIPSInstruction push_3_1 = MIPSInstruction::sub(30, 30, 4);
-  const MIPSInstruction pop_5_0 = MIPSInstruction::add(30, 30, 4);
-  const MIPSInstruction pop_5_1 = MIPSInstruction::lw(5, -4, 30);
-  for (size_t i = 0; i + 1 < instructions.size(); ++i) {
-    const bool is_push_3 =
-        instructions[i] == push_3_0 && instructions[i + 1] == push_3_1;
-    if (!is_push_3)
-      continue;
-    for (size_t j = i + 2; j + 1 < instructions.size(); ++j) {
-      const bool is_pop_5 =
-          instructions[j] == pop_5_0 && instructions[j + 1] == pop_5_1;
-      const auto &instruction = instructions[j];
-
-      if (is_pop_5) {
-        instructions[i] = MIPSInstruction::add(5, 3, 0);
-        instructions[i].comment_value = "Peephole optimization: push 3, pop 5";
-        instructions.erase(instructions.begin() + j + 1);
-        instructions.erase(instructions.begin() + j);
-        instructions.erase(instructions.begin() + i + 1);
-        std::cerr << "Optimized push/pop 3 into add 5, 3, 0 at indices " << i
-                  << ", " << j << ", " << j + 1 << std::endl;
-        break;
-      } 
-
-      // Otherwise, if the instruction is a jump, label, branch, or uses 5, we 
-      // can't optimize
-      if (instruction.opcode == Opcode::Jalr ||
-          instruction.opcode == Opcode::Jr ||
-          instruction.opcode == Opcode::Label ||
-          instruction.opcode == Opcode::Beq ||
-          instruction.opcode == Opcode::Bne || instruction.d == 5 ||
-          instruction.s == 5 || instruction.t == 5) {
-        break;
-      }
-    }
-  }
+  optimize();
 
   comment("Number of assembly instructions: " +
           std::to_string(num_assembly_instructions()));
@@ -108,10 +72,8 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
 
   for (const auto &variable : procedure.decls) {
     push_const(3, variable.initial_value.value);
-    annotate("Variable " + variable.name);
+    annotate("Declaration " + variable.name);
   }
-
-  // save_registers();
 
   comment("Code for statements:");
   for (const auto &statement : procedure.statements) {
@@ -123,7 +85,6 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   // We only have to do clean-up if we aren't wain
   if (procedure_name != "wain") {
     comment("Done evaluating result, popping decls and saved registers");
-    // pop_registers();
     pop_and_discard(procedure.decls.size());
   }
 
