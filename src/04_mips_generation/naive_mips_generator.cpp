@@ -107,29 +107,35 @@ void NaiveMIPSGenerator::visit(TestExpr &expr) {
   push(3);
   expr.rhs->accept_simple(*this);
   pop(5);
+
+  const bool uses_pointers =
+      expr.lhs->type == Type::IntStar || expr.rhs->type == Type::IntStar;
+  const auto &compare = [&](const int d, const int s, const int t) {
+    uses_pointers ? sltu(d, s, t) : slt(d, s, t);
+  };
   switch (expr.operation) {
   case ComparisonOperation::LessThan:
-    slt(3, 5, 3);
+    compare(3, 5, 3);
     break;
   case ComparisonOperation::LessEqual:
-    slt(3, 3, 5);
+    compare(3, 3, 5);
     sub(3, 11, 3);
     break;
   case ComparisonOperation::GreaterThan:
-    slt(3, 3, 5);
+    compare(3, 3, 5);
     break;
   case ComparisonOperation::GreaterEqual:
-    slt(3, 5, 3);
+    compare(3, 5, 3);
     sub(3, 11, 3);
     break;
   case ComparisonOperation::NotEqual:
-    slt(6, 3, 5);
-    slt(7, 5, 3);
+    compare(6, 3, 5);
+    compare(7, 5, 3);
     add(3, 6, 7);
     break;
   case ComparisonOperation::Equal:
-    slt(6, 3, 5);
-    slt(7, 5, 3);
+    compare(6, 3, 5);
+    compare(7, 5, 3);
     add(3, 6, 7);
     sub(3, 11, 3);
     break;
