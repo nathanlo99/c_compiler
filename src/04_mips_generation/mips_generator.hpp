@@ -126,7 +126,7 @@ struct MIPSGenerator {
   void optimize() {
     while (true) {
       bool changed = false;
-      changed |= peephole_optimize();
+      // changed |= peephole_optimize();
       // changed |= optimize_moves();
       if (!changed)
         break;
