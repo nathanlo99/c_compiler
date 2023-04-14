@@ -169,9 +169,9 @@ void IfStatement::print(const size_t depth) const {
   std::cout << get_padding(depth + 1) << "condition: " << std::endl;
   test_expression->print(depth + 2);
   std::cout << get_padding(depth + 1) << "true_statement: " << std::endl;
-  true_statement->print(depth + 2);
+  true_statements.print(depth + 2);
   std::cout << get_padding(depth + 1) << "false_statement: " << std::endl;
-  false_statement->print(depth + 2);
+  false_statements.print(depth + 2);
   std::cout << get_padding(depth) << "}" << std::endl;
 }
 

@@ -190,10 +190,10 @@ void SimpleBRILGenerator::visit(IfStatement &statement) {
   const std::string cond = last_result();
   br(cond, true_label, false_label);
   label(true_label);
-  statement.true_statement->accept_simple(*this);
+  statement.true_statements.accept_simple(*this);
   jmp(endif_label);
   label(false_label);
-  statement.false_statement->accept_simple(*this);
+  statement.false_statements.accept_simple(*this);
   label(endif_label);
 }
 

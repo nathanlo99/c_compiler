@@ -57,15 +57,13 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
       std::make_pair(Opcode::Mul, [](int a, int b) { return a * b; }),
       std::make_pair(Opcode::Div,
                      [](int a, int b) -> std::optional<int> {
-                       if (b == 0)
-                         return std::nullopt;
-                       return a / b;
+                       return (b == 0) ? std::nullopt
+                                       : std::make_optional(a / b);
                      }),
       std::make_pair(Opcode::Mod,
                      [](int a, int b) -> std::optional<int> {
-                       if (b == 0)
-                         return std::nullopt;
-                       return a % b;
+                       return (b == 0) ? std::nullopt
+                                       : std::make_optional(a % b);
                      }),
       std::make_pair(Opcode::Lt, [](int a, int b) { return a < b; }),
       std::make_pair(Opcode::Le, [](int a, int b) { return a <= b; }),
@@ -234,8 +232,11 @@ size_t local_value_numbering(Block &block) {
                     << (cond_value_bool ? "true" : "false") << std::endl;
           const std::string target =
               instruction.labels[cond_value_bool ? 0 : 1];
+          const std::string other_target =
+              instruction.labels[cond_value_bool ? 1 : 0];
           // TODO: Update the graph
           // instruction = bril::Instruction::jmp(target);
+          // block.cfg->remove_edge(block, block.cfg->get_block(other_target));
         }
       }
 

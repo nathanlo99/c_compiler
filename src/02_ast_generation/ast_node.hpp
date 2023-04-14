@@ -392,14 +392,14 @@ struct AssignmentStatement : Statement {
 
 struct IfStatement : Statement {
   std::shared_ptr<TestExpr> test_expression;
-  std::shared_ptr<Statement> true_statement;
-  std::shared_ptr<Statement> false_statement;
+  Statements true_statements;
+  Statements false_statements;
 
   IfStatement(std::shared_ptr<TestExpr> test_expression,
-              std::shared_ptr<Statement> true_statement,
-              std::shared_ptr<Statement> false_statement)
-      : test_expression(test_expression), true_statement(true_statement),
-        false_statement(false_statement) {}
+              const Statements &true_statements,
+              const Statements &false_statements)
+      : test_expression(test_expression), true_statements(true_statements),
+        false_statements(false_statements) {}
   virtual ~IfStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;

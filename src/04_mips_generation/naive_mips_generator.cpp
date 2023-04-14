@@ -289,10 +289,10 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   const auto endif_label = generate_label("ifendif");
   statement.test_expression->accept_simple(*this);
   beq(3, 0, else_label);
-  statement.true_statement->accept_simple(*this);
+  statement.true_statements.accept_simple(*this);
   beq(0, 0, endif_label);
   label(else_label);
-  statement.false_statement->accept_simple(*this);
+  statement.false_statements.accept_simple(*this);
   label(endif_label);
 }
 

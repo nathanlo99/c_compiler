@@ -137,9 +137,9 @@ void IfStatement::emit_c(std::ostream &os, const size_t indent_level) const {
   os << get_padding(indent_level) << "if (";
   test_expression->emit_c(os, 0);
   os << ") {" << std::endl;
-  true_statement->emit_c(os, indent_level + 1);
+  true_statements.emit_c(os, indent_level + 1);
   os << get_padding(indent_level) << "} else {" << std::endl;
-  false_statement->emit_c(os, indent_level + 1);
+  false_statements.emit_c(os, indent_level + 1);
   os << get_padding(indent_level) << "}" << std::endl;
 }
 

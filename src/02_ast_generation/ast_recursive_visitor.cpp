@@ -94,8 +94,8 @@ void AssignmentStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
 void IfStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   test_expression->accept_recursive(visitor);
-  true_statement->accept_recursive(visitor);
-  false_statement->accept_recursive(visitor);
+  true_statements.accept_recursive(visitor);
+  false_statements.accept_recursive(visitor);
   visitor.post_visit(*this);
 }
 
