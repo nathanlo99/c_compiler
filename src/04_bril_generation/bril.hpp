@@ -493,7 +493,10 @@ struct Function {
       : name("@" + name), arguments(arguments), return_type(return_type) {}
 };
 
+struct ControlFlowGraph;
 struct Block {
+  ControlFlowGraph *cfg = nullptr;
+
   size_t idx;
   std::vector<std::string> entry_labels;
   std::vector<Instruction> instructions;
@@ -570,6 +573,7 @@ struct ControlFlowGraph {
       return;
     blocks.push_back(block);
     blocks.back().idx = blocks.size() - 1;
+    blocks.back().cfg = this;
   }
 
   inline std::string get_label(const size_t block_idx) const {
