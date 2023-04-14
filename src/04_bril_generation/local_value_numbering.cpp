@@ -14,9 +14,32 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
     : opcode(opcode), arguments(arguments), type(type) {
   runtime_assert(opcode != Opcode::Const,
                  "Const LVN should use other constructor");
+  // Operations OP for which [a OP b === b OP a], we canonicalize the arguments
+  static const std::set<Opcode> commutative_operations = {
+      Opcode::Add,
+      Opcode::Mul,
+      Opcode::Eq,
+      Opcode::Ne,
+  };
+  // Operations OP for which there is a canonical OP' for which
+  // [a OP b = b OP' a], we canonicalize the opcode
+  static const std::map<Opcode, Opcode> switch_order = {
+      std::make_pair(Opcode::Gt, Opcode::Lt),
+      std::make_pair(Opcode::Ge, Opcode::Le),
+  };
+
   // Canonicalize arguments of commutative operations
-  if (opcode == Opcode::Add || opcode == Opcode::Mul)
+  if (commutative_operations.count(opcode) > 0) {
+    runtime_assert(this->arguments.size() == 2,
+                   "Expected binary expression in commutative operation");
     std::sort(this->arguments.begin(), this->arguments.end());
+  } else if (switch_order.count(opcode) > 0) {
+    runtime_assert(this->arguments.size() == 2,
+                   "Expected binary expression in switchable LVN");
+    const auto switched_opcode = switch_order.at(opcode);
+    this->opcode = switched_opcode;
+    std::swap(this->arguments[0], this->arguments[1]);
+  }
 }
 
 LocalValueNumber::LocalValueNumber(const int value, const Type type)
@@ -24,7 +47,8 @@ LocalValueNumber::LocalValueNumber(const int value, const Type type)
 
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
-  if (value.type != Type::Int && value.type != Type::Bool)
+  const static std::set<Type> foldable_types = {Type::Int, Type::Bool};
+  if (foldable_types.count(value.type) == 0)
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {

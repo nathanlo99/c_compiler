@@ -66,7 +66,7 @@ void bril::ControlFlowGraph::convert_to_ssa() {
   std::map<std::string, std::vector<std::string>> definitions;
   std::map<std::string, size_t> next_idx;
   for (const auto &argument : arguments) {
-    definitions[argument.name] = {argument.name + "_init"};
+    definitions[argument.name] = {argument.name};
   }
   rename_variables(0, definitions, next_idx);
 }
