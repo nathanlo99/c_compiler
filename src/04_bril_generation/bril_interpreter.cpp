@@ -74,7 +74,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     // 2. Advance the instruction pointer
     ++instruction_idx;
-    ++num_dynamic_instructions;
+    if (instruction.opcode != Opcode::Label)
+      ++num_dynamic_instructions;
     if (instruction_idx >= graph.blocks[block_idx].instructions.size())
       runtime_assert(instruction.is_jump(), "Last instruction must be jump");
 

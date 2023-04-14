@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-std::string get_padding(const size_t indent_level) {
+std::string pad(const size_t indent_level) {
   return std::string(2 * indent_level, ' ');
 }
 
@@ -18,7 +18,7 @@ void Statements::emit_c(std::ostream &os, const size_t indent_level) const {
 }
 
 void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << get_padding(indent_level) << "int " << name << "(";
+  os << pad(indent_level) << "int " << name << "(";
   for (size_t i = 0; i < params.size(); ++i) {
     const auto &variable = params[i];
     os << type_to_string(variable.type) << " " << variable.name;
@@ -27,17 +27,16 @@ void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
   }
   os << ") {" << std::endl;
   for (const auto &decl : decls) {
-    os << get_padding(indent_level + 1) << type_to_string(decl.type) << " "
-       << decl.name << " = " << decl.initial_value.value_to_string() << ";"
-       << std::endl;
+    os << pad(indent_level + 1) << type_to_string(decl.type) << " " << decl.name
+       << " = " << decl.initial_value.value_to_string() << ";" << std::endl;
   }
   for (const auto &statement : statements) {
     statement->emit_c(os, indent_level + 1);
   }
-  os << get_padding(indent_level + 1) << "return ";
+  os << pad(indent_level + 1) << "return ";
   return_expr->emit_c(os, 0);
   os << ";" << std::endl;
-  os << get_padding(indent_level) << "}" << std::endl;
+  os << pad(indent_level) << "}" << std::endl;
 }
 
 void Program::emit_c(std::ostream &os, const size_t indent_level) const {
@@ -65,7 +64,7 @@ void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void TestExpr::emit_c(std::ostream &os, const size_t) const {
-  const std::map<ComparisonOperation, const char *> operation_to_string({
+  const static std::map<ComparisonOperation, const char *> operation_to_string({
       std::make_pair(ComparisonOperation::LessThan, "<"),
       std::make_pair(ComparisonOperation::LessEqual, "<="),
       std::make_pair(ComparisonOperation::GreaterThan, ">"),
@@ -84,7 +83,7 @@ void TestExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void BinaryExpr::emit_c(std::ostream &os, const size_t) const {
-  const std::map<BinaryOperation, const char *> operation_to_string({
+  const static std::map<BinaryOperation, const char *> operation_to_string({
       std::make_pair(BinaryOperation::Add, "+"),
       std::make_pair(BinaryOperation::Sub, "-"),
       std::make_pair(BinaryOperation::Mul, "*"),
@@ -126,7 +125,7 @@ void FunctionCallExpr::emit_c(std::ostream &os, const size_t) const {
 
 void AssignmentStatement::emit_c(std::ostream &os,
                                  const size_t indent_level) const {
-  os << get_padding(indent_level);
+  os << pad(indent_level);
   lhs->emit_c(os, 0);
   os << " = ";
   rhs->emit_c(os, 0);
@@ -134,32 +133,32 @@ void AssignmentStatement::emit_c(std::ostream &os,
 }
 
 void IfStatement::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << get_padding(indent_level) << "if (";
+  os << pad(indent_level) << "if (";
   test_expression->emit_c(os, 0);
   os << ") {" << std::endl;
   true_statements.emit_c(os, indent_level + 1);
-  os << get_padding(indent_level) << "} else {" << std::endl;
+  os << pad(indent_level) << "} else {" << std::endl;
   false_statements.emit_c(os, indent_level + 1);
-  os << get_padding(indent_level) << "}" << std::endl;
+  os << pad(indent_level) << "}" << std::endl;
 }
 
 void WhileStatement::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << get_padding(indent_level) << "while (";
+  os << pad(indent_level) << "while (";
   test_expression->emit_c(os, 0);
   os << ") {" << std::endl;
   body_statement->emit_c(os, indent_level + 1);
-  os << get_padding(indent_level) << "}" << std::endl;
+  os << pad(indent_level) << "}" << std::endl;
 }
 
 void PrintStatement::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << get_padding(indent_level) << "println(";
+  os << pad(indent_level) << "println(";
   expression->emit_c(os, 0);
   os << ");" << std::endl;
 }
 
 void DeleteStatement::emit_c(std::ostream &os,
                              const size_t indent_level) const {
-  os << get_padding(indent_level) << "delete[] ";
+  os << pad(indent_level) << "delete[] ";
   expression->emit_c(os, 0);
   os << ";" << std::endl;
 }

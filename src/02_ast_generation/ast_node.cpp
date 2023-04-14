@@ -229,8 +229,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "lvalue -> LPAREN lvalue RPAREN") {
     return construct_ast(node->children[1]);
   }
-  std::cerr << "WARN: Production " << production_str << " not yet handled"
-            << std::endl;
+  unreachable("WARN: Production " + production_str + " not yet handled");
 
   return nullptr;
 }
