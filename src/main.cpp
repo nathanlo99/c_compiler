@@ -41,11 +41,7 @@ std::shared_ptr<Program> get_program(const std::string &input) {
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   const std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
-  return program;
-}
 
-std::shared_ptr<Program>
-annotate_and_check_types(std::shared_ptr<Program> program) {
   // Populate symbol table
   PopulateSymbolTableVisitor symbol_table_visitor;
   program->accept_recursive(symbol_table_visitor);
@@ -53,6 +49,7 @@ annotate_and_check_types(std::shared_ptr<Program> program) {
   // Deduce types of intermediate expressions
   DeduceTypesVisitor deduce_types_visitor;
   program->accept_recursive(deduce_types_visitor);
+
   return program;
 }
 
@@ -60,6 +57,12 @@ bril::Program get_bril(std::shared_ptr<Program> program) {
   bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
   return generator.program();
+}
+
+bril::Program get_bril_from_file(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const std::shared_ptr<Program> program = get_program(input);
+  return get_bril(program);
 }
 
 size_t apply_optimizations(bril::Program &program) {
@@ -79,9 +82,8 @@ size_t apply_optimizations(bril::Program &program) {
   return num_removed_lines;
 }
 
-void compute_reaching_definitions(bril::Program &bril_program) {
-  std::cout << bril_program << std::endl;
-
+void compute_reaching_definitions(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
   const std::string separator(80, '-');
   for (const auto &[name, cfg] : bril_program.cfgs) {
     const auto result = bril::ReachingDefinitions::solve(cfg);
@@ -126,12 +128,26 @@ void compute_reaching_definitions(bril::Program &bril_program) {
   }
 }
 
-void test_to_ssa(const std::string &filename) {
-  using namespace bril::interpreter;
+void test_emit_c(const std::string &filename) {
   const std::string input = read_file(filename);
-  const auto program0 = get_program(input);
-  const auto program = annotate_and_check_types(program0);
-  auto bril_program = get_bril(program);
+  const auto program = get_program(input);
+  program->emit_c(std::cerr, 0);
+}
+
+void test_emit_mips(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const auto program = get_program(input);
+
+  FoldConstantsVisitor fold_constants;
+  program->accept_recursive(fold_constants);
+
+  NaiveMIPSGenerator generator;
+  program->accept_simple(generator);
+  generator.print();
+}
+
+void test_to_ssa(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
   std::cout << "Before optimizations: " << std::endl;
   std::cout << bril_program << std::endl;
 
@@ -146,8 +162,7 @@ void interpret(const std::string &filename) {
   // Calls the BRIL interpreter on the given file.
   using namespace bril::interpreter;
   const std::string input = read_file(filename);
-  const auto program0 = get_program(input);
-  const auto program = annotate_and_check_types(program0);
+  const auto program = get_program(input);
   auto bril_program = get_bril(program);
   apply_optimizations(bril_program);
   for (auto &[name, cfg] : bril_program.cfgs) {
@@ -168,48 +183,24 @@ int main(int argc, char **argv) {
     runtime_assert(argc == 3, "Expected a filename and an option");
     const std::string argument = argv[2], filename = argv[1];
 
-    if (argument == "--reaching-definitions") {
-      const std::string input = read_file(filename);
-      const auto program0 = get_program(input);
-      const auto program = annotate_and_check_types(program0);
-      auto bril_program = get_bril(program);
-      compute_reaching_definitions(bril_program);
-      return 0;
+    const std::map<std::string, std::function<void(const std::string &)>>
+        options = {
+            {"--interpret", interpret},
+            {"--reaching-definitions", compute_reaching_definitions},
+            {"--emit-c", test_emit_c},
+            {"--ssa", test_to_ssa},
+            {"--emit-mips", test_emit_mips},
+        };
+
+    if (options.count(argument) == 0) {
+      std::cerr << "Unknown option: " << argument << std::endl;
+      std::cerr << "Options are: " << std::endl;
+      for (const auto &[option, _] : options) {
+        std::cerr << "  " << option << std::endl;
+      }
+      return 1;
     }
-
-    if (argument == "--emit-c") {
-      const std::string input = read_file(filename);
-      const auto program0 = get_program(input);
-      const auto program = annotate_and_check_types(program0);
-      program->emit_c(std::cerr, 0);
-      return 0;
-    }
-
-    if (argument == "--ssa") {
-      test_to_ssa(filename);
-      return 0;
-    }
-
-    if (argument == "--emit-mips") {
-      const std::string input = read_file(filename);
-      const auto program0 = get_program(input);
-      auto program = annotate_and_check_types(program0);
-
-      FoldConstantsVisitor fold_constants;
-      program->accept_recursive(fold_constants);
-
-      NaiveMIPSGenerator generator;
-      program->accept_simple(generator);
-      generator.print();
-      return 0;
-    }
-
-    if (argument == "--interp") {
-      interpret(filename);
-      return 0;
-    }
-
-    std::cerr << "Unknown option: " << argument << std::endl;
+    options.at(argument)(filename);
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
