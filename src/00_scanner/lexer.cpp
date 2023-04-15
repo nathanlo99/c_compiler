@@ -50,6 +50,15 @@ void NFA::add_transitions(const int source, const int target,
   }
 }
 
+void NFA::add_transitions(const int source, const int target,
+                          const std::function<bool(int)> &pred) {
+  for (int c = 0; c < 128; ++c) {
+    if (pred(c)) {
+      entries[source][c].insert(target);
+    }
+  }
+}
+
 void NFA::add_string(const std::string &lexeme, const TokenKind state) {
   int last_state = 0;
   for (const char c : lexeme) {
@@ -83,7 +92,8 @@ std::ostream &operator<<(std::ostream &os, const NFA &nfa) {
 }
 
 DFA NFA::to_dfa() const {
-  // For WLP, this is reasonable: the current NFA only has 30 states
+  // For WLP, this is reasonable: the current NFA only has 35 states
+  std::cerr << "NFA has " << entries.size() << " states" << std::endl;
   assert(entries.size() <= 64);
   using state_t = uint64_t;
   const state_t start_state = 1 << 0;
@@ -183,12 +193,17 @@ NFA construct_wlp4_nfa() {
     return result;
   }();
 
-  NFA nfa(7);
+  NFA nfa(10);
   nfa.add_accepting_state(1, TokenKind::Id);
   nfa.add_accepting_state(2, TokenKind::Num);
   nfa.add_accepting_state(3, TokenKind::Num);
+  // State 4 is the state we reach after seeing a single slash
   nfa.add_accepting_state(5, TokenKind::Comment);
   nfa.add_accepting_state(6, TokenKind::Whitespace);
+  // State 7 is the state we reach after seeing /*
+  // State 8 is the state we reach in a multi-line comment after seeing the
+  // first exiting *
+  nfa.add_accepting_state(9, TokenKind::Comment);
   nfa.add_transitions(0, 1, letters);
   nfa.add_transitions(1, 1, alphanumeric + "_");
   nfa.add_transitions(0, 2, digits);
@@ -196,8 +211,18 @@ NFA construct_wlp4_nfa() {
   nfa.add_transitions(3, 3, digits);
   nfa.add_transitions(0, 4, "/");
   nfa.add_transitions(4, 5, "/");
-  nfa.add_transitions(5, 5, not_new_line);
+  nfa.add_transitions(4, 7, "*");
+
+  nfa.add_transitions(5, 5, [](char c) { return c != '\n'; });
   nfa.add_transitions(0, 6, "\t\n ");
+
+  nfa.add_transitions(7, 7, [](char c) { return c != '*'; });
+  nfa.add_transitions(7, 8, "*");
+
+  nfa.add_transitions(8, 7, [](char c) { return c != '*' && c != '/'; });
+  nfa.add_transitions(8, 8, "*");
+  nfa.add_transitions(8, 9, "/");
+
   for (const auto &[lexeme, token_kind] : simple_nfa_rules) {
     nfa.add_string(lexeme, token_kind);
   }
@@ -215,6 +240,7 @@ std::map<std::string, TokenKind> get_wlp4_keywords() {
     result["return"] = TokenKind::Return;
     result["if"] = TokenKind::If;
     result["else"] = TokenKind::Else;
+    result["for"] = TokenKind::For;
     result["while"] = TokenKind::While;
     result["println"] = TokenKind::Println;
     result["wain"] = TokenKind::Wain;

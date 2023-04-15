@@ -24,6 +24,7 @@ enum class TokenKind {
   Return,
   If,
   Else,
+  For,
   While,
   Println,
   Wain,
@@ -74,6 +75,8 @@ static std::string token_kind_to_string(const TokenKind kind) {
     return "IF";
   case TokenKind::Else:
     return "ELSE";
+  case TokenKind::For:
+    return "FOR";
   case TokenKind::While:
     return "WHILE";
   case TokenKind::Println:
@@ -152,6 +155,8 @@ struct NFA {
   void add_accepting_state(const int state, const TokenKind kind);
   void add_transitions(const int source, const int target,
                        const std::string &transitions);
+  void add_transitions(const int source, const int target,
+                       const std::function<bool(int)> &pred);
   void add_string(const std::string &lexeme, const TokenKind state);
 
   DFA to_dfa() const;
