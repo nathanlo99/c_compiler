@@ -13,11 +13,11 @@ void BRILInterpreter::run(std::ostream &os) {
   if (wain_is_array) {
     size_t num_elements;
     int value;
-    std::cout << "Enter the number of elements in the array: " << std::flush;
+    std::cerr << "Enter the number of elements in the array: " << std::flush;
     std::cin >> num_elements;
     const auto array = context.alloc(num_elements);
     for (size_t idx = 0; idx < num_elements; ++idx) {
-      std::cout << "Enter the value of element " << idx << ": " << std::flush;
+      std::cerr << "Enter the value of element " << idx << ": " << std::flush;
       std::cin >> value;
       context.store(BRILValue::heap_pointer(0, idx), BRILValue::integer(value));
     }
@@ -25,16 +25,16 @@ void BRILInterpreter::run(std::ostream &os) {
     arguments[1] = BRILValue::integer(num_elements);
   } else {
     int first_arg, second_arg;
-    std::cout << "Enter the value of the first argument: " << std::flush;
+    std::cerr << "Enter the value of the first argument: " << std::flush;
     std::cin >> first_arg;
-    std::cout << "Enter the value of the second argument: " << std::flush;
+    std::cerr << "Enter the value of the second argument: " << std::flush;
     std::cin >> second_arg;
     arguments[0] = BRILValue::integer(first_arg);
     arguments[1] = BRILValue::integer(second_arg);
   }
 
   const BRILValue result = interpret(program.wain(), arguments, os);
-  std::cerr << "wain returned " << result << std::endl;
+  std::cout << "wain returned " << result.int_value << std::endl;
   std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
             << std::endl;
 
@@ -45,7 +45,7 @@ void BRILInterpreter::run(std::ostream &os) {
 
   for (size_t heap_idx = 0; heap_idx < context.heap_memory.size(); ++heap_idx) {
     if (context.heap_memory[heap_idx].active) {
-      std::cerr << "Memory leak: Memory region heap[" << heap_idx
+      std::cout << "Memory leak: Memory region heap[" << heap_idx
                 << "] of size " << context.heap_memory[heap_idx].values.size()
                 << " is still allocated at the end of execution" << std::endl;
     }
@@ -223,7 +223,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     // Memory instructions
     case Opcode::Alloc: {
       const int size = context.get_int(instruction.arguments[0]);
-      runtime_assert(size > 0, "Allocation size must be positive");
+      runtime_assert(size >= 0, "Allocation size must be non-negative");
       const BRILValue result = context.alloc(size);
       context.write_value(instruction.destination, result);
     } break;

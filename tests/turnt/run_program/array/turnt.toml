@@ -1,0 +1,10 @@
+
+[envs.interpret]
+command = "cat {base}.in | ../../../../build/compile {filename} --interpret 2> /dev/null"
+return_code = 0
+output.out = "-"
+
+[envs.compile_and_run]
+command = "cat {base}.in | python3 ../../../../scripts/ground_truth_array.py {filename}"
+return_code = 0
+output."ground_truth.out" = "-"

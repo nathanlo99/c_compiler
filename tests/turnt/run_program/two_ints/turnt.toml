@@ -1,0 +1,19 @@
+[envs.zero_zero]
+command = "echo '0 0' | ../../../../build/compile {filename} --interpret 2> /dev/null"
+return_code = 0
+output."zero_zero.out" = "-"
+
+[envs.five_ten]
+command = "echo '5 10' | ../../../../build/compile {filename} --interpret 2> /dev/null"
+return_code = 0
+output."five_ten.out" = "-"
+
+[envs.ground_truth_zero_zero]
+command = "echo '0 0' | python3 ../../../../scripts/ground_truth_twoints.py {filename} 2> /dev/null"
+return_code = 0
+output."ground_truth_zero_zero.out" = "-"
+
+[envs.ground_truth_five_ten]
+command = "echo '5 10' | python3 ../../../../scripts/ground_truth_twoints.py {filename} 2> /dev/null"
+return_code = 0
+output."ground_truth_five_ten.out" = "-"

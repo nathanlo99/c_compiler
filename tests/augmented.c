@@ -1,5 +1,5 @@
 // Comments
-int isPrime(int n) {
+int is_prime(int n) {
   int i = 2;
   int answer = 1;
   int continueLooping = 1;
@@ -28,14 +28,10 @@ int isPrime(int n) {
 int collatz(int *num) {
   int value = 0;
   value = *num;
-  if (value >= 2) {
-    if (value % 2 != 0) {
-      *num = 3 * value + 2 - 1;
-    } else {
-      *num = value / 2;
-    }
+  if (value % 2 != 0) {
+    *num = 3 * value + 1;
   } else {
-    *num = 1;
+    *num = value / 2;
   }
   return 0;
 }
@@ -43,30 +39,30 @@ int collatz(int *num) {
 // Computes the first [numPrimes] primes, starting at [startNumber]
 // Then, prints the following Collatz sequence:
 // 40, 20, 10, 5, 16, 8, 4, 2, 1
-int wain(int numPrimes, int startNumber) {
+int wain(int num_primes, int start_number) {
   int *result = NULL;
   int idx = 0;
-  int nextNumber = 0;
-  result = new int[numPrimes];
-  nextNumber = startNumber;
+  int next_number = 0;
+  result = new int[num_primes];
+  next_number = start_number;
 
-  while (idx < numPrimes) {
-    while (isPrime(nextNumber) == 0) {
-      nextNumber = nextNumber + 1;
+  while (idx < num_primes) {
+    while (is_prime(next_number) == 0) {
+      next_number = next_number + 1;
     }
-    *(result + idx) = nextNumber;
-    nextNumber = nextNumber + 1;
+    *(result + idx) = next_number;
+    next_number = next_number + 1;
   }
 
   idx = 0;
-  while (idx < numPrimes) {
+  while (idx < num_primes) {
     println(*(result + idx));
   }
 
-  nextNumber = 40;
-  while (nextNumber != 1) {
-    println(nextNumber);
-    collatz(&nextNumber);
+  next_number = 40;
+  while (next_number != 1) {
+    println(next_number);
+    collatz(&next_number);
   }
 
   delete[] result;

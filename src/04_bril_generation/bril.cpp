@@ -47,6 +47,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   }
   add_block(current_block);
 
+  // Remove redundant labels
   for (auto &[label, block] : blocks) {
     for (auto &exit_label : block.exit_labels) {
       exit_label = canonical_label_name[exit_label];
@@ -65,6 +66,24 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   }
 
   compute_edges();
+
+  // Ensure that the entry block has no predecessors, since this breaks SSA
+  // conversion later
+  if (blocks[entry_label].incoming_blocks.size() > 0) {
+    const auto new_entry_label = "." + function.name.substr(1) + "_entry2";
+
+    Block new_block;
+    block_labels.insert(block_labels.begin(), new_entry_label);
+    new_block.entry_label = new_entry_label;
+    new_block.instructions.push_back(Instruction::label(new_entry_label));
+    new_block.instructions.push_back(Instruction::jmp(entry_label));
+    new_block.exit_labels = {entry_label};
+    add_directed_edge(new_entry_label, entry_label);
+
+    blocks[new_entry_label] = new_block;
+    entry_label = new_entry_label;
+  }
+
   compute_dominators();
 }
 

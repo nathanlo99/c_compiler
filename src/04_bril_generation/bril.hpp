@@ -708,25 +708,25 @@ struct Program {
     return os;
   }
 
-  void print_flattened() const {
+  void print_flattened(std::ostream &os) const {
     for (const auto &[name, cfg] : cfgs) {
-      std::cout << "@" << name << "(";
+      os << "@" << name << "(";
       bool first = true;
       for (const auto &argument : cfg.arguments) {
         if (first)
           first = false;
         else
-          std::cout << ", ";
-        std::cout << argument.name << ": " << argument.type;
+          os << ", ";
+        os << argument.name << ": " << argument.type;
       }
-      std::cout << ") : " << cfg.return_type << " {" << std::endl;
+      os << ") : " << cfg.return_type << " {" << std::endl;
       for (const auto &instruction : cfg.flatten()) {
         if (instruction.opcode == Opcode::Label)
-          std::cout << instruction.labels[0] << ":" << std::endl;
+          os << instruction.labels[0] << ":" << std::endl;
         else
-          std::cout << "  " << instruction << std::endl;
+          os << "  " << instruction << std::endl;
       }
-      std::cout << "}\n" << std::endl;
+      os << "}\n" << std::endl;
     }
   }
 

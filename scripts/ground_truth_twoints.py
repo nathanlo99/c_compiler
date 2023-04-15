@@ -14,9 +14,9 @@ void println(int);
 #include <stdio.h>
 int main(int argc, char** argv) {
   int a,b,c;
-  printf("Enter first integer: ");
+  fprintf(stderr, "Enter first integer: ");
   scanf("%d", &a);
-  printf("Enter second integer: ");
+  fprintf(stderr, "Enter second integer: ");
   scanf("%d", &b);
   c = wain(a,b);
   printf("wain returned %d\n", c);

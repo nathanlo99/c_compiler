@@ -178,7 +178,7 @@ void test_to_ssa(const std::string &filename) {
   for (auto &[name, cfg] : bril_program.cfgs) {
     cfg.convert_to_ssa();
   }
-  bril_program.print_flattened();
+  bril_program.print_flattened(std::cout);
 }
 
 void interpret(const std::string &filename) {
@@ -194,9 +194,9 @@ void interpret(const std::string &filename) {
   apply_optimizations(bril_program);
 
   BRILInterpreter interpreter(bril_program);
-  program->emit_c(std::cerr, 0);
-  bril_program.print_flattened();
-  interpreter.run(std::cerr);
+  // program->emit_c(std::cerr, 0);
+  bril_program.print_flattened(std::cerr);
+  interpreter.run(std::cout);
 }
 
 int main(int argc, char **argv) {

@@ -1,0 +1,6 @@
+wain returned 0
+Memory leak: Memory region heap[0] of size 10 is still allocated at the end of execution
+Memory leak: Memory region heap[1] of size 10 is still allocated at the end of execution
+Memory leak: Memory region heap[2] of size 10 is still allocated at the end of execution
+Memory leak: Memory region heap[3] of size 10 is still allocated at the end of execution
+Memory leak: Memory region heap[4] of size 10 is still allocated at the end of execution
