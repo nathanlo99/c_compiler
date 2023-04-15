@@ -1,0 +1,39 @@
+procedures main
+main INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+INT int
+WAIN wain
+LPAREN (
+dcl type ID
+type INT
+INT int
+ID a
+COMMA ,
+dcl type ID
+type INT
+INT int
+ID b
+RPAREN )
+LBRACE {
+dcls .EMPTY
+statements .EMPTY
+RETURN return
+expr expr PLUS term
+expr expr PLUS term
+expr term
+term term STAR factor
+term factor
+factor NUM
+NUM 3
+STAR *
+factor NUM
+NUM 80
+PLUS +
+term factor
+factor NUM
+NUM 1
+PLUS +
+term factor
+factor ID
+ID a
+SEMI ;
+RBRACE }

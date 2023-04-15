@@ -1,0 +1,113 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    arr: int* (used)
+    size: int (used)
+  declarations: 
+    idx: int = 0 (used)
+  statements: 
+    AssignmentStatement {
+      lhs: 
+        VariableLValueExpr(arr) : int*
+      rhs: 
+        NewExpr {
+          VariableExpr(size) : int
+        } : int*
+    )
+    AssignmentStatement {
+      lhs: 
+        VariableLValueExpr(idx) : int
+      rhs: 
+        0: int
+    )
+    WhileStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            VariableExpr(idx) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(size) : int
+        }
+      body: 
+        AssignmentStatement {
+          lhs: 
+            DereferenceLValueExpr {
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(arr) : int*
+                operation: Add
+                rhs: 
+                  VariableExpr(idx) : int
+              } : int*
+            } : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Mul
+              rhs: 
+                VariableExpr(idx) : int
+            } : int
+        )
+        AssignmentStatement {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        )
+    }
+    AssignmentStatement {
+      lhs: 
+        VariableLValueExpr(idx) : int
+      rhs: 
+        0: int
+    )
+    WhileStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            VariableExpr(idx) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(size) : int
+        }
+      body: 
+        PrintStatement {
+          DereferenceExpr {
+            BinaryExpr {
+              lhs: 
+                VariableExpr(arr) : int*
+              operation: Add
+              rhs: 
+                VariableExpr(idx) : int
+            } : int*
+          } : int
+        }
+        AssignmentStatement {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        )
+    }
+    DeleteStatement {
+      VariableExpr(arr) : int*
+    }
+  return_expr: 
+    0: int
+}
+

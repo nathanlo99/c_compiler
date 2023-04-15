@@ -1,0 +1,18 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+  return_expr: 
+    BinaryExpr {
+      lhs: 
+        VariableExpr(a) : int
+      operation: Add
+      rhs: 
+        VariableExpr(b) : int
+    } : int
+}
+

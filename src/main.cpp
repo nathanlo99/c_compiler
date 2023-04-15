@@ -37,7 +37,7 @@ std::string consume_stdin() {
 
 std::shared_ptr<Program> get_program(const std::string &input) {
   const std::vector<Token> token_stream = Lexer(input).token_stream();
-  const CFG cfg = load_cfg_from_file("references/productions.cfg");
+  const CFG cfg = load_default_cfg();
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   const std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
@@ -80,6 +80,29 @@ size_t apply_optimizations(bril::Program &program) {
       break;
   }
   return num_removed_lines;
+}
+
+void test_lexer(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  for (const auto &token : token_stream) {
+    std::cout << token << std::endl;
+  }
+}
+
+void test_parser(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  const CFG cfg = load_default_cfg();
+  const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
+  parse_tree->print_cs241();
+}
+
+void test_build_ast(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const std::shared_ptr<Program> program = get_program(input);
+  program->print();
 }
 
 void compute_reaching_definitions(const std::string &filename) {
@@ -131,7 +154,7 @@ void compute_reaching_definitions(const std::string &filename) {
 void test_emit_c(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
-  program->emit_c(std::cerr, 0);
+  program->emit_c(std::cout, 0);
 }
 
 void test_emit_mips(const std::string &filename) {
@@ -185,6 +208,9 @@ int main(int argc, char **argv) {
 
     const std::map<std::string, std::function<void(const std::string &)>>
         options = {
+            {"--lex", test_lexer},
+            {"--parse", test_parser},
+            {"--build-ast", test_build_ast},
             {"--interpret", interpret},
             {"--reaching-definitions", compute_reaching_definitions},
             {"--emit-c", test_emit_c},
@@ -204,5 +230,6 @@ int main(int argc, char **argv) {
 
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
   }
 }

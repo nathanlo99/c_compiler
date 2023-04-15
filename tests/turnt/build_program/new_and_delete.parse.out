@@ -1,0 +1,195 @@
+procedures main
+main INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+INT int
+WAIN wain
+LPAREN (
+dcl type ID
+type INT STAR
+INT int
+STAR *
+ID arr
+COMMA ,
+dcl type ID
+type INT
+INT int
+ID size
+RPAREN )
+LBRACE {
+dcls dcls dcl BECOMES NUM SEMI
+dcls .EMPTY
+dcl type ID
+type INT
+INT int
+ID idx
+BECOMES =
+NUM 0
+SEMI ;
+statements statements statement
+statements statements statement
+statements statements statement
+statements statements statement
+statements statements statement
+statements statements statement
+statements .EMPTY
+statement lvalue BECOMES expr SEMI
+lvalue ID
+ID arr
+BECOMES =
+expr term
+term factor
+factor NEW INT LBRACK expr RBRACK
+NEW new
+INT int
+LBRACK [
+expr term
+term factor
+factor ID
+ID size
+RBRACK ]
+SEMI ;
+statement lvalue BECOMES expr SEMI
+lvalue ID
+ID idx
+BECOMES =
+expr term
+term factor
+factor NUM
+NUM 0
+SEMI ;
+statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
+WHILE while
+LPAREN (
+test expr LT expr
+expr term
+term factor
+factor ID
+ID idx
+LT <
+expr term
+term factor
+factor ID
+ID size
+RPAREN )
+LBRACE {
+statements statements statement
+statements statements statement
+statements .EMPTY
+statement lvalue BECOMES expr SEMI
+lvalue STAR factor
+STAR *
+factor LPAREN expr RPAREN
+LPAREN (
+expr expr PLUS term
+expr term
+term factor
+factor ID
+ID arr
+PLUS +
+term factor
+factor ID
+ID idx
+RPAREN )
+BECOMES =
+expr term
+term term STAR factor
+term factor
+factor ID
+ID idx
+STAR *
+factor ID
+ID idx
+SEMI ;
+statement lvalue BECOMES expr SEMI
+lvalue ID
+ID idx
+BECOMES =
+expr expr PLUS term
+expr term
+term factor
+factor ID
+ID idx
+PLUS +
+term factor
+factor NUM
+NUM 1
+SEMI ;
+RBRACE }
+statement lvalue BECOMES expr SEMI
+lvalue ID
+ID idx
+BECOMES =
+expr term
+term factor
+factor NUM
+NUM 0
+SEMI ;
+statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
+WHILE while
+LPAREN (
+test expr LT expr
+expr term
+term factor
+factor ID
+ID idx
+LT <
+expr term
+term factor
+factor ID
+ID size
+RPAREN )
+LBRACE {
+statements statements statement
+statements statements statement
+statements .EMPTY
+statement PRINTLN LPAREN expr RPAREN SEMI
+PRINTLN println
+LPAREN (
+expr term
+term factor
+factor STAR factor
+STAR *
+factor LPAREN expr RPAREN
+LPAREN (
+expr expr PLUS term
+expr term
+term factor
+factor ID
+ID arr
+PLUS +
+term factor
+factor ID
+ID idx
+RPAREN )
+RPAREN )
+SEMI ;
+statement lvalue BECOMES expr SEMI
+lvalue ID
+ID idx
+BECOMES =
+expr expr PLUS term
+expr term
+term factor
+factor ID
+ID idx
+PLUS +
+term factor
+factor NUM
+NUM 1
+SEMI ;
+RBRACE }
+statement DELETE LBRACK RBRACK expr SEMI
+DELETE delete
+LBRACK [
+RBRACK ]
+expr term
+term factor
+factor ID
+ID arr
+SEMI ;
+RETURN return
+expr term
+term factor
+factor NUM
+NUM 0
+SEMI ;
+RBRACE }

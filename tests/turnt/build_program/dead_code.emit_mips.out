@@ -1,0 +1,60 @@
+                                ; // Simplified C code:
+                                ; int wain(int arg1, int arg2) {
+                                ;   int a = 4;
+                                ;   int b = 2;
+                                ;   int c = 1;
+                                ;   int d = 0;
+                                ;   int e = 0;
+                                ;   d = (a + b);
+                                ;   e = (c + d);
+                                ;   return d;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+beq $0, $0, wain                ; Done prologue, jumping to wain
+                                ; 
+                                ; Generating code for wain
+wain:
+sw $1, -4($30)                  ;   push $1
+sub $30, $30, $4                ;   ^
+sw $2, -4($30)                  ;   push $2
+sub $30, $30, $4                ;   ^
+sub $29, $30, $4
+sw $4, -4($30)                  ;   push $4
+sub $30, $30, $4                ; Declaration a
+add $3, $11, $11
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration b
+sw $11, -4($30)                 ;   push $11
+sub $30, $30, $4                ; Declaration c
+sw $0, -4($30)                  ;   push $0
+sub $30, $30, $4                ; Declaration d
+sw $0, -4($30)                  ;   push $0
+sub $30, $30, $4                ; Declaration e
+                                ; Code for statements:
+                                ; d = (a + b);
+
+lw $3, 0($29)                   ; Loading a
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lw $3, -4($29)                  ; Loading b
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+sw $3, -12($29)
+                                ; e = (c + d);
+
+lw $3, -8($29)                  ; Loading c
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lw $3, -12($29)                 ; Loading d
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+sw $3, -16($29)
+                                ; Code for return value:
+lw $3, -12($29)                 ; Loading d
+jr $31                          ; Done generating code for wain
+                                ; Number of assembly instructions: 38

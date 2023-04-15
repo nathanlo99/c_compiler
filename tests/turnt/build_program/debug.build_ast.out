@@ -1,0 +1,50 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    n: int (used)
+    b: int (unused)
+  declarations: 
+    cont: int = 1 (used)
+    i: int = 0 (unused)
+  statements: 
+    IfStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            VariableExpr(n) : int
+          operation: LessEqual
+          rhs: 
+            3: int
+        }
+      true_statement: 
+        AssignmentStatement {
+          lhs: 
+            VariableLValueExpr(cont) : int
+          rhs: 
+            0: int
+        )
+        IfStatement {
+          condition: 
+            TestExpr {
+              lhs: 
+                VariableExpr(n) : int
+              operation: GreaterEqual
+              rhs: 
+                4: int
+            }
+          true_statement: 
+            AssignmentStatement {
+              lhs: 
+                VariableLValueExpr(cont) : int
+              rhs: 
+                2: int
+            )
+          false_statement: 
+        }
+      false_statement: 
+    }
+  return_expr: 
+    VariableExpr(cont) : int
+}
+

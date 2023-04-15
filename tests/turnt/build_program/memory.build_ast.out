@@ -1,0 +1,32 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    ptr: int* (used)
+    value: int (used)
+  declarations: 
+  statements: 
+    AssignmentStatement {
+      lhs: 
+        DereferenceLValueExpr {
+          VariableExpr(ptr) : int*
+        } : int
+      rhs: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(value) : int
+          operation: Add
+          rhs: 
+            1: int
+        } : int
+    )
+    AssignmentStatement {
+      lhs: 
+        VariableLValueExpr(value) : int
+      rhs: 
+        2: int
+    )
+  return_expr: 
+    VariableExpr(value) : int
+}
+

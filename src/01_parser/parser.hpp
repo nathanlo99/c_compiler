@@ -53,6 +53,7 @@ public:
   void print() const;
 };
 
+CFG load_default_cfg();
 CFG load_cfg_from_file(const std::string &filename);
 
 struct StateItem {

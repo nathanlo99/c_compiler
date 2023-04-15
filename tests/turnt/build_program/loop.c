@@ -1,0 +1,13 @@
+
+int wain(int a, int b) {
+  int x = 0;
+  int i = 0;
+  while (i < 10) {
+    if (i < 5) {
+      x = x + 1;
+    }
+    x = x * 2;
+    i = i + 1;
+  }
+  return x;
+}

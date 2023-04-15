@@ -1,0 +1,24 @@
+[envs.lex]
+command = "../../../build/compile {filename} --lex"
+return_code = 0
+output."lex.out" = "-"
+
+[envs.parse]
+command = "../../../build/compile {filename} --parse"
+return_code = 0
+output."parse.out" = "-"
+
+[envs.build_ast]
+command = "../../../build/compile {filename} --build-ast"
+return_code = 0
+output."build_ast.out" = "-"
+
+[envs.emit_c]
+command = "../../../build/compile {filename} --emit-c"
+return_code = 0
+output."emit_c.out" = "-"
+
+[envs.emit_mips]
+command = "../../../build/compile {filename} --emit-mips"
+return_code = 0
+output."emit_mips.out" = "-"

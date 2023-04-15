@@ -1,0 +1,312 @@
+                                ; // Simplified C code:
+                                ; int eat(int* food) {
+                                ;   return 241;
+                                ; }
+                                ; 
+                                ; int p(int p, int* q) {
+                                ;   int r = 241;
+                                ;   return eat(q);
+                                ; }
+                                ; 
+                                ; int q(int* q, int r) {
+                                ;   return p(eat(q), q);
+                                ; }
+                                ; 
+                                ; int r(int a, int b) {
+                                ;   int p = 241;
+                                ;   int q = 241;
+                                ;   int* n = NULL;
+                                ;   return q(n, eat(n));
+                                ; }
+                                ; 
+                                ; int loong(int a, int b, int c, int d, int e, int f) {
+                                ;   return 0;
+                                ; }
+                                ; 
+                                ; int wain(int* a, int b) {
+                                ;   return r(q(a, p(b, a)), loong(1, 2, 3, 4, 5, 6));
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+beq $0, $0, wain                ; Done prologue, jumping to wain
+                                ; 
+                                ; Generating code for eat
+eat:
+sub $29, $30, $4
+                                ; Code for statements:
+                                ; Code for return value:
+lis $3
+.word 241                       ; Loading the literal 241
+                                ; Done evaluating result, popping decls and saved registers
+jr $31                          ; Done generating code for eat
+                                ; 
+                                ; Generating code for p
+p:
+sub $29, $30, $4
+lis $3
+.word 241
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration r
+                                ; Code for statements:
+                                ; Code for return value:
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument food
+lw $3, 4($29)                   ; Loading q
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument food
+lis $5
+.word eat
+jalr $5
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; Done evaluating result, popping decls and saved registers
+add $30, $30, $4
+jr $31                          ; Done generating code for p
+                                ; 
+                                ; Generating code for q
+q:
+sub $29, $30, $4
+                                ; Code for statements:
+                                ; Code for return value:
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument p
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument food
+lw $3, 8($29)                   ; Loading q
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument food
+lis $5
+.word eat
+jalr $5
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument p
+                                ; Pushing argument q
+lw $3, 8($29)                   ; Loading q
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument q
+lis $5
+.word p
+jalr $5
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; Done evaluating result, popping decls and saved registers
+jr $31                          ; Done generating code for q
+                                ; 
+                                ; Generating code for r
+r:
+sub $29, $30, $4
+lis $3
+.word 241
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration p
+lis $3
+.word 241
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration q
+sw $11, -4($30)                 ;   push $11
+sub $30, $30, $4                ; Declaration n
+                                ; Code for statements:
+                                ; Code for return value:
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument q
+lw $3, -8($29)                  ; Loading n
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument q
+                                ; Pushing argument r
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument food
+lw $3, -8($29)                  ; Loading n
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument food
+lis $5
+.word eat
+jalr $5
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument r
+lis $5
+.word q
+jalr $5
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; Done evaluating result, popping decls and saved registers
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4
+jr $31                          ; Done generating code for r
+                                ; 
+                                ; Generating code for loong
+loong:
+sub $29, $30, $4
+                                ; Code for statements:
+                                ; Code for return value:
+add $3, $0, $0                  ; Loading the literal 0
+                                ; Done evaluating result, popping decls and saved registers
+jr $31                          ; Done generating code for loong
+                                ; 
+                                ; Generating code for wain
+wain:
+sw $1, -4($30)                  ;   push $1
+sub $30, $30, $4                ;   ^
+sw $2, -4($30)                  ;   push $2
+sub $30, $30, $4                ;   ^
+sub $29, $30, $4
+                                ; Code for statements:
+                                ; Code for return value:
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument a
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument q
+lw $3, 8($29)                   ; Loading a
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument q
+                                ; Pushing argument r
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument p
+lw $3, 4($29)                   ; Loading b
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument p
+                                ; Pushing argument q
+lw $3, 8($29)                   ; Loading a
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument q
+lis $5
+.word p
+jalr $5
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument r
+lis $5
+.word q
+jalr $5
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument a
+                                ; Pushing argument b
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+                                ; Pushing argument a
+add $3, $11, $0                 ; Loading the literal 1
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument a
+                                ; Pushing argument b
+add $3, $11, $11                ; Loading the literal 2
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument b
+                                ; Pushing argument c
+sub $3, $4, $11                 ; Loading the literal 3
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument c
+                                ; Pushing argument d
+add $3, $4, $0                  ; Loading the literal 4
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument d
+                                ; Pushing argument e
+add $3, $11, $4                 ; Loading the literal 5
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument e
+                                ; Pushing argument f
+lis $3
+.word 6                         ; Loading the literal 6
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument f
+lis $5
+.word loong
+jalr $5
+lis $5
+.word 24
+add $30, $30, $5
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+                                ; Done pushing argument b
+lis $5
+.word r
+jalr $5
+add $30, $30, $4
+add $30, $30, $4
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+jr $31                          ; Done generating code for wain
+                                ; Number of assembly instructions: 209

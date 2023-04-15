@@ -1,0 +1,7 @@
+int wain(int a, int b) {
+  println(((3 * 80) + 1));
+  println(((0 - a) + b));
+  println((((a + 1) + b) + 1));
+  return ((a - a) + 1);
+}
+

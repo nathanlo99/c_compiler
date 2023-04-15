@@ -1,0 +1,75 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    PrintStatement {
+      BinaryExpr {
+        lhs: 
+          BinaryExpr {
+            lhs: 
+              3: int
+            operation: Mul
+            rhs: 
+              80: int
+          } : int
+        operation: Add
+        rhs: 
+          1: int
+      } : int
+    }
+    PrintStatement {
+      BinaryExpr {
+        lhs: 
+          BinaryExpr {
+            lhs: 
+              0: int
+            operation: Sub
+            rhs: 
+              VariableExpr(a) : int
+          } : int
+        operation: Add
+        rhs: 
+          VariableExpr(b) : int
+      } : int
+    }
+    PrintStatement {
+      BinaryExpr {
+        lhs: 
+          BinaryExpr {
+            lhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+            operation: Add
+            rhs: 
+              VariableExpr(b) : int
+          } : int
+        operation: Add
+        rhs: 
+          1: int
+      } : int
+    }
+  return_expr: 
+    BinaryExpr {
+      lhs: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(a) : int
+          operation: Sub
+          rhs: 
+            VariableExpr(a) : int
+        } : int
+      operation: Add
+      rhs: 
+        1: int
+    } : int
+}
+

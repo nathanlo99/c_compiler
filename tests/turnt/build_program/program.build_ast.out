@@ -1,0 +1,134 @@
+Procedure {
+  name: eat
+  return_type: int
+  parameters: 
+    food: int* (unused)
+  declarations: 
+  statements: 
+  return_expr: 
+    241: int
+}
+
+Procedure {
+  name: p
+  return_type: int
+  parameters: 
+    p: int (unused)
+    q: int* (used)
+  declarations: 
+    r: int = 241 (unused)
+  statements: 
+  return_expr: 
+    FunctionCall {
+      procedure_name: eat,
+      arguments: [
+        VariableExpr(q) : int*
+      ]
+    } : int
+}
+
+Procedure {
+  name: q
+  return_type: int
+  parameters: 
+    q: int* (used)
+    r: int (unused)
+  declarations: 
+  statements: 
+  return_expr: 
+    FunctionCall {
+      procedure_name: p,
+      arguments: [
+        FunctionCall {
+          procedure_name: eat,
+          arguments: [
+            VariableExpr(q) : int*
+          ]
+        } : int
+        VariableExpr(q) : int*
+      ]
+    } : int
+}
+
+Procedure {
+  name: r
+  return_type: int
+  parameters: 
+    a: int (unused)
+    b: int (unused)
+  declarations: 
+    p: int = 241 (unused)
+    q: int = 241 (unused)
+    n: int* = 1 (used)
+  statements: 
+  return_expr: 
+    FunctionCall {
+      procedure_name: q,
+      arguments: [
+        VariableExpr(n) : int*
+        FunctionCall {
+          procedure_name: eat,
+          arguments: [
+            VariableExpr(n) : int*
+          ]
+        } : int
+      ]
+    } : int
+}
+
+Procedure {
+  name: loong
+  return_type: int
+  parameters: 
+    a: int (unused)
+    b: int (unused)
+    c: int (unused)
+    d: int (unused)
+    e: int (unused)
+    f: int (unused)
+  declarations: 
+  statements: 
+  return_expr: 
+    0: int
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int* (used)
+    b: int (used)
+  declarations: 
+  statements: 
+  return_expr: 
+    FunctionCall {
+      procedure_name: r,
+      arguments: [
+        FunctionCall {
+          procedure_name: q,
+          arguments: [
+            VariableExpr(a) : int*
+            FunctionCall {
+              procedure_name: p,
+              arguments: [
+                VariableExpr(b) : int
+                VariableExpr(a) : int*
+              ]
+            } : int
+          ]
+        } : int
+        FunctionCall {
+          procedure_name: loong,
+          arguments: [
+            1: int
+            2: int
+            3: int
+            4: int
+            5: int
+            6: int
+          ]
+        } : int
+      ]
+    } : int
+}
+

@@ -3,6 +3,7 @@
 #include "parse_node.hpp"
 
 #include "lexer.hpp"
+#include "productions.hpp"
 #include "util.hpp"
 
 #include <algorithm>
@@ -13,6 +14,23 @@ CFG load_cfg_from_file(const std::string &filename) {
   std::string line;
   CFG result;
   while (std::getline(ifs, line)) {
+    if (line.size() > 0 && line[0] == '#')
+      continue;
+    const auto tokens = util::split(line);
+    runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
+    const std::string product = tokens[0];
+    const std::vector<std::string> ingredients(tokens.begin() + 2,
+                                               tokens.end());
+    result.add_production(product, ingredients);
+  }
+  return result;
+}
+
+CFG load_default_cfg() {
+  std::stringstream iss(context_free_grammar);
+  std::string line;
+  CFG result;
+  while (std::getline(iss, line)) {
     if (line.size() > 0 && line[0] == '#')
       continue;
     const auto tokens = util::split(line);
@@ -161,6 +179,11 @@ void EarleyTable::scan(const size_t i, const size_t j,
 
 void EarleyTable::report_error(const size_t i) const {
   std::stringstream ss;
+  if (i == 0) {
+    runtime_assert(false, "Unexpected token of type " +
+                              token_kind_to_string(token_stream[i].kind));
+    return;
+  }
 
   // Compute the set of symbols we expected instead of token_stream[i - 1]
   std::set<std::string> expected_symbols;

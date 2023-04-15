@@ -11,4 +11,4 @@ set(CMAKE_EXE_LINKER_FLAGS "-g -fsanitize=address,undefined -flto -ffast-math")
 file(GLOB src_cpp src/*.cpp src/00_scanner/*.cpp src/01_parser/*.cpp src/02_ast_generation/*.cpp src/03_ast_optimization/*.cpp src/04_mips_generation/*.cpp src/04_bril_generation/*.cpp)
 list(APPEND SOURCES ${src_cpp})
 
-add_executable(compiler_cpp ${SOURCES})
+add_executable(compile ${SOURCES})

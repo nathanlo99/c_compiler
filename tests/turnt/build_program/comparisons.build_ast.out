@@ -1,0 +1,42 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    IfStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            VariableExpr(a) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(b) : int
+        }
+      true_statement: 
+        PrintStatement {
+          VariableExpr(a) : int
+        }
+      false_statement: 
+    }
+    IfStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            VariableExpr(b) : int
+          operation: GreaterThan
+          rhs: 
+            VariableExpr(a) : int
+        }
+      true_statement: 
+        PrintStatement {
+          VariableExpr(b) : int
+        }
+      false_statement: 
+    }
+  return_expr: 
+    VariableExpr(a) : int
+}
+

@@ -1,0 +1,11 @@
+int wain(int a, int b) {
+  int* addr_a = NULL;
+  addr_a = &a;
+  b = 0;
+  a = 69;
+  b = (b + a);
+  *addr_a = 420;
+  b = (b + a);
+  return b;
+}
+

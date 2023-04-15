@@ -1,0 +1,57 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    IfStatement {
+      condition: 
+        TestExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(b) : int
+              operation: Mod
+              rhs: 
+                2: int
+            } : int
+          operation: Equal
+          rhs: 
+            0: int
+        }
+      true_statement: 
+        AssignmentStatement {
+          lhs: 
+            VariableLValueExpr(a) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(a) : int
+              operation: Mul
+              rhs: 
+                VariableExpr(a) : int
+            } : int
+        )
+      false_statement: 
+        AssignmentStatement {
+          lhs: 
+            VariableLValueExpr(a) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(a) : int
+              operation: Add
+              rhs: 
+                VariableExpr(a) : int
+            } : int
+        )
+    }
+    PrintStatement {
+      VariableExpr(a) : int
+    }
+  return_expr: 
+    VariableExpr(a) : int
+}
+

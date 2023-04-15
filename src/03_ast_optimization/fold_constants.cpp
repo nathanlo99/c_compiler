@@ -10,9 +10,10 @@ bool is_literal(std::shared_ptr<Expr> expr) {
   return false;
 }
 
-Literal evaluate_binary_expression(std::shared_ptr<LiteralExpr> lhs,
-                                   const BinaryOperation operation,
-                                   std::shared_ptr<LiteralExpr> rhs) {
+std::optional<Literal>
+evaluate_binary_expression(std::shared_ptr<LiteralExpr> lhs,
+                           const BinaryOperation operation,
+                           std::shared_ptr<LiteralExpr> rhs) {
   const int lhs_value = lhs->literal.value;
   const int rhs_value = rhs->literal.value;
   const Type lhs_type = lhs->type;
@@ -39,100 +40,17 @@ Literal evaluate_binary_expression(std::shared_ptr<LiteralExpr> lhs,
   case BinaryOperation::Mul:
     return Literal(lhs_value * rhs_value, Type::Int);
   case BinaryOperation::Div:
-    runtime_assert(rhs_value != 0, "Division by zero while constant folding");
+    if (rhs_value == 0)
+      return std::nullopt;
     return Literal(lhs_value / rhs_value, Type::Int);
   case BinaryOperation::Mod:
-    runtime_assert(rhs_value != 0, "Modulo by zero while constant folding");
+    if (rhs_value == 0)
+      return std::nullopt;
     return Literal(lhs_value % rhs_value, Type::Int);
   default:
-    std::cout << "Unknown token type " << binary_operation_to_string(operation)
-              << std::endl;
-    break;
+    return std::nullopt;
   }
-  __builtin_unreachable();
 }
-
-struct Sum {
-  struct SumTerm {
-    std::shared_ptr<Expr> value;
-    bool is_negative = false;
-
-    SumTerm(std::shared_ptr<Expr> value, bool negative)
-        : value(value), is_negative(negative) {}
-    static SumTerm positive(std::shared_ptr<Expr> value) {
-      return SumTerm(value, false);
-    }
-    static SumTerm negative(std::shared_ptr<Expr> value) {
-      return SumTerm(value, true);
-    }
-  };
-
-  std::vector<SumTerm> terms;
-
-  void gather_terms(std::shared_ptr<Expr> expr, bool is_negative = false) {
-    if (auto node = std::dynamic_pointer_cast<BinaryExpr>(expr)) {
-      switch (node->operation) {
-      case BinaryOperation::Add:
-        gather_terms(node->lhs, is_negative);
-        gather_terms(node->rhs, is_negative);
-        break;
-      case BinaryOperation::Sub:
-        gather_terms(node->lhs, is_negative);
-        gather_terms(node->rhs, !is_negative);
-        break;
-      default:
-        terms.emplace_back(fold_constants(expr), is_negative);
-        break;
-      }
-    } else {
-      terms.emplace_back(fold_constants(expr), is_negative);
-    }
-  }
-
-  std::shared_ptr<Expr> combine_terms() const {
-    // Chosen because it's the additive identity for both int and int*
-    std::shared_ptr<LiteralExpr> constant =
-        std::make_shared<LiteralExpr>(0, Type::Int);
-    std::shared_ptr<Expr> expr = nullptr;
-    for (const auto &term : terms) {
-      if (auto term_literal =
-              std::dynamic_pointer_cast<LiteralExpr>(term.value)) {
-        if (term_literal->literal.value == 0)
-          continue;
-      }
-      const BinaryOperation operation =
-          term.is_negative ? BinaryOperation::Sub : BinaryOperation::Add;
-      if (auto node = std::dynamic_pointer_cast<LiteralExpr>(term.value)) {
-        constant = std::make_shared<LiteralExpr>(
-            evaluate_binary_expression(constant, operation, node));
-      } else {
-        if (expr == nullptr) {
-          // TODO: Deal with negative pointers
-          expr = term.value;
-        } else {
-          expr = std::make_shared<BinaryExpr>(expr, operation, term.value);
-        }
-      }
-    }
-    if (constant->literal.value == 0) {
-      if (expr == nullptr)
-        return std::make_shared<LiteralExpr>(0, constant->literal.type);
-      return expr;
-    } else {
-      return std::make_shared<BinaryExpr>(expr, BinaryOperation::Add, constant);
-    }
-  }
-
-  friend std::ostream &operator<<(std::ostream &os, const Sum &sum) {
-    os << "Sum {" << std::endl;
-    for (const auto &term : sum.terms) {
-      os << "  " << (term.is_negative ? "-" : "+");
-      term.value->print(0);
-    }
-    os << "}" << std::endl;
-    return os;
-  }
-};
 
 std::shared_ptr<Expr> cancel(std::shared_ptr<BinaryExpr> expr) {
   const BinaryOperation operation = expr->operation;
@@ -163,17 +81,11 @@ simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
     if (auto rhs_literal = std::dynamic_pointer_cast<LiteralExpr>(rhs)) {
       const auto literal =
           evaluate_binary_expression(lhs_literal, expr->operation, rhs_literal);
-      return std::make_shared<LiteralExpr>(literal);
+      if (literal.has_value())
+        return std::make_shared<LiteralExpr>(literal.value());
+      return expr;
     }
   }
-
-  // Sum sum;
-  // sum.gather_terms(expr);
-  // const auto combined_terms = sum.combine_terms();
-
-  // std::cout << sum << std::endl;
-  // combined_terms->emit_c(std::cout, 0);
-  // std::cout << std::endl;
 
   if (const auto lhs_literal = std::dynamic_pointer_cast<LiteralExpr>(lhs)) {
     const int value = lhs_literal->literal.value;

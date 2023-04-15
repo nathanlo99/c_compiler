@@ -1,0 +1,90 @@
+                                ; // Simplified C code:
+                                ; int wain(int a, int b) {
+                                ;   int x = 0;
+                                ;   int i = 0;
+                                ;   while (i < 10) {
+                                ;     if (i < 5) {
+                                ;       x = (x + 1);
+                                ;     } else {
+                                ;     }
+                                ;     x = (x * 2);
+                                ;     i = (i + 1);
+                                ;   }
+                                ;   return x;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+beq $0, $0, wain                ; Done prologue, jumping to wain
+                                ; 
+                                ; Generating code for wain
+wain:
+sw $1, -4($30)                  ;   push $1
+sub $30, $30, $4                ;   ^
+sw $2, -4($30)                  ;   push $2
+sub $30, $30, $4                ;   ^
+sub $29, $30, $4
+sw $0, -4($30)                  ;   push $0
+sub $30, $30, $4                ; Declaration x
+sw $0, -4($30)                  ;   push $0
+sub $30, $30, $4                ; Declaration i
+                                ; Code for statements:
+whileloop0:
+lw $3, -4($29)                  ; Loading i
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lis $3
+.word 10                        ; Loading the literal 10
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+slt $3, $5, $3
+beq $3, $0, whileend0
+lw $3, -4($29)                  ; Loading i
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $4                 ; Loading the literal 5
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+slt $3, $5, $3
+beq $3, $0, ifelse0
+                                ; x = (x + 1);
+
+lw $3, 0($29)                   ; Loading x
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $0                 ; Loading the literal 1
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+sw $3, 0($29)
+beq $0, $0, ifendif0
+ifelse0:
+ifendif0:
+                                ; x = (x * 2);
+
+lw $3, 0($29)                   ; Loading x
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $11                ; Loading the literal 2
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+mult $5, $3
+mflo $3
+sw $3, 0($29)
+                                ; i = (i + 1);
+
+lw $3, -4($29)                  ; Loading i
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $0                 ; Loading the literal 1
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+sw $3, -4($29)
+beq $0, $0, whileloop0
+whileend0:
+                                ; Code for return value:
+lw $3, 0($29)                   ; Loading x
+jr $31                          ; Done generating code for wain
+                                ; Number of assembly instructions: 59

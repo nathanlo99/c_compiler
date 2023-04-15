@@ -1,0 +1,9 @@
+int wain(int a, int b) {
+  int* c = NULL;
+  c = &a;
+  a = 69;
+  b = *c;
+  a = 70;
+  return (a + b);
+}
+

@@ -1,0 +1,6 @@
+
+int wain(int *ptr, int value) {
+  *ptr = *(&value) + 1;
+  *(&value) = 2;
+  return value;
+}

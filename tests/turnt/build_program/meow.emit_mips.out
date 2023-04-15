@@ -1,0 +1,52 @@
+                                ; // Simplified C code:
+                                ; int wain(int a, int b) {
+                                ;   int meow = 241;
+                                ;   int* list = NULL;
+                                ;   int var = 142;
+                                ;   int* ptr = NULL;
+                                ;   int* null = NULL;
+                                ;   var = (var + var);
+                                ;   return meow;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+beq $0, $0, wain                ; Done prologue, jumping to wain
+                                ; 
+                                ; Generating code for wain
+wain:
+sw $1, -4($30)                  ;   push $1
+sub $30, $30, $4                ;   ^
+sw $2, -4($30)                  ;   push $2
+sub $30, $30, $4                ;   ^
+sub $29, $30, $4
+lis $3
+.word 241
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration meow
+sw $11, -4($30)                 ;   push $11
+sub $30, $30, $4                ; Declaration list
+lis $3
+.word 142
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ; Declaration var
+sw $11, -4($30)                 ;   push $11
+sub $30, $30, $4                ; Declaration ptr
+sw $11, -4($30)                 ;   push $11
+sub $30, $30, $4                ; Declaration null
+                                ; Code for statements:
+                                ; var = (var + var);
+
+lw $3, -8($29)                  ; Loading var
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lw $3, -8($29)                  ; Loading var
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+sw $3, -8($29)
+                                ; Code for return value:
+lw $3, 0($29)                   ; Loading meow
+jr $31                          ; Done generating code for wain
+                                ; Number of assembly instructions: 33

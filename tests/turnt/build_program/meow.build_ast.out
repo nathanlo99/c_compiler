@@ -1,0 +1,29 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (unused)
+    b: int (unused)
+  declarations: 
+    meow: int = 241 (used)
+    list: int* = 1 (unused)
+    var: int = 142 (used)
+    ptr: int* = 1 (unused)
+    null: int* = 1 (unused)
+  statements: 
+    AssignmentStatement {
+      lhs: 
+        VariableLValueExpr(var) : int
+      rhs: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(var) : int
+          operation: Add
+          rhs: 
+            VariableExpr(var) : int
+        } : int
+    )
+  return_expr: 
+    VariableExpr(meow) : int
+}
+

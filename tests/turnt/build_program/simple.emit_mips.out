@@ -1,0 +1,29 @@
+                                ; // Simplified C code:
+                                ; int wain(int a, int b) {
+                                ;   return (241 + a);
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+beq $0, $0, wain                ; Done prologue, jumping to wain
+                                ; 
+                                ; Generating code for wain
+wain:
+sw $1, -4($30)                  ;   push $1
+sub $30, $30, $4                ;   ^
+sw $2, -4($30)                  ;   push $2
+sub $30, $30, $4                ;   ^
+sub $29, $30, $4
+                                ; Code for statements:
+                                ; Code for return value:
+lis $3
+.word 241                       ; Loading the literal 241
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lw $3, 8($29)                   ; Loading a
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+add $3, $5, $3
+jr $31                          ; Done generating code for wain
+                                ; Number of assembly instructions: 18
