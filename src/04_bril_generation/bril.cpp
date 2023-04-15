@@ -2,146 +2,116 @@
 #include "bril.hpp"
 
 namespace bril {
-ControlFlowGraph::ControlFlowGraph(Function function)
+
+ControlFlowGraph::ControlFlowGraph(const Function &function)
     : name(function.name), arguments(function.arguments),
       return_type(function.return_type) {
-  /*
-  loop over the instructions in function:
-    - labels start new blocks
-    - jumps, branches and ret terminate blocks
-    - extract starting labels when a block begins
-    - extract exiting labels from the last instruction in the block, if it's a
-        jump
-  */
 
-  const std::string entry_label = "." + function.name.substr(1) + "_entry";
-  function.instructions.insert(function.instructions.begin(),
-                               Instruction::jmp(entry_label));
-  function.instructions.insert(function.instructions.begin() + 1,
-                               Instruction::label(entry_label));
+  std::map<std::string, std::string> canonical_label_name;
 
+  // Loop over the instructions and create blocks:
+  // - Labels start new blocks, and fallthrough from the previous block
+  // - Jumps end blocks
   Block current_block;
-  for (size_t idx = 0; idx < function.instructions.size(); ++idx) {
-    const Instruction &instruction = function.instructions[idx];
-
+  entry_label = "." + function.name.substr(1) + "_entry";
+  current_block.entry_label = entry_label;
+  std::map<std::string, std::set<std::string>> entry_labels;
+  for (const auto &instruction : function.instructions) {
     if (instruction.opcode == Opcode::Label) {
-      if (current_block.instructions.size() >
-          current_block.entry_labels.size()) {
+      const auto &label = instruction.labels[0];
+      if (current_block.has_instructions()) {
+        // Fallthrough from previous block
+        current_block.instructions.push_back(Instruction::jmp(label));
+        current_block.exit_labels = {label};
         add_block(current_block);
         current_block = Block();
       }
-      current_block.entry_labels.push_back(instruction.labels[0]);
+      if (current_block.entry_label == "") {
+        current_block.entry_label = label;
+      }
+      canonical_label_name[label] = current_block.entry_label;
+      entry_labels[current_block.entry_label].insert(label);
       current_block.instructions.push_back(instruction);
     } else if (instruction.is_jump()) {
-      // Jump, branch, return
       current_block.instructions.push_back(instruction);
       current_block.exit_labels = instruction.labels;
       if (instruction.opcode == Opcode::Ret) {
-        exiting_blocks.insert(blocks.size());
+        exiting_blocks.insert(current_block.entry_label);
         current_block.is_exiting = true;
       }
       add_block(current_block);
       current_block = Block();
     } else {
-      // Normal instruction
       current_block.instructions.push_back(instruction);
     }
   }
   add_block(current_block);
 
+  for (auto &[label, block] : blocks) {
+    for (auto &exit_label : block.exit_labels) {
+      exit_label = canonical_label_name[exit_label];
+    }
+
+    // Remove redundant labels
+    while (block.instructions.size() > 1 &&
+           block.instructions[1].opcode == Opcode::Label)
+      block.instructions.erase(block.instructions.begin() + 1);
+
+    for (auto &instruction : block.instructions) {
+      for (auto &label : instruction.labels) {
+        label = canonical_label_name[label];
+      }
+    }
+  }
+
   compute_edges();
   compute_dominators();
 }
 
-void ControlFlowGraph::add_directed_edge(const size_t source,
-                                         const size_t target) {
-  blocks[source].outgoing_blocks.insert(target);
-  blocks[target].incoming_blocks.insert(source);
+void ControlFlowGraph::add_directed_edge(const std::string &source,
+                                         const std::string &target) {
+  blocks[source].outgoing_blocks.push_back(target);
+  blocks[target].incoming_blocks.push_back(source);
 }
 
 void ControlFlowGraph::compute_edges() {
-  // 1. Add edges
-
-  // First, construct a map from label to block index
-  for (size_t idx = 0; idx < blocks.size(); ++idx) {
-    auto &block = blocks[idx];
-    for (const auto &entry_label : block.entry_labels) {
-      label_to_block[entry_label] = idx;
-    }
-  }
-
-  // Then, for each outgoing label, add an edge
-  for (size_t idx = 0; idx < blocks.size(); ++idx) {
-    auto &block = blocks[idx];
+  for (const auto &[label, block] : blocks) {
     for (const auto &exit_label : block.exit_labels) {
-      runtime_assert(label_to_block.count(exit_label) > 0,
+      runtime_assert(blocks.count(exit_label) > 0,
                      "Exit label " + exit_label + " not found in label map");
-      const size_t next_idx = label_to_block.at(exit_label);
-      add_directed_edge(idx, next_idx);
+      add_directed_edge(label, exit_label);
     }
   }
-
-  // Then, add edges for all the fallthroughs
-  for (size_t idx = 1; idx < blocks.size(); ++idx) {
-    if (!blocks[idx - 1].instructions.back().is_jump()) {
-      add_directed_edge(idx - 1, idx);
-    }
-  }
-
-  // 2. Canonicalize the label names
-
-  // Loop through and replace all the labels with block indices
-  for (auto &block : blocks) {
-    // Remove all the labels
-    for (size_t i = 0; i < block.instructions.size(); ++i) {
-      if (block.instructions[i].opcode == Opcode::Label) {
-        block.instructions.erase(block.instructions.begin() + i);
-        --i;
-      }
-    }
-
-    for (auto &instruction : block.instructions) {
-      if (instruction.opcode == Opcode::Label)
-        continue;
-      for (auto &label : instruction.labels) {
-        runtime_assert(label_to_block.count(label) > 0,
-                       "Label " + label + " not found in label map");
-        label = get_label(label_to_block.at(label));
-      }
-    }
-  }
-
-  for (size_t idx = 1; idx < blocks.size(); ++idx) {
-    if (!blocks[idx - 1].instructions.back().is_jump()) {
-      blocks[idx - 1].instructions.push_back(Instruction::jmp(get_label(idx)));
-    }
-  }
-
-  for (size_t i = 0; i < blocks.size(); ++i) {
-    blocks[i].entry_labels = {get_label(i)};
-    blocks[i].instructions.insert(blocks[i].instructions.begin(),
-                                  Instruction::label(get_label(i)));
-  }
-}
-
-void ControlFlowGraph::recompute_graph() {
-  compute_edges();
-  compute_dominators();
 }
 
 void ControlFlowGraph::compute_dominators() {
   const size_t num_blocks = blocks.size();
   const std::vector<bool> everything(num_blocks, true);
-  raw_dominators = std::vector<std::vector<bool>>(num_blocks, everything);
-  raw_dominators[0] = std::vector<bool>(num_blocks, false);
-  raw_dominators[0][0] = true;
+
+  // Setup relevant sets of labels: all blocks and non-entry blocks
+  std::set<std::string> non_entry_blocks;
+  for (const auto &[label, _] : blocks) {
+    if (label != entry_label)
+      non_entry_blocks.insert(label);
+  }
+
+  // Initialize the dominator matrix
+  for (const auto &label : non_entry_blocks) {
+    for (const auto &other_label : block_labels) {
+      raw_dominators[label][other_label] = true;
+    }
+  }
+  for (const auto &label : non_entry_blocks) {
+    raw_dominators[entry_label][label] = false;
+  }
+  raw_dominators[entry_label][entry_label] = true;
 
   while (true) {
     bool changed = false;
-    for (size_t i = 1; i < num_blocks; ++i) {
+    for (const auto &i : non_entry_blocks) {
       const auto old_set = raw_dominators[i];
-      for (size_t pred : blocks[i].incoming_blocks) {
-        for (size_t k = 0; k < num_blocks; ++k)
+      for (const std::string &pred : blocks[i].incoming_blocks) {
+        for (const auto &k : block_labels)
           raw_dominators[i][k] =
               raw_dominators[i][k] && raw_dominators[pred][k];
       }
@@ -153,11 +123,11 @@ void ControlFlowGraph::compute_dominators() {
   }
 
   // Set up memoized versions of the dominator queries
-  dominators = std::vector<std::set<size_t>>(num_blocks);
-  immediate_dominators = std::vector<size_t>(num_blocks);
-  dominance_frontiers = std::vector<std::set<size_t>>(num_blocks);
-  for (size_t i = 0; i < num_blocks; ++i) {
-    for (size_t j = 0; j < num_blocks; ++j) {
+  dominators.clear();
+  immediate_dominators.clear();
+  dominance_frontiers.clear();
+  for (const auto &i : block_labels) {
+    for (const auto &j : block_labels) {
       if (_dominates(j, i))
         dominators[j].insert(i);
       if (_immediately_dominates(j, i))
@@ -169,24 +139,24 @@ void ControlFlowGraph::compute_dominators() {
 }
 
 // Does every path through 'target' pass through 'source'?
-bool ControlFlowGraph::_dominates(const size_t source,
-                                  const size_t target) const {
-  return raw_dominators[target][source];
+bool ControlFlowGraph::_dominates(const std::string &source,
+                                  const std::string &target) const {
+  return raw_dominators.at(target).at(source);
 }
 
-bool ControlFlowGraph::_strictly_dominates(const size_t source,
-                                           const size_t target) const {
+bool ControlFlowGraph::_strictly_dominates(const std::string &source,
+                                           const std::string &target) const {
   return source != target && _dominates(source, target);
 }
 
 // 'source' immediately dominates 'target' if 'source' strictly dominates
 // 'target', but 'source' does not strictly dominate any other node that
 // strictly dominates 'target'
-bool ControlFlowGraph::_immediately_dominates(const size_t source,
-                                              const size_t target) const {
+bool ControlFlowGraph::_immediately_dominates(const std::string &source,
+                                              const std::string &target) const {
   if (!_dominates(source, target))
     return false;
-  for (size_t k = 0; k < blocks.size(); ++k) {
+  for (const auto &[k, _] : blocks) {
     if (_strictly_dominates(source, k) && _strictly_dominates(k, target))
       return false;
   }
@@ -195,11 +165,11 @@ bool ControlFlowGraph::_immediately_dominates(const size_t source,
 
 // The domination frontier of 'source' contains 'target' if 'source' does
 // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
-bool ControlFlowGraph::_is_in_dominance_frontier(const size_t source,
-                                                 const size_t target) const {
+bool ControlFlowGraph::_is_in_dominance_frontier(
+    const std::string &source, const std::string &target) const {
   if (_strictly_dominates(source, target))
     return false;
-  for (const size_t pred : blocks[target].incoming_blocks) {
+  for (const std::string &pred : blocks.at(target).incoming_blocks) {
     if (_dominates(source, pred))
       return true;
   }

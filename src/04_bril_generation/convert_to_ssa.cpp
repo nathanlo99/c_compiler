@@ -4,27 +4,26 @@
 namespace bril {
 
 // Convert a Bril function which doesn't use pointers, to SSA form
-void bril::ControlFlowGraph::convert_to_ssa() {
+void ControlFlowGraph::convert_to_ssa() {
   // Cannot (yet) convert function with memory accesses to SSA form
   if (uses_pointers())
     return;
 
   // 0. Gather variables and the blocks they're defined in
-  std::map<std::string, std::set<size_t>> defs;
+  std::map<std::string, std::set<std::string>> defs;
   std::map<std::string, size_t> num_defs;
   std::map<std::string, Type> types;
-  for (size_t block_idx = 0; block_idx < blocks.size(); block_idx++) {
-    const auto &block = blocks[block_idx];
+  for (const auto &[entry_label, block] : blocks) {
     for (const auto &instruction : block.instructions) {
       if (instruction.destination != "") {
-        defs[instruction.destination].insert(block_idx);
+        defs[instruction.destination].insert(entry_label);
         num_defs[instruction.destination] += 1;
         types[instruction.destination] = instruction.type;
       }
     }
   }
   for (const auto &argument : arguments) {
-    defs[argument.name].insert(0);
+    defs[argument.name].insert(entry_label);
     num_defs[argument.name] += 1;
     types[argument.name] = argument.type;
   }
@@ -34,31 +33,32 @@ void bril::ControlFlowGraph::convert_to_ssa() {
     if (num_defs[var] <= 1)
       continue;
 
-    std::set<size_t> queue = blocks_with_var;
-    std::set<size_t> has_def = blocks_with_var;
-    std::set<size_t> has_phi;
+    std::set<std::string> queue = blocks_with_var;
+    std::set<std::string> has_def = blocks_with_var;
+    std::set<std::string> has_phi;
     while (!queue.empty()) {
-      const size_t block_idx = *queue.begin();
+      const std::string block_label = *queue.begin();
       queue.erase(queue.begin());
 
-      for (const auto &frontier_idx : dominance_frontiers[block_idx]) {
-        if (has_phi.count(frontier_idx) > 0)
+      for (const std::string &frontier_label :
+           dominance_frontiers[block_label]) {
+        if (has_phi.count(frontier_label) > 0)
           continue;
+        auto &frontier_block = blocks[frontier_label];
 
         std::vector<std::string> arguments;
         std::vector<std::string> labels;
-        for (const size_t pred : blocks[frontier_idx].incoming_blocks) {
+        for (const std::string &pred : frontier_block.incoming_blocks) {
           arguments.push_back(var);
-          labels.push_back(get_label(pred));
+          labels.push_back(pred);
         }
         const Instruction phi_node =
             Instruction::phi(var, types[var], arguments, labels);
-        blocks[frontier_idx].instructions.insert(
-            blocks[frontier_idx].instructions.begin(), phi_node);
-        has_phi.insert(frontier_idx);
+        frontier_block.prepend(phi_node);
+        has_phi.insert(frontier_label);
 
-        queue.insert(frontier_idx);
-        has_def.insert(frontier_idx);
+        queue.insert(frontier_label);
+        has_def.insert(frontier_label);
       }
     }
   }
@@ -68,20 +68,20 @@ void bril::ControlFlowGraph::convert_to_ssa() {
   for (const auto &argument : arguments) {
     definitions[argument.name] = {argument.name};
   }
-  rename_variables(0, definitions, next_idx);
+  rename_variables(entry_label, definitions, next_idx);
 }
 
 void ControlFlowGraph::rename_variables(
-    const size_t block_idx,
+    const std::string &block_label,
     std::map<std::string, std::vector<std::string>> definitions,
     std::map<std::string, size_t> &next_idx) {
 
-  Block &block = blocks[block_idx];
+  Block &block = blocks[block_label];
 
   // First, rename phi-node destinations
   for (auto &instruction : block.instructions) {
     if (instruction.opcode != Opcode::Phi)
-      break;
+      continue;
     const std::string new_name =
         instruction.destination + "." +
         std::to_string(next_idx[instruction.destination]);
@@ -108,11 +108,11 @@ void ControlFlowGraph::rename_variables(
     }
   }
 
-  for (const size_t succ : block.outgoing_blocks) {
+  for (const std::string &succ : block.outgoing_blocks) {
     for (auto &instruction : blocks[succ].instructions) {
       if (instruction.opcode != Opcode::Phi)
         continue;
-      const std::string target_label = get_label(block_idx);
+      const std::string target_label = block_label;
       const auto it = std::find(instruction.labels.begin(),
                                 instruction.labels.end(), target_label);
       runtime_assert(it != instruction.labels.end(),
@@ -127,9 +127,10 @@ void ControlFlowGraph::rename_variables(
     }
   }
 
-  for (size_t succ = 0; succ < blocks.size(); ++succ) {
-    if (succ != block_idx && _immediately_dominates(block_idx, succ)) {
-      rename_variables(succ, definitions, next_idx);
+  for (const auto &other_label : block_labels) {
+    if (other_label != block_label &&
+        _immediately_dominates(block_label, other_label)) {
+      rename_variables(other_label, definitions, next_idx);
     }
   }
 }

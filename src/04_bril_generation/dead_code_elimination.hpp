@@ -12,7 +12,7 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   size_t num_removed_lines = 0;
   std::set<std::string> used_variables;
   std::set<std::string> addressed_variables;
-  for (const auto &block : graph.blocks) {
+  for (const auto &[block_label, block] : graph.blocks) {
     for (const auto &instruction : block.instructions) {
       for (const auto &argument : instruction.arguments) {
         used_variables.insert(argument);
@@ -27,7 +27,7 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   }
 
   // TODO: Figure out what to do if a memory access / write happens
-  for (auto &block : graph.blocks) {
+  for (auto &[block_label, block] : graph.blocks) {
     for (size_t idx = 0; idx < block.instructions.size(); idx++) {
       const auto &instruction = block.instructions[idx];
       const std::string destination = instruction.destination;

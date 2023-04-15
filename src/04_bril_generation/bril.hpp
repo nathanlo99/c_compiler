@@ -497,14 +497,30 @@ struct ControlFlowGraph;
 struct Block {
   ControlFlowGraph *cfg = nullptr;
 
-  size_t idx;
-  std::vector<std::string> entry_labels;
+  std::string entry_label;
   std::vector<Instruction> instructions;
   std::vector<std::string> exit_labels;
 
-  std::set<size_t> incoming_blocks;
-  std::set<size_t> outgoing_blocks;
+  std::vector<std::string> incoming_blocks;
+  std::vector<std::string> outgoing_blocks;
   bool is_exiting = false;
+
+  // Insert an instruction at the beginning of the block, after any labels.
+  void prepend(const Instruction &instruction) {
+    auto it = instructions.begin();
+    while (it != instructions.end() && it->opcode == Opcode::Label)
+      ++it;
+    instructions.insert(it, instruction);
+  }
+
+  // Returns true if the block has any instructions other than labels.
+  bool has_instructions() const {
+    for (const auto &instruction : instructions) {
+      if (instruction.opcode != Opcode::Label)
+        return true;
+    }
+    return false;
+  }
 
   bool uses_pointers() const {
     for (const auto &instruction : instructions) {
@@ -525,15 +541,15 @@ struct Block {
   friend std::ostream &operator<<(std::ostream &os, const Block &block) {
     if (!block.incoming_blocks.empty()) {
       os << "incoming_blocks: [";
-      for (const auto &block_idx : block.incoming_blocks) {
-        os << block_idx << ", ";
+      for (const auto &block_name : block.incoming_blocks) {
+        os << block_name << ", ";
       }
       os << "\b\b]" << std::endl;
     }
     if (!block.outgoing_blocks.empty()) {
       os << "outgoing_blocks: [";
-      for (const auto &block_idx : block.outgoing_blocks) {
-        os << block_idx << ", ";
+      for (const auto &block_name : block.outgoing_blocks) {
+        os << block_name << ", ";
       }
       os << "\b\b]" << std::endl;
     }
@@ -555,33 +571,30 @@ struct ControlFlowGraph {
   std::vector<bril::Variable> arguments;
   Type return_type;
 
-  std::vector<Block> blocks;
-  std::set<size_t> exiting_blocks;
-  std::map<std::string, size_t> label_to_block;
+  std::vector<std::string> block_labels;
+  std::string entry_label;
+  std::map<std::string, Block> blocks;
+  std::set<std::string> exiting_blocks;
 
   // Dominator data structures
-  std::vector<std::vector<bool>> raw_dominators;
-  std::vector<std::set<size_t>> dominators;
-  std::vector<size_t> immediate_dominators;
-  std::vector<std::set<size_t>> dominance_frontiers;
+  std::map<std::string, std::map<std::string, bool>> raw_dominators;
+  std::map<std::string, std::set<std::string>> dominators;
+  std::map<std::string, std::string> immediate_dominators;
+  std::map<std::string, std::set<std::string>> dominance_frontiers;
 
   // Construct a CFG from a function
-  explicit ControlFlowGraph(Function function);
+  explicit ControlFlowGraph(const Function &function);
 
-  void add_block(const Block &block) {
+  void add_block(Block block) {
     if (block.instructions.empty())
       return;
-    blocks.push_back(block);
-    blocks.back().idx = blocks.size() - 1;
-    blocks.back().cfg = this;
-  }
-
-  inline std::string get_label(const size_t block_idx) const {
-    return ".bb_" + std::to_string(block_idx);
+    block_labels.push_back(block.entry_label);
+    block.cfg = this;
+    blocks[block.entry_label] = block;
   }
 
   bool uses_pointers() const {
-    for (const auto &block : blocks) {
+    for (const auto &[entry_label, block] : blocks) {
       if (block.uses_pointers())
         return true;
     }
@@ -591,7 +604,7 @@ struct ControlFlowGraph {
   // Convert the CFG to SSA form, if it has no memory accesses
   void convert_to_ssa();
   void
-  rename_variables(const size_t block_idx,
+  rename_variables(const std::string &block_label,
                    std::map<std::string, std::vector<std::string>> definitions,
                    std::map<std::string, size_t> &next_idx);
 
@@ -599,17 +612,18 @@ struct ControlFlowGraph {
   // removed lines
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = false;
-    for (auto &block : blocks)
+    for (const auto &label : block_labels) {
+      auto &block = blocks.at(label);
       num_removed_lines += func(block);
-    recompute_graph();
+    }
+    // recompute_graph();
     return num_removed_lines;
   }
 
-  void recompute_graph();
-
   std::vector<Instruction> flatten() const {
     std::vector<Instruction> instructions;
-    for (const auto &block : blocks) {
+    for (const auto &label : block_labels) {
+      const auto &block = blocks.at(label);
       for (const auto &instruction : block.instructions) {
         instructions.push_back(instruction);
       }
@@ -632,14 +646,15 @@ struct ControlFlowGraph {
     }
     os << ") : " << graph.return_type << std::endl;
 
-    for (size_t i = 0; i < graph.blocks.size(); ++i) {
+    for (const auto &label : graph.block_labels) {
+      const auto &block = graph.blocks.at(label);
       os << separator << std::endl;
-      os << "index: " << i << std::endl;
-      os << graph.blocks[i];
+      os << "label: " << label << std::endl;
+      os << block;
     }
     os << separator << std::endl;
     os << "exiting blocks: [";
-    for (size_t exiting_block : graph.exiting_blocks) {
+    for (const auto &exiting_block : graph.exiting_blocks) {
       os << exiting_block << ", ";
     }
     os << "\b\b]" << std::endl;
@@ -648,24 +663,27 @@ struct ControlFlowGraph {
   }
 
 private:
-  void add_directed_edge(const size_t source, const size_t target);
+  void add_directed_edge(const std::string &source, const std::string &target);
+
   void compute_edges();
   void compute_dominators();
 
   // Does every path through 'target' pass through 'source'?
-  bool _dominates(const size_t source, const size_t target) const;
+  bool _dominates(const std::string &source, const std::string &target) const;
 
-  bool _strictly_dominates(const size_t source, const size_t target) const;
+  bool _strictly_dominates(const std::string &source,
+                           const std::string &target) const;
 
   // 'source' immediately dominates 'target' if 'source' strictly dominates
   // 'target', but 'source' does not strictly dominate any other node that
   // strictly dominates 'target'
-  bool _immediately_dominates(const size_t source, const size_t target) const;
+  bool _immediately_dominates(const std::string &source,
+                              const std::string &target) const;
 
   // The domination frontier of 'source' contains 'target' if 'source' does
   // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
-  bool _is_in_dominance_frontier(const size_t source,
-                                 const size_t target) const;
+  bool _is_in_dominance_frontier(const std::string &source,
+                                 const std::string &target) const;
 };
 
 struct Program {

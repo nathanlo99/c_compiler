@@ -80,35 +80,47 @@ size_t apply_optimizations(bril::Program &program) {
 }
 
 void compute_reaching_definitions(bril::Program &bril_program) {
+  std::cout << bril_program << std::endl;
+
   const std::string separator(80, '-');
   for (const auto &[name, cfg] : bril_program.cfgs) {
     const auto result = bril::ReachingDefinitions::solve(cfg);
     std::cout << "For procedure " << name << ": " << std::endl;
-    for (size_t i = 0; i < cfg.blocks.size(); ++i) {
+    for (const auto &label : cfg.block_labels) {
       std::cout << separator << std::endl;
-      std::cout << "Block idx " << i << std::endl;
-      const auto block_in = result.in[i];
-      const auto block_out = result.out[i];
-      const auto block = cfg.blocks[i];
+      std::cout << "Block label " << label << std::endl;
+      const auto block_in = result.in.at(label);
+      const auto block_out = result.out.at(label);
 
       std::cout << "  Reaching definitions in: " << std::endl;
-      for (const auto &[block_idx, instruction_idx] : block_in) {
-        const auto instruction =
-            cfg.blocks[block_idx].instructions[instruction_idx];
-        std::cout << "    " << instruction << std::endl;
+      for (const auto &[destination, block_label, instruction_idx] : block_in) {
+        if (block_label == "__param") {
+          std::cout << "    param: " << destination << std::endl;
+        } else {
+          const auto instruction =
+              cfg.blocks.at(block_label).instructions[instruction_idx];
+          std::cout << "    " << instruction << std::endl;
+        }
       }
 
       std::cout << std::endl;
+
+      const auto &block = cfg.blocks.at(label);
       for (const auto &instruction : block.instructions) {
         std::cout << instruction << std::endl;
       }
       std::cout << std::endl;
 
       std::cout << "  Reaching definitions out: " << std::endl;
-      for (const auto &[block_idx, instruction_idx] : block_out) {
-        const auto instruction =
-            cfg.blocks[block_idx].instructions[instruction_idx];
-        std::cout << "    " << instruction << std::endl;
+      for (const auto &[destination, block_label, instruction_idx] :
+           block_out) {
+        if (block_label == "__param") {
+          std::cout << "    param: " << destination << std::endl;
+        } else {
+          const auto instruction =
+              cfg.blocks.at(block_label).instructions[instruction_idx];
+          std::cout << "    " << instruction << std::endl;
+        }
       }
     }
   }
@@ -120,6 +132,9 @@ void test_to_ssa(const std::string &filename) {
   const auto program0 = get_program(input);
   const auto program = annotate_and_check_types(program0);
   auto bril_program = get_bril(program);
+  std::cout << "Before optimizations: " << std::endl;
+  std::cout << bril_program << std::endl;
+
   apply_optimizations(bril_program);
   for (auto &[name, cfg] : bril_program.cfgs) {
     cfg.convert_to_ssa();
@@ -152,6 +167,15 @@ int main(int argc, char **argv) {
   try {
     runtime_assert(argc == 3, "Expected a filename and an option");
     const std::string argument = argv[2], filename = argv[1];
+
+    if (argument == "--reaching-definitions") {
+      const std::string input = read_file(filename);
+      const auto program0 = get_program(input);
+      const auto program = annotate_and_check_types(program0);
+      auto bril_program = get_bril(program);
+      compute_reaching_definitions(bril_program);
+      return 0;
+    }
 
     if (argument == "--emit-c") {
       const std::string input = read_file(filename);
