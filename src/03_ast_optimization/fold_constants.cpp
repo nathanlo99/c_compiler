@@ -47,9 +47,8 @@ evaluate_binary_expression(std::shared_ptr<LiteralExpr> lhs,
     if (rhs_value == 0)
       return std::nullopt;
     return Literal(lhs_value % rhs_value, Type::Int);
-  default:
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 std::shared_ptr<Expr> cancel(std::shared_ptr<BinaryExpr> expr) {

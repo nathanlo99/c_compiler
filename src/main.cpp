@@ -69,7 +69,6 @@ size_t apply_optimizations(bril::Program &program) {
   using namespace bril;
   size_t num_removed_lines = 0;
   while (true) {
-    bool changed = false;
     const size_t old_num_removed_lines = num_removed_lines;
     num_removed_lines += program.apply_local_pass(local_value_numbering);
     num_removed_lines += program.apply_global_pass(remove_unused_blocks);
