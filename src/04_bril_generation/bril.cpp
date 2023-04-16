@@ -114,8 +114,8 @@ void ControlFlowGraph::add_edge(const std::string &source,
                                 const std::string &target) {
   std::cerr << "Adding edge between " << source << " and " << target
             << std::endl;
-  blocks.at(source).outgoing_blocks.insert(target);
-  blocks.at(target).incoming_blocks.insert(source);
+  get_block(source).outgoing_blocks.insert(target);
+  get_block(target).incoming_blocks.insert(source);
   is_graph_dirty = true;
 }
 
@@ -126,13 +126,13 @@ void ControlFlowGraph::remove_edge(const std::string &source,
 
   runtime_assert(blocks.count(source) > 0, "No block with label " + source);
   runtime_assert(blocks.count(target) > 0, "No block with label " + target);
-  runtime_assert(blocks.at(source).outgoing_blocks.count(target) > 0,
+  runtime_assert(get_block(source).outgoing_blocks.count(target) > 0,
                  "No edge between '" + source + "' and '" + target + "'");
-  runtime_assert(blocks.at(target).incoming_blocks.count(source) > 0,
+  runtime_assert(get_block(target).incoming_blocks.count(source) > 0,
                  "No edge between '" + source + "' and '" + target + "'");
 
-  blocks.at(source).outgoing_blocks.erase(target);
-  blocks.at(target).incoming_blocks.erase(source);
+  get_block(source).outgoing_blocks.erase(target);
+  get_block(target).incoming_blocks.erase(source);
   is_graph_dirty = true;
 }
 
@@ -182,11 +182,11 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
   }
 
   // Graph bookkeeping
-  const Block block = blocks.at(block_label);
+  const Block block = get_block(block_label);
   runtime_assert(block.incoming_blocks.empty(),
                  "Cannot remove block with incoming edges");
   for (const auto &outgoing_block : block.outgoing_blocks) {
-    blocks.at(outgoing_block).incoming_blocks.erase(block_label);
+    get_block(outgoing_block).incoming_blocks.erase(block_label);
     is_graph_dirty = true;
   }
 
@@ -283,7 +283,7 @@ bool ControlFlowGraph::_is_in_dominance_frontier(
     const std::string &source, const std::string &target) const {
   if (_strictly_dominates(source, target))
     return false;
-  for (const std::string &pred : blocks.at(target).incoming_blocks) {
+  for (const std::string &pred : get_block(target).incoming_blocks) {
     if (_dominates(source, pred))
       return true;
   }

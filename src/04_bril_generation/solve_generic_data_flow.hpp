@@ -32,7 +32,7 @@ DataFlowResult<T> solve_forward_data_flow(const ControlFlowGraph &graph,
 
   while (!worklist.empty()) {
     const block_idx_t b = worklist.back();
-    const Block &block = graph.blocks.at(b);
+    const Block &block = graph.get_block(b);
     worklist.pop_back();
 
     // 1. in[b] = merge(out[p] for every pred p of b)
@@ -76,7 +76,7 @@ DataFlowResult<T> solve_backward_data_flow(const ControlFlowGraph &graph,
 
   while (!worklist.empty()) {
     const block_idx_t b = worklist.back();
-    const Block &block = graph.blocks.at(b);
+    const Block &block = graph.get_block(b);
     worklist.pop_back();
 
     // 1. out[b] = merge(in[p] for every succ p of b)
@@ -123,7 +123,7 @@ struct ReachingDefinitions {
       definitions[destination].push_back(definition);
     }
 
-    const Block &block = graph.blocks.at(block_label);
+    const Block &block = graph.get_block(block_label);
     for (size_t i = 0; i < block.instructions.size(); ++i) {
       const auto &instruction = block.instructions[i];
       const std::string destination = instruction.destination;

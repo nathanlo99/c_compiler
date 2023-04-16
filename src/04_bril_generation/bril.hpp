@@ -63,6 +63,10 @@ struct Variable {
   Type type;
 
   Variable(const std::string &name, const Type type) : name(name), type(type) {}
+
+  friend std::ostream &operator<<(std::ostream &os, const Variable &variable) {
+    return os << variable.name << ": " << variable.type;
+  }
 };
 
 enum class Opcode {
@@ -582,6 +586,16 @@ struct ControlFlowGraph {
   // Construct a CFG from a function
   explicit ControlFlowGraph(const Function &function);
 
+  Block &get_block(const std::string &block_label) {
+    runtime_assert(blocks.count(block_label) > 0,
+                   "Block not found: " + block_label);
+    return blocks.at(block_label);
+  }
+  const Block &get_block(const std::string &block_label) const {
+    runtime_assert(blocks.count(block_label) > 0,
+                   "Block not found: " + block_label);
+    return blocks.at(block_label);
+  }
   void add_block(Block block);
   void remove_block(const std::string &block_label);
 
@@ -605,8 +619,7 @@ struct ControlFlowGraph {
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = false;
     for (const auto &label : block_labels) {
-      auto &block = blocks.at(label);
-      num_removed_lines += func(block);
+      num_removed_lines += func(get_block(label));
     }
     recompute_graph();
     return num_removed_lines;
@@ -615,7 +628,7 @@ struct ControlFlowGraph {
   std::vector<Instruction> flatten() const {
     std::vector<Instruction> instructions;
     for (const auto &label : block_labels) {
-      const auto &block = blocks.at(label);
+      const auto &block = get_block(label);
       for (const auto &instruction : block.instructions) {
         instructions.push_back(instruction);
       }
@@ -640,7 +653,7 @@ struct ControlFlowGraph {
     os << ") : " << graph.return_type << std::endl;
 
     for (const auto &label : graph.block_labels) {
-      const auto &block = graph.blocks.at(label);
+      const auto &block = graph.get_block(label);
       os << separator << std::endl;
       os << "label: " << label << std::endl;
       os << block;
@@ -723,7 +736,7 @@ struct Program {
           const auto label = instruction.labels[0];
           const auto padding = 50 - label.size();
           os << instruction.labels[0] << ":" << std::string(padding, ' ')
-             << "preds = " << cfg.blocks.at(label).incoming_blocks << std::endl;
+             << "preds = " << cfg.get_block(label).incoming_blocks << std::endl;
         } else {
           os << "  " << instruction << std::endl;
         }

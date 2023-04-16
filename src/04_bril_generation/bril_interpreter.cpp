@@ -66,10 +66,10 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
   while (true) {
     // 1. Get the current instruction
     runtime_assert(instruction_idx <
-                       graph.blocks.at(current_block).instructions.size(),
+                       graph.get_block(current_block).instructions.size(),
                    "Instruction idx out of range");
     const auto &instruction =
-        graph.blocks.at(current_block).instructions[instruction_idx];
+        graph.get_block(current_block).instructions[instruction_idx];
     // std::cerr << "Interpreting (" << block_idx << ", " << instruction_idx
     //           << "): " << instruction << std::endl;
 
@@ -77,7 +77,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     ++instruction_idx;
     if (instruction.opcode != Opcode::Label)
       ++num_dynamic_instructions;
-    if (instruction_idx >= graph.blocks.at(current_block).instructions.size())
+    if (instruction_idx >= graph.get_block(current_block).instructions.size())
       runtime_assert(instruction.is_jump(),
                      "Last instruction in block must be jump");
 

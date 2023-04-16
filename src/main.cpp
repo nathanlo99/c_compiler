@@ -123,14 +123,14 @@ void compute_reaching_definitions(const std::string &filename) {
           std::cout << "    param: " << destination << std::endl;
         } else {
           const auto instruction =
-              cfg.blocks.at(block_label).instructions[instruction_idx];
+              cfg.get_block(block_label).instructions[instruction_idx];
           std::cout << "    " << instruction << std::endl;
         }
       }
 
       std::cout << std::endl;
 
-      const auto &block = cfg.blocks.at(label);
+      const auto &block = cfg.get_block(label);
       for (const auto &instruction : block.instructions) {
         std::cout << instruction << std::endl;
       }
@@ -143,7 +143,7 @@ void compute_reaching_definitions(const std::string &filename) {
           std::cout << "    param: " << destination << std::endl;
         } else {
           const auto instruction =
-              cfg.blocks.at(block_label).instructions[instruction_idx];
+              cfg.get_block(block_label).instructions[instruction_idx];
           std::cout << "    " << instruction << std::endl;
         }
       }
