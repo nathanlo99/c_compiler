@@ -95,4 +95,23 @@ inline size_t remove_local_unused_assignments(Block &block) {
   return num_removed_lines;
 }
 
+inline size_t remove_unused_blocks(ControlFlowGraph &graph) {
+  size_t result = 0;
+  std::set<std::string> blocks_to_remove;
+  for (auto &[block_label, block] : graph.blocks) {
+    if (block_label == graph.entry_label)
+      continue;
+    if (block.incoming_blocks.empty()) {
+      blocks_to_remove.insert(block_label);
+      result += block.instructions.size();
+    }
+  }
+  for (const auto &block_label : blocks_to_remove) {
+    std::cerr << "Removing unused block " << block_label << std::endl;
+    graph.remove_block(block_label);
+  }
+  graph.recompute_graph();
+  return result;
+}
+
 } // namespace bril

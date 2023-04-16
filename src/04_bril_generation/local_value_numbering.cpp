@@ -234,9 +234,9 @@ size_t local_value_numbering(Block &block) {
               instruction.labels[cond_value_bool ? 0 : 1];
           const std::string other_target =
               instruction.labels[cond_value_bool ? 1 : 0];
-          // TODO: Update the graph
-          // instruction = bril::Instruction::jmp(target);
-          // block.cfg->remove_edge(block, block.cfg->get_block(other_target));
+
+          instruction = bril::Instruction::jmp(target);
+          block.cfg->is_graph_dirty = true;
         }
       }
 

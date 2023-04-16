@@ -501,8 +501,8 @@ struct Block {
   std::vector<Instruction> instructions;
   std::vector<std::string> exit_labels;
 
-  std::vector<std::string> incoming_blocks;
-  std::vector<std::string> outgoing_blocks;
+  std::set<std::string> incoming_blocks;
+  std::set<std::string> outgoing_blocks;
   bool is_exiting = false;
 
   // Insert an instruction at the beginning of the block, after any labels.
@@ -582,16 +582,15 @@ struct ControlFlowGraph {
   std::map<std::string, std::string> immediate_dominators;
   std::map<std::string, std::set<std::string>> dominance_frontiers;
 
+  // True if the graph has been modified since the last time dominator data was
+  // computed
+  bool is_graph_dirty = true;
+
   // Construct a CFG from a function
   explicit ControlFlowGraph(const Function &function);
 
-  void add_block(Block block) {
-    if (block.instructions.empty())
-      return;
-    block_labels.push_back(block.entry_label);
-    block.cfg = this;
-    blocks[block.entry_label] = block;
-  }
+  void add_block(Block block);
+  void remove_block(const std::string &block_label);
 
   bool uses_pointers() const {
     for (const auto &[entry_label, block] : blocks) {
@@ -616,7 +615,7 @@ struct ControlFlowGraph {
       auto &block = blocks.at(label);
       num_removed_lines += func(block);
     }
-    // recompute_graph();
+    recompute_graph();
     return num_removed_lines;
   }
 
@@ -662,12 +661,20 @@ struct ControlFlowGraph {
     return os;
   }
 
-private:
-  void add_directed_edge(const std::string &source, const std::string &target);
+  void add_edge(const std::string &source, const std::string &target);
+  void remove_edge(const std::string &source, const std::string &target);
 
   void compute_edges();
   void compute_dominators();
+  void recompute_graph() {
+    if (!is_graph_dirty)
+      return;
+    compute_edges();
+    compute_dominators();
+    is_graph_dirty = false;
+  }
 
+private:
   // Does every path through 'target' pass through 'source'?
   bool _dominates(const std::string &source, const std::string &target) const;
 

@@ -35,11 +35,16 @@ if len(sys.argv) < 2:
     sys.exit()
 
 contents = open(sys.argv[1], "r").read()
-open("tmp.cpp", "w").write(template.replace("[REPLACEME]", contents))
 
-if len(sys.argv) >= 3:
-    command = "cat tmp.cpp | g++ -xc++ - ; rm tmp.cpp ; ./a.out < {input_file} ; rm a.out".format(
-        input_file=sys.argv[2])
-else:
-    command = "cat tmp.cpp | g++ -xc++ - ; rm tmp.cpp ; ./a.out ; rm a.out"
-os.system(command)
+with tempfile.TemporaryDirectory() as directory:
+    os.chdir(directory)
+    filename = os.path.join(directory, "tmp.cpp")
+    with open(filename, "w") as f:
+        f.write(template.replace("[REPLACEME]", contents))
+    if len(sys.argv) >= 3:
+        command = "cat {} | g++ -xc++ - ; rm {} ; ./a.out < {} ; rm a.out".format(
+            filename, filename, sys.argv[2])
+    else:
+        command = "cat {} | g++ -xc++ - ; rm {} ; ./a.out ; rm a.out".format(
+            filename, filename)
+    os.system(command)

@@ -65,7 +65,13 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     }
   }
 
-  compute_edges();
+  for (const auto &[label, block] : blocks) {
+    for (const auto &exit_label : block.exit_labels) {
+      runtime_assert(blocks.count(exit_label) > 0,
+                     "Exit label " + exit_label + " not found in label map");
+      add_edge(label, exit_label);
+    }
+  }
 
   // Ensure that the entry block has no predecessors, since this breaks SSA
   // conversion later
@@ -78,38 +84,127 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     new_block.instructions.push_back(Instruction::label(new_entry_label));
     new_block.instructions.push_back(Instruction::jmp(entry_label));
     new_block.exit_labels = {entry_label};
-    add_directed_edge(new_entry_label, entry_label);
-
     blocks[new_entry_label] = new_block;
+
+    add_edge(new_entry_label, entry_label);
+
     entry_label = new_entry_label;
   }
 
   compute_dominators();
 }
 
-void ControlFlowGraph::add_directed_edge(const std::string &source,
-                                         const std::string &target) {
-  blocks[source].outgoing_blocks.push_back(target);
-  blocks[target].incoming_blocks.push_back(source);
-}
-
 void ControlFlowGraph::compute_edges() {
-  for (const auto &[label, block] : blocks) {
-    for (const auto &exit_label : block.exit_labels) {
-      runtime_assert(blocks.count(exit_label) > 0,
-                     "Exit label " + exit_label + " not found in label map");
-      add_directed_edge(label, exit_label);
+  for (auto &[label, block] : blocks) {
+    block.incoming_blocks.clear();
+    block.outgoing_blocks.clear();
+  }
+  for (auto &[label, block] : blocks) {
+    for (const auto &instruction : block.instructions) {
+      if (instruction.is_jump()) {
+        for (const auto &exit_label : instruction.labels) {
+          add_edge(label, exit_label);
+        }
+      }
     }
   }
 }
 
-void ControlFlowGraph::compute_dominators() {
-  const size_t num_blocks = blocks.size();
-  const std::vector<bool> everything(num_blocks, true);
+void ControlFlowGraph::add_edge(const std::string &source,
+                                const std::string &target) {
+  std::cerr << "Adding edge between " << source << " and " << target
+            << std::endl;
+  blocks.at(source).outgoing_blocks.insert(target);
+  blocks.at(target).incoming_blocks.insert(source);
+  is_graph_dirty = true;
+}
 
+void ControlFlowGraph::remove_edge(const std::string &source,
+                                   const std::string &target) {
+  std::cerr << "Removing edge between '" << source << "' and '" << target << "'"
+            << std::endl;
+
+  runtime_assert(blocks.count(source) > 0, "No block with label " + source);
+  runtime_assert(blocks.count(target) > 0, "No block with label " + target);
+  runtime_assert(blocks.at(source).outgoing_blocks.count(target) > 0,
+                 "No edge between '" + source + "' and '" + target + "'");
+  runtime_assert(blocks.at(target).incoming_blocks.count(source) > 0,
+                 "No edge between '" + source + "' and '" + target + "'");
+
+  blocks.at(source).outgoing_blocks.erase(target);
+  blocks.at(target).incoming_blocks.erase(source);
+  is_graph_dirty = true;
+}
+
+void ControlFlowGraph::add_block(Block block) {
+  if (block.instructions.empty())
+    return;
+  block_labels.push_back(block.entry_label);
+  block.cfg = this;
+  blocks[block.entry_label] = block;
+}
+
+void ControlFlowGraph::remove_block(const std::string &block_label) {
+  std::cerr << "Removing block " << block_label << std::endl;
+  runtime_assert(blocks.count(block_label) > 0,
+                 "No block with label " + block_label);
+
+  // If there are any jumps with this block as a target, throw an exception
+  for (const auto &[label, block] : blocks) {
+    for (const auto &instruction : block.instructions) {
+      if (!instruction.is_jump())
+        continue;
+
+      for (const auto &exit_label : instruction.labels) {
+        if (exit_label == block_label) {
+          throw std::runtime_error(
+              "Cannot remove block " + block_label +
+              " because it is the target of a jump instruction");
+        }
+      }
+    }
+  }
+
+  // If there are any phi nodes with this block as a target, remove them
+  for (auto &[label, block] : blocks) {
+    for (auto &instruction : block.instructions) {
+      if (instruction.opcode != Opcode::Phi)
+        continue;
+
+      const auto it = std::find(instruction.labels.begin(),
+                                instruction.labels.end(), block_label);
+      if (it == instruction.labels.end())
+        continue;
+      const size_t idx = it - instruction.labels.begin();
+      instruction.labels.erase(instruction.labels.begin() + idx);
+      instruction.arguments.erase(instruction.arguments.begin() + idx);
+    }
+  }
+
+  // Graph bookkeeping
+  const Block block = blocks.at(block_label);
+  runtime_assert(block.incoming_blocks.empty(),
+                 "Cannot remove block with incoming edges");
+  for (const auto &outgoing_block : block.outgoing_blocks) {
+    blocks.at(outgoing_block).incoming_blocks.erase(block_label);
+    is_graph_dirty = true;
+  }
+
+  // Remove the actual block from the block list
+  blocks.erase(block_label);
+  // Remove the block's label from the list of block labels
+  block_labels.erase(
+      std::find(block_labels.begin(), block_labels.end(), block_label));
+  // Remove the block from the set of exiting blocks
+  exiting_blocks.erase(block_label);
+
+  is_graph_dirty = true;
+}
+
+void ControlFlowGraph::compute_dominators() {
   // Setup relevant sets of labels: all blocks and non-entry blocks
   std::set<std::string> non_entry_blocks;
-  for (const auto &[label, _] : blocks) {
+  for (const auto &label : block_labels) {
     if (label != entry_label)
       non_entry_blocks.insert(label);
   }
