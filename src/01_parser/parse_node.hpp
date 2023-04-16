@@ -18,5 +18,5 @@ struct ParseNode {
   std::vector<Token> tokens() const;
 
   // Exists solely to debug against existing tests
-  void print_cs241() const;
+  void print_preorder() const;
 };

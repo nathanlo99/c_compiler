@@ -1,7 +1,7 @@
 
 #pragma once
 
-constexpr const char *context_free_grammar =
+constexpr const char *const context_free_grammar =
     R"(procedures -> procedure procedures
 procedures -> main
 procedure -> INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE

@@ -96,7 +96,7 @@ void test_parser(const std::string &filename) {
   const CFG cfg = load_default_cfg();
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-  parse_tree->print_cs241();
+  parse_tree->print_preorder();
 }
 
 void test_build_ast(const std::string &filename) {

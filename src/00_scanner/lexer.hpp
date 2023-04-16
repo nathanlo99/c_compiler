@@ -165,9 +165,9 @@ struct NFA {
   friend std::ostream &operator<<(std::ostream &os, const NFA &nfa);
 };
 
-NFA construct_wlp4_nfa();
-DFA construct_wlp4_dfa();
-std::map<std::string, TokenKind> get_wlp4_keywords();
+NFA construct_nfa();
+DFA construct_dfa();
+std::map<std::string, TokenKind> get_keywords();
 
 struct Token {
   std::string lexeme;
@@ -194,8 +194,8 @@ struct Lexer {
   const std::map<std::string, TokenKind> keywords;
 
   Lexer(const std::string &input)
-      : input(input), next_idx(0), dfa(construct_wlp4_dfa()),
-        keywords(get_wlp4_keywords()) {}
+      : input(input), next_idx(0), dfa(construct_dfa()),
+        keywords(get_keywords()) {}
 
   Token next();
   bool done() { return next_idx >= input.size(); }

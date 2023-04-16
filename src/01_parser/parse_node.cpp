@@ -30,7 +30,7 @@ std::vector<Token> ParseNode::tokens() const {
   return result;
 }
 
-void ParseNode::print_cs241() const {
+void ParseNode::print_preorder() const {
   if (token.kind == TokenKind::None) {
     std::cout << production.product;
     if (production.ingredients.empty()) {
@@ -46,6 +46,6 @@ void ParseNode::print_cs241() const {
               << std::endl;
   }
   for (const auto &child : children) {
-    child->print_cs241();
+    child->print_preorder();
   }
 }

@@ -33,7 +33,7 @@ translates to the following BRIL code (with the memory extension) in SSA-form
 
 First steps, if we initialize a pointer to the address of a variable, we may 
 assume it only gets dereferenced to read or write to the underlying variable.
-Anything else is undefined behaviour in C, and thus WLP4.
+Anything else is undefined behaviour in C.
 
 Thus, we can run a BRIL pass to collapse these reads and writes. This removes 
 the need for the addressof

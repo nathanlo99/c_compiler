@@ -92,7 +92,7 @@ std::ostream &operator<<(std::ostream &os, const NFA &nfa) {
 }
 
 DFA NFA::to_dfa() const {
-  // For WLP, this is reasonable: the current NFA only has 35 states
+  // For the current NFA, this is reasonable: it only has 35 states
   std::cerr << "NFA has " << entries.size() << " states" << std::endl;
   assert(entries.size() <= 64);
   using state_t = uint64_t;
@@ -153,7 +153,7 @@ DFA NFA::to_dfa() const {
   return result;
 }
 
-NFA construct_wlp4_nfa() {
+NFA construct_nfa() {
   const std::string lower_alpha = "abcdefghijklmnopqrstuvwxyz";
   const std::string upper_alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const std::string non_zero_digits = "123456789";
@@ -229,12 +229,12 @@ NFA construct_wlp4_nfa() {
   return nfa;
 }
 
-DFA construct_wlp4_dfa() {
-  const static DFA result = construct_wlp4_nfa().to_dfa();
+DFA construct_dfa() {
+  const static DFA result = construct_nfa().to_dfa();
   return result;
 }
 
-std::map<std::string, TokenKind> get_wlp4_keywords() {
+std::map<std::string, TokenKind> get_keywords() {
   static std::map<std::string, TokenKind> keywords = []() {
     std::map<std::string, TokenKind> result;
     result["return"] = TokenKind::Return;
