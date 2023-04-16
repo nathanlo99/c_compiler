@@ -2,6 +2,7 @@
 #pragma once
 
 #include <algorithm>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,6 +19,32 @@
 }
 
 namespace util {
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::vector<std::string> &list) {
+  os << "[";
+  for (size_t i = 0; i < list.size(); i++) {
+    os << list[i];
+    if (i != list.size() - 1)
+      os << ", ";
+  }
+  os << "]";
+  return os;
+}
+
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::set<std::string> &list) {
+  os << "[";
+  size_t i = 0;
+  for (const auto &item : list) {
+    os << item;
+    if (i != list.size() - 1)
+      os << ", ";
+    i++;
+  }
+  os << "]";
+  return os;
+}
+
 [[maybe_unused]] static std::vector<std::string> split(const std::string &str) {
   std::stringstream ss(str);
   std::string token;

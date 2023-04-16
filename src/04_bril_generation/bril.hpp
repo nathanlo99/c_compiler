@@ -539,19 +539,12 @@ struct Block {
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Block &block) {
+    using util::operator<<;
     if (!block.incoming_blocks.empty()) {
-      os << "incoming_blocks: [";
-      for (const auto &block_name : block.incoming_blocks) {
-        os << block_name << ", ";
-      }
-      os << "\b\b]" << std::endl;
+      os << "incoming_blocks: " << block.incoming_blocks << std::endl;
     }
     if (!block.outgoing_blocks.empty()) {
-      os << "outgoing_blocks: [";
-      for (const auto &block_name : block.outgoing_blocks) {
-        os << block_name << ", ";
-      }
-      os << "\b\b]" << std::endl;
+      os << "outgoing_blocks: " << block.outgoing_blocks << std::endl;
     }
 
     os << "instructions: " << std::endl;
@@ -632,6 +625,7 @@ struct ControlFlowGraph {
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const ControlFlowGraph &graph) {
+    using util::operator<<;
     const std::string separator = std::string(80, '-');
     os << "CFG for " << graph.name << "(";
 
@@ -652,11 +646,7 @@ struct ControlFlowGraph {
       os << block;
     }
     os << separator << std::endl;
-    os << "exiting blocks: [";
-    for (const auto &exiting_block : graph.exiting_blocks) {
-      os << exiting_block << ", ";
-    }
-    os << "\b\b]" << std::endl;
+    os << "exiting blocks: " << graph.exiting_blocks << std::endl;
     os << separator << std::endl;
     return os;
   }
@@ -716,6 +706,7 @@ struct Program {
   }
 
   void print_flattened(std::ostream &os) const {
+    using util::operator<<;
     for (const auto &[name, cfg] : cfgs) {
       os << "@" << name << "(";
       bool first = true;
@@ -728,10 +719,14 @@ struct Program {
       }
       os << ") : " << cfg.return_type << " {" << std::endl;
       for (const auto &instruction : cfg.flatten()) {
-        if (instruction.opcode == Opcode::Label)
-          os << instruction.labels[0] << ":" << std::endl;
-        else
+        if (instruction.opcode == Opcode::Label) {
+          const auto label = instruction.labels[0];
+          const auto padding = 50 - label.size();
+          os << instruction.labels[0] << ":" << std::string(padding, ' ')
+             << "preds = " << cfg.blocks.at(label).incoming_blocks << std::endl;
+        } else {
           os << "  " << instruction << std::endl;
+        }
       }
       os << "}\n" << std::endl;
     }

@@ -200,15 +200,8 @@ void EarleyTable::report_error(const size_t i) const {
   if (expected_symbols.empty()) {
     ss << "end of file";
   } else {
-    bool first = true;
-    for (const auto &expected : expected_symbols) {
-      if (!first) {
-        ss << ", ";
-      } else {
-        first = false;
-      }
-      ss << expected;
-    }
+    using util::operator<<;
+    ss << expected_symbols;
   }
 
   runtime_assert(false, ss.str());
