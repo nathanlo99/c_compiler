@@ -19,8 +19,9 @@
 }
 
 namespace util {
+template <typename T>
 static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::vector<std::string> &list) {
+                                       const std::vector<T> &list) {
   os << "[";
   for (size_t i = 0; i < list.size(); i++) {
     os << list[i];
@@ -31,8 +32,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
+template <typename T>
 static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::set<std::string> &list) {
+                                       const std::set<T> &list) {
   os << "[";
   size_t i = 0;
   for (const auto &item : list) {

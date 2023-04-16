@@ -6,7 +6,7 @@
 
 namespace bril {
 
-bril::Program import_bril(const std::string &filename) {
+Program import_bril(const std::string &filename) {
   std::ifstream ifs(filename);
   if (!ifs.good()) {
     std::cerr << "Error: cannot open file " << filename << std::endl;
@@ -20,6 +20,9 @@ bril::Program import_bril(const std::string &filename) {
     // TODO: Do this later
     std::cout << tokens.str() << std::endl;
   }
+
+  Program program;
+  return program;
 }
 
 } // namespace bril
