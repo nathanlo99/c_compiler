@@ -5,7 +5,7 @@
 #include "util.hpp"
 #include <memory>
 
-Type parse_node_to_type(std::shared_ptr<ParseNode> node) {
+Type parse_node_to_type(const std::shared_ptr<ParseNode> &node) {
   const std::string production_str = node->production.to_string();
   runtime_assert(node->production.product == "type",
                  "Argument to parse_node_to_type was not derived from 'type'");
@@ -17,13 +17,13 @@ Type parse_node_to_type(std::shared_ptr<ParseNode> node) {
   return Type::Unknown;
 }
 
-Variable parse_node_to_variable(std::shared_ptr<ParseNode> node) {
+Variable parse_node_to_variable(const std::shared_ptr<ParseNode> &node) {
   const auto type = parse_node_to_type(node->children[0]);
   const auto name = node->children[1]->token.lexeme;
   return Variable(name, type);
 }
 
-std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
+std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
   const CFG::Production production = node->production;
   const std::string production_str = production.to_string();
 
@@ -69,7 +69,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "params ->") {
     return std::make_shared<ParameterList>();
   } else if (production_str == "params -> paramlist") {
-    return construct_ast(node->children[0]);
+    return construct_ast<ParameterList>(node->children[0]);
   } else if (production_str == "paramlist -> dcl") {
     const auto decl = parse_node_to_variable(node->children[0]);
     return std::make_shared<ParameterList>(std::vector<Variable>{decl});
@@ -158,9 +158,9 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     return std::make_shared<BinaryExpr>(lhs, token_to_binary_operation(op.kind),
                                         rhs);
   } else if (production_str == "expr -> term") {
-    return construct_ast(node->children[0]);
+    return construct_ast<Expr>(node->children[0]);
   } else if (production_str == "term -> factor") {
-    return construct_ast(node->children[0]);
+    return construct_ast<Expr>(node->children[0]);
   } else if (production_str == "factor -> ID") {
     const auto variable_name = node->children[0]->token.lexeme;
     const auto variable = Variable(variable_name, Type::Unknown);
@@ -171,7 +171,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
   } else if (production_str == "factor -> NULL") {
     return std::make_shared<LiteralExpr>(Literal::null());
   } else if (production_str == "factor -> LPAREN expr RPAREN") {
-    return construct_ast(node->children[1]);
+    return construct_ast<Expr>(node->children[1]);
   } else if (production_str == "factor -> AMP lvalue") {
     const auto rhs = construct_ast<LValueExpr>(node->children[1]);
     // &(*expr) == expr
@@ -227,7 +227,7 @@ std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node) {
     }
     return std::make_shared<DereferenceLValueExpr>(rhs);
   } else if (production_str == "lvalue -> LPAREN lvalue RPAREN") {
-    return construct_ast(node->children[1]);
+    return construct_ast<LValueExpr>(node->children[1]);
   }
   unreachable("WARN: Production " + production_str + " not yet handled");
 

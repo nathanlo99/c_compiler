@@ -235,7 +235,7 @@ DFA construct_wlp4_dfa() {
 }
 
 std::map<std::string, TokenKind> get_wlp4_keywords() {
-  const std::map<std::string, TokenKind> keywords = []() {
+  static std::map<std::string, TokenKind> keywords = []() {
     std::map<std::string, TokenKind> result;
     result["return"] = TokenKind::Return;
     result["if"] = TokenKind::If;

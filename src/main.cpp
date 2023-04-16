@@ -40,7 +40,7 @@ std::shared_ptr<Program> get_program(const std::string &input) {
   const CFG cfg = load_default_cfg();
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-  const std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
+  std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
 
   // Populate symbol table
   PopulateSymbolTableVisitor symbol_table_visitor;
@@ -53,7 +53,7 @@ std::shared_ptr<Program> get_program(const std::string &input) {
   return program;
 }
 
-bril::Program get_bril(std::shared_ptr<Program> program) {
+bril::Program get_bril(const std::shared_ptr<Program> &program) {
   bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
   return generator.program();

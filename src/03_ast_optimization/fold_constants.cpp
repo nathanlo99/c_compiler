@@ -4,16 +4,16 @@
 #include "util.hpp"
 #include <memory>
 
-bool is_literal(std::shared_ptr<Expr> expr) {
+bool is_literal(const std::shared_ptr<Expr> &expr) {
   if (std::dynamic_pointer_cast<LiteralExpr>(expr))
     return true;
   return false;
 }
 
 std::optional<Literal>
-evaluate_binary_expression(std::shared_ptr<LiteralExpr> lhs,
+evaluate_binary_expression(std::shared_ptr<LiteralExpr> &lhs,
                            const BinaryOperation operation,
-                           std::shared_ptr<LiteralExpr> rhs) {
+                           std::shared_ptr<LiteralExpr> &rhs) {
   const int lhs_value = lhs->literal.value;
   const int rhs_value = rhs->literal.value;
   const Type lhs_type = lhs->type;
@@ -73,8 +73,8 @@ std::shared_ptr<Expr> cancel(std::shared_ptr<BinaryExpr> expr) {
 
 std::shared_ptr<Expr>
 simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
-  const auto lhs = expr->lhs = fold_constants(expr->lhs);
-  const auto rhs = expr->rhs = fold_constants(expr->rhs);
+  auto lhs = expr->lhs = fold_constants(expr->lhs);
+  auto rhs = expr->rhs = fold_constants(expr->rhs);
   const auto operation = expr->operation;
   if (auto lhs_literal = std::dynamic_pointer_cast<LiteralExpr>(lhs)) {
     if (auto rhs_literal = std::dynamic_pointer_cast<LiteralExpr>(rhs)) {

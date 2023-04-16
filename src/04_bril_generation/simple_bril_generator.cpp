@@ -15,6 +15,7 @@ void SimpleBRILGenerator::visit(::Program &program) {
 void SimpleBRILGenerator::visit(Procedure &procedure) {
   const std::string name = procedure.name;
   std::vector<bril::Variable> params;
+  params.reserve(procedure.params.size());
   for (const auto &param : procedure.params) {
     params.emplace_back(param.name, type_from_ast_type(param.type));
   }

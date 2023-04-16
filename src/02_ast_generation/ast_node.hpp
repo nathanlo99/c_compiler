@@ -449,10 +449,10 @@ struct DeleteStatement : Statement {
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
-std::shared_ptr<ASTNode> construct_ast(std::shared_ptr<ParseNode> node);
+std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node);
 
 template <typename Target>
-std::shared_ptr<Target> construct_ast(std::shared_ptr<ParseNode> node) {
+std::shared_ptr<Target> construct_ast(const std::shared_ptr<ParseNode> &node) {
   const auto result = std::dynamic_pointer_cast<Target>(construct_ast(node));
   runtime_assert(result != nullptr, "Unexpected AST node type");
   return result;

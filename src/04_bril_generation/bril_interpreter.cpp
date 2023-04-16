@@ -175,6 +175,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       const std::string function_name = instruction.funcs[0];
       const auto &function = program.get_function(function_name);
       std::vector<BRILValue> arguments;
+      arguments.reserve(instruction.arguments.size());
       for (const auto &argument : instruction.arguments) {
         arguments.push_back(context.get_value(argument));
       }
@@ -183,9 +184,9 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::Ret: {
-      const auto result = instruction.arguments.empty()
-                              ? BRILValue()
-                              : context.get_value(instruction.arguments[0]);
+      auto result = instruction.arguments.empty()
+                        ? BRILValue()
+                        : context.get_value(instruction.arguments[0]);
       context.stack_frames.pop_back();
       return result;
     } break;

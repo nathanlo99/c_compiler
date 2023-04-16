@@ -112,7 +112,7 @@ void ControlFlowGraph::rename_variables(
     for (auto &instruction : blocks[succ].instructions) {
       if (instruction.opcode != Opcode::Phi)
         continue;
-      const std::string target_label = block_label;
+      const std::string &target_label = block_label;
       const auto it = std::find(instruction.labels.begin(),
                                 instruction.labels.end(), target_label);
       runtime_assert(it != instruction.labels.end(),

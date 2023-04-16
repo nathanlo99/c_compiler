@@ -18,7 +18,7 @@ CFG load_cfg_from_file(const std::string &filename) {
       continue;
     const auto tokens = util::split(line);
     runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
-    const std::string product = tokens[0];
+    const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
                                                tokens.end());
     result.add_production(product, ingredients);
@@ -35,7 +35,7 @@ CFG load_default_cfg() {
       continue;
     const auto tokens = util::split(line);
     runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
-    const std::string product = tokens[0];
+    const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
                                                tokens.end());
     result.add_production(product, ingredients);
@@ -319,8 +319,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
 }
 
 std::shared_ptr<ParseNode> EarleyTable::to_parse_tree() const {
-  const auto parse_tree =
-      construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
+  auto parse_tree = construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
   runtime_assert(parse_tree->tokens() == token_stream,
                  "Bad parse: some tokens were missing");
   return parse_tree;
