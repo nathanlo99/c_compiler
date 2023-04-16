@@ -4,6 +4,7 @@
 #include <array>
 #include <bit>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <map>
