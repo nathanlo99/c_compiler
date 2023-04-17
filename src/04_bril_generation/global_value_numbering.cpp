@@ -124,7 +124,7 @@ struct GVNPhiValue {
 
 void GlobalValueNumberingPass::process_block(const std::string &label) {
   auto &block = cfg.get_block(label);
-  std::cerr << "Processing block " << label << ":" << std::endl;
+  // std::cerr << "Processing block " << label << ":" << std::endl;
 
   const GVNTable old_table = table;
 
@@ -203,8 +203,8 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
 
     const auto value = table.create_value(instruction);
     const size_t value_number = table.query_or_insert(destination, value);
-    std::cerr << "Value number for " << destination << " with value " << value
-              << " is " << value_number << std::endl;
+    // std::cerr << "Value number for " << destination << " with value " <<
+    // value << " is " << value_number << std::endl;
 
     // If the value was already present, replace it with a copy
     if (value_number != table.expressions.size() - 1) {
@@ -233,8 +233,9 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
   }
 
   for (const auto &other_label : cfg.block_labels) {
+    const auto immediate_dominator = cfg.immediate_dominator(other_label);
     if (other_label != block.entry_label &&
-        cfg._immediately_dominates(block.entry_label, other_label)) {
+        block.entry_label == immediate_dominator) {
       process_block(other_label);
     }
   }

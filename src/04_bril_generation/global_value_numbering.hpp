@@ -176,7 +176,7 @@ struct GlobalValueNumberingPass {
 inline size_t global_value_numbering(ControlFlowGraph &cfg) {
   if (!cfg.is_in_ssa_form() || cfg.uses_pointers())
     return 0;
-  std::cerr << cfg << std::endl;
+  // std::cerr << cfg << std::endl;
   GlobalValueNumberingPass(cfg).run_pass();
   return 0;
 }

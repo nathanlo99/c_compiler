@@ -78,7 +78,7 @@ size_t apply_optimizations(bril::Program &program) {
         program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=
         program.apply_local_pass(remove_local_unused_assignments);
-    num_removed_lines += program.apply_global_pass(remove_trivial_blocks);
+    // num_removed_lines += program.apply_global_pass(remove_trivial_blocks);
     num_removed_lines +=
         program.apply_local_pass(remove_trivial_phi_instructions);
     if (num_removed_lines == old_num_removed_lines)
@@ -173,7 +173,7 @@ void test_emit_mips(const std::string &filename) {
 
   NaiveMIPSGenerator generator;
   program->accept_simple(generator);
-  generator.print();
+  generator.print(std::cout);
 }
 
 void test_to_ssa(const std::string &filename) {

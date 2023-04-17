@@ -106,9 +106,9 @@ struct MIPSGenerator {
     annotate("  ^");
   }
 
-  void print() {
+  void print(std::ostream &os) {
     for (const auto &instruction : instructions) {
-      std::cout << instruction.to_string() << std::endl;
+      os << instruction.to_string() << std::endl;
     }
   }
 

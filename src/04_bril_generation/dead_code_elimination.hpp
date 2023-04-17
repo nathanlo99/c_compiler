@@ -150,6 +150,11 @@ inline size_t remove_trivial_blocks(ControlFlowGraph &graph) {
       continue;
     const auto pred = *block.incoming_blocks.begin();
 
+    using util::operator<<;
+    std::cerr << "Removing trivial block " << label << std::endl;
+    std::cerr << "incoming_blocks: " << block.incoming_blocks << std::endl;
+    std::cerr << "outgoing_blocks: " << block.outgoing_blocks << std::endl;
+
     std::cerr << "Replacing all jumps to " << label << " with jumps to "
               << target << std::endl;
 

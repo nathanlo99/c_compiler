@@ -18,7 +18,7 @@ Program import_bril(const std::string &filename) {
   while (std::getline(ifs, line)) {
     tokens << line << std::endl;
     // TODO: Do this later
-    std::cout << tokens.str() << std::endl;
+    // std::cout << tokens.str() << std::endl;
   }
 
   Program program;

@@ -196,6 +196,11 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
 }
 
 void ControlFlowGraph::compute_dominators() {
+  raw_dominators.clear();
+  dominators.clear();
+  immediate_dominators.clear();
+  dominance_frontiers.clear();
+
   // Setup relevant sets of labels: all blocks and non-entry blocks
   std::set<std::string> non_entry_blocks;
   for (const auto &label : block_labels) {
@@ -231,15 +236,13 @@ void ControlFlowGraph::compute_dominators() {
   }
 
   // Set up memoized versions of the dominator queries
-  dominators.clear();
-  immediate_dominators.clear();
-  dominance_frontiers.clear();
+  immediate_dominators[entry_label] = "(none)";
   for (const auto &i : block_labels) {
     for (const auto &j : block_labels) {
       if (_dominates(j, i))
-        dominators[j].insert(i);
+        dominators[i].insert(j);
       if (_immediately_dominates(j, i))
-        immediate_dominators[j] = i;
+        immediate_dominators[i] = j;
       if (_is_in_dominance_frontier(j, i))
         dominance_frontiers[j].insert(i);
     }
@@ -262,7 +265,7 @@ bool ControlFlowGraph::_strictly_dominates(const std::string &source,
 // strictly dominates 'target'
 bool ControlFlowGraph::_immediately_dominates(const std::string &source,
                                               const std::string &target) const {
-  if (!_dominates(source, target))
+  if (!_strictly_dominates(source, target))
     return false;
   for (const auto &[k, _] : blocks) {
     if (_strictly_dominates(source, k) && _strictly_dominates(k, target))
@@ -275,13 +278,22 @@ bool ControlFlowGraph::_immediately_dominates(const std::string &source,
 // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
 bool ControlFlowGraph::_is_in_dominance_frontier(
     const std::string &source, const std::string &target) const {
-  if (_strictly_dominates(source, target))
+  if (_dominates(source, target))
     return false;
   for (const std::string &pred : get_block(target).incoming_blocks) {
     if (_dominates(source, pred))
       return true;
   }
   return false;
+}
+
+std::string
+ControlFlowGraph::immediate_dominator(const std::string &label) const {
+  if (immediate_dominators.count(label) == 0)
+    return "(none)";
+  runtime_assert(immediate_dominators.count(label) > 0,
+                 "No immediate dominator for label " + label);
+  return immediate_dominators.at(label);
 }
 
 } // namespace bril

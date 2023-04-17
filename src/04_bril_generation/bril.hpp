@@ -660,6 +660,8 @@ struct ControlFlowGraph {
       const auto &block = graph.get_block(label);
       os << separator << std::endl;
       os << "label: " << label << std::endl;
+      os << "immediate dominator: " << graph.immediate_dominator(label)
+         << std::endl;
       os << block;
     }
     os << separator << std::endl;
@@ -681,6 +683,8 @@ struct ControlFlowGraph {
     compute_dominators();
     is_graph_dirty = false;
   }
+
+  std::string immediate_dominator(const std::string &label) const;
 
   // Does every path through 'target' pass through 'source'?
   bool _dominates(const std::string &source, const std::string &target) const;
