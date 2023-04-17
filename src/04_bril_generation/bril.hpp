@@ -601,6 +601,7 @@ struct ControlFlowGraph {
   }
   void add_block(Block block);
   void remove_block(const std::string &block_label);
+  void combine_blocks(const std::string &source, const std::string &target);
 
   bool uses_pointers() const {
     for (const auto &[entry_label, block] : blocks) {

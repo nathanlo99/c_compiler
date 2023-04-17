@@ -74,6 +74,7 @@ size_t apply_optimizations(bril::Program &program) {
     num_removed_lines += program.apply_local_pass(local_value_numbering);
     num_removed_lines += program.apply_global_pass(global_value_numbering);
     num_removed_lines += program.apply_global_pass(remove_unused_blocks);
+    num_removed_lines += program.apply_global_pass(combine_extended_blocks);
     num_removed_lines +=
         program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=

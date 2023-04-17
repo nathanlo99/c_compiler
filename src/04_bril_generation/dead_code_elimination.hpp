@@ -139,22 +139,25 @@ inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
   //   - b1 is the only predecessor of b2
   //   - b1 is not the entry block (for now)
 
-  std::set<std::pair<std::string, std::string>> edges_to_contract;
-  for (const auto &[block_label, block] : graph.blocks) {
-    if (block_label == graph.entry_label)
-      continue;
-    if (block.outgoing_blocks.size() != 1)
-      continue;
-    const auto &outgoing_block = *block.outgoing_blocks.begin();
-    if (graph.get_block(outgoing_block).incoming_blocks.size() != 1)
-      continue;
-    edges_to_contract.insert({block_label, outgoing_block});
-  }
+  while (true) {
+    bool changed = false;
+    for (const auto &[block_label, block] : graph.blocks) {
+      if (block_label == graph.entry_label)
+        continue;
+      if (block.outgoing_blocks.size() != 1)
+        continue;
+      const auto &outgoing_block = *block.outgoing_blocks.begin();
+      if (graph.get_block(outgoing_block).incoming_blocks.size() != 1)
+        continue;
 
-  using util::operator<<;
-  std::cout << "Found " << edges_to_contract.size() << " edges to contract"
-            << std::endl;
-  std::cout << edges_to_contract << std::endl;
+      graph.combine_blocks(block_label, outgoing_block);
+      changed = true;
+      result++;
+      break;
+    }
+    if (!changed)
+      break;
+  }
 
   return result;
 }

@@ -193,6 +193,64 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
   is_graph_dirty = true;
 }
 
+void ControlFlowGraph::combine_blocks(const std::string &source,
+                                      const std::string &target) {
+  std::cerr << "Combining blocks " << source << " and " << target << std::endl;
+  runtime_assert(blocks.count(source) > 0, "No block with label " + source);
+  runtime_assert(blocks.count(target) > 0, "No block with label " + target);
+  auto &source_block = get_block(source);
+  auto &target_block = get_block(target);
+  runtime_assert(source_block.outgoing_blocks.count(target) > 0,
+                 "No edge between '" + source + "' and '" + target + "'");
+  runtime_assert(target_block.incoming_blocks.count(source) > 0,
+                 "No edge between '" + source + "' and '" + target + "'");
+  runtime_assert(source_block.outgoing_blocks.size() == 1,
+                 "Source block has multiple exit labels");
+  runtime_assert(target_block.incoming_blocks.size() == 1,
+                 "Target block has multiple incoming blocks");
+
+  // Make sure the last instruction in the source block is a jump to target
+  const auto last_instruction = source_block.instructions.back();
+  runtime_assert(last_instruction.is_jump(),
+                 "Last instruction in source block is not a jump");
+  runtime_assert(last_instruction.labels == std::vector<std::string>({target}),
+                 "Jump in source block does not target target block");
+
+  // We want to keep the source block, so we remove the last instruction (which
+  // must be a jump), and add the instructions from the target block
+  source_block.instructions.pop_back();
+  for (const auto &instruction : target_block.instructions) {
+    if (instruction.opcode == Opcode::Label) {
+      continue;
+    } else if (instruction.opcode == Opcode::Phi) {
+      // If we encounter a phi node in the target block, it should only have
+      // one argument, so we can just replace it with the argument
+      runtime_assert(instruction.arguments.size() == 1,
+                     "Phi node in target block has multiple arguments");
+      runtime_assert(instruction.labels == std::vector<std::string>({source}),
+                     "Phi node in target block has the wrong labels");
+      const std::string &argument = instruction.arguments[0];
+      source_block.instructions.push_back(
+          Instruction::id(instruction.destination, argument, instruction.type));
+    } else {
+      source_block.instructions.push_back(instruction);
+    }
+  }
+
+  // If target block is an exit block, make source block an exit block
+  if (exiting_blocks.count(target) > 0) {
+    exiting_blocks.insert(source);
+  }
+
+  is_graph_dirty = true;
+  blocks.erase(target);
+  block_labels.erase(
+      std::find(block_labels.begin(), block_labels.end(), target));
+  exiting_blocks.erase(target);
+
+  recompute_graph();
+}
+
 void ControlFlowGraph::compute_dominators() {
   raw_dominators.clear();
   dominators.clear();
