@@ -3,6 +3,25 @@
 
 namespace bril {
 
+// Returns true if the function is in SSA form; that is, if every variable is
+// defined at most once
+bool ControlFlowGraph::is_in_ssa_form() const {
+  std::set<std::string> seen_variables;
+  for (const auto &argument : arguments)
+    seen_variables.insert(argument.name);
+  for (const auto &[entry_label, block] : blocks) {
+    for (const auto &instruction : block.instructions) {
+      const auto destination = instruction.destination;
+      if (destination != "") {
+        if (seen_variables.count(destination) > 0)
+          return false;
+        seen_variables.insert(destination);
+      }
+    }
+  }
+  return true;
+}
+
 // Convert a Bril function which doesn't use pointers, to SSA form
 void ControlFlowGraph::convert_to_ssa() {
   // Cannot (yet) convert function with memory accesses to SSA form

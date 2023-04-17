@@ -284,6 +284,10 @@ struct Instruction {
     return Instruction(Opcode::Ret, Type::Void, "", {arg});
   }
   static inline Instruction constant(const std::string &destination,
+                                     const int value, const Type type) {
+    return Instruction(destination, value, type);
+  }
+  static inline Instruction constant(const std::string &destination,
                                      const Literal &literal) {
     const Type type = type_from_ast_type(literal.type);
     return Instruction(destination, literal.value, type);
@@ -609,6 +613,7 @@ struct ControlFlowGraph {
 
   // Convert the CFG to SSA form, if it has no memory accesses
   void convert_to_ssa();
+  bool is_in_ssa_form() const;
   void
   rename_variables(const std::string &block_label,
                    std::map<std::string, std::vector<std::string>> definitions,
@@ -677,7 +682,6 @@ struct ControlFlowGraph {
     is_graph_dirty = false;
   }
 
-private:
   // Does every path through 'target' pass through 'source'?
   bool _dominates(const std::string &source, const std::string &target) const;
 

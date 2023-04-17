@@ -5,6 +5,7 @@
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
+#include "global_value_numbering.hpp"
 #include "lexer.hpp"
 #include "local_value_numbering.hpp"
 #include "naive_mips_generator.hpp"
@@ -202,8 +203,61 @@ void interpret(const std::string &filename) {
   interpreter.run(std::cout);
 }
 
+void debug() {
+  using namespace bril;
+  using bril::Type;
+  using bril::Variable;
+  std::vector<Instruction> instructions = {
+      Instruction::label(".L1"),
+      Instruction::add("u0", "a0", "b0"),
+      Instruction::add("v0", "c0", "d0"),
+      Instruction::add("w0", "e0", "f0"),
+      Instruction::eq("cond", "u0", "u0"),
+      Instruction::br("cond", ".L2", ".L3"),
+
+      Instruction::label(".L2"),
+      Instruction::add("x0", "c0", "d0"),
+      Instruction::add("y0", "c0", "d0"),
+      Instruction::jmp(".L4"),
+
+      Instruction::label(".L3"),
+      Instruction::add("u1", "a0", "b0"),
+      Instruction::add("x1", "e0", "f0"),
+      Instruction::add("y1", "e0", "f0"),
+      Instruction::jmp(".L4"),
+
+      Instruction::label(".L4"),
+      Instruction::phi("u2", bril::Type::Int, {"u0", "u1"}, {".L2", ".L3"}),
+      Instruction::phi("x2", bril::Type::Int, {"x0", "x1"}, {".L2", ".L3"}),
+      Instruction::phi("y2", bril::Type::Int, {"y0", "y1"}, {".L2", ".L3"}),
+      Instruction::add("z0", "u2", "y2"),
+      Instruction::add("u3", "a0", "b0"),
+      Instruction::ret("z0"),
+  };
+  Function function("main",
+                    {Variable("a0", Type::Int), Variable("b0", Type::Int),
+                     Variable("c0", Type::Int), Variable("d0", Type::Int),
+                     Variable("e0", Type::Int), Variable("f0", Type::Int)},
+                    Type::Int);
+  function.instructions = instructions;
+  ControlFlowGraph graph(function);
+
+  runtime_assert(graph.is_in_ssa_form(), "Not in SSA form");
+
+  std::cout << graph << std::endl;
+
+  GlobalValueNumberingPass gvn(graph);
+  gvn.run_pass();
+  remove_global_unused_assignments(graph);
+  remove_unused_blocks(graph);
+
+  std::cout << graph << std::endl;
+}
+
 int main(int argc, char **argv) {
-  using namespace bril::interpreter;
+
+  debug();
+  return 0;
 
   try {
     runtime_assert(argc == 3, "Expected a filename and an option");
