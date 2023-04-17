@@ -77,9 +77,14 @@ size_t apply_optimizations(bril::Program &program) {
         program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=
         program.apply_local_pass(remove_local_unused_assignments);
+    num_removed_lines += program.apply_global_pass(remove_trivial_blocks);
+    num_removed_lines +=
+        program.apply_local_pass(remove_trivial_phi_instructions);
     if (num_removed_lines == old_num_removed_lines)
       break;
   }
+  std::cerr << "Optimizations removed " << num_removed_lines << " lines"
+            << std::endl;
   return num_removed_lines;
 }
 
@@ -191,6 +196,7 @@ void interpret(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
   auto bril_program = get_bril(program);
+
   apply_optimizations(bril_program);
   for (auto &[name, cfg] : bril_program.cfgs) {
     cfg.convert_to_ssa();
@@ -246,18 +252,19 @@ void debug() {
 
   std::cout << graph << std::endl;
 
-  GlobalValueNumberingPass gvn(graph);
-  gvn.run_pass();
+  GlobalValueNumberingPass(graph).run_pass();
   remove_global_unused_assignments(graph);
+  remove_trivial_blocks(graph);
   remove_unused_blocks(graph);
+  graph.apply_local_pass(remove_trivial_phi_instructions);
 
   std::cout << graph << std::endl;
 }
 
 int main(int argc, char **argv) {
 
-  debug();
-  return 0;
+  // debug();
+  // return 0;
 
   try {
     runtime_assert(argc == 3, "Expected a filename and an option");

@@ -199,6 +199,7 @@ size_t local_value_numbering(Block &block) {
 
   for (size_t i = 0; i < block.instructions.size(); ++i) {
     auto &instruction = block.instructions[i];
+
     if (instruction.destination == "" || instruction.opcode == Opcode::Call) {
       // If the instruction is an effect operation, or a call, then simply
       // replace the arguments by their canonical variables
@@ -225,19 +226,19 @@ size_t local_value_numbering(Block &block) {
         const std::string cond = instruction.arguments[0];
         const size_t cond_idx = table.env.at(cond);
         const LocalValueNumber cond_value = table.values[cond_idx];
-        if (cond_value.opcode == Opcode::Const) {
-          const bool cond_value_bool = cond_value.value != 0;
-          std::cerr << "Resolving the branch " << instruction
-                    << " since the condition is always "
-                    << (cond_value_bool ? "true" : "false") << std::endl;
-          const std::string target =
-              instruction.labels[cond_value_bool ? 0 : 1];
-          const std::string other_target =
-              instruction.labels[cond_value_bool ? 1 : 0];
+        if (cond_value.opcode != Opcode::Const)
+          continue;
 
-          instruction = bril::Instruction::jmp(target);
-          block.cfg->is_graph_dirty = true;
-        }
+        const bool cond_value_bool = cond_value.value != 0;
+        std::cerr << "LVN: Resolving the branch " << instruction
+                  << " since the condition is always "
+                  << (cond_value_bool ? "true" : "false") << std::endl;
+        runtime_assert(instruction.labels.size() == 2,
+                       "Branch instruction should have 2 labels");
+        const std::string target = instruction.labels[cond_value_bool ? 0 : 1];
+
+        instruction = bril::Instruction::jmp(target);
+        block.cfg->is_graph_dirty = true;
       }
 
       continue;

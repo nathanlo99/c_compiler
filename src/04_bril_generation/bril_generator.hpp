@@ -18,7 +18,7 @@ public:
   Program program() const {
     Program program;
     for (const auto &[name, function] : functions) {
-      program.cfgs.insert(std::make_pair(name, ControlFlowGraph(function)));
+      program.cfgs.emplace(name, ControlFlowGraph(function));
     }
     return program;
   }

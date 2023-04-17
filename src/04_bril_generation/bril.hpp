@@ -513,6 +513,8 @@ struct Block {
   std::set<std::string> outgoing_blocks;
   bool is_exiting = false;
 
+  Block(ControlFlowGraph *cfg) : cfg(cfg) {}
+
   // Insert an instruction at the beginning of the block, after any labels.
   void prepend(const Instruction &instruction) {
     auto it = instructions.begin();
@@ -589,6 +591,19 @@ struct ControlFlowGraph {
 
   // Construct a CFG from a function
   explicit ControlFlowGraph(const Function &function);
+  ControlFlowGraph(const ControlFlowGraph &other)
+      : name(other.name), arguments(other.arguments),
+        return_type(other.return_type), block_labels(other.block_labels),
+        entry_label(other.entry_label), blocks(other.blocks),
+        exiting_blocks(other.exiting_blocks),
+        raw_dominators(other.raw_dominators), dominators(other.dominators),
+        immediate_dominators(other.immediate_dominators),
+        dominance_frontiers(other.dominance_frontiers),
+        is_graph_dirty(other.is_graph_dirty) {
+    for (auto &[label, block] : blocks) {
+      block.cfg = this;
+    }
+  }
 
   Block &get_block(const std::string &block_label) {
     runtime_assert(blocks.count(block_label) > 0,
@@ -622,9 +637,11 @@ struct ControlFlowGraph {
   // Applies a local pass to each block in the CFG and returns the number of
   // removed lines
   template <typename Func> size_t apply_local_pass(const Func &func) {
-    size_t num_removed_lines = false;
+    size_t num_removed_lines = 0;
     for (const auto &label : block_labels) {
-      num_removed_lines += func(get_block(label));
+      auto &block = blocks.at(label);
+      runtime_assert(block.cfg == this, "Block has wrong CFG");
+      num_removed_lines += func(block);
     }
     recompute_graph();
     return num_removed_lines;
@@ -634,9 +651,8 @@ struct ControlFlowGraph {
     std::vector<Instruction> instructions;
     for (const auto &label : block_labels) {
       const auto &block = get_block(label);
-      for (const auto &instruction : block.instructions) {
-        instructions.push_back(instruction);
-      }
+      instructions.insert(instructions.end(), block.instructions.begin(),
+                          block.instructions.end());
     }
     return instructions;
   }
@@ -677,6 +693,7 @@ struct ControlFlowGraph {
   void recompute_graph() {
     if (!is_graph_dirty)
       return;
+    std::cerr << "Recomputing graph" << std::endl;
     compute_edges();
     compute_dominators();
     is_graph_dirty = false;
@@ -703,12 +720,12 @@ struct ControlFlowGraph {
 struct Program {
   std::map<std::string, ControlFlowGraph> cfgs;
 
-  ControlFlowGraph wain() const {
+  const ControlFlowGraph &wain() const {
     runtime_assert(cfgs.count("wain") > 0, "wain not found");
     return cfgs.at("wain");
   }
 
-  ControlFlowGraph get_function(const std::string &name) const {
+  const ControlFlowGraph &get_function(const std::string &name) const {
     const std::string stripped_name = name.substr(1);
     runtime_assert(cfgs.count(stripped_name) > 0,
                    "Function " + stripped_name + " not found");

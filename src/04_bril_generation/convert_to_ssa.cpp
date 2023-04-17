@@ -63,7 +63,7 @@ void ControlFlowGraph::convert_to_ssa() {
            dominance_frontiers[block_label]) {
         if (has_phi.count(frontier_label) > 0)
           continue;
-        auto &frontier_block = blocks[frontier_label];
+        auto &frontier_block = blocks.at(frontier_label);
 
         std::vector<std::string> arguments;
         std::vector<std::string> labels;
@@ -95,7 +95,7 @@ void ControlFlowGraph::rename_variables(
     std::map<std::string, std::vector<std::string>> definitions,
     std::map<std::string, size_t> &next_idx) {
 
-  Block &block = blocks[block_label];
+  Block &block = blocks.at(block_label);
 
   // First, rename phi-node destinations
   for (auto &instruction : block.instructions) {
@@ -128,7 +128,7 @@ void ControlFlowGraph::rename_variables(
   }
 
   for (const std::string &succ : block.outgoing_blocks) {
-    for (auto &instruction : blocks[succ].instructions) {
+    for (auto &instruction : blocks.at(succ).instructions) {
       if (instruction.opcode != Opcode::Phi)
         continue;
       const std::string &target_label = block_label;

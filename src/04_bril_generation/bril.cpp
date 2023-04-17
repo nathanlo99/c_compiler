@@ -12,7 +12,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // Loop over the instructions and create blocks:
   // - Labels start new blocks, and fallthrough from the previous block
   // - Jumps end blocks
-  Block current_block;
+  Block current_block(this);
   entry_label = "." + function.name.substr(1) + "_entry";
   current_block.entry_label = entry_label;
   std::map<std::string, std::set<std::string>> entry_labels;
@@ -24,7 +24,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
         current_block.instructions.push_back(Instruction::jmp(label));
         current_block.exit_labels = {label};
         add_block(current_block);
-        current_block = Block();
+        current_block = Block(this);
       }
       if (current_block.entry_label == "") {
         current_block.entry_label = label;
@@ -40,7 +40,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
         current_block.is_exiting = true;
       }
       add_block(current_block);
-      current_block = Block();
+      current_block = Block(this);
     } else {
       current_block.instructions.push_back(instruction);
     }
@@ -75,20 +75,20 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
 
   // Ensure that the entry block has no predecessors, since this breaks SSA
   // conversion later
-  if (blocks[entry_label].incoming_blocks.size() > 0) {
+  if (blocks.at(entry_label).incoming_blocks.size() > 0) {
+    const auto old_entry_label = entry_label;
     const auto new_entry_label = "." + function.name.substr(1) + "_entry2";
+    entry_label = new_entry_label;
 
-    Block new_block;
+    Block new_block(this);
     block_labels.insert(block_labels.begin(), new_entry_label);
     new_block.entry_label = new_entry_label;
     new_block.instructions.push_back(Instruction::label(new_entry_label));
-    new_block.instructions.push_back(Instruction::jmp(entry_label));
-    new_block.exit_labels = {entry_label};
-    blocks[new_entry_label] = new_block;
+    new_block.instructions.push_back(Instruction::jmp(old_entry_label));
+    new_block.exit_labels = {old_entry_label};
+    blocks.emplace(new_entry_label, new_block);
 
-    add_edge(new_entry_label, entry_label);
-
-    entry_label = new_entry_label;
+    add_edge(new_entry_label, old_entry_label);
   }
 
   compute_dominators();
@@ -139,9 +139,9 @@ void ControlFlowGraph::remove_edge(const std::string &source,
 void ControlFlowGraph::add_block(Block block) {
   if (block.instructions.empty())
     return;
+  runtime_assert(block.cfg == this, "Block does not belong to this CFG");
   block_labels.push_back(block.entry_label);
-  block.cfg = this;
-  blocks[block.entry_label] = block;
+  blocks.emplace(block.entry_label, block);
 }
 
 void ControlFlowGraph::remove_block(const std::string &block_label) {
@@ -224,7 +224,7 @@ void ControlFlowGraph::compute_dominators() {
     bool changed = false;
     for (const auto &i : non_entry_blocks) {
       const auto old_set = raw_dominators[i];
-      for (const std::string &pred : blocks[i].incoming_blocks) {
+      for (const std::string &pred : blocks.at(i).incoming_blocks) {
         for (const auto &k : block_labels)
           raw_dominators[i][k] =
               raw_dominators[i][k] && raw_dominators[pred][k];
