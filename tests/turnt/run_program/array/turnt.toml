@@ -1,10 +1,20 @@
 
+[envs.bare_interpret]
+command = "cat {base}.in | ../../../../build/compile {filename} --bare-interpret 2> /dev/null"
+return_code = 0
+output.out = "-"
+
 [envs.interpret]
 command = "cat {base}.in | ../../../../build/compile {filename} --interpret 2> /dev/null"
+return_code = 0
+output.out = "-"
+
+[envs.round_trip_interpret]
+command = "cat {base}.in | ../../../../build/compile {filename} --round-trip-interpret 2> /dev/null"
 return_code = 0
 output.out = "-"
 
 [envs.compile_and_run]
 command = "cat {base}.in | python3 ../../../../scripts/ground_truth_array.py {filename}"
 return_code = 0
-output."ground_truth.out" = "-"
+output.out = "-"

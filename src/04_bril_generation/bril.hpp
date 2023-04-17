@@ -613,6 +613,7 @@ struct ControlFlowGraph {
 
   // Convert the CFG to SSA form, if it has no memory accesses
   void convert_to_ssa();
+  void convert_from_ssa();
   bool is_in_ssa_form() const;
   void
   rename_variables(const std::string &block_label,
@@ -718,6 +719,17 @@ struct Program {
     runtime_assert(cfgs.count(stripped_name) > 0,
                    "Function " + stripped_name + " not found");
     return cfgs.at(stripped_name);
+  }
+
+  void convert_to_ssa() {
+    for (auto &[name, cfg] : cfgs) {
+      cfg.convert_to_ssa();
+    }
+  }
+  void convert_from_ssa() {
+    for (auto &[name, cfg] : cfgs) {
+      cfg.convert_from_ssa();
+    }
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {

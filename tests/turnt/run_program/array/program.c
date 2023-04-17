@@ -6,7 +6,6 @@ int p(int p, int *q) {
 int q(int *q, int r) { return p(eat(q), q); }
 int r(int a, int b) {
   int p = 241;
-  int q = 241;
   int *n = NULL;
   return q(n, eat(n));
 }

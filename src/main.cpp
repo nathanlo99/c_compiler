@@ -182,14 +182,19 @@ void test_to_ssa(const std::string &filename) {
   std::cout << bril_program << std::endl;
 
   apply_optimizations(bril_program);
-  for (auto &[name, cfg] : bril_program.cfgs) {
-    cfg.convert_to_ssa();
-  }
+  bril_program.convert_to_ssa();
   apply_optimizations(bril_program);
 
   std::cout << bril_program << std::endl;
 
   bril_program.print_flattened(std::cout);
+}
+
+void test_ssa_round_trip(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
+  bril_program.convert_to_ssa();
+  bril_program.convert_from_ssa();
+  std::cout << bril_program << std::endl;
 }
 
 // Interpret the program without any optimizations
@@ -210,13 +215,28 @@ void interpret(const std::string &filename) {
   auto bril_program = get_bril(program);
 
   apply_optimizations(bril_program);
-  for (auto &[name, cfg] : bril_program.cfgs) {
-    cfg.convert_to_ssa();
-  }
+  bril_program.convert_to_ssa();
   apply_optimizations(bril_program);
 
   BRILInterpreter interpreter(bril_program);
-  // program->emit_c(std::cerr, 0);
+  bril_program.print_flattened(std::cerr);
+  interpreter.run(std::cout);
+}
+
+void round_trip_interpret(const std::string &filename) {
+  // Calls the BRIL interpreter on the given file.
+  using namespace bril::interpreter;
+  const std::string input = read_file(filename);
+  const auto program = get_program(input);
+  auto bril_program = get_bril(program);
+
+  apply_optimizations(bril_program);
+  bril_program.convert_to_ssa();
+  apply_optimizations(bril_program);
+  bril_program.convert_from_ssa();
+  apply_optimizations(bril_program);
+
+  BRILInterpreter interpreter(bril_program);
   bril_program.print_flattened(std::cerr);
   interpreter.run(std::cout);
 }
@@ -331,9 +351,11 @@ int main(int argc, char **argv) {
             {"--build-ast", test_build_ast},
             {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},
+            {"--round-trip-interpret", round_trip_interpret},
             {"--reaching-definitions", compute_reaching_definitions},
             {"--emit-c", test_emit_c},
             {"--ssa", test_to_ssa},
+            {"--ssa-round-trip", test_ssa_round_trip},
             {"--emit-mips", test_emit_mips},
         };
 

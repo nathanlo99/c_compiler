@@ -8,12 +8,32 @@ command = "echo '5 10' | ../../../../build/compile {filename} --interpret 2> /de
 return_code = 0
 output."five_ten.out" = "-"
 
+[envs.bare_zero_zero]
+command = "echo '0 0' | ../../../../build/compile {filename} --bare-interpret 2> /dev/null"
+return_code = 0
+output."zero_zero.out" = "-"
+
+[envs.bare_five_ten]
+command = "echo '5 10' | ../../../../build/compile {filename} --bare-interpret 2> /dev/null"
+return_code = 0
+output."five_ten.out" = "-"
+
+[envs.round_trip_zero_zero]
+command = "echo '0 0' | ../../../../build/compile {filename} --round-trip-interpret 2> /dev/null"
+return_code = 0
+output."zero_zero.out" = "-"
+
+[envs.round_trip_five_ten]
+command = "echo '5 10' | ../../../../build/compile {filename} --round-trip-interpret 2> /dev/null"
+return_code = 0
+output."five_ten.out" = "-"
+
 [envs.ground_truth_zero_zero]
 command = "echo '0 0' | python3 ../../../../scripts/ground_truth_twoints.py {filename} 2> /dev/null"
 return_code = 0
-output."ground_truth_zero_zero.out" = "-"
+output."zero_zero.out" = "-"
 
 [envs.ground_truth_five_ten]
 command = "echo '5 10' | python3 ../../../../scripts/ground_truth_twoints.py {filename} 2> /dev/null"
 return_code = 0
-output."ground_truth_five_ten.out" = "-"
+output."five_ten.out" = "-"

@@ -47,7 +47,7 @@ void ControlFlowGraph::convert_to_ssa() {
     types[argument.name] = argument.type;
   }
 
-  // 1. Add phi nodes
+  // 1. Add phi nodes to variables with multiple definitions
   for (const auto &[var, blocks_with_var] : defs) {
     if (num_defs[var] <= 1)
       continue;

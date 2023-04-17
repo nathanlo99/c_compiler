@@ -45,7 +45,7 @@ void BRILInterpreter::run(std::ostream &os) {
 
   for (size_t heap_idx = 0; heap_idx < context.heap_memory.size(); ++heap_idx) {
     if (context.heap_memory[heap_idx].active) {
-      std::cout << "Memory leak: Memory region heap[" << heap_idx
+      std::cerr << "Memory leak: Memory region heap[" << heap_idx
                 << "] of size " << context.heap_memory[heap_idx].values.size()
                 << " is still allocated at the end of execution" << std::endl;
     }
