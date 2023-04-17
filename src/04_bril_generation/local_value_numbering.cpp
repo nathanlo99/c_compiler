@@ -164,7 +164,7 @@ std::string LocalValueTable::fresh_name(const std::string &current_name) const {
   return "lvn_" + std::to_string(idx) + "_" + current_name;
 }
 
-size_t local_value_numbering(Block &block) {
+size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
   if (block.has_loads_or_stores())
     return 0;
 
@@ -238,7 +238,7 @@ size_t local_value_numbering(Block &block) {
         const std::string target = instruction.labels[cond_value_bool ? 0 : 1];
 
         instruction = bril::Instruction::jmp(target);
-        block.cfg->is_graph_dirty = true;
+        graph.is_graph_dirty = true;
       }
 
       continue;

@@ -263,9 +263,6 @@ void debug() {
 
 int main(int argc, char **argv) {
 
-  // debug();
-  // return 0;
-
   try {
     runtime_assert(argc == 3, "Expected a filename and an option");
     const std::string argument = argv[2], filename = argv[1];

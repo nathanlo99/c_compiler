@@ -58,6 +58,6 @@ struct LocalValueTable {
   }
 };
 
-size_t local_value_numbering(Block &block);
+size_t local_value_numbering(ControlFlowGraph &graph, Block &block);
 
 } // namespace bril

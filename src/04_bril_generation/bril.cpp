@@ -12,7 +12,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // Loop over the instructions and create blocks:
   // - Labels start new blocks, and fallthrough from the previous block
   // - Jumps end blocks
-  Block current_block(this);
+  Block current_block;
   entry_label = "." + function.name.substr(1) + "_entry";
   current_block.entry_label = entry_label;
   std::map<std::string, std::set<std::string>> entry_labels;
@@ -24,7 +24,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
         current_block.instructions.push_back(Instruction::jmp(label));
         current_block.exit_labels = {label};
         add_block(current_block);
-        current_block = Block(this);
+        current_block = Block();
       }
       if (current_block.entry_label == "") {
         current_block.entry_label = label;
@@ -40,7 +40,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
         current_block.is_exiting = true;
       }
       add_block(current_block);
-      current_block = Block(this);
+      current_block = Block();
     } else {
       current_block.instructions.push_back(instruction);
     }
@@ -80,7 +80,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     const auto new_entry_label = "." + function.name.substr(1) + "_entry2";
     entry_label = new_entry_label;
 
-    Block new_block(this);
+    Block new_block;
     block_labels.insert(block_labels.begin(), new_entry_label);
     new_block.entry_label = new_entry_label;
     new_block.instructions.push_back(Instruction::label(new_entry_label));
@@ -139,7 +139,6 @@ void ControlFlowGraph::remove_edge(const std::string &source,
 void ControlFlowGraph::add_block(Block block) {
   if (block.instructions.empty())
     return;
-  runtime_assert(block.cfg == this, "Block does not belong to this CFG");
   block_labels.push_back(block.entry_label);
   blocks.emplace(block.entry_label, block);
 }

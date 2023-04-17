@@ -47,7 +47,8 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   return num_removed_lines;
 }
 
-inline size_t remove_local_unused_assignments(Block &block) {
+inline size_t remove_local_unused_assignments(ControlFlowGraph &,
+                                              Block &block) {
   std::set<size_t> to_delete;
   std::map<std::string, size_t> last_def;
   for (size_t idx = 0; idx < block.instructions.size(); ++idx) {
@@ -174,7 +175,8 @@ inline size_t remove_trivial_blocks(ControlFlowGraph &graph) {
   return result;
 }
 
-inline size_t remove_trivial_phi_instructions(Block &block) {
+inline size_t remove_trivial_phi_instructions(ControlFlowGraph &,
+                                              Block &block) {
   size_t result = 0;
   for (auto &instruction : block.instructions) {
     if (instruction.opcode != Opcode::Phi)
