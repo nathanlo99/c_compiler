@@ -150,11 +150,9 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
         continue;
 
       for (const auto &exit_label : instruction.labels) {
-        if (exit_label == block_label) {
-          throw std::runtime_error(
-              "Cannot remove block " + block_label +
-              " because it is the target of a jump instruction");
-        }
+        runtime_assert(exit_label != block_label,
+                       "Cannot remove block " + block_label +
+                           " because it is the target of a jump instruction");
       }
     }
   }

@@ -285,52 +285,23 @@ void debug_trivial_blocks(const std::string &) {
   using bril::Type;
   using bril::Variable;
   std::vector<Instruction> instructions = {
-      Instruction::constant("answer.0", 1, Type::Int),
-      Instruction::jmp(".while_loop_0"),
+      Instruction::jmp(".L1"), //
 
-      Instruction::label(".while_loop_0"),
-      Instruction::phi("i.0", Type::Int, {"i", "tmp_11.0"},
-                       {".wain_entry", ".if_false_2"}),
-      Instruction::phi("cont.1", Type::Int, {"answer.0", "cont.4"},
-                       {".wain_entry", ".if_false_2"}),
-      Instruction::phi("answer.1", Type::Int, {"answer.0", "answer.3"},
-                       {".wain_entry", ".if_false_2"}),
-      Instruction::constant("tmp_1.0", 0, Type::Int),
-      Instruction::ne("tmp_2.0", "cont.1", "tmp_1.0"),
-      Instruction::br("tmp_2.0", ".while_body_0", ".while_end_0"),
+      Instruction::label(".L1"), //
+      Instruction::print("i"),   //
+      Instruction::jmp(".L2"),   //
 
-      Instruction::label(".while_body_0"),
-      Instruction::mod("tmp_5.0", "n", "i.0"),
-      Instruction::eq("tmp_7.0", "tmp_1.0", "tmp_5.0"),
-      Instruction::br("tmp_7.0", ".if_true_0", ".if_false_0"),
+      Instruction::label(".L2"), //
+      Instruction::print("i"),   //
+      Instruction::jmp(".L3"),   //
 
-      Instruction::label(".if_true_0"),
-      Instruction::jmp(".if_false_0"),
+      Instruction::label(".L3"), //
+      Instruction::print("i"),   //
+      Instruction::jmp(".L4"),   //
 
-      Instruction::label(".if_false_0"),
-      Instruction::phi("answer.3", Type::Int, {"tmp_1.0", "answer.1"},
-                       {".if_true_0", ".while_body_0"}),
-      Instruction::add("tmp_11.0", "answer.0", "i.0"),
-      Instruction::le("tmp_14.0", "n", "tmp_11.0"),
-      Instruction::br("tmp_14.0", ".if_true_1", ".if_false_1"),
-
-      Instruction::label(".if_true_1"),
-      Instruction::jmp(".if_false_2"),
-
-      Instruction::label(".if_false_1"),
-      Instruction::eq("tmp_18.0", "tmp_1.0", "answer.3"),
-      Instruction::br("tmp_18.0", ".if_true_2", ".if_false_2"),
-
-      Instruction::label(".if_true_2"),
-      Instruction::jmp(".if_false_2"),
-
-      Instruction::label(".if_false_2"),
-      Instruction::phi("cont.4", Type::Int, {"cont.1", "tmp_1.0"},
-                       {".if_false_1", ".if_true_1"}),
-      Instruction::jmp(".while_loop_0"),
-
-      Instruction::label(".while_end_0"),
-      Instruction::ret("answer.1"),
+      Instruction::label(".L4"), //
+      Instruction::print("i"),   //
+      Instruction::ret("n"),     //
   };
   Function function(
       "wain", {Variable("n", Type::Int), Variable("i", Type::Int)}, Type::Int);
@@ -342,7 +313,7 @@ void debug_trivial_blocks(const std::string &) {
   runtime_assert(graph.is_in_ssa_form(), "Not in SSA form");
 
   std::cout << program << std::endl;
-  apply_optimizations(program);
+  program.apply_global_pass(combine_extended_blocks);
   std::cout << program << std::endl;
 }
 

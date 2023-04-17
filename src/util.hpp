@@ -19,6 +19,13 @@
 }
 
 namespace util {
+
+template <typename T, typename U>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::pair<T, U> &pair) {
+  return os << "(" << pair.first << ", " << pair.second << ")";
+}
+
 template <typename T>
 static inline std::ostream &operator<<(std::ostream &os,
                                        const std::vector<T> &list) {
