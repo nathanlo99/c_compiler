@@ -35,7 +35,7 @@ static inline std::ostream &operator<<(std::ostream &os,
 template <typename T>
 static inline std::ostream &operator<<(std::ostream &os,
                                        const std::set<T> &list) {
-  os << "[";
+  os << "{";
   size_t i = 0;
   for (const auto &item : list) {
     os << item;
@@ -43,7 +43,7 @@ static inline std::ostream &operator<<(std::ostream &os,
       os << ", ";
     i++;
   }
-  os << "]";
+  os << "}";
   return os;
 }
 
