@@ -115,7 +115,7 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
   case Opcode::Sub:
     return os << "sub";
   case Opcode::Mul:
-    return os << "add";
+    return os << "mul";
   case Opcode::Div:
     return os << "div";
   case Opcode::Mod:

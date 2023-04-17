@@ -192,6 +192,16 @@ void test_to_ssa(const std::string &filename) {
   bril_program.print_flattened(std::cout);
 }
 
+// Interpret the program without any optimizations
+void bare_interpret(const std::string &filename) {
+  // Calls the BRIL interpreter on the given file.
+  using namespace bril::interpreter;
+  auto bril_program = get_bril_from_file(filename);
+  BRILInterpreter interpreter(bril_program);
+  bril_program.print_flattened(std::cerr);
+  interpreter.run(std::cout);
+}
+
 void interpret(const std::string &filename) {
   // Calls the BRIL interpreter on the given file.
   using namespace bril::interpreter;
@@ -274,6 +284,7 @@ int main(int argc, char **argv) {
             {"--lex", test_lexer},
             {"--parse", test_parser},
             {"--build-ast", test_build_ast},
+            {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},
             {"--reaching-definitions", compute_reaching_definitions},
             {"--emit-c", test_emit_c},

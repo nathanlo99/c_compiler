@@ -55,6 +55,9 @@ void BRILInterpreter::run(std::ostream &os) {
 BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                                      const std::vector<BRILValue> &arguments,
                                      std::ostream &os) {
+  using util::operator<<;
+  // std::cerr << "Calling " << graph.name << " with arguments: " << arguments
+  //           << std::endl;
   context.stack_frames.emplace_back();
   for (size_t idx = 0; idx < arguments.size(); ++idx) {
     context.write_value(graph.arguments[idx].name, arguments[idx]);
@@ -70,8 +73,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                    "Instruction idx out of range");
     const auto &instruction =
         graph.get_block(current_block).instructions[instruction_idx];
-    // std::cerr << "Interpreting (" << block_idx << ", " << instruction_idx
-    //           << "): " << instruction << std::endl;
+    // std::cerr << "(" << graph.name << ":" << current_block << ":"
+    //           << instruction_idx << "): " << instruction << std::endl;
 
     // 2. Advance the instruction pointer
     ++instruction_idx;

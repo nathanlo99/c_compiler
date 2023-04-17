@@ -98,12 +98,81 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
   return GVNValue(result.value(), value.type);
 }
 
+struct GVNPhiValue {
+  std::vector<std::string> arguments;
+  std::vector<std::string> labels;
+
+  GVNPhiValue(const std::vector<std::string> &arguments,
+              const std::vector<std::string> &labels)
+      : arguments(arguments), labels(labels) {
+    // Sort the labels and maintain the same order for the arguments
+    std::vector<std::pair<std::string, std::string>> pairs;
+    pairs.reserve(arguments.size());
+    for (size_t i = 0; i < arguments.size(); ++i)
+      pairs.emplace_back(labels[i], arguments[i]);
+    std::sort(pairs.begin(), pairs.end());
+    for (size_t i = 0; i < arguments.size(); ++i) {
+      this->arguments[i] = pairs[i].second;
+      this->labels[i] = pairs[i].first;
+    }
+  }
+
+  bool operator==(const GVNPhiValue &other) const {
+    return arguments == other.arguments && labels == other.labels;
+  }
+};
+
 void GlobalValueNumberingPass::process_block(const std::string &label) {
   auto &block = cfg.get_block(label);
-  std::cout << "Processing block " << label << ":" << std::endl;
+  std::cerr << "Processing block " << label << ":" << std::endl;
+
+  const GVNTable old_table = table;
+
+  // First, handle the phi instructions separately
+  std::vector<GVNPhiValue> phi_values;
+  std::vector<std::string> phi_variables;
+  for (auto &instruction : block.instructions) {
+    if (instruction.opcode != Opcode::Phi)
+      continue;
+    const auto destination = instruction.destination;
+    table.insert_axiom(destination, instruction.type);
+    std::vector<std::string> arguments;
+    arguments.reserve(instruction.arguments.size());
+    std::set<std::string> argument_set;
+    for (const auto &argument : instruction.arguments) {
+      const auto it = table.variable_to_value_number.find(argument);
+      const std::string canonical_argument =
+          it != table.variable_to_value_number.end()
+              ? table.canonical_variables[it->second]
+              : argument;
+      arguments.push_back(canonical_argument);
+      argument_set.insert(canonical_argument);
+    }
+    if (argument_set.size() == 1) {
+      instruction =
+          Instruction::id(destination, *argument_set.begin(), instruction.type);
+      continue;
+    }
+
+    const GVNPhiValue value(arguments, instruction.labels);
+    const auto it = std::find(phi_values.begin(), phi_values.end(), value);
+    if (it == phi_values.end()) {
+      phi_values.push_back(value);
+      phi_variables.push_back(destination);
+      continue;
+    }
+
+    const size_t idx = it - phi_values.begin();
+    const std::string canonical_variable = phi_variables[idx];
+    instruction =
+        Instruction::id(destination, canonical_variable, instruction.type);
+  }
 
   for (auto &instruction : block.instructions) {
     const auto destination = instruction.destination;
+    if (instruction.opcode == Opcode::Phi)
+      continue;
+
     if (instruction.opcode == Opcode::Call) {
       for (auto &argument : instruction.arguments) {
         argument = table.canonical_variables[table.query_variable(argument)];
@@ -169,6 +238,8 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
       process_block(other_label);
     }
   }
+
+  table = old_table;
 }
 
 } // namespace bril

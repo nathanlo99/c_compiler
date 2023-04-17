@@ -163,6 +163,8 @@ struct GlobalValueNumberingPass {
   void run_pass() {
     runtime_assert(cfg.is_in_ssa_form(),
                    "CFG passed to GVN must be in SSA form");
+    runtime_assert(!cfg.uses_pointers(),
+                   "CFG passed to GVN must not use pointers");
     table.insert_parameters(cfg.arguments);
     process_block(cfg.entry_label);
     cfg.recompute_graph();
@@ -172,9 +174,9 @@ struct GlobalValueNumberingPass {
 };
 
 inline size_t global_value_numbering(ControlFlowGraph &cfg) {
-  if (!cfg.is_in_ssa_form())
+  if (!cfg.is_in_ssa_form() || cfg.uses_pointers())
     return 0;
-  std::cout << cfg << std::endl;
+  std::cerr << cfg << std::endl;
   GlobalValueNumberingPass(cfg).run_pass();
   return 0;
 }
