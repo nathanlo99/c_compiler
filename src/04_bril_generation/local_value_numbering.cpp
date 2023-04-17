@@ -223,6 +223,15 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
       // If the instruction is a branch, and the arguments are constants, then
       // resolve the branch
       if (instruction.opcode == Opcode::Br) {
+        if (instruction.labels[0] == instruction.labels[1]) {
+          std::cerr << "LVN: Resolving the branch " << instruction
+                    << " since the targets are the same" << std::endl;
+          instruction = bril::Instruction::jmp(instruction.labels[0]);
+          graph.is_graph_dirty = true;
+          continue;
+        }
+
+        // Otherwise, the branch can be resolved if the condition is a constant
         const std::string cond = instruction.arguments[0];
         const size_t cond_idx = table.env.at(cond);
         const LocalValueNumber cond_value = table.values[cond_idx];

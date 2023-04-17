@@ -72,6 +72,7 @@ size_t apply_optimizations(bril::Program &program) {
   while (true) {
     const size_t old_num_removed_lines = num_removed_lines;
     num_removed_lines += program.apply_local_pass(local_value_numbering);
+    num_removed_lines += program.apply_global_pass(global_value_numbering);
     num_removed_lines += program.apply_global_pass(remove_unused_blocks);
     num_removed_lines +=
         program.apply_global_pass(remove_global_unused_assignments);
@@ -184,6 +185,7 @@ void test_to_ssa(const std::string &filename) {
   for (auto &[name, cfg] : bril_program.cfgs) {
     cfg.convert_to_ssa();
   }
+  apply_optimizations(bril_program);
 
   std::cout << bril_program << std::endl;
 

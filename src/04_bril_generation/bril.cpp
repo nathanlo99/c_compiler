@@ -112,8 +112,6 @@ void ControlFlowGraph::compute_edges() {
 
 void ControlFlowGraph::add_edge(const std::string &source,
                                 const std::string &target) {
-  std::cerr << "Adding edge between " << source << " and " << target
-            << std::endl;
   get_block(source).outgoing_blocks.insert(target);
   get_block(target).incoming_blocks.insert(source);
   is_graph_dirty = true;
@@ -121,9 +119,6 @@ void ControlFlowGraph::add_edge(const std::string &source,
 
 void ControlFlowGraph::remove_edge(const std::string &source,
                                    const std::string &target) {
-  std::cerr << "Removing edge between '" << source << "' and '" << target << "'"
-            << std::endl;
-
   runtime_assert(blocks.count(source) > 0, "No block with label " + source);
   runtime_assert(blocks.count(target) > 0, "No block with label " + target);
   runtime_assert(get_block(source).outgoing_blocks.count(target) > 0,

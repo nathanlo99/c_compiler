@@ -20,6 +20,8 @@ struct GVNValue {
       : opcode(_opcode), arguments(_arguments), labels(labels), type(type) {
     runtime_assert(opcode != Opcode::Const,
                    "Constant GVNValue should use other constructor");
+    runtime_assert(opcode != Opcode::Call, "Cannot create GVNValue for call");
+
     if (opcode != Opcode::Phi)
       runtime_assert(labels.empty(), "Labels should only be used for phis");
 
@@ -73,6 +75,9 @@ struct GVNValue {
     os << "GVNValue(" << value.opcode;
     if (value.opcode == Opcode::Const) {
       os << ", " << value.value << ", " << value.type << ")";
+    } else if (value.opcode == Opcode::Phi) {
+      os << ", " << value.arguments << ", " << value.labels << ", "
+         << value.type << ")";
     } else {
       os << ", " << value.arguments << ", " << value.type << ")";
     }
@@ -90,13 +95,16 @@ struct GVNTable {
   // A map from value numbers to canonical variable name
   std::vector<std::string> canonical_variables;
 
+  void insert_axiom(const std::string &name, const Type type) {
+    const size_t idx = expressions.size();
+    variable_to_value_number[name] = idx;
+    expressions.push_back(GVNValue(Opcode::Id, {idx}, {}, type));
+    canonical_variables.push_back(name);
+  }
+
   void insert_parameters(const std::vector<Variable> &parameters) {
-    for (const auto &param : parameters) {
-      const size_t idx = expressions.size();
-      variable_to_value_number[param.name] = idx;
-      expressions.push_back(GVNValue(Opcode::Id, {idx}, {}, param.type));
-      canonical_variables.push_back(param.name);
-    }
+    for (const auto &param : parameters)
+      insert_axiom(param.name, param.type);
   }
 
   GVNValue create_value(const Instruction &instruction) const;
@@ -109,13 +117,18 @@ struct GVNTable {
     return variable_to_value_number.at(variable);
   }
 
-  std::vector<std::string> value_to_arguments(const GVNValue &value) const {
+  Instruction value_to_instruction(const std::string &destination,
+                                   const GVNValue &value) const {
+    if (value.opcode == Opcode::Const)
+      return Instruction::constant(destination, value.value, value.type);
+
     std::vector<std::string> arguments;
     arguments.reserve(value.arguments.size());
     for (const size_t arg : value.arguments) {
       arguments.push_back(canonical_variables[arg]);
     }
-    return arguments;
+    return Instruction(value.opcode, destination, value.type, arguments, {},
+                       value.labels);
   }
 
   size_t query(const GVNValue &value) {
@@ -158,41 +171,12 @@ struct GlobalValueNumberingPass {
   void process_block(const std::string &label);
 };
 
+inline size_t global_value_numbering(ControlFlowGraph &cfg) {
+  if (!cfg.is_in_ssa_form())
+    return 0;
+  std::cout << cfg << std::endl;
+  GlobalValueNumberingPass(cfg).run_pass();
+  return 0;
+}
+
 } // namespace bril
-
-/*
-Pseudocode:
-
-def GVN(block):
-  0. save the value number table to a stack
-  1. for each phi instruction [name <- phi(...)]:
-    a. if the instruction is meaningless (i.e., all arguments are the same):
-      i replace the instruction with a copy instruction [name <- copy(arg)].
-    b. else if the instruction is redundant (i.e. a value number already exists
-        for the right side):
-      i replace the instruction with a copy instruction [name <- copy(vn)].
-    c. else:
-      i create a new value number for the right side
-      ii add the value number to the value number table
-
-  2. for each assignment instruction:
-    a. canonicalize the arguments
-    b. let [expr] be the resulting expression
-    c. simplify the expression as much as possible, with the help of the value
-      table
-    d. if the expression is already in the value table:
-      i replace the instruction with a copy instruction [name <- copy(vn)]
-    e. else:
-      i. create a new value number for the expression
-      ii. add the value number to the value number table
-
-  3. for each successor S of block:
-    a. for each phi instruction [name <- phi(...)]:
-      i. replace the argument for block with the value number for the right side
-        of the assignment instruction in block
-
-  4. for each child C of block in the dominator tree:
-    a. GVN(C)
-
-  5. restore the value number table to its state before the function call
-*/

@@ -4,6 +4,8 @@
 namespace bril {
 
 GVNValue GVNTable::create_value(const Instruction &instruction) const {
+  if (instruction.opcode == Opcode::Const)
+    return GVNValue(instruction.value, instruction.type);
   std::vector<size_t> arguments;
   arguments.reserve(instruction.arguments.size());
   for (const auto &argument : instruction.arguments) {
@@ -98,11 +100,18 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
 
 void GlobalValueNumberingPass::process_block(const std::string &label) {
   auto &block = cfg.get_block(label);
-
-  const GVNTable old_table = table;
+  std::cout << "Processing block " << label << ":" << std::endl;
 
   for (auto &instruction : block.instructions) {
     const auto destination = instruction.destination;
+    if (instruction.opcode == Opcode::Call) {
+      for (auto &argument : instruction.arguments) {
+        argument = table.canonical_variables[table.query_variable(argument)];
+      }
+      table.insert_axiom(destination, instruction.type);
+      continue;
+    }
+
     if (destination == "") {
       // This is a pure instruction, so just canonicalize the arguments
       for (auto &argument : instruction.arguments) {
@@ -125,18 +134,16 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
 
     const auto value = table.create_value(instruction);
     const size_t value_number = table.query_or_insert(destination, value);
+    std::cerr << "Value number for " << destination << " with value " << value
+              << " is " << value_number << std::endl;
 
     // If the value was already present, replace it with a copy
-    const auto &expr = table.expressions[value_number];
-    if (expr.opcode == Opcode::Const) {
-      instruction =
-          Instruction::constant(destination, expr.value, instruction.type);
-    } else if (value_number != table.expressions.size() - 1) {
+    if (value_number != table.expressions.size() - 1) {
       instruction =
           Instruction::id(destination, table.canonical_variables[value_number],
                           instruction.type);
     } else {
-      instruction.arguments = table.value_to_arguments(value);
+      instruction = table.value_to_instruction(destination, value);
     }
   }
 
@@ -152,8 +159,6 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
       const size_t idx = it - phi_instruction.labels.begin();
       const auto argument = phi_instruction.arguments[idx];
       const auto value_number = table.query_variable(argument);
-      runtime_assert(value_number != GVNTable::NOT_FOUND,
-                     "Phi argument " + argument + " not found in GVN table");
       phi_instruction.arguments[idx] = table.canonical_variables[value_number];
     }
   }
@@ -164,8 +169,6 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
       process_block(other_label);
     }
   }
-
-  table = old_table;
 }
 
 } // namespace bril
