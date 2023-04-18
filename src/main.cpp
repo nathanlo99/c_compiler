@@ -192,9 +192,12 @@ void test_to_ssa(const std::string &filename) {
 
 void test_ssa_round_trip(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
+  apply_optimizations(bril_program);
   bril_program.convert_to_ssa();
+  apply_optimizations(bril_program);
   bril_program.convert_from_ssa();
-  std::cout << bril_program << std::endl;
+  apply_optimizations(bril_program);
+  bril_program.print_flattened(std::cout);
 }
 
 // Interpret the program without any optimizations

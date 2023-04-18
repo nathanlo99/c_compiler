@@ -610,6 +610,15 @@ struct ControlFlowGraph {
     }
     return false;
   }
+  bool has_phi_instructions() const {
+    for (const auto &[entry_label, block] : blocks) {
+      for (const auto &instruction : block.instructions) {
+        if (instruction.opcode == Opcode::Phi)
+          return true;
+      }
+    }
+    return false;
+  }
 
   // Convert the CFG to SSA form, if it has no memory accesses
   void convert_to_ssa();
@@ -730,6 +739,14 @@ struct Program {
     for (auto &[name, cfg] : cfgs) {
       cfg.convert_from_ssa();
     }
+  }
+
+  bool has_phi_instructions() const {
+    for (const auto &[name, cfg] : cfgs) {
+      if (cfg.has_phi_instructions())
+        return true;
+    }
+    return false;
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {

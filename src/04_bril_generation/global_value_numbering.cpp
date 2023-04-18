@@ -12,8 +12,9 @@ GVNValue GVNTable::create_value(const Instruction &instruction) const {
     const size_t row_idx = query_variable(argument);
     arguments.push_back(row_idx);
   }
-  return GVNValue(instruction.opcode, arguments, instruction.labels,
-                  instruction.type);
+  const auto value = GVNValue(instruction.opcode, arguments, instruction.labels,
+                              instruction.type);
+  return simplify(value);
 }
 
 GVNValue GVNTable::simplify(const GVNValue &value) const {
@@ -83,12 +84,65 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
   const bool all_constants = lhs_is_const && rhs_is_const;
 
   if (!all_constants) {
+    // If the two arguments are the same, we might be able to simplify
     if (cancellable_ops.count(value.opcode) > 0 &&
         value.arguments[0] == value.arguments[1]) {
       const int result = cancellable_ops.at(value.opcode);
       return GVNValue(result, value.type);
     }
-    // TODO: there are more simplifications
+
+    // 0 + x == x
+    // 0 * x == 0
+    // 1 * x == x
+    // 2 * x == x + x
+    // -1 * x == 0 - x
+    // 0 / x == 0
+    // 0 % x == 0
+    if (lhs_is_const) {
+      if (lhs == 0 && value.opcode == Opcode::Add)
+        return rhs_value;
+      if (lhs == 0 && value.opcode == Opcode::Mul)
+        return GVNValue(0, value.type);
+      if (lhs == 1 && value.opcode == Opcode::Mul)
+        return rhs_value;
+      if (lhs == 2 && value.opcode == Opcode::Mul)
+        return GVNValue(Opcode::Add, {value.arguments[1], value.arguments[1]},
+                        {}, value.type);
+      // TODO: Can I do this without introducing the constant 0?
+      // if (lhs == -1 && value.opcode == Opcode::Mul)
+      //    return GVNValue(Opcode::Sub, {0, value.arguments[1]});
+      if (lhs == 0 && value.opcode == Opcode::Div)
+        return GVNValue(0, value.type);
+      if (lhs == 0 && value.opcode == Opcode::Mod)
+        return GVNValue(0, value.type);
+    }
+
+    // x + 0 == x
+    // x - 0 == x
+    // x * 0 == 0
+    // x * 1 == x
+    // x * 2 == x + x
+    // x * -1 == 0 - x (TODO)
+    // x / 1 == x
+    // x % 1 == 0
+    if (rhs_is_const) {
+      if (rhs == 0 && value.opcode == Opcode::Add)
+        return lhs_value;
+      if (rhs == 0 && value.opcode == Opcode::Sub)
+        return lhs_value;
+      if (rhs == 0 && value.opcode == Opcode::Mul)
+        return GVNValue(0, value.type);
+      if (rhs == 1 && value.opcode == Opcode::Mul)
+        return lhs_value;
+      if (rhs == 2 && value.opcode == Opcode::Mul)
+        return GVNValue(Opcode::Add, {value.arguments[0], value.arguments[0]},
+                        {}, value.type);
+      if (rhs == 1 && value.opcode == Opcode::Div)
+        return lhs_value;
+      if (rhs == 1 && value.opcode == Opcode::Mod)
+        return GVNValue(0, value.type);
+    }
+
     return value;
   }
 

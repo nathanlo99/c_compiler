@@ -140,15 +140,14 @@ struct GVNTable {
 
   size_t query_or_insert(const std::string &destination,
                          const GVNValue &value) {
-    const auto simplified_value = simplify(value);
-    const size_t present_idx = query(simplified_value);
+    const size_t present_idx = query(value);
     if (present_idx != NOT_FOUND) {
       variable_to_value_number[destination] = present_idx;
       return present_idx;
     }
 
     const size_t idx = expressions.size();
-    expressions.push_back(simplified_value);
+    expressions.push_back(value);
     canonical_variables.push_back(destination);
     variable_to_value_number[destination] = idx;
     return idx;
