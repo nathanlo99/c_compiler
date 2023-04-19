@@ -137,13 +137,10 @@ inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
   // First, identify the edges which can be contracted: (b1, b2) such that
   //   - b2 is the only successor of b2
   //   - b1 is the only predecessor of b2
-  //   - b1 is not the entry block (for now)
 
   while (true) {
     bool changed = false;
     for (const auto &[block_label, block] : graph.blocks) {
-      if (block_label == graph.entry_label)
-        continue;
       if (block.outgoing_blocks.size() != 1)
         continue;
       const auto &outgoing_block = *block.outgoing_blocks.begin();

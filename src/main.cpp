@@ -2,17 +2,18 @@
 #include "ast_node.hpp"
 #include "bril.hpp"
 #include "bril_interpreter.hpp"
+#include "data_flow.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
 #include "fold_constants.hpp"
 #include "global_value_numbering.hpp"
 #include "lexer.hpp"
+#include "live_analysis.hpp"
 #include "local_value_numbering.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
 #include "simple_bril_generator.hpp"
-#include "solve_generic_data_flow.hpp"
 #include "symbol_table.hpp"
 #include "util.hpp"
 
@@ -112,52 +113,6 @@ void test_build_ast(const std::string &filename) {
   program->print();
 }
 
-void compute_reaching_definitions(const std::string &filename) {
-  auto bril_program = get_bril_from_file(filename);
-  const std::string separator(80, '-');
-  for (const auto &[name, cfg] : bril_program.cfgs) {
-    const auto result = bril::ReachingDefinitions::solve(cfg);
-    std::cout << "For procedure " << name << ": " << std::endl;
-    for (const auto &label : cfg.block_labels) {
-      std::cout << separator << std::endl;
-      std::cout << "Block label " << label << std::endl;
-      const auto block_in = result.in.at(label);
-      const auto block_out = result.out.at(label);
-
-      std::cout << "  Reaching definitions in: " << std::endl;
-      for (const auto &[destination, block_label, instruction_idx] : block_in) {
-        if (block_label == "__param") {
-          std::cout << "    param: " << destination << std::endl;
-        } else {
-          const auto instruction =
-              cfg.get_block(block_label).instructions[instruction_idx];
-          std::cout << "    " << instruction << std::endl;
-        }
-      }
-
-      std::cout << std::endl;
-
-      const auto &block = cfg.get_block(label);
-      for (const auto &instruction : block.instructions) {
-        std::cout << instruction << std::endl;
-      }
-      std::cout << std::endl;
-
-      std::cout << "  Reaching definitions out: " << std::endl;
-      for (const auto &[destination, block_label, instruction_idx] :
-           block_out) {
-        if (block_label == "__param") {
-          std::cout << "    param: " << destination << std::endl;
-        } else {
-          const auto instruction =
-              cfg.get_block(block_label).instructions[instruction_idx];
-          std::cout << "    " << instruction << std::endl;
-        }
-      }
-    }
-  }
-}
-
 void test_emit_c(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
@@ -244,100 +199,84 @@ void round_trip_interpret(const std::string &filename) {
   interpreter.run(std::cout);
 }
 
-void debug() {
+void debug_liveness(const std::string &filename) {
+  using namespace bril;
+  using util::operator<<;
+
+  static const std::string separator(100, '-'), padding(50, ' ');
+
+  auto program = get_bril_from_file(filename);
+  apply_optimizations(program);
+  program.convert_to_ssa();
+  apply_optimizations(program);
+  program.convert_from_ssa();
+  apply_optimizations(program);
+
+  for (const auto &[name, cfg] : program.cfgs) {
+    LivenessAnalysis analysis(cfg);
+    const auto result = analysis.run();
+    for (const auto &label : cfg.block_labels) {
+      const auto &data = result.at(label);
+      const auto &block = cfg.get_block(label);
+      std::cout << separator << std::endl;
+      std::cout << label << std::endl;
+
+      for (size_t i = 0; i < block.instructions.size(); ++i) {
+        std::cout << padding << "live variables: " << data.live_variables[i]
+                  << std::endl;
+        std::cout << block.instructions[i] << std::endl;
+      }
+      std::cout << padding << "live variables: "
+                << data.live_variables[block.instructions.size()] << std::endl;
+    }
+    std::cout << separator << std::endl;
+  }
+}
+
+void debug(const std::string &) {
   using namespace bril;
   using bril::Type;
   using bril::Variable;
   std::vector<Instruction> instructions = {
       Instruction::label(".L1"),
-      Instruction::add("u0", "a0", "b0"),
-      Instruction::add("v0", "c0", "d0"),
-      Instruction::add("w0", "e0", "f0"),
-      Instruction::eq("cond", "u0", "u0"),
+      Instruction::add("u", "a", "b"),
+      Instruction::add("v", "c", "d"),
+      Instruction::add("w", "e", "f"),
+      Instruction::add("x", "b", "a"),
+      Instruction::eq("cond", "u", "x"),
       Instruction::br("cond", ".L2", ".L3"),
 
       Instruction::label(".L2"),
-      Instruction::add("x0", "c0", "d0"),
-      Instruction::add("y0", "c0", "d0"),
+      Instruction::add("x", "c", "d"),
+      Instruction::add("y", "c", "d"),
       Instruction::jmp(".L4"),
 
       Instruction::label(".L3"),
-      Instruction::add("u1", "a0", "b0"),
-      Instruction::add("x1", "e0", "f0"),
-      Instruction::add("y1", "e0", "f0"),
+      Instruction::add("u", "a", "b"),
+      Instruction::add("x", "e", "f"),
+      Instruction::add("y", "e", "f"),
       Instruction::jmp(".L4"),
 
       Instruction::label(".L4"),
-      Instruction::phi("u2", bril::Type::Int, {"u0", "u1"}, {".L2", ".L3"}),
-      Instruction::phi("x2", bril::Type::Int, {"x0", "x1"}, {".L2", ".L3"}),
-      Instruction::phi("y2", bril::Type::Int, {"y0", "y1"}, {".L2", ".L3"}),
-      Instruction::add("z0", "u2", "y2"),
-      Instruction::add("u3", "a0", "b0"),
-      Instruction::ret("z0"),
+      Instruction::add("z", "u", "y"),
+      Instruction::add("u", "a", "b"),
+      Instruction::ret("z"),
   };
   Function function("main",
-                    {Variable("a0", Type::Int), Variable("b0", Type::Int),
-                     Variable("c0", Type::Int), Variable("d0", Type::Int),
-                     Variable("e0", Type::Int), Variable("f0", Type::Int)},
+                    {Variable("a", Type::Int), Variable("b", Type::Int),
+                     Variable("c", Type::Int), Variable("d", Type::Int),
+                     Variable("e", Type::Int), Variable("f", Type::Int)},
                     Type::Int);
   function.instructions = instructions;
   ControlFlowGraph graph(function);
-
-  runtime_assert(graph.is_in_ssa_form(), "Not in SSA form");
-
-  std::cout << graph << std::endl;
-
-  GlobalValueNumberingPass(graph).run_pass();
-  remove_global_unused_assignments(graph);
-
-  // std::cout << graph << std::endl;
-
-  // remove_unused_blocks(graph);
-  // graph.apply_local_pass(remove_trivial_phi_instructions);
-
-  std::cout << graph << std::endl;
-
-  // GlobalValueNumberingPass(graph).run_pass();
-  // remove_global_unused_assignments(graph);
-
-  std::cout << graph << std::endl;
-}
-
-void debug_trivial_blocks(const std::string &) {
-  using namespace bril;
-  using bril::Program;
-  using bril::Type;
-  using bril::Variable;
-  std::vector<Instruction> instructions = {
-      Instruction::jmp(".L1"), //
-
-      Instruction::label(".L1"), //
-      Instruction::print("i"),   //
-      Instruction::jmp(".L2"),   //
-
-      Instruction::label(".L2"), //
-      Instruction::print("i"),   //
-      Instruction::jmp(".L3"),   //
-
-      Instruction::label(".L3"), //
-      Instruction::print("i"),   //
-      Instruction::jmp(".L4"),   //
-
-      Instruction::label(".L4"), //
-      Instruction::print("i"),   //
-      Instruction::ret("n"),     //
-  };
-  Function function(
-      "wain", {Variable("n", Type::Int), Variable("i", Type::Int)}, Type::Int);
-  function.instructions = instructions;
-  ControlFlowGraph graph(function);
-  Program program;
-  program.cfgs.emplace("wain", graph);
-
-  runtime_assert(graph.is_in_ssa_form(), "Not in SSA form");
+  bril::Program program;
+  program.cfgs.emplace("main", graph);
 
   std::cout << program << std::endl;
-  program.apply_global_pass(combine_extended_blocks);
+
+  program.convert_to_ssa();
+  apply_optimizations(program);
+
   std::cout << program << std::endl;
 }
 
@@ -348,17 +287,17 @@ int main(int argc, char **argv) {
 
     const std::map<std::string, std::function<void(const std::string &)>>
         options = {
-            {"--debug", debug_trivial_blocks},
+            {"--debug", debug},
             {"--lex", test_lexer},
             {"--parse", test_parser},
             {"--build-ast", test_build_ast},
             {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},
             {"--round-trip-interpret", round_trip_interpret},
-            {"--reaching-definitions", compute_reaching_definitions},
             {"--emit-c", test_emit_c},
             {"--ssa", test_to_ssa},
             {"--ssa-round-trip", test_ssa_round_trip},
+            {"--liveness", debug_liveness},
             {"--emit-mips", test_emit_mips},
         };
 
