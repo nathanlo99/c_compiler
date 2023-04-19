@@ -3,6 +3,8 @@
 
 #include "bril.hpp"
 #include "data_flow.hpp"
+#include "util.hpp"
+#include <queue>
 
 namespace bril {
 
@@ -63,8 +65,8 @@ struct LivenessAnalysis : BackwardDataFlowPass<LivenessData> {
 };
 
 struct RegisterInterferenceGraph {
-  std::map<std::string, size_t> register_to_index;
-  std::vector<std::string> index_to_register;
+  std::map<std::string, size_t> variable_to_index;
+  std::vector<std::string> index_to_variable;
 
   std::vector<std::set<size_t>> edges;
 
@@ -85,22 +87,22 @@ struct RegisterInterferenceGraph {
   }
 
   void add_variable(const std::string &var) {
-    runtime_assert(register_to_index.count(var) == 0,
+    runtime_assert(variable_to_index.count(var) == 0,
                    "Variable " + var +
                        " already exists in register interference graph");
-    const size_t idx = index_to_register.size();
-    register_to_index[var] = idx;
-    index_to_register.push_back(var);
-    edges.push_back({});
+    const size_t idx = index_to_variable.size();
+    variable_to_index[var] = idx;
+    index_to_variable.push_back(var);
+    edges.emplace_back();
   }
 
   size_t get_index(const std::string &var) {
-    if (register_to_index.count(var) == 0) {
-      const size_t idx = index_to_register.size();
+    if (variable_to_index.count(var) == 0) {
+      const size_t idx = index_to_variable.size();
       add_variable(var);
       return idx;
     }
-    return register_to_index[var];
+    return variable_to_index[var];
   }
 
   void add_edge(const std::string &var1, const std::string &var2) {
@@ -116,8 +118,8 @@ struct RegisterInterferenceGraph {
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const RegisterInterferenceGraph &graph) {
-    for (size_t idx = 0; idx < graph.index_to_register.size(); ++idx) {
-      os << graph.index_to_register[idx] << ": (" << graph.edges[idx].size()
+    for (size_t idx = 0; idx < graph.index_to_variable.size(); ++idx) {
+      os << graph.index_to_variable[idx] << ": (" << graph.edges[idx].size()
          << ")" << std::endl;
       bool first = true;
       os << "  [";
@@ -127,12 +129,89 @@ struct RegisterInterferenceGraph {
         } else {
           os << ", ";
         }
-        os << graph.index_to_register[neighbor];
+        os << graph.index_to_variable[neighbor];
       }
       os << "]" << std::endl;
     }
     return os;
   }
 };
+
+struct RegisterAllocation {
+  std::map<std::string, size_t> register_allocation;
+  std::set<std::string> spilled_variables;
+
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const RegisterAllocation &allocation) {
+    using util::operator<<;
+    os << "Register allocation:" << std::endl;
+    for (const auto &[var, reg] : allocation.register_allocation) {
+      os << "  " << var << " -> " << reg << std::endl;
+    }
+    os << "Spilled variables: " << allocation.spilled_variables << std::endl;
+    return os;
+  }
+};
+
+inline RegisterAllocation
+try_allocate(const ControlFlowGraph &function,
+             const std::vector<size_t> &available_registers) {
+  RegisterInterferenceGraph graph(function);
+  std::vector<size_t> node_stack;
+  std::set<size_t> processed_nodes;
+
+  std::vector<std::set<size_t>> edges = graph.edges;
+
+  // Queue of nodes sorted by degree (degree, node)
+  std::priority_queue<std::pair<size_t, size_t>,
+                      std::vector<std::pair<size_t, size_t>>,
+                      std::greater<std::pair<size_t, size_t>>>
+      queue;
+  for (size_t idx = 0; idx < graph.index_to_variable.size(); ++idx) {
+    queue.emplace(graph.edges[idx].size(), idx);
+  }
+
+  while (!queue.empty()) {
+    const auto [degree, node] = queue.top();
+    queue.pop();
+    if (processed_nodes.count(node) > 0)
+      continue;
+    processed_nodes.insert(node);
+    node_stack.push_back(node);
+
+    // Remove all edges from the node
+    for (const size_t neighbour : edges[node]) {
+      edges[neighbour].erase(node);
+      queue.emplace(edges[neighbour].size(), neighbour);
+    }
+    edges[node].clear();
+  }
+
+  // Reverse the node stack so we colour nodes in reverse order
+  std::reverse(node_stack.begin(), node_stack.end());
+
+  RegisterAllocation result;
+
+  for (const size_t node : node_stack) {
+    const std::string &var = graph.index_to_variable[node];
+
+    std::set<size_t> available_neighbours(available_registers.begin(),
+                                          available_registers.end());
+    for (const size_t neighbour : graph.edges[node]) {
+      if (result.register_allocation.count(graph.index_to_variable[neighbour]) >
+          0) {
+        available_neighbours.erase(
+            result.register_allocation[graph.index_to_variable[neighbour]]);
+      }
+    }
+
+    if (available_neighbours.empty()) {
+      result.spilled_variables.insert(var);
+    } else {
+      result.register_allocation[var] = *available_neighbours.begin();
+    }
+  }
+  return result;
+}
 
 } // namespace bril
