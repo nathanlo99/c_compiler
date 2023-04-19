@@ -90,6 +90,16 @@ size_t apply_optimizations(bril::Program &program) {
   return num_removed_lines;
 }
 
+bril::Program get_optimized_bril_from_file(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
+  apply_optimizations(bril_program);
+  bril_program.convert_to_ssa();
+  apply_optimizations(bril_program);
+  bril_program.convert_from_ssa();
+  apply_optimizations(bril_program);
+  return bril_program;
+}
+
 void test_lexer(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
@@ -233,6 +243,18 @@ void debug_liveness(const std::string &filename) {
   }
 }
 
+void compute_rig(const std::string &filename) {
+  const auto program = get_optimized_bril_from_file(filename);
+  const std::string separator(100, '-'), padding(50, ' ');
+  for (const auto &[name, cfg] : program.cfgs) {
+    std::cout << separator << std::endl;
+    std::cout << "Function: " << name << std::endl;
+    std::cout << "Register interference graph: " << std::endl;
+    std::cout << bril::RegisterInterferenceGraph(cfg);
+  }
+  std::cout << separator << std::endl;
+}
+
 void debug(const std::string &) {
   using namespace bril;
   using bril::Type;
@@ -298,6 +320,7 @@ int main(int argc, char **argv) {
             {"--ssa", test_to_ssa},
             {"--ssa-round-trip", test_ssa_round_trip},
             {"--liveness", debug_liveness},
+            {"--compute-rig", compute_rig},
             {"--emit-mips", test_emit_mips},
         };
 

@@ -62,4 +62,77 @@ struct LivenessAnalysis : BackwardDataFlowPass<LivenessData> {
   }
 };
 
+struct RegisterInterferenceGraph {
+  std::map<std::string, size_t> register_to_index;
+  std::vector<std::string> index_to_register;
+
+  std::vector<std::set<size_t>> edges;
+
+  RegisterInterferenceGraph(const ControlFlowGraph &graph) {
+    LivenessAnalysis analysis(graph);
+    const auto liveness_data = analysis.run();
+
+    for (const auto &[label, block] : graph.blocks) {
+      const auto &live_variables = liveness_data.at(label).live_variables;
+      for (const auto &live_set : live_variables) {
+        for (const auto &var1 : live_set) {
+          for (const auto &var2 : live_set) {
+            add_edge(var1, var2);
+          }
+        }
+      }
+    }
+  }
+
+  void add_variable(const std::string &var) {
+    runtime_assert(register_to_index.count(var) == 0,
+                   "Variable " + var +
+                       " already exists in register interference graph");
+    const size_t idx = index_to_register.size();
+    register_to_index[var] = idx;
+    index_to_register.push_back(var);
+    edges.push_back({});
+  }
+
+  size_t get_index(const std::string &var) {
+    if (register_to_index.count(var) == 0) {
+      const size_t idx = index_to_register.size();
+      add_variable(var);
+      return idx;
+    }
+    return register_to_index[var];
+  }
+
+  void add_edge(const std::string &var1, const std::string &var2) {
+    const size_t idx1 = get_index(var1);
+    const size_t idx2 = get_index(var2);
+    // NOTE: We do this check after calling get_index so all live variables are
+    // present in the graph
+    if (var1 == var2)
+      return;
+    edges[idx1].insert(idx2);
+    edges[idx2].insert(idx1);
+  }
+
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const RegisterInterferenceGraph &graph) {
+    for (size_t idx = 0; idx < graph.index_to_register.size(); ++idx) {
+      os << graph.index_to_register[idx] << ": (" << graph.edges[idx].size()
+         << ")" << std::endl;
+      bool first = true;
+      os << "  [";
+      for (const size_t neighbor : graph.edges[idx]) {
+        if (first) {
+          first = false;
+        } else {
+          os << ", ";
+        }
+        os << graph.index_to_register[neighbor];
+      }
+      os << "]" << std::endl;
+    }
+    return os;
+  }
+};
+
 } // namespace bril
