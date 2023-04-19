@@ -348,6 +348,12 @@ struct Instruction {
     return Instruction(Opcode::Phi, destination, type, values, {}, labels);
   }
 
+  inline std::string to_string() const {
+    std::stringstream ss;
+    ss << *this;
+    return ss.str();
+  }
+
   friend std::ostream &operator<<(std::ostream &os,
                                   const Instruction &instruction) {
     switch (instruction.opcode) {

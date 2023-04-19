@@ -73,6 +73,9 @@ struct RegisterInterferenceGraph {
   RegisterInterferenceGraph(const ControlFlowGraph &graph) {
     LivenessAnalysis analysis(graph);
     const auto liveness_data = analysis.run();
+    for (const auto &argument : graph.arguments) {
+      add_variable(argument.name);
+    }
 
     for (const auto &[label, block] : graph.blocks) {
       const auto &live_variables = liveness_data.at(label).live_variables;
@@ -87,9 +90,8 @@ struct RegisterInterferenceGraph {
   }
 
   void add_variable(const std::string &var) {
-    runtime_assert(variable_to_index.count(var) == 0,
-                   "Variable " + var +
-                       " already exists in register interference graph");
+    if (variable_to_index.count(var) > 0)
+      return;
     const size_t idx = index_to_variable.size();
     variable_to_index[var] = idx;
     index_to_variable.push_back(var);
@@ -97,11 +99,7 @@ struct RegisterInterferenceGraph {
   }
 
   size_t get_index(const std::string &var) {
-    if (variable_to_index.count(var) == 0) {
-      const size_t idx = index_to_variable.size();
-      add_variable(var);
-      return idx;
-    }
+    add_variable(var);
     return variable_to_index[var];
   }
 
@@ -139,23 +137,61 @@ struct RegisterInterferenceGraph {
 
 struct RegisterAllocation {
   std::map<std::string, size_t> register_allocation;
-  std::set<std::string> spilled_variables;
+  std::map<std::string, size_t> spilled_variables;
+  size_t next_offset = 0;
+
+  void spill_variable(const std::string &variable) {
+    spilled_variables[variable] = next_offset;
+    next_offset += 4;
+  }
+
+  bool in_register(const std::string &variable) const {
+    return register_allocation.count(variable) > 0;
+  }
+  bool is_spilled(const std::string &variable) const {
+    return spilled_variables.count(variable) > 0;
+  }
+  size_t get_register(const std::string &variable) const {
+    runtime_assert(in_register(variable),
+                   "Variable " + variable + " is not in a register");
+    return register_allocation.at(variable);
+  }
+  size_t get_offset(const std::string &variable) const {
+    runtime_assert(is_spilled(variable),
+                   "Variable " + variable + " is not spilled");
+    return spilled_variables.at(variable);
+  }
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const RegisterAllocation &allocation) {
     using util::operator<<;
     os << "Register allocation:" << std::endl;
     for (const auto &[var, reg] : allocation.register_allocation) {
-      os << "  " << var << " -> " << reg << std::endl;
+      os << "  " << var << " -> $" << reg << std::endl;
     }
-    os << "Spilled variables: " << allocation.spilled_variables << std::endl;
+    os << "Spilled variables: " << std::endl;
+    for (const auto &[var, offset] : allocation.spilled_variables) {
+      os << "  " << var << " -> " << offset << "($29)" << std::endl;
+    }
     return os;
   }
 };
 
 inline RegisterAllocation
-try_allocate(const ControlFlowGraph &function,
-             const std::vector<size_t> &available_registers) {
+allocate_registers(const ControlFlowGraph &function,
+                   const std::vector<size_t> &available_registers) {
+
+  // First, gather all variables from the function for which we take addresses,
+  // since these always have to be spilled to memory
+  std::set<std::string> addressed_variables;
+  for (const auto &[label, block] : function.blocks) {
+    for (const auto &instruction : block.instructions) {
+      if (instruction.opcode == Opcode::AddressOf) {
+        addressed_variables.insert(instruction.arguments[0]);
+      }
+    }
+  }
+
   RegisterInterferenceGraph graph(function);
   std::vector<size_t> node_stack;
   std::set<size_t> processed_nodes;
@@ -194,6 +230,10 @@ try_allocate(const ControlFlowGraph &function,
 
   for (const size_t node : node_stack) {
     const std::string &var = graph.index_to_variable[node];
+    if (addressed_variables.count(var) > 0) {
+      result.spill_variable(var);
+      continue;
+    }
 
     std::set<size_t> available_neighbours(available_registers.begin(),
                                           available_registers.end());
@@ -206,7 +246,7 @@ try_allocate(const ControlFlowGraph &function,
     }
 
     if (available_neighbours.empty()) {
-      result.spilled_variables.insert(var);
+      result.spill_variable(var);
     } else {
       result.register_allocation[var] = *available_neighbours.begin();
     }

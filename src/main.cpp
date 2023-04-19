@@ -2,6 +2,7 @@
 #include "ast_node.hpp"
 #include "bril.hpp"
 #include "bril_interpreter.hpp"
+#include "bril_to_mips_generator.hpp"
 #include "data_flow.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
@@ -261,18 +262,26 @@ void allocate_registers(const std::string &filename) {
   const std::string separator(100, '-'), padding(50, ' ');
 
   const std::vector<size_t> available_registers = {
-      1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14,
-      15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+      3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
 
   for (const auto &[name, cfg] : program.cfgs) {
     std::cout << separator << std::endl;
     std::cout << "Function: " << name << std::endl;
     std::cout << "Register interference graph: " << std::endl;
     const auto register_allocation =
-        bril::try_allocate(cfg, available_registers);
+        bril::allocate_registers(cfg, available_registers);
     std::cout << register_allocation << std::endl;
   }
   std::cout << separator << std::endl;
+}
+
+void generate_mips(const std::string &filename) {
+  const auto program = get_optimized_bril_from_file(filename);
+  std::cerr << program << std::endl;
+
+  bril::BRILToMIPSGenerator generator(program);
+  generator.print(std::cout);
 }
 
 void debug(const std::string &) {
@@ -342,7 +351,8 @@ int main(int argc, char **argv) {
             {"--liveness", debug_liveness},
             {"--compute-rig", compute_rig},
             {"--allocate-registers", allocate_registers},
-            {"--emit-mips", test_emit_mips},
+            {"--emit-naive-mips", test_emit_mips},
+            {"--emit-mips", generate_mips},
         };
 
     if (options.count(argument) == 0) {

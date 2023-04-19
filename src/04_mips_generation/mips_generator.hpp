@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "mips_instruction.hpp"
 
 #include <iostream>
@@ -136,6 +138,10 @@ struct MIPSGenerator {
   bool optimize_moves();
 
   // Convenience functions
+  void copy(int d, int s) {
+    if (d != s)
+      add(d, s, 0);
+  }
   void add(int d, int s, int t) {
     instructions.push_back(MIPSInstruction::add(d, s, t));
   }
