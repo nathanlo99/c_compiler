@@ -77,24 +77,26 @@ private:
       generate_function(function);
     }
 
-    // Whenever an unconditional jump is followed by the label it jumps to,
-    // remove it
-    for (size_t i = 0; i + 1 < instructions.size(); ++i) {
-      const auto &this_instruction = instructions[i];
-      const auto &next_instruction = instructions[i + 1];
-      if (this_instruction.opcode != ::Opcode::Beq ||
-          next_instruction.opcode != ::Opcode::Label)
-        continue;
-      if (this_instruction.s == this_instruction.t &&
-          this_instruction.string_value == next_instruction.string_value) {
-        instructions[i] = MIPSInstruction::comment(
-            "jmp " + next_instruction.string_value + "; (fallthrough)");
-      }
-    }
+    optimize();
 
     comment("Number of instructions: " +
             std::to_string(num_assembly_instructions()));
   }
+
+  void optimize() {
+    while (true) {
+      bool changed = false;
+      changed |= remove_fallthrough_jumps();
+      changed |= remove_unused_writes();
+      changed |= remove_unused_labels();
+      if (!changed)
+        break;
+    }
+  }
+
+  bool remove_unused_writes();
+  bool remove_fallthrough_jumps();
+  bool remove_unused_labels();
 
   void generate_function(const ControlFlowGraph &function) {
     const RegisterAllocation allocation = allocations.at(function.name);

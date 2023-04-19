@@ -170,6 +170,71 @@ public:
     return result;
   }
 
+  std::set<int> read_registers() const {
+    std::set<int> result;
+    switch (opcode) {
+    case Opcode::Add:
+    case Opcode::Sub:
+    case Opcode::Mult:
+    case Opcode::Multu:
+    case Opcode::Div:
+    case Opcode::Divu:
+    case Opcode::Slt:
+    case Opcode::Sltu:
+    case Opcode::Beq:
+    case Opcode::Bne:
+    case Opcode::Sw:
+      return {s, t};
+    case Opcode::Mfhi:
+    case Opcode::Mflo:
+    case Opcode::Lis:
+    case Opcode::Word:
+    case Opcode::Label:
+    case Opcode::Import:
+    case Opcode::Comment:
+      return {};
+    case Opcode::Lw:
+    case Opcode::Jr:
+    case Opcode::Jalr:
+      return {s};
+    default:
+      unreachable("Unknown opcode");
+    }
+    return {};
+  }
+
+  std::optional<int> written_register() const {
+    switch (opcode) {
+    case Opcode::Add:
+    case Opcode::Sub:
+    case Opcode::Mfhi:
+    case Opcode::Mflo:
+    case Opcode::Lis:
+    case Opcode::Slt:
+    case Opcode::Sltu:
+      return {d};
+    case Opcode::Lw:
+      return {t};
+    case Opcode::Mult:
+    case Opcode::Multu:
+    case Opcode::Div:
+    case Opcode::Divu:
+    case Opcode::Sw:
+    case Opcode::Beq:
+    case Opcode::Bne:
+    case Opcode::Jr:
+    case Opcode::Jalr:
+    case Opcode::Word:
+    case Opcode::Label:
+    case Opcode::Import:
+    case Opcode::Comment:
+      return {};
+    default:
+      unreachable("Unknown opcode");
+    }
+    return {};
+  }
+
   std::string to_string() const {
     std::stringstream ss;
     const std::string name = opcode_to_string(opcode);
