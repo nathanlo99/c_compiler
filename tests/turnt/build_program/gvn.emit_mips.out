@@ -3,9 +3,8 @@
                                 ;   int c = 5;
                                 ;   int d = 0;
                                 ;   if (a < b) {
-                                ;     if (b > a) {
+                                ;     if (a < b) {
                                 ;       c = -5;
-                                ;     } else {
                                 ;     }
                                 ;     a = (d - c);
                                 ;   } else {
@@ -40,13 +39,13 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
 beq $3, $0, ifelse0
-lw $3, 4($29)                   ; Loading b
+lw $3, 8($29)                   ; Loading a
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
-lw $3, 8($29)                   ; Loading a
+lw $3, 4($29)                   ; Loading b
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $3, $3, $5
+slt $3, $5, $3
 beq $3, $0, ifelse1
                                 ; c = -5;
 

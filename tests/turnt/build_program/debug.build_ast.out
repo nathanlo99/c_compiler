@@ -12,12 +12,13 @@ Procedure {
       condition: 
         TestExpr {
           lhs: 
-            VariableExpr(n) : int
-          operation: LessEqual
-          rhs: 
             3: int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n) : int
         }
       true_statement: 
+      false_statement: 
         AssignmentStatement {
           lhs: 
             VariableLValueExpr(cont) : int
@@ -29,20 +30,19 @@ Procedure {
             TestExpr {
               lhs: 
                 VariableExpr(n) : int
-              operation: GreaterEqual
+              operation: LessThan
               rhs: 
                 4: int
             }
           true_statement: 
+          false_statement: 
             AssignmentStatement {
               lhs: 
                 VariableLValueExpr(cont) : int
               rhs: 
                 2: int
             )
-          false_statement: 
         }
-      false_statement: 
     }
   return_expr: 
     VariableExpr(cont) : int

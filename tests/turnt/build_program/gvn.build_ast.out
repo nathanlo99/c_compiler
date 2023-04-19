@@ -22,10 +22,10 @@ Procedure {
           condition: 
             TestExpr {
               lhs: 
-                VariableExpr(b) : int
-              operation: GreaterThan
-              rhs: 
                 VariableExpr(a) : int
+              operation: LessThan
+              rhs: 
+                VariableExpr(b) : int
             }
           true_statement: 
             AssignmentStatement {

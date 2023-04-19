@@ -3,6 +3,7 @@
 #include "bril.hpp"
 #include "bril_interpreter.hpp"
 #include "bril_to_mips_generator.hpp"
+#include "canonicalize_conditions.hpp"
 #include "data_flow.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
@@ -44,6 +45,10 @@ std::shared_ptr<Program> get_program(const std::string &input) {
   const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
+
+  // Canonicalize boolean expressions
+  CanonicalizeConditions canonicalize_conditions;
+  program->accept_recursive(canonicalize_conditions);
 
   // Populate symbol table
   PopulateSymbolTableVisitor symbol_table_visitor;

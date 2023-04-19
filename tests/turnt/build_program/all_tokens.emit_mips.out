@@ -3,22 +3,20 @@
                                 ;   int i = 2;
                                 ;   int answer = 1;
                                 ;   int continueLooping = 1;
-                                ;   if (n <= 3) {
-                                ;     continueLooping = 0;
+                                ;   if (3 < n) {
                                 ;   } else {
+                                ;     continueLooping = 0;
                                 ;   }
                                 ;   while (continueLooping != 0) {
                                 ;     if ((n % i) == 0) {
                                 ;       answer = 0;
-                                ;     } else {
                                 ;     }
                                 ;     i = (i + 1);
-                                ;     if ((i * i) > n) {
+                                ;     if (n < (i * i)) {
                                 ;       continueLooping = 0;
                                 ;     } else {
                                 ;       if (answer == 0) {
                                 ;         continueLooping = 0;
-                                ;       } else {
                                 ;       }
                                 ;     }
                                 ;   }
@@ -28,14 +26,14 @@
                                 ; int collatz(int* num) {
                                 ;   int value = 0;
                                 ;   value = *num;
-                                ;   if (value >= 2) {
-                                ;     if ((value % 2) != 0) {
-                                ;       *num = (((3 * value) + 2) - 1);
-                                ;     } else {
-                                ;       *num = (value / 2);
-                                ;     }
-                                ;   } else {
+                                ;   if (value < 2) {
                                 ;     *num = 1;
+                                ;   } else {
+                                ;     if ((value % 2) == 0) {
+                                ;       *num = (value / 2);
+                                ;     } else {
+                                ;       *num = (((3 * value) + 2) - 1);
+                                ;     }
                                 ;   }
                                 ;   return 0;
                                 ; }
@@ -90,21 +88,20 @@ sub $30, $30, $4                ; Declaration answer
 sw $11, -4($30)                 ;   push $11
 sub $30, $30, $4                ; Declaration continueLooping
                                 ; Code for statements:
-lw $3, 4($29)                   ; Loading n
+sub $3, $4, $11                 ; Loading the literal 3
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
-sub $3, $4, $11                 ; Loading the literal 3
+lw $3, 4($29)                   ; Loading n
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $3, $3, $5
-sub $3, $11, $3
+slt $3, $5, $3
 beq $3, $0, ifelse0
+beq $0, $0, ifendif0
+ifelse0:
                                 ; continueLooping = 0;
 
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -8($29)
-beq $0, $0, ifendif0
-ifelse0:
 ifendif0:
 whileloop0:
 lw $3, -8($29)                  ; Loading continueLooping
@@ -152,6 +149,9 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 add $3, $5, $3
 sw $3, 0($29)
+lw $3, 4($29)                   ; Loading n
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
 lw $3, 0($29)                   ; Loading i
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -160,12 +160,9 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 mult $5, $3
 mflo $3
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-lw $3, 4($29)                   ; Loading n
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $3, $3, $5
+slt $3, $5, $3
 beq $3, $0, ifelse2
                                 ; continueLooping = 0;
 
@@ -220,8 +217,18 @@ add $3, $11, $11                ; Loading the literal 2
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
-sub $3, $11, $3
 beq $3, $0, ifelse4
+                                ; *num = 1;
+
+lw $3, 4($29)                   ; Loading num
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $0                 ; Loading the literal 1
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+sw $3, 0($5)
+beq $0, $0, ifendif4
+ifelse4:
 lw $3, 0($29)                   ; Loading value
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -238,7 +245,26 @@ lw $5, -4($30)                  ;   ^
 slt $6, $3, $5
 slt $7, $5, $3
 add $3, $6, $7
+sub $3, $11, $3
 beq $3, $0, ifelse5
+                                ; *num = (value / 2);
+
+lw $3, 4($29)                   ; Loading num
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+lw $3, 0($29)                   ; Loading value
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+add $3, $11, $11                ; Loading the literal 2
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+div $5, $3
+mflo $3
+add $30, $30, $4                ;   pop $5
+lw $5, -4($30)                  ;   ^
+sw $3, 0($5)
+beq $0, $0, ifendif5
+ifelse5:
                                 ; *num = (((3 * value) + 2) - 1);
 
 lw $3, 4($29)                   ; Loading num
@@ -267,36 +293,7 @@ sub $3, $5, $3
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 sw $3, 0($5)
-beq $0, $0, ifendif5
-ifelse5:
-                                ; *num = (value / 2);
-
-lw $3, 4($29)                   ; Loading num
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-lw $3, 0($29)                   ; Loading value
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-add $3, $11, $11                ; Loading the literal 2
-add $30, $30, $4                ;   pop $5
-lw $5, -4($30)                  ;   ^
-div $5, $3
-mflo $3
-add $30, $30, $4                ;   pop $5
-lw $5, -4($30)                  ;   ^
-sw $3, 0($5)
 ifendif5:
-beq $0, $0, ifendif4
-ifelse4:
-                                ; *num = 1;
-
-lw $3, 4($29)                   ; Loading num
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-add $3, $11, $0                 ; Loading the literal 1
-add $30, $30, $4                ;   pop $5
-lw $5, -4($30)                  ;   ^
-sw $3, 0($5)
 ifendif4:
                                 ; Code for return value:
 add $3, $0, $0                  ; Loading the literal 0
@@ -540,4 +537,4 @@ deleteskip0:
                                 ; Code for return value:
 add $3, $0, $0                  ; Loading the literal 0
 jr $31                          ; Done generating code for wain
-                                ; Number of assembly instructions: 388
+                                ; Number of assembly instructions: 387

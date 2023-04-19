@@ -19,6 +19,6 @@ return_code = 0
 output."emit_c.out" = "-"
 
 [envs.emit_mips]
-command = "../../../build/compile {filename} --emit-mips"
+command = "../../../build/compile {filename} --emit-naive-mips"
 return_code = 0
 output."emit_mips.out" = "-"

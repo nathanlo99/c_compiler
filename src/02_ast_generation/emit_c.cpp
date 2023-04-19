@@ -137,9 +137,14 @@ void IfStatement::emit_c(std::ostream &os, const size_t indent_level) const {
   test_expression->emit_c(os, 0);
   os << ") {" << std::endl;
   true_statements.emit_c(os, indent_level + 1);
-  os << pad(indent_level) << "} else {" << std::endl;
-  false_statements.emit_c(os, indent_level + 1);
-  os << pad(indent_level) << "}" << std::endl;
+  os << pad(indent_level) << "}";
+  if (false_statements.statements.empty()) {
+    os << std::endl;
+  } else {
+    os << " else {" << std::endl;
+    false_statements.emit_c(os, indent_level + 1);
+    os << pad(indent_level) << "}" << std::endl;
+  }
 }
 
 void WhileStatement::emit_c(std::ostream &os, const size_t indent_level) const {

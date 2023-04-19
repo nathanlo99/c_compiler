@@ -2,9 +2,8 @@ int wain(int a, int b) {
   int c = 5;
   int d = 0;
   if (a < b) {
-    if (b > a) {
+    if (a < b) {
       c = (0 - 5);
-    } else {
     }
     a = (d - c);
   } else {

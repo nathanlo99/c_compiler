@@ -4,7 +4,6 @@ int wain(int a, int b) {
   while (i < 10) {
     if (i < 5) {
       x = (x + 1);
-    } else {
     }
     x = (x * 2);
     i = (i + 1);

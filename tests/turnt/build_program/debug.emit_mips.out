@@ -2,13 +2,13 @@
                                 ; int wain(int n, int b) {
                                 ;   int cont = 1;
                                 ;   int i = 0;
-                                ;   if (n <= 3) {
-                                ;     cont = 0;
-                                ;     if (n >= 4) {
-                                ;       cont = 2;
-                                ;     } else {
-                                ;     }
+                                ;   if (3 < n) {
                                 ;   } else {
+                                ;     cont = 0;
+                                ;     if (n < 4) {
+                                ;     } else {
+                                ;       cont = 2;
+                                ;     }
                                 ;   }
                                 ;   return cont;
                                 ; }
@@ -30,15 +30,16 @@ sub $30, $30, $4                ; Declaration cont
 sw $0, -4($30)                  ;   push $0
 sub $30, $30, $4                ; Declaration i
                                 ; Code for statements:
-lw $3, 8($29)                   ; Loading n
+sub $3, $4, $11                 ; Loading the literal 3
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
-sub $3, $4, $11                 ; Loading the literal 3
+lw $3, 8($29)                   ; Loading n
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $3, $3, $5
-sub $3, $11, $3
+slt $3, $5, $3
 beq $3, $0, ifelse0
+beq $0, $0, ifendif0
+ifelse0:
                                 ; cont = 0;
 
 add $3, $0, $0                  ; Loading the literal 0
@@ -50,19 +51,16 @@ add $3, $4, $0                  ; Loading the literal 4
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
-sub $3, $11, $3
 beq $3, $0, ifelse1
+beq $0, $0, ifendif1
+ifelse1:
                                 ; cont = 2;
 
 add $3, $11, $11                ; Loading the literal 2
 sw $3, 0($29)
-beq $0, $0, ifendif1
-ifelse1:
 ifendif1:
-beq $0, $0, ifendif0
-ifelse0:
 ifendif0:
                                 ; Code for return value:
 lw $3, 0($29)                   ; Loading cont
 jr $31                          ; Done generating code for wain
-                                ; Number of assembly instructions: 39
+                                ; Number of assembly instructions: 37

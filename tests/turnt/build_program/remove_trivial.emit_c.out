@@ -2,7 +2,6 @@ int wain(int a, int b) {
   int c = 0;
   if (a == b) {
     c = 0;
-  } else {
   }
   return c;
 }
