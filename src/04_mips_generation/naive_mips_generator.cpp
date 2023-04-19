@@ -289,49 +289,83 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   const auto endif_label = generate_label("ifendif");
 
   const auto &test_expr = statement.test_expression;
+  const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
+                             test_expr->rhs->type == Type::IntStar;
+  const auto &compare = [&](const int d, const int s, const int t) {
+    uses_pointers ? sltu(d, s, t) : slt(d, s, t);
+  };
   const auto &lhs = test_expr->lhs;
   const auto &rhs = test_expr->rhs;
 
+  lhs->accept_simple(*this);
+  push(3);
+  rhs->accept_simple(*this);
+  pop(5);
+
   switch (test_expr->operation) {
   case ComparisonOperation::LessThan: {
-    lhs->accept_simple(*this);
-    push(3);
-    rhs->accept_simple(*this);
-    pop(5);
-    slt(3, 5, 3);
+    compare(3, 5, 3);
     beq(3, 0, else_label);
-    statement.true_statements.accept_simple(*this);
-    beq(0, 0, endif_label);
-    label(else_label);
-    statement.false_statements.accept_simple(*this);
-    label(endif_label);
   } break;
-
   case ComparisonOperation::Equal: {
-    lhs->accept_simple(*this);
-    push(3);
-    rhs->accept_simple(*this);
-    pop(5);
     bne(3, 5, else_label);
-    statement.true_statements.accept_simple(*this);
-    beq(0, 0, endif_label);
-    label(else_label);
-    statement.false_statements.accept_simple(*this);
-    label(endif_label);
   } break;
-
   default: {
     unreachable("Non-canonical comparison operation");
   } break;
   }
+
+  statement.true_statements.accept_simple(*this);
+  beq(0, 0, endif_label);
+  label(else_label);
+  statement.false_statements.accept_simple(*this);
+  label(endif_label);
 }
 
 void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   const auto loop_label = generate_label("whileloop");
   const auto end_label = generate_label("whileend");
+
+  const auto &test_expr = statement.test_expression;
+  const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
+                             test_expr->rhs->type == Type::IntStar;
+  const auto &compare = [&](const int d, const int s, const int t) {
+    uses_pointers ? sltu(d, s, t) : slt(d, s, t);
+  };
+
   label(loop_label);
-  statement.test_expression->accept_simple(*this);
-  beq(3, 0, end_label);
+  test_expr->lhs->accept_simple(*this);
+  push(3);
+  test_expr->rhs->accept_simple(*this);
+  pop(5);
+
+  // $5 = lhs, $3 = rhs
+  // Jump to end if the condition is false
+  switch (test_expr->operation) {
+  case ComparisonOperation::LessThan: {
+    compare(3, 5, 3);
+    beq(3, 0, end_label);
+  } break;
+  case ComparisonOperation::LessEqual: {
+    compare(3, 3, 5);
+    bne(3, 0, end_label);
+  } break;
+  case ComparisonOperation::GreaterThan: {
+    compare(3, 3, 5);
+    beq(3, 0, end_label);
+  } break;
+  case ComparisonOperation::GreaterEqual: {
+    compare(3, 5, 3);
+    bne(3, 0, end_label);
+  } break;
+  case ComparisonOperation::Equal: {
+    bne(3, 5, end_label);
+  } break;
+  case ComparisonOperation::NotEqual: {
+    beq(3, 5, end_label);
+  } break;
+  }
+
   statement.body_statement->accept_simple(*this);
   beq(0, 0, loop_label);
   label(end_label);

@@ -25,7 +25,8 @@ run_command = run_commands[option]
 
 commands = [
     "cmake --build build -j8",  # Replace this with your compilation command
-    "build/compiler_cpp {} --emit-mips > output/output.asm".format(input_file),
+    "build/compiler_cpp {} --emit-naive-mips > output/output.asm".format(
+        input_file),
     "cs241.linkasm < output/output.asm > output/output.merl",
     "cs241.linker output/output.merl references/print.merl references/alloc.merl > output/linked.merl",
     "cs241.merl 0 < output/linked.merl > output/final.mips 2> /dev/null",
