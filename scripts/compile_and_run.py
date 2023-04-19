@@ -16,6 +16,7 @@ if len(sys.argv) < 3:
 
 input_file = sys.argv[1]
 option = sys.argv[2]
+compile_mode = "--emit-naive-mips" if len(sys.argv) <= 3 else sys.argv[3]
 
 if option not in run_commands:
     print("Second option should be --array or --twoints")
@@ -25,8 +26,8 @@ run_command = run_commands[option]
 
 commands = [
     "cmake --build build -j8",  # Replace this with your compilation command
-    "build/compiler_cpp {} --emit-naive-mips > output/output.asm".format(
-        input_file),
+    "build/compile {} {} > output/output.asm".format(
+        input_file, compile_mode),
     "cs241.linkasm < output/output.asm > output/output.merl",
     "cs241.linker output/output.merl references/print.merl references/alloc.merl > output/linked.merl",
     "cs241.merl 0 < output/linked.merl > output/final.mips 2> /dev/null",
