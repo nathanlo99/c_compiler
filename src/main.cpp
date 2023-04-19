@@ -184,13 +184,7 @@ void bare_interpret(const std::string &filename) {
 void interpret(const std::string &filename) {
   // Calls the BRIL interpreter on the given file.
   using namespace bril::interpreter;
-  const std::string input = read_file(filename);
-  const auto program = get_program(input);
-  auto bril_program = get_bril(program);
-
-  apply_optimizations(bril_program);
-  bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  const auto bril_program = get_optimized_bril_from_file(filename);
 
   BRILInterpreter interpreter(bril_program);
   bril_program.print_flattened(std::cerr);

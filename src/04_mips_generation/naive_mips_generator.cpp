@@ -287,13 +287,43 @@ void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
 void NaiveMIPSGenerator::visit(IfStatement &statement) {
   const auto else_label = generate_label("ifelse");
   const auto endif_label = generate_label("ifendif");
-  statement.test_expression->accept_simple(*this);
-  beq(3, 0, else_label);
-  statement.true_statements.accept_simple(*this);
-  beq(0, 0, endif_label);
-  label(else_label);
-  statement.false_statements.accept_simple(*this);
-  label(endif_label);
+
+  const auto &test_expr = statement.test_expression;
+  const auto &lhs = test_expr->lhs;
+  const auto &rhs = test_expr->rhs;
+
+  switch (test_expr->operation) {
+  case ComparisonOperation::LessThan: {
+    lhs->accept_simple(*this);
+    push(3);
+    rhs->accept_simple(*this);
+    pop(5);
+    slt(3, 5, 3);
+    beq(3, 0, else_label);
+    statement.true_statements.accept_simple(*this);
+    beq(0, 0, endif_label);
+    label(else_label);
+    statement.false_statements.accept_simple(*this);
+    label(endif_label);
+  } break;
+
+  case ComparisonOperation::Equal: {
+    lhs->accept_simple(*this);
+    push(3);
+    rhs->accept_simple(*this);
+    pop(5);
+    bne(3, 5, else_label);
+    statement.true_statements.accept_simple(*this);
+    beq(0, 0, endif_label);
+    label(else_label);
+    statement.false_statements.accept_simple(*this);
+    label(endif_label);
+  } break;
+
+  default: {
+    unreachable("Non-canonical comparison operation");
+  } break;
+  }
 }
 
 void NaiveMIPSGenerator::visit(WhileStatement &statement) {

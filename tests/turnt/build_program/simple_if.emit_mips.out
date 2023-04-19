@@ -38,11 +38,7 @@ sub $30, $30, $4                ;   ^
 add $3, $0, $0                  ; Loading the literal 0
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3
-beq $3, $0, ifelse0
+bne $3, $5, ifelse0
                                 ; a = (a * a);
 
 lw $3, 8($29)                   ; Loading a
@@ -79,4 +75,4 @@ lw $31, -4($30)                 ;   ^
                                 ; Code for return value:
 lw $3, 8($29)                   ; Loading a
 jr $31                          ; Done generating code for wain
-                                ; Number of assembly instructions: 59
+                                ; Number of assembly instructions: 55

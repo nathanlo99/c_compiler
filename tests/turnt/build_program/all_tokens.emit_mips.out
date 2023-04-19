@@ -127,11 +127,7 @@ sub $30, $30, $4                ;   ^
 add $3, $0, $0                  ; Loading the literal 0
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3
-beq $3, $0, ifelse1
+bne $3, $5, ifelse1
                                 ; answer = 0;
 
 add $3, $0, $0                  ; Loading the literal 0
@@ -176,11 +172,7 @@ sub $30, $30, $4                ;   ^
 add $3, $0, $0                  ; Loading the literal 0
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3
-beq $3, $0, ifelse3
+bne $3, $5, ifelse3
                                 ; continueLooping = 0;
 
 add $3, $0, $0                  ; Loading the literal 0
@@ -242,11 +234,7 @@ sub $30, $30, $4                ;   ^
 add $3, $0, $0                  ; Loading the literal 0
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3
-beq $3, $0, ifelse5
+bne $3, $5, ifelse5
                                 ; *num = (value / 2);
 
 lw $3, 4($29)                   ; Loading num
@@ -537,4 +525,4 @@ deleteskip0:
                                 ; Code for return value:
 add $3, $0, $0                  ; Loading the literal 0
 jr $31                          ; Done generating code for wain
-                                ; Number of assembly instructions: 387
+                                ; Number of assembly instructions: 375
