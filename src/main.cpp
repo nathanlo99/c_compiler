@@ -277,8 +277,6 @@ void allocate_registers(const std::string &filename) {
 
 void generate_mips(const std::string &filename) {
   const auto program = get_optimized_bril_from_file(filename);
-  std::cerr << program << std::endl;
-
   bril::BRILToMIPSGenerator generator(program);
   generator.print(std::cout);
 }

@@ -102,46 +102,9 @@ void NaiveMIPSGenerator::visit(DereferenceLValueExpr &) {
   unreachable("Dereference lvalue code is handled in addressof and assignment");
 }
 
-void NaiveMIPSGenerator::visit(TestExpr &expr) {
-  expr.lhs->accept_simple(*this);
-  push(3);
-  expr.rhs->accept_simple(*this);
-  pop(5);
-
-  const bool uses_pointers =
-      expr.lhs->type == Type::IntStar || expr.rhs->type == Type::IntStar;
-  const auto &compare = [&](const int d, const int s, const int t) {
-    uses_pointers ? sltu(d, s, t) : slt(d, s, t);
-  };
-  switch (expr.operation) {
-  case ComparisonOperation::LessThan:
-    compare(3, 5, 3);
-    break;
-  case ComparisonOperation::LessEqual:
-    compare(3, 3, 5);
-    sub(3, 11, 3);
-    break;
-  case ComparisonOperation::GreaterThan:
-    compare(3, 3, 5);
-    break;
-  case ComparisonOperation::GreaterEqual:
-    compare(3, 5, 3);
-    sub(3, 11, 3);
-    break;
-  case ComparisonOperation::NotEqual:
-    compare(6, 3, 5);
-    compare(7, 5, 3);
-    add(3, 6, 7);
-    break;
-  case ComparisonOperation::Equal:
-    compare(6, 3, 5);
-    compare(7, 5, 3);
-    add(3, 6, 7);
-    sub(3, 11, 3);
-    break;
-  default:
-    runtime_assert(false, "Unknown comparison operation");
-  }
+void NaiveMIPSGenerator::visit(TestExpr &) {
+  unreachable(
+      "Test expression code is handled in if statement and while statement");
 }
 
 void NaiveMIPSGenerator::visit(VariableExpr &expr) {
@@ -166,12 +129,10 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
   case BinaryOperation::Add:
     if (lhs_type == Type::IntStar) {
       // Multiply rhs ($3) by 4
-      mult(3, 4);
-      mflo(3);
+      mult(3, 3, 4);
     } else if (rhs_type == Type::IntStar) {
       // Multiply lhs ($5) by 4
-      mult(5, 4);
-      mflo(5);
+      mult(5, 5, 4);
     }
     add(3, 5, 3);
     break;
@@ -180,27 +141,22 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
       sub(3, 5, 3);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::Int) {
       // lhs - 4 * rhs  -->  $5 - 4 * $3
-      mult(3, 4);
-      mflo(3);
+      mult(3, 3, 4);
       sub(3, 5, 3);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::IntStar) {
       // (lhs - rhs) / 4  --> ($5 - $3) / $4
       sub(3, 5, 3);
-      div(3, 4);
-      mflo(3);
+      div(3, 3, 4);
     }
     break;
   case BinaryOperation::Mul:
-    mult(5, 3);
-    mflo(3);
+    mult(3, 5, 3);
     break;
   case BinaryOperation::Div:
-    div(5, 3);
-    mflo(3);
+    div(3, 5, 3);
     break;
   case BinaryOperation::Mod:
-    div(5, 3);
-    mfhi(3);
+    mod(3, 5, 3);
     break;
   default:
     runtime_assert(false, "Unknown binary operation");

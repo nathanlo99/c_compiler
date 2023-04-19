@@ -10,6 +10,7 @@ struct MIPSGenerator {
   bool constants_init = false;
 
   void annotate(const std::string &comment) {
+    runtime_assert(instructions.size() > 0, "No instructions to annotate");
     instructions.back().comment_value = comment;
   }
 
@@ -142,6 +143,32 @@ struct MIPSGenerator {
     if (d != s)
       add(d, s, 0);
   }
+  void mult(int d, int s, int t) {
+    mult(s, t);
+    mflo(d);
+  }
+  void multu(int d, int s, int t) {
+    multu(s, t);
+    mflo(d);
+  }
+  void div(int d, int s, int t) {
+    div(s, t);
+    mflo(d);
+  }
+  void divu(int d, int s, int t) {
+    divu(s, t);
+    mflo(d);
+  }
+  void mod(int d, int s, int t) {
+    div(s, t);
+    mfhi(d);
+  }
+  void modu(int d, int s, int t) {
+    divu(s, t);
+    mfhi(d);
+  }
+
+  // Raw instructions
   void add(int d, int s, int t) {
     instructions.push_back(MIPSInstruction::add(d, s, t));
   }

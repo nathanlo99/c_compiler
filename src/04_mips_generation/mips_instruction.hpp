@@ -165,7 +165,9 @@ public:
     return MIPSInstruction(Opcode::Import, 0, 0, 0, 0, true, value);
   }
   static MIPSInstruction comment(const std::string &value) {
-    return MIPSInstruction(Opcode::Comment, 0, 0, 0, 0, true, value);
+    auto result = MIPSInstruction(Opcode::Comment, 0, 0, 0, 0, true, "");
+    result.comment_value = value;
+    return result;
   }
 
   std::string to_string() const {
@@ -220,7 +222,6 @@ public:
       ss << ".import " << string_value;
       break;
     case Opcode::Comment:
-      ss << std::string(instruction_width, ' ') << "; " << string_value;
       break;
     default:
       runtime_assert(false, "Invalid opcode");
@@ -228,7 +229,7 @@ public:
 
     const int padding =
         std::max(0, instruction_width - static_cast<int>(ss.str().size()));
-    if (comment_value != "")
+    if (opcode == Opcode::Comment || comment_value != "")
       ss << std::string(padding, ' ') << "; " << comment_value;
 
     return ss.str();

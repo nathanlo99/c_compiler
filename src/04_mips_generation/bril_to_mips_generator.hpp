@@ -4,6 +4,7 @@
 #include "bril.hpp"
 #include "live_analysis.hpp"
 #include "mips_generator.hpp"
+#include "mips_instruction.hpp"
 #include "util.hpp"
 
 namespace bril {
@@ -32,33 +33,44 @@ private:
   void generate() {
     compute_allocations();
 
-    // TODO: Load the arguments to wain into the correct registers
+    // Load the arguments to wain into the correct registers
     const auto &wain = program.wain();
     const auto wain_allocations = allocations.at(wain.name);
+
+    std::stringstream ss;
+    program.print_flattened(ss);
+    std::string line;
+    while (std::getline(ss, line)) {
+      comment(line);
+    }
+
+    // Initialize constants and set the base pointer
+    init_constants();
+    sub(29, 30, 4);
+    annotate("Initializing base pointer");
+
+    // Load the arguments ($1 and $2) into the registers expected by wain
     const auto arg1 = wain.arguments[0].name;
     const auto arg2 = wain.arguments[1].name;
-
-    // Set the base pointer
-    load_const(4, 4);
-    load_const(11, 1);
-    constants_init = true;
-
-    sub(29, 30, 4);
-    // Load the arguments ($1 and $2) into the registers expected by wain
     if (wain_allocations.in_register(arg1)) {
       copy(wain_allocations.get_register(arg1), 1);
+      annotate("Loading argument 1 into register");
     } else {
       const int offset = wain_allocations.get_offset(arg1);
       sw(1, offset, 29);
+      annotate("Loading argument 1 into variable " + arg1);
     }
     if (wain_allocations.in_register(arg2)) {
       copy(wain_allocations.get_register(arg2), 2);
+      annotate("Loading argument 2 into register");
     } else {
       const int offset = wain_allocations.get_offset(arg2);
       sw(2, offset, 29);
+      annotate("Loading argument 2 into variable " + arg2);
     }
     // Jump to wain
-    beq(0, 0, "wain");
+    beq(0, 0, wain.entry_label);
+    annotate("Done prologue, jumping to wain");
 
     // Generate code for all the functions
     for (const auto &[name, function] : program.cfgs) {
@@ -75,17 +87,18 @@ private:
         continue;
       if (this_instruction.s == this_instruction.t &&
           this_instruction.string_value == next_instruction.string_value) {
-        instructions.erase(instructions.begin() + i);
-        // NOTE: We don't need to increment i here since the next instruction is
-        // a label
+        instructions[i] = MIPSInstruction::comment(
+            "jmp " + next_instruction.string_value + "; (fallthrough)");
       }
     }
 
-    comment("Number of instructions: " + std::to_string(instructions.size()));
+    comment("Number of instructions: " +
+            std::to_string(num_assembly_instructions()));
   }
 
   void generate_function(const ControlFlowGraph &function) {
     const RegisterAllocation allocation = allocations.at(function.name);
+    std::cerr << allocation << std::endl;
 
     comment("Code for function " + function.name);
     label(function.entry_label);
@@ -135,8 +148,8 @@ private:
     case Opcode::Const: {
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       load_const(dest_reg, instruction.value);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Id: {
@@ -144,8 +157,8 @@ private:
           load_variable(tmp1, instruction.arguments[0], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       copy(dest_reg, src_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      comment(instruction.to_string());
     } break;
 
     case Opcode::Add: {
@@ -155,8 +168,8 @@ private:
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       add(dest_reg, lhs_reg, rhs_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Sub: {
@@ -166,8 +179,8 @@ private:
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       sub(dest_reg, lhs_reg, rhs_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Mul: {
@@ -176,10 +189,9 @@ private:
       const size_t rhs_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
-      mult(lhs_reg, rhs_reg);
-      mflo(dest_reg);
-      annotate(instruction.to_string());
+      mult(dest_reg, lhs_reg, rhs_reg);
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Div: {
@@ -188,10 +200,9 @@ private:
       const size_t rhs_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
-      div(lhs_reg, rhs_reg);
-      mflo(dest_reg);
-      annotate(instruction.to_string());
+      div(dest_reg, lhs_reg, rhs_reg);
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Mod: {
@@ -202,8 +213,8 @@ private:
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       div(lhs_reg, rhs_reg);
       mfhi(dest_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Lt: {
@@ -213,8 +224,8 @@ private:
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp3, dest, allocation);
       slt(dest_reg, lhs_reg, rhs_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Le: {
@@ -225,8 +236,8 @@ private:
       const size_t dest_reg = get_register(tmp3, dest, allocation);
       slt(dest_reg, rhs_reg, lhs_reg);
       sub(dest_reg, 11, dest_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Gt: {
@@ -236,8 +247,8 @@ private:
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp3, dest, allocation);
       slt(dest_reg, rhs_reg, lhs_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Ge: {
@@ -248,8 +259,8 @@ private:
       const size_t dest_reg = get_register(tmp3, dest, allocation);
       slt(dest_reg, lhs_reg, rhs_reg);
       sub(dest_reg, 11, dest_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Eq: {
@@ -262,8 +273,8 @@ private:
       slt(tmp4, rhs_reg, lhs_reg);
       add(dest_reg, dest_reg, tmp4);
       sub(dest_reg, 11, dest_reg);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Ne: {
@@ -275,8 +286,8 @@ private:
       slt(dest_reg, lhs_reg, rhs_reg);
       slt(tmp4, rhs_reg, lhs_reg);
       add(dest_reg, dest_reg, tmp4);
-      annotate(instruction.to_string());
       store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Br: {
@@ -284,8 +295,8 @@ private:
           load_variable(tmp1, instruction.arguments[0], allocation);
       const std::string &true_label = instruction.labels[0];
       const std::string &false_label = instruction.labels[1];
-      comment(instruction.to_string());
       beq(condition_reg, 0, false_label);
+      annotate(instruction.to_string());
       beq(0, 0, true_label);
     } break;
 
