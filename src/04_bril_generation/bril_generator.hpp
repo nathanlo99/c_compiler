@@ -31,7 +31,7 @@ public:
   inline std::string generate_label(const std::string label_type) {
     static std::map<std::string, int> next_indices;
     const int next_idx = next_indices[label_type]++;
-    return "." + label_type + "_" + std::to_string(next_idx);
+    return label_type + std::to_string(next_idx);
   }
 
   void add_function(const std::string &name,

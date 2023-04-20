@@ -13,7 +13,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // - Labels start new blocks, and fallthrough from the previous block
   // - Jumps end blocks
   Block current_block;
-  entry_label = "." + function.name.substr(1) + "_entry";
+  entry_label = function.name.substr(1) + "EntryLabel";
   current_block.entry_label = entry_label;
   std::map<std::string, std::set<std::string>> entry_labels;
   for (const auto &instruction : function.instructions) {
@@ -77,7 +77,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // conversion later
   if (blocks.at(entry_label).incoming_blocks.size() > 0) {
     const auto old_entry_label = entry_label;
-    const auto new_entry_label = "." + function.name.substr(1) + "_entry2";
+    const auto new_entry_label = function.name.substr(1) + "EntryLabel2";
     entry_label = new_entry_label;
 
     Block new_block;
