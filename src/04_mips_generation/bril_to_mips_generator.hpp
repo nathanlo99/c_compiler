@@ -353,7 +353,7 @@ private:
       // 1. Save the live registers, including $29 and $31
       std::set<size_t> live_registers = {29, 31};
       for (const auto &var : live_variables_after) {
-        if (allocation.in_register(var))
+        if (var != dest && allocation.in_register(var))
           live_registers.insert(allocation.get_register(var));
       }
 
@@ -408,6 +408,10 @@ private:
         pop(*it);
       comment("7. Done with function call");
 
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      copy(dest_reg, 3);
+      store_variable(dest, dest_reg, allocation);
+      comment("8. Copy return value to " + dest);
     } break;
 
     case Opcode::Ret: {
