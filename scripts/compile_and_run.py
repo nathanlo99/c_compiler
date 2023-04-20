@@ -31,6 +31,7 @@ commands = [
     "cs241.linkasm < output/output.asm > output/output.merl",
     "cs241.linker output/output.merl references/print.merl references/alloc.merl > output/linked.merl",
     "cs241.merl 0 < output/linked.merl > output/final.mips 2> /dev/null",
+    "wc -c output/final.mips",
     "{} output/final.mips".format(run_command)
 ]
 

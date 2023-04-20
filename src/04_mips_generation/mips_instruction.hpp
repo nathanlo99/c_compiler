@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <map>
 #include <sstream>
 #include <string>
@@ -193,7 +194,7 @@ public:
     case Opcode::Sltu:
     case Opcode::Beq:
     case Opcode::Bne:
-    case Opcode::Lw: {
+    case Opcode::Sw: {
       if (s == from) {
         s = to;
         changed = true;
@@ -203,7 +204,7 @@ public:
         changed = true;
       }
     } break;
-    case Opcode::Sw: {
+    case Opcode::Lw: {
       if (s == from) {
         s = to;
         changed = true;

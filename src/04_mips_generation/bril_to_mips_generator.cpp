@@ -184,10 +184,11 @@ bool BRILToMIPSGenerator::collapse_moves() {
       if (other_instruction.is_jump() ||
           other_instruction.opcode == ::Opcode::Label)
         break;
-      if (substitutable_opcodes.count(other_instruction.opcode) == 0)
-        continue;
+
       // Substitute arguments
-      changed |= other_instruction.substitute_arguments(dest, src);
+      if (substitutable_opcodes.count(other_instruction.opcode) > 0) {
+        changed |= other_instruction.substitute_arguments(dest, src);
+      }
 
       // If the source register or destination register is written to, break
       const auto written_register = other_instruction.written_register();

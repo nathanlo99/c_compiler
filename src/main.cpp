@@ -261,8 +261,8 @@ void allocate_registers(const std::string &filename) {
   const std::string separator(100, '-'), padding(50, ' ');
 
   const std::vector<size_t> available_registers = {
-      3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
-      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+      3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16, 
+      17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
 
   for (const auto &[name, cfg] : program.cfgs) {
     std::cout << separator << std::endl;

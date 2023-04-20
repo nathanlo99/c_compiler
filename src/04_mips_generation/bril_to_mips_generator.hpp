@@ -40,6 +40,8 @@ private:
   }
 
   void generate() {
+    // TODO: When allocating registers, make sure used variables are not 
+    // assigned the same register
     compute_allocations();
 
     std::cerr << program << std::endl;
@@ -103,8 +105,10 @@ private:
     }
 
     // Set up the stack pointer
-    load_const(1, 4 * wain_allocations.spilled_variables.size());
+    const int stack_size = wain_allocations.spilled_variables.size();
+    load_const(1, 4 * stack_size - 4);
     sub(30, 29, 1);
+    annotate("$30 = $29 - (" + std::to_string(4 * stack_size - 4) + ")");
 
     // Jump to wain
     beq(0, 0, wain.entry_label);
@@ -350,8 +354,8 @@ private:
       std::cerr << "Generating function call " << instruction.to_string()
                 << std::endl;
 
-      // 1. Save the live registers, including $29 and $31
-      std::set<size_t> live_registers = {29, 31};
+      // 1. Save the live registers, including $29
+      std::set<size_t> live_registers = {29};
       for (const auto &var : live_variables_after) {
         if (var != dest && allocation.in_register(var))
           live_registers.insert(allocation.get_register(var));
@@ -394,7 +398,9 @@ private:
       comment("3. Done copying arguments to " + called_function.name);
 
       // 4. Jump to the function
+      push(31);
       load_and_jalr(2, called_function.entry_label);
+      pop(31);
       annotate("4. Jump to " + called_function.name);
 
       // 5. Restore the stack pointer
@@ -445,17 +451,19 @@ private:
       push(31);
       load_and_jalr(2, "print");
       pop(31);
-      comment(instruction.to_string());
+      annotate(instruction.to_string());
     } break;
 
     case Opcode::Nop: {
-      comment(instruction.to_string());
+      // Do nothing
     } break;
 
     case Opcode::Alloc: {
       const size_t arg_reg =
           load_variable(tmp1, instruction.arguments[0], allocation);
       const size_t dest_reg = get_register(3, dest, allocation);
+      const std::string alloc_success = generate_label("allocSuccess");
+
       // Argument in $1
       // Result in $3: if it was 0, return NULL (1)
 
@@ -464,8 +472,9 @@ private:
       push(31);
       load_and_jalr(2, "new");
       pop(31);
-      bne(3, 0, 1);
+      bne(3, 0, alloc_success);
       add(3, 11, 0);
+      label(alloc_success);
       copy(dest_reg, 3);
       if (dest_reg != 3) {
         pop(3);
