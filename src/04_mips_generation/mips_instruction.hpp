@@ -159,6 +159,8 @@ public:
     return MIPSInstruction(Opcode::Word, 0, 0, 0, 0, true, label);
   }
   static MIPSInstruction label(const std::string &name) {
+    runtime_assert(name.find('_') == std::string::npos,
+                   "Label name cannot have underscores: " + name);
     return MIPSInstruction(name);
   }
   static MIPSInstruction import(const std::string &value) {

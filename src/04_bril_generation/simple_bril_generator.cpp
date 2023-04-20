@@ -183,9 +183,9 @@ void SimpleBRILGenerator::visit(AssignmentStatement &statement) {
 }
 
 void SimpleBRILGenerator::visit(IfStatement &statement) {
-  const std::string true_label = generate_label("if_true");
-  const std::string false_label = generate_label("if_false");
-  const std::string endif_label = generate_label("if_endif");
+  const std::string true_label = generate_label("ifTrue");
+  const std::string false_label = generate_label("ifFalse");
+  const std::string endif_label = generate_label("ifEndif");
 
   statement.test_expression->accept_simple(*this);
   const std::string cond = last_result();
@@ -199,9 +199,9 @@ void SimpleBRILGenerator::visit(IfStatement &statement) {
 }
 
 void SimpleBRILGenerator::visit(WhileStatement &statement) {
-  const std::string loop_label = generate_label("while_loop");
-  const std::string end_label = generate_label("while_end");
-  const std::string body_label = generate_label("while_body");
+  const std::string loop_label = generate_label("whileLoop");
+  const std::string end_label = generate_label("whileEnd");
+  const std::string body_label = generate_label("whileBody");
 
   label(loop_label);
   statement.test_expression->accept_simple(*this);

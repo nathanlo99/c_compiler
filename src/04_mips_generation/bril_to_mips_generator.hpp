@@ -472,7 +472,7 @@ private:
     } break;
 
     case Opcode::Free: {
-      const auto skip_label = generate_label("deleteskip");
+      const auto skip_label = generate_label("deleteSkip");
       const size_t arg_reg =
           load_variable(tmp1, instruction.arguments[0], allocation);
       copy(1, arg_reg);
