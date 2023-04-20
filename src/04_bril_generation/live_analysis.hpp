@@ -65,6 +65,8 @@ struct LivenessAnalysis : BackwardDataFlowPass<LivenessData> {
 };
 
 struct RegisterInterferenceGraph {
+  std::map<std::string, LivenessData> liveness_data;
+
   std::map<std::string, size_t> variable_to_index;
   std::vector<std::string> index_to_variable;
 
@@ -72,7 +74,7 @@ struct RegisterInterferenceGraph {
 
   RegisterInterferenceGraph(const ControlFlowGraph &graph) {
     LivenessAnalysis analysis(graph);
-    const auto liveness_data = analysis.run();
+    liveness_data = analysis.run();
     for (const auto &argument : graph.arguments) {
       add_variable(argument.name);
     }
@@ -137,12 +139,14 @@ struct RegisterInterferenceGraph {
 
 struct RegisterAllocation {
   std::map<std::string, size_t> register_allocation;
-  std::map<std::string, size_t> spilled_variables;
-  size_t next_offset = 0;
+  std::map<std::string, int> spilled_variables;
+  std::map<std::string, LivenessData> liveness_data;
+
+  int next_offset = 0;
 
   void spill_variable(const std::string &variable) {
     spilled_variables[variable] = next_offset;
-    next_offset += 4;
+    next_offset -= 4;
   }
 
   bool in_register(const std::string &variable) const {
@@ -156,7 +160,7 @@ struct RegisterAllocation {
                    "Variable " + variable + " is not in a register");
     return register_allocation.at(variable);
   }
-  size_t get_offset(const std::string &variable) const {
+  int get_offset(const std::string &variable) const {
     runtime_assert(is_spilled(variable),
                    "Variable " + variable + " is not spilled");
     return spilled_variables.at(variable);
@@ -251,6 +255,7 @@ allocate_registers(const ControlFlowGraph &function,
       result.register_allocation[var] = *available_neighbours.begin();
     }
   }
+  result.liveness_data = graph.liveness_data;
   return result;
 }
 

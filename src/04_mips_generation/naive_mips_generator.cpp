@@ -63,7 +63,7 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
         add(2, 0, 0);
       }
       push(31);
-      load_and_jalr("init");
+      load_and_jalr(5, "init");
       pop(31);
       comment("Done calling init");
     }
@@ -186,7 +186,7 @@ void NaiveMIPSGenerator::visit(NewExpr &expr) {
   expr.rhs->accept_simple(*this);
   add(1, 3, 0);
   push(31);
-  load_and_jalr("new");
+  load_and_jalr(5, "new");
   pop(31);
   // The result is stored in $1: copy it to $3, and return NULL (1) if it was 0
   bne(3, 0, 1);
@@ -206,7 +206,7 @@ void NaiveMIPSGenerator::visit(FunctionCallExpr &expr) {
     push(3);
     comment("Done pushing argument " + params[i].name);
   }
-  load_and_jalr(procedure_name);
+  load_and_jalr(5, procedure_name);
   pop_and_discard(num_arguments);
   pop(31);
   pop(29);
@@ -331,7 +331,7 @@ void NaiveMIPSGenerator::visit(PrintStatement &statement) {
   statement.expression->accept_simple(*this);
   add(1, 3, 0);
   push(31);
-  load_and_jalr("print");
+  load_and_jalr(5, "print");
   pop(31);
 }
 
@@ -341,7 +341,7 @@ void NaiveMIPSGenerator::visit(DeleteStatement &statement) {
   beq(3, 11, skip_label);
   add(1, 3, 0);
   push(31);
-  load_and_jalr("delete");
+  load_and_jalr(5, "delete");
   pop(31);
   label(skip_label);
 }

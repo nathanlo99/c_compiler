@@ -19,6 +19,7 @@ struct BRILToMIPSGenerator : MIPSGenerator {
   bool uses_heap = false;
   bool uses_print = false;
   std::map<std::string, RegisterAllocation> allocations;
+  std::map<std::string, std::map<std::string, LivenessData>> liveness_data;
 
   BRILToMIPSGenerator(const Program &program) : program(program) {
     uses_heap = program.uses_heap();
@@ -31,13 +32,17 @@ private:
     for (const auto &[name, function] : program.cfgs) {
       std::cerr << "Computing register allocation for function " << name
                 << std::endl;
+
       allocations[function.name] =
           allocate_registers(function, available_registers);
+      liveness_data[function.name] = allocations[function.name].liveness_data;
     }
   }
 
   void generate() {
     compute_allocations();
+
+    std::cerr << program << std::endl;
 
     // Load the arguments to wain into the correct registers
     const auto &wain = program.wain();
@@ -92,10 +97,14 @@ private:
         add(2, 0, 0);
       }
       push(31);
-      load_and_jalr("init");
+      load_and_jalr(1, "init");
       pop(31);
       comment("Done calling init");
     }
+
+    // Set up the stack pointer
+    load_const(1, 4 * wain_allocations.spilled_variables.size());
+    sub(30, 29, 1);
 
     // Jump to wain
     beq(0, 0, wain.entry_label);
@@ -133,12 +142,17 @@ private:
 
   void generate_function(const ControlFlowGraph &function) {
     const RegisterAllocation allocation = allocations.at(function.name);
-    std::cerr << allocation << std::endl;
-
     comment("Code for function " + function.name);
     label(function.entry_label);
-    for (const auto &instruction : function.flatten()) {
-      generate_instruction(instruction, allocation);
+    for (const auto &label : function.block_labels) {
+      const auto block = function.get_block(label);
+      const auto &live_variables =
+          allocation.liveness_data.at(label).live_variables;
+      for (size_t i = 0; i < block.instructions.size(); ++i) {
+        const auto &instruction = block.instructions[i];
+        generate_instruction(instruction, live_variables[i],
+                             live_variables[i + 1], allocation);
+      }
     }
     comment("Done with function " + function.name);
   }
@@ -148,6 +162,9 @@ private:
     if (allocation.in_register(argument)) {
       return allocation.get_register(argument);
     } else {
+      runtime_assert(allocation.is_spilled(argument),
+                     "Variable " + argument +
+                         " is not in a register nor on the stack");
       const int offset = allocation.get_offset(argument);
       lw(temp_reg, offset, 29);
       annotate("Loading variable " + argument + " from offset " +
@@ -171,8 +188,11 @@ private:
                                             : temp_reg;
   }
 
-  void generate_instruction(const Instruction &instruction,
-                            const RegisterAllocation &allocation) {
+  void generate_instruction(
+      const Instruction &instruction,
+      [[maybe_unused]] const std::set<std::string> &live_variables_before,
+      const std::set<std::string> &live_variables_after,
+      const RegisterAllocation &allocation) {
     const std::string &dest = instruction.destination;
 
     switch (instruction.opcode) {
@@ -322,7 +342,72 @@ private:
     } break;
 
     case Opcode::Call: {
-      // TODO: Implement this
+      const std::string label = instruction.funcs[0];
+      const auto &called_function = program.get_function(label);
+      const auto &function_allocation = allocations.at(called_function.name);
+
+      // TODO: Test this
+      std::cerr << "Generating function call " << instruction.to_string()
+                << std::endl;
+
+      // 1. Save the live registers, including $29 and $31
+      std::set<size_t> live_registers = {29, 31};
+      for (const auto &var : live_variables_after) {
+        if (allocation.in_register(var))
+          live_registers.insert(allocation.get_register(var));
+      }
+
+      comment("Generating function call: " + instruction.to_string());
+      comment("1. Save the live registers");
+      for (const size_t reg : live_registers)
+        push(reg);
+
+      // 2. Subtract 4 from $30 to obtain the new base pointer
+      sub(30, 30, 4);
+      annotate("2. Obtain the new base pointer");
+
+      // 3. For each argument in memory, copy it to the stack
+      //    for each argument in register, load it into the register
+      // NOTE: We have to preserve $29 to access variables on the stack
+      const size_t stack_size =
+          function_allocation.spilled_variables.size() * 4;
+      for (size_t i = 0; i < called_function.arguments.size(); ++i) {
+        const auto &parameter = instruction.arguments[i];
+        const auto &argument = called_function.arguments[i];
+        if (function_allocation.is_spilled(argument.name)) {
+          const int offset = function_allocation.get_offset(argument.name);
+          const size_t src_reg = load_variable(1, parameter, allocation);
+          sw(src_reg, offset, 30);
+        } else if (function_allocation.in_register(argument.name)) {
+          const size_t dest_reg =
+              function_allocation.get_register(argument.name);
+          const size_t src_reg = load_variable(1, parameter, allocation);
+          copy(dest_reg, src_reg);
+        } else {
+          runtime_assert(false, "Argument " + argument.name +
+                                    " not in memory or register");
+        }
+      }
+      add(29, 30, 0);
+      load_const(1, stack_size * 4 - 4);
+      sub(30, 30, 1);
+      comment("3. Done copying arguments to " + called_function.name);
+
+      // 4. Jump to the function
+      load_and_jalr(2, called_function.entry_label);
+      annotate("4. Jump to " + called_function.name);
+
+      // 5. Restore the stack pointer
+      comment("5. Restore the stack pointer");
+      load_const(1, stack_size * 4);
+      add(30, 30, 1);
+
+      // 6. Pop the saved registers off the stack
+      comment("6. Pop the saved registers off the stack");
+      for (auto it = live_registers.rbegin(); it != live_registers.rend(); ++it)
+        pop(*it);
+      comment("7. Done with function call");
+
     } break;
 
     case Opcode::Ret: {
@@ -350,7 +435,13 @@ private:
     } break;
 
     case Opcode::Print: {
-      // TODO: Implement this
+      const size_t arg_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      copy(1, arg_reg);
+      push(31);
+      load_and_jalr(2, "print");
+      pop(31);
+      comment(instruction.to_string());
     } break;
 
     case Opcode::Nop: {
@@ -367,7 +458,7 @@ private:
       copy(1, arg_reg);
       push(3);
       push(31);
-      load_and_jalr("new");
+      load_and_jalr(2, "new");
       pop(31);
       bne(3, 0, 1);
       add(3, 11, 0);
@@ -387,7 +478,7 @@ private:
       copy(1, arg_reg);
       beq(1, 11, skip_label);
       push(31);
-      load_and_jalr("delete");
+      load_and_jalr(2, "delete");
       pop(31);
       label(skip_label);
     } break;

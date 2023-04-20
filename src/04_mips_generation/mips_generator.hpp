@@ -90,9 +90,9 @@ struct MIPSGenerator {
     }
   }
 
-  void load_and_jalr(const std::string &label) {
-    load_const(5, label);
-    jalr(5);
+  void load_and_jalr(const size_t reg, const std::string &label) {
+    load_const(reg, label);
+    jalr(reg);
   }
 
   void push(int reg) {
