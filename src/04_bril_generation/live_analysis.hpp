@@ -75,8 +75,11 @@ struct RegisterInterferenceGraph {
   RegisterInterferenceGraph(const ControlFlowGraph &graph) {
     LivenessAnalysis analysis(graph);
     liveness_data = analysis.run();
-    for (const auto &argument : graph.arguments) {
-      add_variable(argument.name);
+    // TODO: Skip adding edges if the variable is never used
+    for (const auto &arg1 : graph.arguments) {
+      for (const auto& arg2 : graph.arguments) {
+        add_edge(arg1.name, arg2.name);
+      }
     }
 
     for (const auto &[label, block] : graph.blocks) {

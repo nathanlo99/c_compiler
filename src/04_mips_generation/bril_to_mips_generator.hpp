@@ -40,8 +40,6 @@ private:
   }
 
   void generate() {
-    // TODO: When allocating registers, make sure used variables are not 
-    // assigned the same register
     compute_allocations();
 
     std::cerr << program << std::endl;
@@ -308,9 +306,9 @@ private:
       const size_t rhs_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp3, dest, allocation);
-      slt(dest_reg, lhs_reg, rhs_reg);
+      slt(tmp3, lhs_reg, rhs_reg);
       slt(tmp4, rhs_reg, lhs_reg);
-      add(dest_reg, dest_reg, tmp4);
+      add(dest_reg, tmp3, tmp4);
       sub(dest_reg, 11, dest_reg);
       store_variable(dest, dest_reg, allocation);
       annotate(instruction.to_string());
@@ -322,9 +320,9 @@ private:
       const size_t rhs_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp3, dest, allocation);
-      slt(dest_reg, lhs_reg, rhs_reg);
+      slt(tmp3, lhs_reg, rhs_reg);
       slt(tmp4, rhs_reg, lhs_reg);
-      add(dest_reg, dest_reg, tmp4);
+      add(dest_reg, tmp3, tmp4);
       store_variable(dest, dest_reg, allocation);
       annotate(instruction.to_string());
     } break;
