@@ -87,16 +87,20 @@ private:
     while (true) {
       bool changed = false;
       changed |= remove_fallthrough_jumps();
-      changed |= remove_unused_writes();
       changed |= remove_unused_labels();
+      changed |= remove_globally_unused_writes();
+      changed |= remove_locally_unused_writes();
+      changed |= collapse_moves();
       if (!changed)
         break;
     }
   }
 
-  bool remove_unused_writes();
+  bool remove_globally_unused_writes();
+  bool remove_locally_unused_writes();
   bool remove_fallthrough_jumps();
   bool remove_unused_labels();
+  bool collapse_moves();
 
   void generate_function(const ControlFlowGraph &function) {
     const RegisterAllocation allocation = allocations.at(function.name);

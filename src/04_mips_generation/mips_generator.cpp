@@ -60,8 +60,8 @@ bool MIPSGenerator::optimize_moves() {
       continue;
     copy_instruction.comment_value += " (move)";
 
-    const int destination = copy_instruction.d;
-    const int source = is_lhs_move ? copy_instruction.s : copy_instruction.t;
+    const size_t destination = copy_instruction.d;
+    const size_t source = is_lhs_move ? copy_instruction.s : copy_instruction.t;
 
     for (size_t j = i + 1; j < instructions.size(); ++j) {
       auto &use_instruction = instructions[j];

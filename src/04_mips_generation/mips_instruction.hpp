@@ -37,7 +37,7 @@ enum class Opcode {
 
 struct MIPSInstruction {
   Opcode opcode;
-  int s, t, d;
+  size_t s, t, d;
   int32_t i;
 
   bool has_label;
@@ -170,8 +170,52 @@ public:
     return result;
   }
 
-  std::set<int> read_registers() const {
-    std::set<int> result;
+  bool is_jump() const {
+    return opcode == Opcode::Jr || opcode == Opcode::Jalr ||
+           opcode == Opcode::Beq || opcode == Opcode::Bne;
+  }
+
+  bool substitute_arguments(const size_t from, const size_t to) {
+    bool changed = false;
+    // If [from] appears as an argument, replace it with [to].
+    switch (opcode) {
+    case Opcode::Add:
+    case Opcode::Sub:
+    case Opcode::Mult:
+    case Opcode::Multu:
+    case Opcode::Div:
+    case Opcode::Divu:
+    case Opcode::Slt:
+    case Opcode::Sltu:
+    case Opcode::Beq:
+    case Opcode::Bne:
+    case Opcode::Lw: {
+      if (s == from) {
+        s = to;
+        changed = true;
+      }
+      if (t == from) {
+        t = to;
+        changed = true;
+      }
+    } break;
+    case Opcode::Sw: {
+      if (s == from) {
+        s = to;
+        changed = true;
+      }
+    } break;
+    default:
+      break;
+    }
+    if (changed)
+      comment_value += " (replaced " + std::to_string(from) + " with " +
+                       std::to_string(to) + ")";
+    return changed;
+  }
+
+  std::set<size_t> read_registers() const {
+    std::set<size_t> result;
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
@@ -203,7 +247,7 @@ public:
     return {};
   }
 
-  std::optional<int> written_register() const {
+  std::optional<size_t> written_register() const {
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
