@@ -16,9 +16,15 @@ struct BRILToMIPSGenerator : MIPSGenerator {
   static const size_t tmp1 = 1, tmp2 = 2, tmp3 = 27, tmp4 = 28;
 
   const Program &program;
+  bool uses_heap = false;
+  bool uses_print = false;
   std::map<std::string, RegisterAllocation> allocations;
 
-  BRILToMIPSGenerator(const Program &program) : program(program) { generate(); }
+  BRILToMIPSGenerator(const Program &program) : program(program) {
+    uses_heap = program.uses_heap();
+    uses_print = program.uses_print();
+    generate();
+  }
 
 private:
   void compute_allocations() {
@@ -42,6 +48,16 @@ private:
     std::string line;
     while (std::getline(ss, line)) {
       comment(line);
+    }
+
+    if (uses_heap) {
+      import("init");
+      import("new");
+      import("delete");
+    }
+
+    if (uses_print) {
+      import("print");
     }
 
     // Initialize constants and set the base pointer
@@ -68,6 +84,19 @@ private:
       sw(2, offset, 29);
       annotate("Loading argument 2 into variable " + arg2);
     }
+
+    if (uses_heap) {
+      comment("Calling init");
+      const bool first_arg_is_array = wain.arguments[0].type == Type::IntStar;
+      if (!first_arg_is_array) {
+        add(2, 0, 0);
+      }
+      push(31);
+      load_and_jalr("init");
+      pop(31);
+      comment("Done calling init");
+    }
+
     // Jump to wain
     beq(0, 0, wain.entry_label);
     annotate("Done prologue, jumping to wain");
@@ -147,26 +176,6 @@ private:
     const std::string &dest = instruction.destination;
 
     switch (instruction.opcode) {
-    case Opcode::Label: {
-      label(instruction.labels[0]);
-    } break;
-
-    case Opcode::Const: {
-      const size_t dest_reg = get_register(tmp1, dest, allocation);
-      load_const(dest_reg, instruction.value);
-      store_variable(dest, dest_reg, allocation);
-      annotate(instruction.to_string());
-    } break;
-
-    case Opcode::Id: {
-      const size_t src_reg =
-          load_variable(tmp1, instruction.arguments[0], allocation);
-      const size_t dest_reg = get_register(tmp1, dest, allocation);
-      copy(dest_reg, src_reg);
-      store_variable(dest, dest_reg, allocation);
-      comment(instruction.to_string());
-    } break;
-
     case Opcode::Add: {
       const size_t lhs_reg =
           load_variable(tmp1, instruction.arguments[0], allocation);
@@ -296,6 +305,12 @@ private:
       annotate(instruction.to_string());
     } break;
 
+    case Opcode::Jmp: {
+      const std::string &label = instruction.labels[0];
+      beq(0, 0, label);
+      annotate(instruction.to_string());
+    } break;
+
     case Opcode::Br: {
       const size_t condition_reg =
           load_variable(tmp1, instruction.arguments[0], allocation);
@@ -306,10 +321,8 @@ private:
       beq(0, 0, true_label);
     } break;
 
-    case Opcode::Jmp: {
-      const std::string &label = instruction.labels[0];
-      beq(0, 0, label);
-      annotate(instruction.to_string());
+    case Opcode::Call: {
+      // TODO: Implement this
     } break;
 
     case Opcode::Ret: {
@@ -318,6 +331,139 @@ private:
       copy(3, return_value_reg);
       comment(instruction.to_string());
       jr(31);
+    } break;
+
+    case Opcode::Const: {
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      load_const(dest_reg, instruction.value);
+      store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
+    } break;
+
+    case Opcode::Id: {
+      const size_t src_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      copy(dest_reg, src_reg);
+      store_variable(dest, dest_reg, allocation);
+      comment(instruction.to_string());
+    } break;
+
+    case Opcode::Print: {
+      // TODO: Implement this
+    } break;
+
+    case Opcode::Nop: {
+      comment(instruction.to_string());
+    } break;
+
+    case Opcode::Alloc: {
+      const size_t arg_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t dest_reg = get_register(3, dest, allocation);
+      // Argument in $1
+      // Result in $3: if it was 0, return NULL (1)
+
+      copy(1, arg_reg);
+      push(3);
+      push(31);
+      load_and_jalr("new");
+      pop(31);
+      bne(3, 0, 1);
+      add(3, 11, 0);
+      copy(dest_reg, 3);
+      if (dest_reg != 3) {
+        pop(3);
+      } else {
+        pop_and_discard();
+      }
+      store_variable(dest, dest_reg, allocation);
+    } break;
+
+    case Opcode::Free: {
+      const auto skip_label = generate_label("deleteskip");
+      const size_t arg_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      copy(1, arg_reg);
+      beq(1, 11, skip_label);
+      push(31);
+      load_and_jalr("delete");
+      pop(31);
+      label(skip_label);
+    } break;
+
+    case Opcode::Store: {
+      // store location value
+      const size_t dest_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t src_reg =
+          load_variable(tmp2, instruction.arguments[1], allocation);
+      sw(src_reg, 0, dest_reg);
+      annotate(instruction.to_string());
+    } break;
+
+    case Opcode::Load: {
+      // dest = load location
+      const size_t src_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t dest_reg = get_register(tmp2, dest, allocation);
+      lw(dest_reg, 0, src_reg);
+      store_variable(dest, dest_reg, allocation);
+      annotate(instruction.to_string());
+    } break;
+
+    case Opcode::PointerAdd: {
+      // dest = ptradd ptr offset
+      // -> dest = ptr + 4 * offset
+      const size_t ptr_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t offset_reg =
+          load_variable(tmp2, instruction.arguments[1], allocation);
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      copy(tmp1, offset_reg);
+      add(tmp1, tmp1, tmp1);
+      add(tmp1, tmp1, tmp1);
+      add(dest_reg, ptr_reg, tmp1);
+      store_variable(dest, dest_reg, allocation);
+    } break;
+
+    case Opcode::PointerSub: {
+      const size_t ptr_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t offset_reg =
+          load_variable(tmp2, instruction.arguments[1], allocation);
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      copy(tmp1, offset_reg);
+      add(tmp1, tmp1, tmp1);
+      add(tmp1, tmp1, tmp1);
+      sub(dest_reg, ptr_reg, tmp1);
+      store_variable(dest, dest_reg, allocation);
+    } break;
+
+    case Opcode::PointerDiff: {
+      const size_t ptr1_reg =
+          load_variable(tmp1, instruction.arguments[0], allocation);
+      const size_t ptr2_reg =
+          load_variable(tmp2, instruction.arguments[1], allocation);
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      sub(dest_reg, ptr1_reg, ptr2_reg);
+      div(dest_reg, dest_reg, 4);
+      store_variable(dest, dest_reg, allocation);
+    } break;
+
+    case Opcode::AddressOf: {
+      const std::string &var = instruction.arguments[0];
+      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      runtime_assert(allocation.is_spilled(var),
+                     "Addressed variable " + var + " is not in memory");
+      const int offset = allocation.get_offset(var);
+      load_const(tmp1, offset);
+      add(dest_reg, 29, tmp1);
+      store_variable(dest, dest_reg, allocation);
+    } break;
+
+    case Opcode::Label: {
+      label(instruction.labels[0]);
     } break;
 
     default: {

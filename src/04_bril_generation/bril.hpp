@@ -71,25 +71,25 @@ struct Variable {
 
 enum class Opcode {
   // Core BRIL
-  Add,
-  Sub,
-  Mul,
-  Div,
-  Mod,
-  Lt,
-  Le,
-  Gt,
-  Ge,
-  Eq,
-  Ne,
-  Jmp,
-  Br,
+  Add, // Done
+  Sub, // Done
+  Mul, // Done
+  Div, // Done
+  Mod, // Done
+  Lt,  // Done
+  Le,  // Done
+  Gt,  // Done
+  Ge,  // Done
+  Eq,  // Done
+  Ne,  // Done
+  Jmp, // Done
+  Br,  // Done
   Call,
-  Ret,
-  Const,
-  Id,
+  Ret,   // Done
+  Const, // Done
+  Id,    // Done
   Print,
-  Nop,
+  Nop, // Done
 
   // Memory BRIL
   Alloc,
@@ -102,10 +102,10 @@ enum class Opcode {
   AddressOf,
 
   // Label
-  Label,
+  Label, // Done
 
   // SSA
-  Phi,
+  Phi, // Done
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
@@ -509,7 +509,6 @@ struct Function {
 
 struct ControlFlowGraph;
 struct Block {
-
   std::string entry_label;
   std::vector<Instruction> instructions;
   std::vector<std::string> exit_labels;
@@ -613,6 +612,25 @@ struct ControlFlowGraph {
     for (const auto &[entry_label, block] : blocks) {
       if (block.uses_pointers())
         return true;
+    }
+    return false;
+  }
+  bool uses_print() const {
+    for (const auto &[entry_label, block] : blocks) {
+      for (const auto &instruction : block.instructions) {
+        if (instruction.opcode == Opcode::Print)
+          return true;
+      }
+    }
+    return false;
+  }
+  bool uses_heap() const {
+    for (const auto &[entry_label, block] : blocks) {
+      for (const auto &instruction : block.instructions) {
+        if (instruction.opcode == Opcode::Alloc ||
+            instruction.opcode == Opcode::Free)
+          return true;
+      }
     }
     return false;
   }
@@ -750,6 +768,20 @@ struct Program {
   bool has_phi_instructions() const {
     for (const auto &[name, cfg] : cfgs) {
       if (cfg.has_phi_instructions())
+        return true;
+    }
+    return false;
+  }
+  bool uses_heap() const {
+    for (const auto &[name, cfg] : cfgs) {
+      if (cfg.uses_heap())
+        return true;
+    }
+    return false;
+  }
+  bool uses_print() const {
+    for (const auto &[name, cfg] : cfgs) {
+      if (cfg.uses_print())
         return true;
     }
     return false;

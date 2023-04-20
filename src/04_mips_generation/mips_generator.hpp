@@ -23,7 +23,7 @@ struct MIPSGenerator {
     constants_init = true;
   }
 
-  void pop_and_discard(const size_t num_values) {
+  void pop_and_discard(const size_t num_values = 1) {
     // Two options: one is to repeat 'add $30, $30, $4', stack_size times
     // The other is lis, word, add
     // The second option is better when stack_size > 3
