@@ -159,6 +159,12 @@ bool BRILToMIPSGenerator::collapse_moves() {
       continue;
 
     const size_t src = instruction.s, dest = instruction.d;
+    if (src == dest) {
+      instructions[i] = MIPSInstruction::comment("Removing move to self");
+      changed = true;
+      continue;
+    }
+
     const std::set<::Opcode> substitutable_opcodes = {
         ::Opcode::Add, ::Opcode::Sub,  ::Opcode::Mult, ::Opcode::Multu,
         ::Opcode::Div, ::Opcode::Divu, ::Opcode::Slt,  ::Opcode::Sltu,
@@ -175,8 +181,8 @@ bool BRILToMIPSGenerator::collapse_moves() {
       changed |= other_instruction.substitute_arguments(dest, src);
 
       // If the source register or destination register is written to, break
-      if (other_instruction.written_register() == src ||
-          other_instruction.written_register() == dest)
+      const auto written_register = other_instruction.written_register();
+      if (written_register == src || written_register == dest)
         break;
     }
   }

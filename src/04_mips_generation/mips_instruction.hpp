@@ -176,6 +176,8 @@ public:
   }
 
   bool substitute_arguments(const size_t from, const size_t to) {
+    if (from == to)
+      return false;
     bool changed = false;
     // If [from] appears as an argument, replace it with [to].
     switch (opcode) {
@@ -209,7 +211,7 @@ public:
       break;
     }
     if (changed)
-      comment_value += " (replaced " + std::to_string(from) + " with " +
+      comment_value += " (replaced $" + std::to_string(from) + " with $" +
                        std::to_string(to) + ")";
     return changed;
   }
