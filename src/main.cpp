@@ -88,11 +88,12 @@ size_t apply_optimizations(bril::Program &program) {
         program.apply_local_pass(remove_local_unused_assignments);
     num_removed_lines +=
         program.apply_local_pass(remove_trivial_phi_instructions);
+    // num_removed_lines += program.apply_global_pass(move_constants_to_front);
     if (num_removed_lines == old_num_removed_lines)
       break;
   }
-  std::cerr << "Optimizations removed " << num_removed_lines << " lines"
-            << std::endl;
+  // std::cerr << "Optimizations removed " << num_removed_lines << " lines"
+  //           << std::endl;
   return num_removed_lines;
 }
 
@@ -261,7 +262,7 @@ void allocate_registers(const std::string &filename) {
   const std::string separator(100, '-'), padding(50, ' ');
 
   const std::vector<size_t> available_registers = {
-      3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16, 
+      3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16,
       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
 
   for (const auto &[name, cfg] : program.cfgs) {

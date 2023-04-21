@@ -35,8 +35,6 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
       if (destination != "" && used_variables.count(destination) == 0 &&
           addressed_variables.count(destination) == 0 &&
           instruction.is_pure()) {
-        std::cerr << "Removing globally unused instruction " << instruction
-                  << std::endl;
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
         num_removed_lines += 1;
@@ -89,8 +87,6 @@ inline size_t remove_local_unused_assignments(ControlFlowGraph &,
   size_t num_removed_lines = 0;
   for (auto rit = to_delete.rbegin(); rit != to_delete.rend(); ++rit) {
     const auto idx = *rit;
-    std::cerr << "Removing locally unused instruction "
-              << block.instructions[idx] << std::endl;
     block.instructions.erase(block.instructions.begin() + idx);
     num_removed_lines += 1;
   }
@@ -157,6 +153,41 @@ inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
   }
 
   return result;
+}
+
+inline size_t move_constants_to_front(ControlFlowGraph &graph) {
+  if (!graph.is_in_ssa_form())
+    return 0;
+
+  // First, count the number of constants which are already at the front
+  size_t num_constants = 0;
+  for (const auto &instruction :
+       graph.get_block(graph.entry_label).instructions) {
+    if (instruction.opcode == Opcode::Const)
+      num_constants++;
+    else
+      break;
+  }
+
+  std::vector<Instruction> constant_instructions;
+  for (const auto &label : graph.block_labels) {
+    auto &block = graph.get_block(label);
+    for (size_t i = 0; i < block.instructions.size(); ++i) {
+      const auto &instruction = block.instructions[i];
+      if (instruction.opcode == Opcode::Const) {
+        constant_instructions.push_back(instruction);
+        block.instructions.erase(block.instructions.begin() + i);
+        i--;
+      }
+    }
+  }
+
+  auto &entry_instructions = graph.get_block(graph.entry_label).instructions;
+  for (size_t i = 0; i < constant_instructions.size(); ++i) {
+    const auto &instruction = constant_instructions[i];
+    entry_instructions.insert(entry_instructions.begin() + i, instruction);
+  }
+  return constant_instructions.size() > num_constants ? 1 : 0;
 }
 
 } // namespace bril
