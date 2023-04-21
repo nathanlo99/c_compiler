@@ -20,5 +20,7 @@ int wain(int a, int b) {
   println(a % 1); // 0
   println(a % a); // 0
 
+  println(a + b - b); // a
+
   return a;
 }

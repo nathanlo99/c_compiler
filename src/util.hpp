@@ -2,6 +2,7 @@
 #pragma once
 
 #include <algorithm>
+#include <map>
 #include <set>
 #include <sstream>
 #include <string>
@@ -36,6 +37,22 @@ static inline std::ostream &operator<<(std::ostream &os,
       os << ", ";
   }
   os << "]";
+  return os;
+}
+
+template <typename T, typename U>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::map<T, U> &dict) {
+  bool first = true;
+  os << "{";
+  for (const auto &[key, value] : dict) {
+    if (first)
+      first = false;
+    else
+      os << ", ";
+    os << key << ": " << value;
+  }
+  os << "}";
   return os;
 }
 

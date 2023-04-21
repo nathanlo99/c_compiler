@@ -821,6 +821,10 @@ struct Program {
     }
   }
 
+  template <typename Func> size_t apply_pass(const Func &func) {
+    return func(*this);
+  }
+
   template <typename Func> size_t apply_global_pass(const Func &func) {
     size_t num_removed_lines = 0;
     for (auto &[name, cfg] : cfgs)

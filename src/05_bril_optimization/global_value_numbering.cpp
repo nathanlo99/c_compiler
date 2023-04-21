@@ -40,6 +40,9 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
                                                   const Opcode opcode,
                                                   const size_t lhs,
                                                   const size_t rhs) const {
+  // Assume the operands are already simplified, and their order is
+  // canonicalized so the rhs is always the less complex one
+
   // Constant folding
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
@@ -102,47 +105,14 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
     if (reverse_it != reverse_operation.end()) {
       const Opcode reverse_opcode = reverse_it->second;
       if (lhs_value.opcode == reverse_opcode && lhs_value.arguments[1] == rhs) {
-        if (rhs_is_const && rhs_integer == 0 &&
-            (opcode == Opcode::Div || opcode == Opcode::Mul))
-          return std::nullopt;
         return expressions[lhs_value.arguments[0]];
       }
     }
 
-    // (a * b) % b == 0 if b != 0
+    // (a * b) % b == 0
     if (opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul &&
         lhs_value.arguments[1] == rhs) {
-      if (rhs_is_const && rhs_integer == 0)
-        return std::nullopt;
       return GVNValue(0, type);
-    }
-
-    // 0 + x == x
-    // 0 * x == 0
-    // 1 * x == x
-    // 2 * x == x + x
-    // -1 * x == 0 - x
-    // 0 / x == 0
-    // 0 % x == 0
-    if (lhs_is_const) {
-      if (lhs_integer == 0 && opcode == Opcode::Add)
-        return rhs_value;
-      if (lhs_integer == 0 && opcode == Opcode::Mul)
-        return GVNValue(0, type);
-      if (lhs_integer == 1 && opcode == Opcode::Mul)
-        return rhs_value;
-      // TODO: Move this to a separate strength reduction pass? This makes other
-      // simplifications harder to detect
-      // if (lhs == 2 && opcode == Opcode::Mul)
-      //   return GVNValue(Opcode::Add, {value.arguments[1],
-      //   value.arguments[1]}, {}, value.type);
-      // TODO: Can I do this without introducing the constant 0?
-      // if (lhs == -1 && opcode == Opcode::Mul)
-      //    return GVNValue(Opcode::Sub, {0, value.arguments[1]});
-      if (lhs_integer == 0 && opcode == Opcode::Div)
-        return GVNValue(0, type);
-      if (lhs_integer == 0 && opcode == Opcode::Mod)
-        return GVNValue(0, type);
     }
 
     // x + 0 == x
@@ -162,11 +132,6 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
         return GVNValue(0, type);
       if (rhs_integer == 1 && opcode == Opcode::Mul)
         return lhs_value;
-      // TODO: Move this to a separate strength reduction pass? This makes other
-      // simplifications harder to detect
-      // if (rhs_integer == 2 && opcode == Opcode::Mul)
-      //   return GVNValue(Opcode::Add, {value.arguments[0],
-      //   value.arguments[0]}, {}, type);
       if (rhs == 1 && opcode == Opcode::Div)
         return lhs_value;
       if (rhs == 1 && opcode == Opcode::Mod)
@@ -204,18 +169,19 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
   GVNValue result = value;
   do {
     const Opcode opcode = result.opcode;
-    // Try constant folding
-    if (const auto folded_result =
-            simplify_binary(result.type, result.opcode, result.arguments[0],
-                            result.arguments[1]);
-        folded_result.has_value())
-      return folded_result.value();
 
     // If the operation is commutative, canonicalize the arguments
     if (is_commutative(opcode) && get_complexity_key(result.arguments[0]) <
                                       get_complexity_key(result.arguments[1])) {
       std::swap(result.arguments[0], result.arguments[1]);
     }
+
+    // Try constant folding
+    if (const auto folded_result =
+            simplify_binary(result.type, result.opcode, result.arguments[0],
+                            result.arguments[1]);
+        folded_result.has_value())
+      return folded_result.value();
 
     return result;
   } while (true);

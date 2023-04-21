@@ -88,6 +88,7 @@ size_t apply_optimizations(bril::Program &program) {
         program.apply_local_pass(remove_local_unused_assignments);
     num_removed_lines +=
         program.apply_local_pass(remove_trivial_phi_instructions);
+    num_removed_lines += program.apply_pass(remove_unused_parameters);
     // num_removed_lines += program.apply_global_pass(move_constants_to_front);
     if (num_removed_lines == old_num_removed_lines)
       break;

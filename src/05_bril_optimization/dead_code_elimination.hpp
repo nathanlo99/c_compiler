@@ -190,4 +190,68 @@ inline size_t move_constants_to_front(ControlFlowGraph &graph) {
   return constant_instructions.size() > num_constants ? 1 : 0;
 }
 
+inline size_t remove_unused_parameters(Program &program) {
+  const std::string wain_name = program.wain().name;
+  size_t result = 0;
+
+  // First, identify the unused variables in each function
+  std::map<std::string, std::vector<size_t>> unused_parameter_indices;
+  for (auto &[function_name, function] : program.cfgs) {
+    // Ignore unused parameters in wain
+    if (function.name == wain_name)
+      continue;
+
+    std::map<std::string, size_t> unused_parameters;
+    for (size_t idx = 0; idx < function.arguments.size(); ++idx) {
+      const auto &param = function.arguments[idx];
+      unused_parameters[param.name] = idx;
+    }
+
+    for (const auto &[block_label, block] : function.blocks) {
+      for (const auto &instruction : block.instructions) {
+        for (const auto &arg : instruction.arguments) {
+          unused_parameters.erase(arg);
+        }
+        unused_parameters.erase(instruction.destination);
+      }
+    }
+
+    auto &indices = unused_parameter_indices[function_name];
+    for (const auto &[param_name, param_idx] : unused_parameters) {
+      indices.push_back(param_idx);
+    }
+    std::sort(indices.begin(), indices.end());
+  }
+
+  // Now, remove the unused parameters
+  for (auto &[function_name, function] : program.cfgs) {
+    auto &indices = unused_parameter_indices[function_name];
+    for (auto rit = indices.rbegin(); rit != indices.rend(); ++rit) {
+      const auto idx = *rit;
+      function.arguments.erase(function.arguments.begin() + idx);
+      result++;
+    }
+
+    // Now remove the unused parameters from function calls
+    for (const auto &label : function.block_labels) {
+      auto &block = function.get_block(label);
+      for (auto &instruction : block.instructions) {
+        if (instruction.opcode != Opcode::Call)
+          continue;
+        const std::string called_function = instruction.funcs[0];
+        const auto &unused_indices =
+            unused_parameter_indices[called_function.substr(1)];
+        for (auto rit = unused_indices.rbegin(); rit != unused_indices.rend();
+             ++rit) {
+          const auto idx = *rit;
+          instruction.arguments.erase(instruction.arguments.begin() + idx);
+          result++;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 } // namespace bril
