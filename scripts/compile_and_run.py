@@ -25,7 +25,7 @@ if option not in run_commands:
 run_command = run_commands[option]
 
 commands = [
-    "cmake --build build -j8",  # Replace this with your compilation command
+    "cmake --build build -j",  # Replace this with your compilation command
     "build/compile {} {} > output/output.asm".format(
         input_file, compile_mode),
     "cs241.linkasm < output/output.asm > output/output.merl",

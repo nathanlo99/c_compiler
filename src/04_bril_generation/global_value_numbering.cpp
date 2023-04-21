@@ -9,8 +9,7 @@ GVNValue GVNTable::create_value(const Instruction &instruction) const {
   std::vector<size_t> arguments;
   arguments.reserve(instruction.arguments.size());
   for (const auto &argument : instruction.arguments) {
-    const size_t row_idx = query_variable(argument);
-    arguments.push_back(row_idx);
+    arguments.push_back(query_variable(argument));
   }
   const auto value = GVNValue(instruction.opcode, arguments, instruction.labels,
                               instruction.type);
@@ -91,6 +90,34 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
       return GVNValue(result, value.type);
     }
 
+    std::map<Opcode, Opcode> reverse_operation = {
+        std::make_pair(Opcode::Add, Opcode::Sub),
+        std::make_pair(Opcode::Sub, Opcode::Add),
+        // NOTE: We don't do this for multiplication since (a / b) * b != a
+        // But, (a * b) / b == a
+        std::make_pair(Opcode::Div, Opcode::Mul),
+    };
+    // (a OP b) OP' b --> a      if OP and OP' are inverses
+    const auto reverse_it = reverse_operation.find(value.opcode);
+    if (reverse_it != reverse_operation.end()) {
+      const Opcode reverse_opcode = reverse_it->second;
+      if (lhs_value.opcode == reverse_opcode &&
+          lhs_value.arguments[1] == value.arguments[1]) {
+        if (rhs_is_const && rhs == 0 && 
+          (value.opcode == Opcode::Div || value.opcode == Opcode::Mul))
+          return value;
+        return expressions[lhs_value.arguments[0]];
+      }
+    }
+
+    // (a * b) % b == 0 if b != 0
+    if (value.opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul && 
+        lhs_value.arguments[1] == value.arguments[1]) {
+      if (rhs_is_const && rhs == 0)
+        return value;
+      return GVNValue(0, value.type);
+    }
+
     // 0 + x == x
     // 0 * x == 0
     // 1 * x == x
@@ -105,9 +132,9 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
         return GVNValue(0, value.type);
       if (lhs == 1 && value.opcode == Opcode::Mul)
         return rhs_value;
-      if (lhs == 2 && value.opcode == Opcode::Mul)
-        return GVNValue(Opcode::Add, {value.arguments[1], value.arguments[1]},
-                        {}, value.type);
+      // if (lhs == 2 && value.opcode == Opcode::Mul)
+      //   return GVNValue(Opcode::Add, {value.arguments[1], value.arguments[1]},
+      //                   {}, value.type);
       // TODO: Can I do this without introducing the constant 0?
       // if (lhs == -1 && value.opcode == Opcode::Mul)
       //    return GVNValue(Opcode::Sub, {0, value.arguments[1]});
@@ -134,9 +161,9 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
         return GVNValue(0, value.type);
       if (rhs == 1 && value.opcode == Opcode::Mul)
         return lhs_value;
-      if (rhs == 2 && value.opcode == Opcode::Mul)
-        return GVNValue(Opcode::Add, {value.arguments[0], value.arguments[0]},
-                        {}, value.type);
+      // if (rhs == 2 && value.opcode == Opcode::Mul)
+      //   return GVNValue(Opcode::Add, {value.arguments[0], value.arguments[0]},
+      //                   {}, value.type);
       if (rhs == 1 && value.opcode == Opcode::Div)
         return lhs_value;
       if (rhs == 1 && value.opcode == Opcode::Mod)

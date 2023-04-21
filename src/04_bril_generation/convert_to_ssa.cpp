@@ -154,35 +154,4 @@ void ControlFlowGraph::rename_variables(
   }
 }
 
-/*
-Pseudocode:
-
-- for every variable v:
-  - define def[v] = { blocks that define v }
-  - for every block B in def[v]:
-    - for every block B' in the dominance frontier DF(B):
-      - if we don't already have a phi node for v in B':
-        - add one
-        - add B' to def[v]
-
-stack[v] is a stack of variable names (for every variable v)
-
-def rename(block):
-  for instr in block:
-    replace each argument to instr with stack[old_name].top()
-
-    replace instr's destination with a new name
-    push that new name onto stack[old_name]
-
-  for each successor S of block,
-    for each phi node P in S:
-      if P is for a variable v, make the edge from S read from stack[v]
-
-  for each child B of block:
-    rename(B)
-
-  pop all the names we've just pushed onto the stack
-
-*/
-
 } // namespace bril

@@ -15,7 +15,7 @@ void ControlFlowGraph::convert_from_ssa() {
       if (phi_node.opcode != Opcode::Phi)
         continue;
       const auto &destination = phi_node.destination;
-      const auto &new_destination = "from_ssa." + destination;
+      const auto &new_destination = "cssa." + destination;
       const auto &arguments = phi_node.arguments;
       for (size_t j = 0; j < arguments.size(); j++) {
         const auto &argument = arguments[j];
