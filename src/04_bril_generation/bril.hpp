@@ -594,6 +594,19 @@ struct ControlFlowGraph {
   // Construct a CFG from a function
   explicit ControlFlowGraph(const Function &function);
 
+  std::string get_fresh_label(const std::string &prefix) const {
+    if (blocks.count(prefix) == 0)
+      return prefix;
+
+    size_t idx = 0;
+    while (true) {
+      const std::string label = prefix + std::to_string(idx);
+      if (blocks.count(label) == 0)
+        return label;
+      ++idx;
+    }
+  }
+
   Block &get_block(const std::string &block_label) {
     runtime_assert(blocks.count(block_label) > 0,
                    "Block not found: " + block_label);
@@ -607,6 +620,10 @@ struct ControlFlowGraph {
   void add_block(Block block);
   void remove_block(const std::string &block_label);
   void combine_blocks(const std::string &source, const std::string &target);
+  std::string split_block(const std::string &block_label,
+                          const size_t instruction_idx);
+
+  void rename_label(const std::string &old_label, const std::string &new_label);
 
   bool uses_pointers() const {
     for (const auto &[entry_label, block] : blocks) {

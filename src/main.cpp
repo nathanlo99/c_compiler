@@ -322,9 +322,18 @@ void debug(const std::string &) {
   bril::Program program;
   program.cfgs.emplace("main", graph);
 
-  std::cout << program << std::endl;
+  // std::cout << program << std::endl;
 
   program.convert_to_ssa();
+  apply_optimizations(program);
+
+  auto &main = program.cfgs.at("main");
+  std::cout << main << std::endl;
+  std::cout << main.get_block(main.entry_label).instructions[2] << std::endl;
+  main.split_block(main.entry_label, 2);
+
+  main.rename_label("splitLabel", "split");
+  std::cout << main << std::endl;
   apply_optimizations(program);
 
   std::cout << program << std::endl;

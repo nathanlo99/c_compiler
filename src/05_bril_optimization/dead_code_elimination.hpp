@@ -191,7 +191,7 @@ inline size_t move_constants_to_front(ControlFlowGraph &graph) {
 }
 
 inline size_t remove_unused_parameters(Program &program) {
-  const std::string wain_name = program.wain().name;
+  const std::string wain_name = "@wain";
   size_t result = 0;
 
   // First, identify the unused variables in each function

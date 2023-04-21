@@ -1,5 +1,6 @@
 
 #include "bril.hpp"
+#include "util.hpp"
 
 namespace bril {
 
@@ -13,7 +14,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // - Labels start new blocks, and fallthrough from the previous block
   // - Jumps end blocks
   Block current_block;
-  entry_label = function.name.substr(1) + "EntryLabel";
+  entry_label = function.name.substr(1) + "Entry";
   current_block.entry_label = entry_label;
   std::map<std::string, std::set<std::string>> entry_labels;
   for (const auto &instruction : function.instructions) {
@@ -95,6 +96,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
 }
 
 void ControlFlowGraph::compute_edges() {
+  exiting_blocks.clear();
   for (auto &[label, block] : blocks) {
     block.incoming_blocks.clear();
     block.outgoing_blocks.clear();
@@ -105,6 +107,10 @@ void ControlFlowGraph::compute_edges() {
         for (const auto &exit_label : instruction.labels) {
           add_edge(label, exit_label);
         }
+      }
+      if (instruction.opcode == Opcode::Ret) {
+        exiting_blocks.insert(label);
+        block.is_exiting = true;
       }
     }
   }
@@ -213,7 +219,7 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
   const auto last_instruction = source_block.instructions.back();
   runtime_assert(last_instruction.is_jump(),
                  "Last instruction in source block is not a jump");
-  runtime_assert(last_instruction.labels == std::vector<std::string>({target}),
+  runtime_assert(last_instruction.labels[0] == target,
                  "Jump in source block does not target target block");
 
   // We want to keep the source block, so we remove the last instruction (which
@@ -250,6 +256,77 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
 
   recompute_graph();
 }
+
+// Splits the given block so that the given instruction idx becomes the first
+// instruction in a new block
+std::string ControlFlowGraph::split_block(const std::string &block_label,
+                                          const size_t instruction_idx) {
+  runtime_assert(blocks.count(block_label) > 0,
+                 "No block with label " + block_label);
+  auto &block = get_block(block_label);
+  runtime_assert(instruction_idx > 0,
+                 "Cannot split block at the first instruction");
+  runtime_assert(instruction_idx < block.instructions.size(),
+                 "Cannot split block at the last instruction");
+
+  // Create a new block
+  const std::string new_block_label = get_fresh_label("splitLabel");
+  Block new_block;
+  new_block.entry_label = new_block_label;
+  new_block.instructions.push_back(Instruction::label(new_block_label));
+  new_block.instructions.insert(new_block.instructions.end(),
+                                block.instructions.begin() + instruction_idx,
+                                block.instructions.end());
+  block.instructions.erase(block.instructions.begin() + instruction_idx,
+                           block.instructions.end());
+  block.instructions.push_back(Instruction::jmp(new_block_label));
+  blocks[new_block_label] = new_block;
+
+  const auto label_it =
+      std::find(block_labels.begin(), block_labels.end(), block_label);
+  block_labels.insert(label_it + 1, new_block_label);
+
+  is_graph_dirty = true;
+  recompute_graph();
+
+  return new_block_label;
+}
+
+void ControlFlowGraph::rename_label(const std::string &old_label,
+                                    const std::string &new_label) {
+  if (old_label == new_label)
+    return;
+  runtime_assert(blocks.count(old_label) > 0,
+                 "Cannot rename non-existent label '" + old_label + "'");
+  runtime_assert(blocks.count(new_label) == 0,
+                 "Cannot rename label to an existing label '" + new_label +
+                     "'");
+  if (entry_label == old_label)
+    entry_label = new_label;
+
+  for (const auto &label : block_labels) {
+    auto &block = get_block(label);
+    for (auto &instruction : block.instructions) {
+      const auto it = std::find(instruction.labels.begin(),
+                                instruction.labels.end(), old_label);
+      if (it != instruction.labels.end())
+        *it = new_label;
+    }
+  }
+
+  auto &block = get_block(old_label);
+  block.entry_label = new_label;
+  blocks[new_label] = block;
+  blocks.erase(old_label);
+  const auto it =
+      std::find(block_labels.begin(), block_labels.end(), old_label);
+  *it = new_label;
+
+  is_graph_dirty = true;
+  recompute_graph();
+}
+
+// Dominators
 
 void ControlFlowGraph::compute_dominators() {
   raw_dominators.clear();

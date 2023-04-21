@@ -71,7 +71,7 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-[[maybe_unused]] static std::vector<std::string> split(const std::string &str) {
+inline std::vector<std::string> split(const std::string &str) {
   std::stringstream ss(str);
   std::string token;
   std::vector<std::string> result;
@@ -80,9 +80,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return result;
 }
 
-static inline bool contains(const std::vector<std::string> &list,
-                            const std::string &str) {
-  return std::find(list.begin(), list.end(), str) == list.end();
+template <typename T>
+inline bool contains(const std::vector<T> &list, const T &elem) {
+  return std::find(list.begin(), list.end(), elem) == list.end();
 }
 
 } // namespace util
