@@ -1,5 +1,6 @@
 
 #include "global_value_numbering.hpp"
+#include <optional>
 
 namespace bril {
 
@@ -16,28 +17,29 @@ GVNValue GVNTable::create_value(const Instruction &instruction) const {
   return simplify(value);
 }
 
-GVNValue GVNTable::simplify(const GVNValue &value) const {
-  // Simple cases
-  if (value.opcode == Opcode::Id)
-    return expressions[value.arguments[0]];
-  if (value.opcode == Opcode::Const)
-    return value;
+bool GVNTable::is_associative(const Opcode opcode) {
+  return opcode == Opcode::Add || opcode == Opcode::Mul;
+}
 
-  // Phi simplification
-  if (value.opcode == Opcode::Phi) {
-    // If all the arguments are the same, we can just use that
-    const std::set<size_t> unique_arguments(value.arguments.begin(),
-                                            value.arguments.end());
-    if (unique_arguments.size() == 1)
-      return expressions[*unique_arguments.begin()];
+bool GVNTable::is_commutative(const Opcode opcode) {
+  return opcode == Opcode::Add || opcode == Opcode::Mul ||
+         opcode == Opcode::Eq || opcode == Opcode::Ne;
+}
 
-    // If there is only one argument, we can just use that
-    if (value.arguments.size() == 1)
-      return expressions[value.arguments[0]];
+std::pair<size_t, size_t> GVNTable::get_complexity_key(const size_t idx) const {
+  const size_t complexity = (get_opcode(idx) == Opcode::Const) ? 0 : 1;
+  return std::make_pair(complexity, idx);
+}
 
-    return value;
-  }
+Opcode GVNTable::get_opcode(const size_t idx) const {
+  runtime_assert(idx < expressions.size(), "Invalid index");
+  return expressions[idx].opcode;
+}
 
+std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
+                                                  const Opcode opcode,
+                                                  const size_t lhs,
+                                                  const size_t rhs) const {
   // Constant folding
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::map<Opcode, BinaryFunc> foldable_ops = {
@@ -69,25 +71,23 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
       std::make_pair(Opcode::Ge, 1),  std::make_pair(Opcode::Eq, 1),
       std::make_pair(Opcode::Ne, 0),
   };
-  if (foldable_ops.count(value.opcode) == 0)
-    return value;
-  runtime_assert(value.arguments.size() == 2, "Expected binary operation");
+  if (foldable_ops.count(opcode) == 0)
+    return std::nullopt;
 
-  const GVNValue &lhs_value = expressions[value.arguments[0]];
-  const GVNValue &rhs_value = expressions[value.arguments[1]];
+  const GVNValue &lhs_value = expressions[lhs];
+  const GVNValue &rhs_value = expressions[rhs];
   const bool lhs_is_const = lhs_value.opcode == Opcode::Const;
   const bool rhs_is_const = rhs_value.opcode == Opcode::Const;
-  const int lhs = lhs_value.value;
-  const int rhs = rhs_value.value;
+  const int lhs_integer = lhs_value.value;
+  const int rhs_integer = rhs_value.value;
 
   const bool all_constants = lhs_is_const && rhs_is_const;
 
   if (!all_constants) {
     // If the two arguments are the same, we might be able to simplify
-    if (cancellable_ops.count(value.opcode) > 0 &&
-        value.arguments[0] == value.arguments[1]) {
-      const int result = cancellable_ops.at(value.opcode);
-      return GVNValue(result, value.type);
+    if (cancellable_ops.count(opcode) > 0 && lhs == rhs) {
+      const int result = cancellable_ops.at(opcode);
+      return GVNValue(result, type);
     }
 
     std::map<Opcode, Opcode> reverse_operation = {
@@ -98,24 +98,23 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
         std::make_pair(Opcode::Div, Opcode::Mul),
     };
     // (a OP b) OP' b --> a      if OP and OP' are inverses
-    const auto reverse_it = reverse_operation.find(value.opcode);
+    const auto reverse_it = reverse_operation.find(opcode);
     if (reverse_it != reverse_operation.end()) {
       const Opcode reverse_opcode = reverse_it->second;
-      if (lhs_value.opcode == reverse_opcode &&
-          lhs_value.arguments[1] == value.arguments[1]) {
-        if (rhs_is_const && rhs == 0 && 
-          (value.opcode == Opcode::Div || value.opcode == Opcode::Mul))
-          return value;
+      if (lhs_value.opcode == reverse_opcode && lhs_value.arguments[1] == rhs) {
+        if (rhs_is_const && rhs_integer == 0 &&
+            (opcode == Opcode::Div || opcode == Opcode::Mul))
+          return std::nullopt;
         return expressions[lhs_value.arguments[0]];
       }
     }
 
     // (a * b) % b == 0 if b != 0
-    if (value.opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul && 
-        lhs_value.arguments[1] == value.arguments[1]) {
-      if (rhs_is_const && rhs == 0)
-        return value;
-      return GVNValue(0, value.type);
+    if (opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul &&
+        lhs_value.arguments[1] == rhs) {
+      if (rhs_is_const && rhs_integer == 0)
+        return std::nullopt;
+      return GVNValue(0, type);
     }
 
     // 0 + x == x
@@ -126,22 +125,24 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
     // 0 / x == 0
     // 0 % x == 0
     if (lhs_is_const) {
-      if (lhs == 0 && value.opcode == Opcode::Add)
+      if (lhs_integer == 0 && opcode == Opcode::Add)
         return rhs_value;
-      if (lhs == 0 && value.opcode == Opcode::Mul)
-        return GVNValue(0, value.type);
-      if (lhs == 1 && value.opcode == Opcode::Mul)
+      if (lhs_integer == 0 && opcode == Opcode::Mul)
+        return GVNValue(0, type);
+      if (lhs_integer == 1 && opcode == Opcode::Mul)
         return rhs_value;
-      // if (lhs == 2 && value.opcode == Opcode::Mul)
-      //   return GVNValue(Opcode::Add, {value.arguments[1], value.arguments[1]},
-      //                   {}, value.type);
+      // TODO: Move this to a separate strength reduction pass? This makes other
+      // simplifications harder to detect
+      // if (lhs == 2 && opcode == Opcode::Mul)
+      //   return GVNValue(Opcode::Add, {value.arguments[1],
+      //   value.arguments[1]}, {}, value.type);
       // TODO: Can I do this without introducing the constant 0?
-      // if (lhs == -1 && value.opcode == Opcode::Mul)
+      // if (lhs == -1 && opcode == Opcode::Mul)
       //    return GVNValue(Opcode::Sub, {0, value.arguments[1]});
-      if (lhs == 0 && value.opcode == Opcode::Div)
-        return GVNValue(0, value.type);
-      if (lhs == 0 && value.opcode == Opcode::Mod)
-        return GVNValue(0, value.type);
+      if (lhs_integer == 0 && opcode == Opcode::Div)
+        return GVNValue(0, type);
+      if (lhs_integer == 0 && opcode == Opcode::Mod)
+        return GVNValue(0, type);
     }
 
     // x + 0 == x
@@ -153,30 +154,71 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
     // x / 1 == x
     // x % 1 == 0
     if (rhs_is_const) {
-      if (rhs == 0 && value.opcode == Opcode::Add)
+      if (rhs_integer == 0 && opcode == Opcode::Add)
         return lhs_value;
-      if (rhs == 0 && value.opcode == Opcode::Sub)
+      if (rhs_integer == 0 && opcode == Opcode::Sub)
         return lhs_value;
-      if (rhs == 0 && value.opcode == Opcode::Mul)
-        return GVNValue(0, value.type);
-      if (rhs == 1 && value.opcode == Opcode::Mul)
+      if (rhs_integer == 0 && opcode == Opcode::Mul)
+        return GVNValue(0, type);
+      if (rhs_integer == 1 && opcode == Opcode::Mul)
         return lhs_value;
-      // if (rhs == 2 && value.opcode == Opcode::Mul)
-      //   return GVNValue(Opcode::Add, {value.arguments[0], value.arguments[0]},
-      //                   {}, value.type);
-      if (rhs == 1 && value.opcode == Opcode::Div)
+      // TODO: Move this to a separate strength reduction pass? This makes other
+      // simplifications harder to detect
+      // if (rhs_integer == 2 && opcode == Opcode::Mul)
+      //   return GVNValue(Opcode::Add, {value.arguments[0],
+      //   value.arguments[0]}, {}, type);
+      if (rhs == 1 && opcode == Opcode::Div)
         return lhs_value;
-      if (rhs == 1 && value.opcode == Opcode::Mod)
-        return GVNValue(0, value.type);
+      if (rhs == 1 && opcode == Opcode::Mod)
+        return GVNValue(0, type);
     }
+    return std::nullopt;
+  }
 
+  const auto result = foldable_ops.at(opcode)(lhs_integer, rhs_integer);
+  if (!result.has_value())
+    return std::nullopt;
+  return GVNValue(result.value(), type);
+}
+
+GVNValue GVNTable::simplify(const GVNValue &value) const {
+  // Simple cases
+  if (value.opcode == Opcode::Id)
+    return expressions[value.arguments[0]];
+  if (value.opcode == Opcode::Const)
+    return value;
+
+  // Phi simplification
+  if (value.opcode == Opcode::Phi) {
+    // If all the arguments are the same, we can just use that
+    const std::set<size_t> unique_arguments(value.arguments.begin(),
+                                            value.arguments.end());
+    if (unique_arguments.size() == 1)
+      return expressions[*unique_arguments.begin()];
     return value;
   }
 
-  const auto result = foldable_ops.at(value.opcode)(lhs, rhs);
-  if (!result.has_value())
+  if (value.arguments.size() != 2)
     return value;
-  return GVNValue(result.value(), value.type);
+
+  GVNValue result = value;
+  do {
+    const Opcode opcode = result.opcode;
+    // Try constant folding
+    if (const auto folded_result =
+            simplify_binary(result.type, result.opcode, result.arguments[0],
+                            result.arguments[1]);
+        folded_result.has_value())
+      return folded_result.value();
+
+    // If the operation is commutative, canonicalize the arguments
+    if (is_commutative(opcode) && get_complexity_key(result.arguments[0]) <
+                                      get_complexity_key(result.arguments[1])) {
+      std::swap(result.arguments[0], result.arguments[1]);
+    }
+
+    return result;
+  } while (true);
 }
 
 struct GVNPhiValue {

@@ -1,7 +1,7 @@
 procedures procedure procedures
 procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
 INT int
-ID is_prime
+ID isPrime
 LPAREN (
 params paramlist
 paramlist dcl
@@ -449,7 +449,7 @@ test expr EQ expr
 expr term
 term factor
 factor ID LPAREN arglist RPAREN
-ID is_prime
+ID isPrime
 LPAREN (
 arglist expr
 expr term

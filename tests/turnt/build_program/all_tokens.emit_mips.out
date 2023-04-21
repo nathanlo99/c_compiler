@@ -1,5 +1,5 @@
                                 ; // Simplified C code:
-                                ; int is_prime(int n) {
+                                ; int isPrime(int n) {
                                 ;   int i = 2;
                                 ;   int answer = 1;
                                 ;   int continueLooping = 1;
@@ -45,7 +45,7 @@
                                 ;   result = new int[numPrimes];
                                 ;   nextNumber = startNumber;
                                 ;   while (idx < numPrimes) {
-                                ;     while (is_prime(nextNumber) == 0) {
+                                ;     while (isPrime(nextNumber) == 0) {
                                 ;       nextNumber = (nextNumber + 1);
                                 ;     }
                                 ;     *(result + idx) = nextNumber;
@@ -77,8 +77,8 @@ lis $4
 slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
 beq $0, $0, wain                ; Done prologue, jumping to wain
                                 ; 
-                                ; Generating code for is_prime
-is_prime:
+                                ; Generating code for isPrime
+isPrime:
 sub $29, $30, $4
 add $3, $11, $11
 sw $3, -4($30)                  ;   push $3
@@ -186,7 +186,7 @@ lw $3, -4($29)                  ; Loading answer
 add $30, $30, $4
 add $30, $30, $4
 add $30, $30, $4
-jr $31                          ; Done generating code for is_prime
+jr $31                          ; Done generating code for isPrime
                                 ; 
                                 ; Generating code for collatz
 collatz:
@@ -348,7 +348,7 @@ sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
                                 ; Done pushing argument n
 lis $5
-.word is_prime
+.word isPrime
 jalr $5
 add $30, $30, $4
 add $30, $30, $4                ;   pop $31

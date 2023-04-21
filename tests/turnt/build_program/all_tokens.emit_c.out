@@ -1,4 +1,4 @@
-int is_prime(int n) {
+int isPrime(int n) {
   int i = 2;
   int answer = 1;
   int continueLooping = 1;
@@ -44,7 +44,7 @@ int wain(int startNumber, int numPrimes) {
   result = new int[numPrimes];
   nextNumber = startNumber;
   while (idx < numPrimes) {
-    while (is_prime(nextNumber) == 0) {
+    while (isPrime(nextNumber) == 0) {
       nextNumber = (nextNumber + 1);
     }
     *(result + idx) = nextNumber;

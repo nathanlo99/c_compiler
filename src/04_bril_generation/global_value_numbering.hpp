@@ -109,6 +109,15 @@ struct GVNTable {
 
   GVNValue create_value(const Instruction &instruction) const;
 
+  static bool is_associative(const Opcode opcode);
+  static bool is_commutative(const Opcode opcode);
+
+  std::pair<size_t, size_t> get_complexity_key(const size_t idx) const;
+  Opcode get_opcode(const size_t idx) const;
+
+  std::optional<GVNValue> simplify_binary(const Type type, const Opcode opcode,
+                                          const size_t lhs,
+                                          const size_t rhs) const;
   GVNValue simplify(const GVNValue &value) const;
 
   size_t query_variable(const std::string &variable) const {

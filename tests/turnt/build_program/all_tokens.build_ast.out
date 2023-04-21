@@ -1,5 +1,5 @@
 Procedure {
-  name: is_prime
+  name: isPrime
   return_type: int
   parameters: 
     n: int (used)
@@ -257,7 +257,7 @@ Procedure {
             TestExpr {
               lhs: 
                 FunctionCall {
-                  procedure_name: is_prime,
+                  procedure_name: isPrime,
                   arguments: [
                     VariableExpr(nextNumber) : int
                   ]
