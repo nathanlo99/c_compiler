@@ -38,7 +38,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
       current_block.exit_labels = instruction.labels;
       if (instruction.opcode == Opcode::Ret) {
         exiting_blocks.insert(current_block.entry_label);
-        current_block.is_exiting = true;
+        // current_block.is_exiting = true;
       }
       add_block(current_block);
       current_block = Block();
@@ -110,7 +110,7 @@ void ControlFlowGraph::compute_edges() {
       }
       if (instruction.opcode == Opcode::Ret) {
         exiting_blocks.insert(label);
-        block.is_exiting = true;
+        // block.is_exiting = true;
       }
     }
   }

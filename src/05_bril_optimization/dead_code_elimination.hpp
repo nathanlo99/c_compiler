@@ -45,7 +45,7 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   return num_removed_lines;
 }
 
-inline size_t remove_local_unused_assignments(ControlFlowGraph &,
+inline size_t remove_local_unused_assignments(ControlFlowGraph &graph,
                                               Block &block) {
   std::set<size_t> to_delete;
   std::map<std::string, size_t> last_def;
@@ -77,7 +77,7 @@ inline size_t remove_local_unused_assignments(ControlFlowGraph &,
   }
 
   // Any definitions unused by the end of an exiting block can also be deleted
-  if (block.is_exiting) {
+  if (graph.exiting_blocks.count(block.entry_label) > 0) {
     for (const auto &[variable, def] : last_def) {
       to_delete.insert(def);
     }

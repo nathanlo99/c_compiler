@@ -515,7 +515,7 @@ struct Block {
 
   std::set<std::string> incoming_blocks;
   std::set<std::string> outgoing_blocks;
-  bool is_exiting = false;
+  // bool is_exiting = false;
 
   // Insert an instruction at the beginning of the block, after any labels.
   void prepend(const Instruction &instruction) {
