@@ -41,8 +41,8 @@ std::string consume_stdin() {
 
 std::shared_ptr<Program> get_program(const std::string &input) {
   const std::vector<Token> token_stream = Lexer(input).token_stream();
-  const CFG cfg = load_default_cfg();
-  const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+  const ContextFreeGrammar grammar = load_default_grammar();
+  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
 
@@ -116,8 +116,8 @@ void test_lexer(const std::string &filename) {
 void test_parser(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
-  const CFG cfg = load_default_cfg();
-  const EarleyTable table = EarleyParser(cfg).construct_table(token_stream);
+  const ContextFreeGrammar grammar = load_default_grammar();
+  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
   parse_tree->print_preorder();
 }
@@ -221,12 +221,12 @@ void debug_liveness(const std::string &filename) {
   program.convert_from_ssa();
   apply_optimizations(program);
 
-  for (const auto &[name, cfg] : program.cfgs) {
-    LivenessAnalysis analysis(cfg);
+  for (const auto &[name, function] : program.functions) {
+    LivenessAnalysis analysis(function);
     const auto result = analysis.run();
-    for (const auto &label : cfg.block_labels) {
+    for (const auto &label : function.block_labels) {
       const auto &data = result.at(label);
-      const auto &block = cfg.get_block(label);
+      const auto &block = function.get_block(label);
       std::cout << separator << std::endl;
       std::cout << label << std::endl;
 
@@ -246,11 +246,11 @@ void compute_rig(const std::string &filename) {
   const auto program = get_optimized_bril_from_file(filename);
   const std::string separator(100, '-'), padding(50, ' ');
 
-  for (const auto &[name, cfg] : program.cfgs) {
+  for (const auto &[name, function] : program.functions) {
     std::cout << separator << std::endl;
     std::cout << "Function: " << name << std::endl;
     std::cout << "Register interference graph: " << std::endl;
-    std::cout << bril::RegisterInterferenceGraph(cfg);
+    std::cout << bril::RegisterInterferenceGraph(function);
   }
   std::cout << separator << std::endl;
 }
@@ -263,12 +263,12 @@ void allocate_registers(const std::string &filename) {
       3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16,
       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
 
-  for (const auto &[name, cfg] : program.cfgs) {
+  for (const auto &[name, function] : program.functions) {
     std::cout << separator << std::endl;
     std::cout << "Function: " << name << std::endl;
     std::cout << "Register interference graph: " << std::endl;
     const auto register_allocation =
-        bril::allocate_registers(cfg, available_registers);
+        bril::allocate_registers(function, available_registers);
     std::cout << register_allocation << std::endl;
   }
   std::cout << separator << std::endl;

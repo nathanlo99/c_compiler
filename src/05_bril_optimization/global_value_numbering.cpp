@@ -212,7 +212,7 @@ struct GVNPhiValue {
 };
 
 void GlobalValueNumberingPass::process_block(const std::string &label) {
-  auto &block = cfg.get_block(label);
+  auto &block = function.get_block(label);
   // std::cerr << "Processing block " << label << ":" << std::endl;
 
   const GVNTable old_table = table;
@@ -284,7 +284,7 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
         const bool cond = cond_expr.value != 0;
         const auto &target = instruction.labels[cond ? 0 : 1];
         instruction = Instruction::jmp(target);
-        cfg.is_graph_dirty = true;
+        function.is_graph_dirty = true;
       }
 
       continue;
@@ -306,7 +306,7 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
   }
 
   for (const auto &successor : block.outgoing_blocks) {
-    auto &succ = cfg.get_block(successor);
+    auto &succ = function.get_block(successor);
     for (auto &phi_instruction : succ.instructions) {
       if (phi_instruction.opcode != Opcode::Phi)
         continue;
@@ -321,8 +321,8 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
     }
   }
 
-  for (const auto &other_label : cfg.block_labels) {
-    const auto immediate_dominator = cfg.immediate_dominator(other_label);
+  for (const auto &other_label : function.block_labels) {
+    const auto immediate_dominator = function.immediate_dominator(other_label);
     if (other_label != block.entry_label &&
         block.entry_label == immediate_dominator) {
       process_block(other_label);

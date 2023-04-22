@@ -24,7 +24,7 @@ Variable parse_node_to_variable(const std::shared_ptr<ParseNode> &node) {
 }
 
 std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
-  const CFG::Production production = node->production;
+  const ContextFreeGrammar::Production production = node->production;
   const std::string production_str = production.to_string();
 
   if (production_str == "procedures -> procedure procedures") {

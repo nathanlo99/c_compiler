@@ -6,11 +6,12 @@
 
 struct ParseNode {
   Token token;
-  const CFG::Production production;
+  const ContextFreeGrammar::Production production;
   std::vector<std::shared_ptr<ParseNode>> children;
 
   ParseNode(const Token &token) : token(token) {}
-  ParseNode(const CFG::Production &production) : production(production) {}
+  ParseNode(const ContextFreeGrammar::Production &production)
+      : production(production) {}
 
   void print(const size_t depth = 0);
 

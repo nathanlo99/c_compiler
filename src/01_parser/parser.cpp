@@ -9,15 +9,16 @@
 #include <algorithm>
 #include <iomanip>
 
-CFG load_cfg_from_file(const std::string &filename) {
+ContextFreeGrammar load_grammar_from_file(const std::string &filename) {
   std::ifstream ifs(filename);
   std::string line;
-  CFG result;
+  ContextFreeGrammar result;
   while (std::getline(ifs, line)) {
     if (line.size() > 0 && line[0] == '#')
       continue;
     const auto tokens = util::split(line);
-    runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
+    runtime_assert(tokens.size() >= 2 && tokens[1] == "->",
+                   "Invalid production");
     const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
                                                tokens.end());
@@ -26,10 +27,10 @@ CFG load_cfg_from_file(const std::string &filename) {
   return result;
 }
 
-CFG load_default_cfg() {
+ContextFreeGrammar load_default_grammar() {
   std::stringstream iss(context_free_grammar);
   std::string line;
-  CFG result;
+  ContextFreeGrammar result;
   while (std::getline(iss, line)) {
     if (line.size() > 0 && line[0] == '#')
       continue;
@@ -43,8 +44,8 @@ CFG load_default_cfg() {
   return result;
 }
 
-void CFG::add_production(const std::string &product,
-                         const std::vector<std::string> &ingredients) {
+void ContextFreeGrammar::add_production(
+    const std::string &product, const std::vector<std::string> &ingredients) {
   if (productions.empty())
     start_symbol = product;
   productions.emplace_back(product, ingredients);
@@ -55,7 +56,7 @@ void CFG::add_production(const std::string &product,
   }
 }
 
-std::string CFG::Production::to_string() const {
+std::string ContextFreeGrammar::Production::to_string() const {
   std::stringstream ss;
   ss << product << " ->";
   for (const auto &ingredient : ingredients) {
@@ -64,15 +65,16 @@ std::string CFG::Production::to_string() const {
   return ss.str();
 }
 
-std::ostream &operator<<(std::ostream &os, const CFG &cfg) {
-  os << "CFG with " << cfg.productions.size() << " productions" << std::endl;
-  for (const auto &production : cfg.productions) {
+std::ostream &operator<<(std::ostream &os, const ContextFreeGrammar &grammar) {
+  os << "CFG with " << grammar.productions.size() << " productions"
+     << std::endl;
+  for (const auto &production : grammar.productions) {
     os << production << std::endl;
   }
   return os;
 }
 
-bool CFG::definitely_nullable(const std::string &symbol) const {
+bool ContextFreeGrammar::definitely_nullable(const std::string &symbol) const {
   if (nullable_symbols.count(symbol) > 0)
     return true;
   for (const auto &production : productions) {
@@ -91,7 +93,7 @@ bool CFG::definitely_nullable(const std::string &symbol) const {
   return false;
 }
 
-void CFG::compute_nullable() {
+void ContextFreeGrammar::compute_nullable() {
   while (true) {
     const size_t old_size = nullable_symbols.size();
     for (const auto &[symbol, is_non_terminal] : is_non_terminal_symbol) {
@@ -156,10 +158,10 @@ void EarleyTable::complete(const size_t i, const size_t j) {
 
 void EarleyTable::predict(const size_t i, const size_t j,
                           const std::string &symbol) {
-  for (const auto &production : cfg.productions) {
+  for (const auto &production : grammar.productions) {
     if (production.product == symbol) {
       insert_unique(i, StateItem(production, i));
-      if (cfg.nullable_symbols.count(symbol) > 0) {
+      if (grammar.nullable_symbols.count(symbol) > 0) {
         insert_unique(i, data[i][j].step());
       }
     }
@@ -191,7 +193,7 @@ void EarleyTable::report_error(const size_t i) const {
     if (item.complete())
       continue;
     const std::string expected = item.next_symbol();
-    if (cfg.is_non_terminal_symbol.at(expected))
+    if (grammar.is_non_terminal_symbol.at(expected))
       continue;
     expected_symbols.insert(expected);
   }
@@ -209,11 +211,11 @@ void EarleyTable::report_error(const size_t i) const {
 
 EarleyTable
 EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
-  EarleyTable table(token_stream, cfg);
+  EarleyTable table(token_stream, grammar);
 
   // Set up first column
-  for (const auto &production : cfg.productions) {
-    if (production.product == cfg.start_symbol) {
+  for (const auto &production : grammar.productions) {
+    if (production.product == grammar.start_symbol) {
       table.insert_unique(0, StateItem(production, 0));
     }
   }
@@ -229,7 +231,8 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
         continue;
       }
       const std::string next_symbol = item.next_symbol();
-      const bool is_non_terminal = cfg.is_non_terminal_symbol.at(next_symbol);
+      const bool is_non_terminal =
+          grammar.is_non_terminal_symbol.at(next_symbol);
       if (is_non_terminal) {
         table.predict(i, j, next_symbol);
       } else {
@@ -279,7 +282,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
     const size_t last_idx = next_idx;
     const StateItem target = StateItem(item->production, item->origin_idx, dot);
     const std::string ingredient = item->production.ingredients[dot];
-    const bool is_non_terminal = cfg.is_non_terminal_symbol.at(ingredient);
+    const bool is_non_terminal = grammar.is_non_terminal_symbol.at(ingredient);
 
     // std::cout << "Starting search for target with ingredient " << ingredient
     //           << std::endl;
@@ -319,7 +322,8 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
 }
 
 std::shared_ptr<ParseNode> EarleyTable::to_parse_tree() const {
-  auto parse_tree = construct_parse_tree(0, data.size() - 1, cfg.start_symbol);
+  auto parse_tree =
+      construct_parse_tree(0, data.size() - 1, grammar.start_symbol);
   runtime_assert(parse_tree->tokens() == token_stream,
                  "Bad parse: some tokens were missing");
   return parse_tree;

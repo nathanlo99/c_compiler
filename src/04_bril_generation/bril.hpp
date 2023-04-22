@@ -757,52 +757,49 @@ struct ControlFlowGraph {
 };
 
 struct Program {
-  std::map<std::string, ControlFlowGraph> cfgs;
+  std::map<std::string, ControlFlowGraph> functions;
 
   const ControlFlowGraph &wain() const {
-    runtime_assert(cfgs.count("wain") > 0, "wain not found");
-    return cfgs.at("wain");
+    runtime_assert(functions.count("wain") > 0, "wain not found");
+    return functions.at("wain");
   }
 
   ControlFlowGraph &get_function(const std::string &name) {
-    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
-    return cfgs.at(name);
+    runtime_assert(functions.count(name) > 0,
+                   "Function " + name + " not found");
+    return functions.at(name);
   }
   const ControlFlowGraph &get_function(const std::string &name) const {
-    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
-    return cfgs.at(name);
+    runtime_assert(functions.count(name) > 0,
+                   "Function " + name + " not found");
+    return functions.at(name);
   }
 
   void convert_to_ssa() {
-    for (auto &[name, cfg] : cfgs) {
-      cfg.convert_to_ssa();
-    }
+    for (auto &[name, function] : functions)
+      function.convert_to_ssa();
   }
   void convert_from_ssa() {
-    for (auto &[name, cfg] : cfgs) {
-      cfg.convert_from_ssa();
-    }
+    for (auto &[name, function] : functions)
+      function.convert_from_ssa();
   }
 
   bool has_phi_instructions() const {
-    for (const auto &[name, cfg] : cfgs) {
-      if (cfg.has_phi_instructions())
+    for (const auto &[name, function] : functions)
+      if (function.has_phi_instructions())
         return true;
-    }
     return false;
   }
   bool uses_heap() const {
-    for (const auto &[name, cfg] : cfgs) {
-      if (cfg.uses_heap())
+    for (const auto &[name, function] : functions)
+      if (function.uses_heap())
         return true;
-    }
     return false;
   }
   bool uses_print() const {
-    for (const auto &[name, cfg] : cfgs) {
-      if (cfg.uses_print())
+    for (const auto &[name, function] : functions)
+      if (function.uses_print())
         return true;
-    }
     return false;
   }
 
@@ -811,31 +808,32 @@ struct Program {
                             const size_t instruction_idx);
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
-    for (const auto &[name, cfg] : program.cfgs) {
-      os << cfg << std::endl;
+    for (const auto &[name, function] : program.functions) {
+      os << function << std::endl;
     }
     return os;
   }
 
   void print_flattened(std::ostream &os) const {
     using util::operator<<;
-    for (const auto &[name, cfg] : cfgs) {
+    for (const auto &[name, function] : functions) {
       os << "@" << name << "(";
       bool first = true;
-      for (const auto &argument : cfg.arguments) {
+      for (const auto &argument : function.arguments) {
         if (first)
           first = false;
         else
           os << ", ";
         os << argument.name << ": " << argument.type;
       }
-      os << ") : " << cfg.return_type << " {" << std::endl;
-      for (const auto &instruction : cfg.flatten()) {
+      os << ") : " << function.return_type << " {" << std::endl;
+      for (const auto &instruction : function.flatten()) {
         if (instruction.opcode == Opcode::Label) {
           const auto label = instruction.labels[0];
           const auto padding = 50 - label.size();
           os << instruction.labels[0] << ":" << std::string(padding, ' ')
-             << "preds = " << cfg.get_block(label).incoming_blocks << std::endl;
+             << "preds = " << function.get_block(label).incoming_blocks
+             << std::endl;
         } else {
           os << "  " << instruction << std::endl;
         }
@@ -850,15 +848,15 @@ struct Program {
 
   template <typename Func> size_t apply_global_pass(const Func &func) {
     size_t num_removed_lines = 0;
-    for (auto &[name, cfg] : cfgs)
-      num_removed_lines += func(cfg);
+    for (auto &[name, function] : functions)
+      num_removed_lines += func(function);
     return num_removed_lines;
   }
 
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = 0;
-    for (auto &[name, cfg] : cfgs)
-      num_removed_lines += cfg.apply_local_pass(func);
+    for (auto &[name, function] : functions)
+      num_removed_lines += function.apply_local_pass(func);
     return num_removed_lines;
   }
 };

@@ -196,7 +196,7 @@ inline size_t remove_unused_parameters(Program &program) {
 
   // First, identify the unused variables in each function
   std::map<std::string, std::vector<size_t>> unused_parameter_indices;
-  for (auto &[function_name, function] : program.cfgs) {
+  for (auto &[function_name, function] : program.functions) {
     // Ignore unused parameters in wain
     if (function.name == wain_name)
       continue;
@@ -224,7 +224,7 @@ inline size_t remove_unused_parameters(Program &program) {
   }
 
   // Now, remove the unused parameters
-  for (auto &[function_name, function] : program.cfgs) {
+  for (auto &[function_name, function] : program.functions) {
     auto &indices = unused_parameter_indices[function_name];
     for (auto rit = indices.rbegin(); rit != indices.rend(); ++rit) {
       const auto idx = *rit;

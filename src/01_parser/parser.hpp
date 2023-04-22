@@ -14,7 +14,7 @@
 
 struct ParseNode; // From parse_node.hpp
 
-struct CFG {
+struct ContextFreeGrammar {
   struct Production {
     std::string product;
     std::vector<std::string> ingredients;
@@ -49,20 +49,21 @@ private:
   void compute_nullable();
 
 public:
-  friend std::ostream &operator<<(std::ostream &os, const CFG &cfg);
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const ContextFreeGrammar &grammar);
   void print() const;
 };
 
-CFG load_default_cfg();
-CFG load_cfg_from_file(const std::string &filename);
+ContextFreeGrammar load_default_grammar();
+ContextFreeGrammar load_grammar_from_file(const std::string &filename);
 
 struct StateItem {
-  CFG::Production production;
+  ContextFreeGrammar::Production production;
   size_t origin_idx;
   size_t dot = 0;
 
-  StateItem(const CFG::Production &production, const size_t origin_idx,
-            const size_t dot = 0)
+  StateItem(const ContextFreeGrammar::Production &production,
+            const size_t origin_idx, const size_t dot = 0)
       : production(production), origin_idx(origin_idx), dot(dot) {}
 
   bool complete() const { return dot >= production.ingredients.size(); }
@@ -93,10 +94,12 @@ struct StateItem {
 struct EarleyTable {
   std::vector<std::vector<StateItem>> data;
   const std::vector<Token> &token_stream;
-  const CFG &cfg;
+  const ContextFreeGrammar &grammar;
 
-  EarleyTable(const std::vector<Token> &token_stream, const CFG &cfg)
-      : data(token_stream.size() + 1), token_stream(token_stream), cfg(cfg) {}
+  EarleyTable(const std::vector<Token> &token_stream,
+              const ContextFreeGrammar &grammar)
+      : data(token_stream.size() + 1), token_stream(token_stream),
+        grammar(grammar) {}
 
   bool column_contains(const size_t i, const StateItem &item) const;
   std::optional<StateItem> find_item(const size_t start_idx,
@@ -123,8 +126,8 @@ struct EarleyTable {
 };
 
 struct EarleyParser {
-  const CFG &cfg;
-  EarleyParser(const CFG &cfg) : cfg(cfg) {}
+  const ContextFreeGrammar &grammar;
+  EarleyParser(const ContextFreeGrammar &grammar) : grammar(grammar) {}
 
 public:
   EarleyTable construct_table(const std::vector<Token> &token_stream) const;

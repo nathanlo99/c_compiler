@@ -164,27 +164,27 @@ struct GVNTable {
 };
 
 struct GlobalValueNumberingPass {
-  ControlFlowGraph &cfg;
+  ControlFlowGraph &function;
   GVNTable table;
-  GlobalValueNumberingPass(ControlFlowGraph &cfg) : cfg(cfg) {}
+  GlobalValueNumberingPass(ControlFlowGraph &function) : function(function) {}
 
   void run_pass() {
-    runtime_assert(cfg.is_in_ssa_form(),
-                   "CFG passed to GVN must be in SSA form");
-    runtime_assert(!cfg.uses_pointers(),
-                   "CFG passed to GVN must not use pointers");
-    table.insert_parameters(cfg.arguments);
-    process_block(cfg.entry_label);
-    cfg.recompute_graph();
+    runtime_assert(function.is_in_ssa_form(),
+                   "Function passed to GVN must be in SSA form");
+    runtime_assert(!function.uses_pointers(),
+                   "Function passed to GVN must not use pointers");
+    table.insert_parameters(function.arguments);
+    process_block(function.entry_label);
+    function.recompute_graph();
   }
 
   void process_block(const std::string &label);
 };
 
-inline size_t global_value_numbering(ControlFlowGraph &cfg) {
-  if (!cfg.is_in_ssa_form() || cfg.uses_pointers())
+inline size_t global_value_numbering(ControlFlowGraph &function) {
+  if (!function.is_in_ssa_form() || function.uses_pointers())
     return 0;
-  GlobalValueNumberingPass(cfg).run_pass();
+  GlobalValueNumberingPass(function).run_pass();
   return 0;
 }
 

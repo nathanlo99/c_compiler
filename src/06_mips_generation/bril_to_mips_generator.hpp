@@ -29,7 +29,7 @@ struct BRILToMIPSGenerator : MIPSGenerator {
 
 private:
   void compute_allocations() {
-    for (const auto &[name, function] : program.cfgs) {
+    for (const auto &[name, function] : program.functions) {
       std::cerr << "Computing register allocation for function " << name
                 << std::endl;
 
@@ -113,7 +113,7 @@ private:
     annotate("Done prologue, jumping to wain");
 
     // Generate code for all the functions
-    for (const auto &[name, function] : program.cfgs) {
+    for (const auto &[name, function] : program.functions) {
       generate_function(function);
     }
 
