@@ -22,6 +22,15 @@
 namespace util {
 
 template <typename T, typename U>
+static std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &pair);
+template <typename T>
+static std::ostream &operator<<(std::ostream &os, const std::vector<T> &list);
+template <typename T>
+static std::ostream &operator<<(std::ostream &os, const std::set<T> &list);
+template <typename T, typename U>
+static std::ostream &operator<<(std::ostream &os, const std::map<T, U> &dict);
+
+template <typename T, typename U>
 static inline std::ostream &operator<<(std::ostream &os,
                                        const std::pair<T, U> &pair) {
   return os << "(" << pair.first << ", " << pair.second << ")";
@@ -40,6 +49,21 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
+template <typename T>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::set<T> &list) {
+  os << "{";
+  size_t i = 0;
+  for (const auto &item : list) {
+    os << item;
+    if (i != list.size() - 1)
+      os << ", ";
+    i++;
+  }
+  os << "}";
+  return os;
+}
+
 template <typename T, typename U>
 static inline std::ostream &operator<<(std::ostream &os,
                                        const std::map<T, U> &dict) {
@@ -51,21 +75,6 @@ static inline std::ostream &operator<<(std::ostream &os,
     else
       os << ", ";
     os << key << ": " << value;
-  }
-  os << "}";
-  return os;
-}
-
-template <typename T>
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::set<T> &list) {
-  os << "{";
-  size_t i = 0;
-  for (const auto &item : list) {
-    os << item;
-    if (i != list.size() - 1)
-      os << ", ";
-    i++;
   }
   os << "}";
   return os;

@@ -3,6 +3,7 @@
 #include "bril.hpp"
 #include "bril_interpreter.hpp"
 #include "bril_to_mips_generator.hpp"
+#include "call_graph.hpp"
 #include "canonicalize_conditions.hpp"
 #include "data_flow.hpp"
 #include "dead_code_elimination.hpp"
@@ -280,6 +281,13 @@ void generate_mips(const std::string &filename) {
   generator.print(std::cout);
 }
 
+void compute_call_graph(const std::string &filename) {
+  using util::operator<<;
+  const auto program = get_optimized_bril_from_file(filename);
+  const auto call_graph = bril::CallGraph(program);
+  std::cout << call_graph << std::endl;
+}
+
 void debug(const std::string &filename) {
   using namespace bril;
   auto program = get_optimized_bril_from_file(filename);
@@ -334,6 +342,7 @@ int main(int argc, char **argv) {
             {"--liveness", debug_liveness},
             {"--compute-rig", compute_rig},
             {"--allocate-registers", allocate_registers},
+            {"--compute-call-graph", compute_call_graph},
             {"--emit-naive-mips", test_emit_mips},
             {"--emit-mips", generate_mips},
         };
