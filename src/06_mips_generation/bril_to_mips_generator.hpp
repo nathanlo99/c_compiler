@@ -104,7 +104,7 @@ private:
 
     // Set up the stack pointer
     const int stack_size = wain_allocations.spilled_variables.size();
-    add_const(30, 30, -4 * stack_size + 4, tmp1);
+    add_const(30, 29, -4 * stack_size + 4, tmp1);
     annotate("$30 = $29 - (" + std::to_string(4 * stack_size - 4) + ")");
 
     // Jump to wain
@@ -517,7 +517,7 @@ private:
           load_variable(tmp1, instruction.arguments[0], allocation);
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
-      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      const size_t dest_reg = get_register(tmp4, dest, allocation);
       copy(tmp3, offset_reg);
       add(tmp3, tmp3, tmp3);
       add(tmp3, tmp3, tmp3);
@@ -530,7 +530,7 @@ private:
           load_variable(tmp1, instruction.arguments[0], allocation);
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
-      const size_t dest_reg = get_register(tmp1, dest, allocation);
+      const size_t dest_reg = get_register(tmp4, dest, allocation);
       copy(tmp3, offset_reg);
       add(tmp3, tmp3, tmp3);
       add(tmp3, tmp3, tmp3);

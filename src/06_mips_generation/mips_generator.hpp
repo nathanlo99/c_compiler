@@ -79,7 +79,7 @@ struct MIPSGenerator {
 
   void add_const(int reg, int src, int value, int temp_reg) {
     if (value == 0) {
-      return;
+      copy(reg, src);
     } else if (value == 1) {
       add(reg, src, 11);
     } else if (value == 4) {
