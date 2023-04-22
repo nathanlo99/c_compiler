@@ -104,8 +104,7 @@ private:
 
     // Set up the stack pointer
     const int stack_size = wain_allocations.spilled_variables.size();
-    add_const(30, 29, -4 * stack_size + 4, tmp1);
-    annotate("$30 = $29 - (" + std::to_string(4 * stack_size - 4) + ")");
+    add_const(30, 30, -4 * stack_size, tmp1);
 
     // Jump to wain
     beq(0, 0, wain.entry_label);
