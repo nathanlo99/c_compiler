@@ -283,59 +283,25 @@ void generate_mips(const std::string &filename) {
   generator.print(std::cout);
 }
 
-void debug(const std::string &) {
+void debug(const std::string &filename) {
   using namespace bril;
-  using bril::Type;
-  using bril::Variable;
-  std::vector<Instruction> instructions = {
-      Instruction::label(".L1"),
-      Instruction::add("u", "a", "b"),
-      Instruction::add("v", "c", "d"),
-      Instruction::add("w", "e", "f"),
-      Instruction::add("x", "b", "a"),
-      Instruction::eq("cond", "u", "x"),
-      Instruction::br("cond", ".L2", ".L3"),
+  auto program = get_optimized_bril_from_file(filename);
+  std::cout << program << std::endl;
+  if (program.cfgs.count("p") == 0)
+    return;
 
-      Instruction::label(".L2"),
-      Instruction::add("x", "c", "d"),
-      Instruction::add("y", "c", "d"),
-      Instruction::jmp(".L4"),
-
-      Instruction::label(".L3"),
-      Instruction::add("u", "a", "b"),
-      Instruction::add("x", "e", "f"),
-      Instruction::add("y", "e", "f"),
-      Instruction::jmp(".L4"),
-
-      Instruction::label(".L4"),
-      Instruction::add("z", "u", "y"),
-      Instruction::add("u", "a", "b"),
-      Instruction::ret("z"),
-  };
-  Function function("main",
-                    {Variable("a", Type::Int), Variable("b", Type::Int),
-                     Variable("c", Type::Int), Variable("d", Type::Int),
-                     Variable("e", Type::Int), Variable("f", Type::Int)},
-                    Type::Int);
-  function.instructions = instructions;
-  ControlFlowGraph graph(function);
-  bril::Program program;
-  program.cfgs.emplace("main", graph);
-
-  // std::cout << program << std::endl;
-
-  program.convert_to_ssa();
-  apply_optimizations(program);
-
-  auto &main = program.cfgs.at("main");
-  std::cout << main << std::endl;
-  std::cout << main.get_block(main.entry_label).instructions[2] << std::endl;
-  main.split_block(main.entry_label, 2);
-
-  main.rename_label("splitLabel", "split");
-  std::cout << main << std::endl;
-  apply_optimizations(program);
-
+  std::cerr << "Inlining every instance of p in wain" << std::endl;
+  auto &wain = program.wain();
+  for (const auto &label : wain.block_labels) {
+    auto &block = wain.get_block(label);
+    for (size_t i = 0; i < block.instructions.size(); ++i) {
+      const auto &instruction = block.instructions[i];
+      if (instruction.opcode != bril::Opcode::Call ||
+          instruction.funcs[0] != "@p")
+        continue;
+      program.inline_function_call(wain.name, label, i);
+    }
+  }
   std::cout << program << std::endl;
 }
 

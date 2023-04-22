@@ -260,17 +260,16 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
 // Splits the given block so that the given instruction idx becomes the first
 // instruction in a new block
 std::string ControlFlowGraph::split_block(const std::string &block_label,
-                                          const size_t instruction_idx) {
+                                          const size_t instruction_idx,
+                                          const std::string &new_label_hint) {
   runtime_assert(blocks.count(block_label) > 0,
                  "No block with label " + block_label);
   auto &block = get_block(block_label);
-  runtime_assert(instruction_idx > 0,
-                 "Cannot split block at the first instruction");
   runtime_assert(instruction_idx < block.instructions.size(),
                  "Cannot split block at the last instruction");
 
   // Create a new block
-  const std::string new_block_label = get_fresh_label("splitLabel");
+  const std::string new_block_label = get_fresh_label(new_label_hint);
   Block new_block;
   new_block.entry_label = new_block_label;
   new_block.instructions.push_back(Instruction::label(new_block_label));

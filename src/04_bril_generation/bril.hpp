@@ -621,7 +621,8 @@ struct ControlFlowGraph {
   void remove_block(const std::string &block_label);
   void combine_blocks(const std::string &source, const std::string &target);
   std::string split_block(const std::string &block_label,
-                          const size_t instruction_idx);
+                          const size_t instruction_idx,
+                          const std::string &new_label_hint = "splitLabel");
 
   void rename_label(const std::string &old_label, const std::string &new_label);
 
@@ -764,6 +765,12 @@ struct Program {
     return cfgs.at("wain");
   }
 
+  ControlFlowGraph &get_function(const std::string &name) {
+    const std::string stripped_name = name.substr(1);
+    runtime_assert(cfgs.count(stripped_name) > 0,
+                   "Function " + stripped_name + " not found");
+    return cfgs.at(stripped_name);
+  }
   const ControlFlowGraph &get_function(const std::string &name) const {
     const std::string stripped_name = name.substr(1);
     runtime_assert(cfgs.count(stripped_name) > 0,
@@ -803,6 +810,10 @@ struct Program {
     }
     return false;
   }
+
+  void inline_function_call(const std::string &function_name,
+                            const std::string &block_label,
+                            const size_t instruction_idx);
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
     for (const auto &[name, cfg] : program.cfgs) {
