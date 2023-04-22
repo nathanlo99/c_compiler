@@ -296,8 +296,8 @@ Token Lexer::next() {
   if (keywords.count(lexeme) > 0)
     last_accepting_kind = keywords.at(lexeme);
   if (last_accepting_kind == TokenKind::Num && !is_valid_number_literal(lexeme))
-    throw std::runtime_error(std::string("NUM literal out of range: ") +
-                             lexeme + " at index " + std::to_string(next_idx));
+    throw std::runtime_error("NUM literal out of range: " + lexeme +
+                             " at index " + std::to_string(next_idx));
 
   return Token(lexeme, last_accepting_kind);
 }

@@ -89,12 +89,9 @@ size_t apply_optimizations(bril::Program &program) {
     num_removed_lines +=
         program.apply_local_pass(remove_trivial_phi_instructions);
     num_removed_lines += program.apply_pass(remove_unused_parameters);
-    // num_removed_lines += program.apply_global_pass(move_constants_to_front);
     if (num_removed_lines == old_num_removed_lines)
       break;
   }
-  // std::cerr << "Optimizations removed " << num_removed_lines << " lines"
-  //           << std::endl;
   return num_removed_lines;
 }
 
@@ -286,22 +283,34 @@ void generate_mips(const std::string &filename) {
 void debug(const std::string &filename) {
   using namespace bril;
   auto program = get_optimized_bril_from_file(filename);
-  std::cout << program << std::endl;
-  if (program.cfgs.count("p") == 0)
-    return;
 
-  std::cerr << "Inlining every instance of p in wain" << std::endl;
+  std::set<std::string> to_inline = {"p", "eat", "q", "loong", "r"};
   auto &wain = program.wain();
-  for (const auto &label : wain.block_labels) {
-    auto &block = wain.get_block(label);
-    for (size_t i = 0; i < block.instructions.size(); ++i) {
-      const auto &instruction = block.instructions[i];
-      if (instruction.opcode != bril::Opcode::Call ||
-          instruction.funcs[0] != "p")
-        continue;
-      program.inline_function_call(wain.name, label, i);
+  while (true) {
+    bool changed = false;
+    for (const auto &label : wain.block_labels) {
+      auto &block = wain.get_block(label);
+      for (size_t i = 0; i < block.instructions.size(); ++i) {
+        const auto &instruction = block.instructions[i];
+        if (instruction.opcode != bril::Opcode::Call ||
+            to_inline.count(instruction.funcs[0]) == 0)
+          continue;
+        program.inline_function_call(wain.name, label, i);
+        apply_optimizations(program);
+        changed = true;
+        break;
+      }
+      if (changed)
+        break;
     }
+    if (!changed)
+      break;
   }
+  program.convert_to_ssa();
+  apply_optimizations(program);
+  program.convert_from_ssa();
+  apply_optimizations(program);
+
   std::cout << program << std::endl;
 }
 

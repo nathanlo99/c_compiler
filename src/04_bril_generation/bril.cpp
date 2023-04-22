@@ -36,10 +36,8 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     } else if (instruction.is_jump()) {
       current_block.instructions.push_back(instruction);
       current_block.exit_labels = instruction.labels;
-      if (instruction.opcode == Opcode::Ret) {
+      if (instruction.opcode == Opcode::Ret)
         exiting_blocks.insert(current_block.entry_label);
-        // current_block.is_exiting = true;
-      }
       add_block(current_block);
       current_block = Block();
     } else {
@@ -78,7 +76,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   // conversion later
   if (blocks.at(entry_label).incoming_blocks.size() > 0) {
     const auto old_entry_label = entry_label;
-    const auto new_entry_label = function.name + "EntryLabel2";
+    const auto new_entry_label = get_fresh_label(old_entry_label);
     entry_label = new_entry_label;
 
     Block new_block;
@@ -86,7 +84,6 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     new_block.entry_label = new_entry_label;
     new_block.instructions.push_back(Instruction::label(new_entry_label));
     new_block.instructions.push_back(Instruction::jmp(old_entry_label));
-    new_block.exit_labels = {old_entry_label};
     blocks.emplace(new_entry_label, new_block);
 
     add_edge(new_entry_label, old_entry_label);
@@ -108,10 +105,8 @@ void ControlFlowGraph::compute_edges() {
           add_edge(label, exit_label);
         }
       }
-      if (instruction.opcode == Opcode::Ret) {
+      if (instruction.opcode == Opcode::Ret)
         exiting_blocks.insert(label);
-        // block.is_exiting = true;
-      }
     }
   }
 }
@@ -137,7 +132,7 @@ void ControlFlowGraph::remove_edge(const std::string &source,
   is_graph_dirty = true;
 }
 
-void ControlFlowGraph::add_block(Block block) {
+void ControlFlowGraph::add_block(const Block &block) {
   if (block.instructions.empty())
     return;
   block_labels.push_back(block.entry_label);

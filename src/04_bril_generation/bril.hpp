@@ -515,7 +515,6 @@ struct Block {
 
   std::set<std::string> incoming_blocks;
   std::set<std::string> outgoing_blocks;
-  // bool is_exiting = false;
 
   // Insert an instruction at the beginning of the block, after any labels.
   void prepend(const Instruction &instruction) {
@@ -617,7 +616,7 @@ struct ControlFlowGraph {
                    "Block not found: " + block_label);
     return blocks.at(block_label);
   }
-  void add_block(Block block);
+  void add_block(const Block &block);
   void remove_block(const std::string &block_label);
   void combine_blocks(const std::string &source, const std::string &target);
   std::string split_block(const std::string &block_label,
@@ -731,7 +730,7 @@ struct ControlFlowGraph {
   void recompute_graph() {
     if (!is_graph_dirty)
       return;
-    std::cerr << "Recomputing graph" << std::endl;
+    // std::cerr << "Recomputing graph" << std::endl;
     compute_edges();
     compute_dominators();
     is_graph_dirty = false;
