@@ -77,6 +77,23 @@ struct MIPSGenerator {
     word(label);
   }
 
+  void add_const(int reg, int src, int value, int temp_reg) {
+    if (value == 0) {
+      return;
+    } else if (value == 1) {
+      add(reg, src, 11);
+    } else if (value == 4) {
+      add(reg, src, 4);
+    } else if (value == -4) {
+      sub(reg, src, 4);
+    } else if (value == -1) {
+      sub(reg, src, 11);
+    } else {
+      load_const(temp_reg, value);
+      add(reg, src, temp_reg);
+    }
+  }
+
   void push_const(int reg, int value) {
     if (value == 0) {
       push(0);

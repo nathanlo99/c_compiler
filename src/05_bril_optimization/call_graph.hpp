@@ -95,7 +95,9 @@ struct CallGraph {
     using util::operator<<;
     os << "Function edges: " << graph.graph << std::endl;
     os << "Strongly connected components: " << graph.components << std::endl;
-    os << "Component graph: " << graph.component_graph << std::endl;
+    os << "Component graph: " << std::endl;
+    for (size_t i = 0; i < graph.component_graph.size(); ++i)
+      os << "  " << i << ": " << graph.component_graph[i] << std::endl;
     return os;
   }
 };

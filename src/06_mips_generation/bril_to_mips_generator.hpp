@@ -104,8 +104,7 @@ private:
 
     // Set up the stack pointer
     const int stack_size = wain_allocations.spilled_variables.size();
-    load_const(1, 4 * stack_size - 4);
-    sub(30, 29, 1);
+    add_const(30, 30, -4 * stack_size + 4, tmp1);
     annotate("$30 = $29 - (" + std::to_string(4 * stack_size - 4) + ")");
 
     // Jump to wain
@@ -391,20 +390,18 @@ private:
         }
       }
       add(29, 30, 0);
-      load_const(1, stack_size * 4 - 4);
-      sub(30, 30, 1);
+      add_const(30, 30, -stack_size * 4 + 4, tmp1);
       comment("3. Done copying arguments to " + called_function.name);
 
       // 4. Jump to the function
       push(31);
       load_and_jalr(2, called_function.entry_label);
-      pop(31);
       annotate("4. Jump to " + called_function.name);
+      pop(31);
 
       // 5. Restore the stack pointer
       comment("5. Restore the stack pointer");
-      load_const(1, stack_size * 4);
-      add(30, 30, 1);
+      add_const(30, 30, stack_size * 4, tmp1);
 
       // 6. Pop the saved registers off the stack
       comment("6. Pop the saved registers off the stack");
@@ -464,7 +461,6 @@ private:
 
       // Argument in $1
       // Result in $3: if it was 0, return NULL (1)
-
       copy(1, arg_reg);
       push(3);
       push(31);
@@ -522,10 +518,10 @@ private:
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
-      copy(tmp1, offset_reg);
-      add(tmp1, tmp1, tmp1);
-      add(tmp1, tmp1, tmp1);
-      add(dest_reg, ptr_reg, tmp1);
+      copy(tmp3, offset_reg);
+      add(tmp3, tmp3, tmp3);
+      add(tmp3, tmp3, tmp3);
+      add(dest_reg, ptr_reg, tmp3);
       store_variable(dest, dest_reg, allocation);
     } break;
 
@@ -535,10 +531,10 @@ private:
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp1, dest, allocation);
-      copy(tmp1, offset_reg);
-      add(tmp1, tmp1, tmp1);
-      add(tmp1, tmp1, tmp1);
-      sub(dest_reg, ptr_reg, tmp1);
+      copy(tmp3, offset_reg);
+      add(tmp3, tmp3, tmp3);
+      add(tmp3, tmp3, tmp3);
+      sub(dest_reg, ptr_reg, tmp3);
       store_variable(dest, dest_reg, allocation);
     } break;
 
@@ -559,8 +555,7 @@ private:
       runtime_assert(allocation.is_spilled(var),
                      "Addressed variable " + var + " is not in memory");
       const int offset = allocation.get_offset(var);
-      load_const(tmp1, offset);
-      add(dest_reg, 29, tmp1);
+      add_const(dest_reg, 29, offset, tmp1);
       store_variable(dest, dest_reg, allocation);
     } break;
 

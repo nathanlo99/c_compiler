@@ -112,6 +112,29 @@ inline size_t remove_unused_blocks(ControlFlowGraph &graph) {
   return result;
 }
 
+inline size_t remove_unused_functions(Program &program) {
+  std::set<std::string> unused_functions;
+  for (const auto &[name, function] : program.functions)
+    unused_functions.insert(name);
+
+  unused_functions.erase("wain");
+  for (const auto &[name, function] : program.functions) {
+    for (const auto &[label, block] : function.blocks) {
+      for (const auto &instruction : block.instructions) {
+        if (instruction.opcode == Opcode::Call) {
+          unused_functions.erase(instruction.funcs[0]);
+        }
+      }
+    }
+  }
+
+  for (const auto &name : unused_functions) {
+    std::cerr << "Removing unused function " << name << std::endl;
+    program.functions.erase(name);
+  }
+  return unused_functions.size();
+}
+
 inline size_t remove_trivial_phi_instructions(ControlFlowGraph &,
                                               Block &block) {
   size_t result = 0;
