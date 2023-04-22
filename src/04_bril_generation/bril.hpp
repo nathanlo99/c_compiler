@@ -71,25 +71,25 @@ struct Variable {
 
 enum class Opcode {
   // Core BRIL
-  Add, // Done
-  Sub, // Done
-  Mul, // Done
-  Div, // Done
-  Mod, // Done
-  Lt,  // Done
-  Le,  // Done
-  Gt,  // Done
-  Ge,  // Done
-  Eq,  // Done
-  Ne,  // Done
-  Jmp, // Done
-  Br,  // Done
+  Add,
+  Sub,
+  Mul,
+  Div,
+  Mod,
+  Lt,
+  Le,
+  Gt,
+  Ge,
+  Eq,
+  Ne,
+  Jmp,
+  Br,
   Call,
-  Ret,   // Done
-  Const, // Done
-  Id,    // Done
+  Ret,
+  Const,
+  Id,
   Print,
-  Nop, // Done
+  Nop,
 
   // Memory BRIL
   Alloc,
@@ -102,10 +102,10 @@ enum class Opcode {
   AddressOf,
 
   // Label
-  Label, // Done
+  Label,
 
   // SSA
-  Phi, // Done
+  Phi,
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
@@ -411,7 +411,7 @@ struct Instruction {
          << " " << instruction.labels[1] << ";";
       break;
     case Opcode::Call:
-      os << instruction.destination << ": " << instruction.type << " = call "
+      os << instruction.destination << ": " << instruction.type << " = call @"
          << instruction.funcs[0];
       for (const auto &argument : instruction.arguments)
         os << " " << argument;
@@ -504,7 +504,7 @@ struct Function {
 
   Function(const std::string &name, const std::vector<Variable> &arguments,
            const Type return_type)
-      : name("@" + name), arguments(arguments), return_type(return_type) {}
+      : name(name), arguments(arguments), return_type(return_type) {}
 };
 
 struct ControlFlowGraph;
@@ -766,16 +766,12 @@ struct Program {
   }
 
   ControlFlowGraph &get_function(const std::string &name) {
-    const std::string stripped_name = name.substr(1);
-    runtime_assert(cfgs.count(stripped_name) > 0,
-                   "Function " + stripped_name + " not found");
-    return cfgs.at(stripped_name);
+    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
+    return cfgs.at(name);
   }
   const ControlFlowGraph &get_function(const std::string &name) const {
-    const std::string stripped_name = name.substr(1);
-    runtime_assert(cfgs.count(stripped_name) > 0,
-                   "Function " + stripped_name + " not found");
-    return cfgs.at(stripped_name);
+    runtime_assert(cfgs.count(name) > 0, "Function " + name + " not found");
+    return cfgs.at(name);
   }
 
   void convert_to_ssa() {

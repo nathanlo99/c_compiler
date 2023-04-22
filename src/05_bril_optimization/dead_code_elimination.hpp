@@ -191,7 +191,7 @@ inline size_t move_constants_to_front(ControlFlowGraph &graph) {
 }
 
 inline size_t remove_unused_parameters(Program &program) {
-  const std::string wain_name = "@wain";
+  const std::string wain_name = "wain";
   size_t result = 0;
 
   // First, identify the unused variables in each function
@@ -239,8 +239,7 @@ inline size_t remove_unused_parameters(Program &program) {
         if (instruction.opcode != Opcode::Call)
           continue;
         const std::string called_function = instruction.funcs[0];
-        const auto &unused_indices =
-            unused_parameter_indices[called_function.substr(1)];
+        const auto &unused_indices = unused_parameter_indices[called_function];
         for (auto rit = unused_indices.rbegin(); rit != unused_indices.rend();
              ++rit) {
           const auto idx = *rit;

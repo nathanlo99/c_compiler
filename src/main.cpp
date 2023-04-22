@@ -297,7 +297,7 @@ void debug(const std::string &filename) {
     for (size_t i = 0; i < block.instructions.size(); ++i) {
       const auto &instruction = block.instructions[i];
       if (instruction.opcode != bril::Opcode::Call ||
-          instruction.funcs[0] != "@p")
+          instruction.funcs[0] != "p")
         continue;
       program.inline_function_call(wain.name, label, i);
     }
