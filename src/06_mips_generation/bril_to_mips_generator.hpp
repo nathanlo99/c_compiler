@@ -115,7 +115,7 @@ private:
       generate_function(function);
     }
 
-    optimize();
+    // optimize();
 
     comment("Number of instructions: " +
             std::to_string(num_assembly_instructions()));
@@ -369,18 +369,21 @@ private:
           function_allocation.spilled_variables.size() * 4;
       for (size_t i = 0; i < called_function.arguments.size(); ++i) {
         const auto &parameter = instruction.arguments[i];
-        const auto &argument = called_function.arguments[i];
-        if (function_allocation.is_spilled(argument.name)) {
-          const int offset = function_allocation.get_offset(argument.name);
+        const auto &argument = called_function.arguments[i].name;
+        std::cerr << "Copying argument " << parameter << " at " 
+          << allocation.get_location(parameter) << " to " << argument << " at " 
+          << function_allocation.get_location(argument) << std::endl;
+        if (function_allocation.is_spilled(argument)) {
+          const int offset = function_allocation.get_offset(argument);
           const size_t src_reg = load_variable(1, parameter, allocation);
           sw(src_reg, offset, 30);
-        } else if (function_allocation.in_register(argument.name)) {
+        } else if (function_allocation.in_register(argument)) {
           const size_t dest_reg =
-              function_allocation.get_register(argument.name);
+              function_allocation.get_register(argument);
           const size_t src_reg = load_variable(1, parameter, allocation);
           copy(dest_reg, src_reg);
         } else {
-          runtime_assert(false, "Argument " + argument.name +
+          runtime_assert(false, "Argument " + argument +
                                     " not in memory or register");
         }
       }
@@ -513,9 +516,7 @@ private:
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp4, dest, allocation);
-      copy(tmp3, offset_reg);
-      add(tmp3, tmp3, tmp3);
-      add(tmp3, tmp3, tmp3);
+      mult(tmp3, offset_reg, 4);
       add(dest_reg, ptr_reg, tmp3);
       store_variable(dest, dest_reg, allocation);
     } break;
@@ -526,9 +527,7 @@ private:
       const size_t offset_reg =
           load_variable(tmp2, instruction.arguments[1], allocation);
       const size_t dest_reg = get_register(tmp4, dest, allocation);
-      copy(tmp3, offset_reg);
-      add(tmp3, tmp3, tmp3);
-      add(tmp3, tmp3, tmp3);
+      mult(tmp3, offset_reg, 4);
       sub(dest_reg, ptr_reg, tmp3);
       store_variable(dest, dest_reg, allocation);
     } break;

@@ -169,6 +169,16 @@ struct RegisterAllocation {
     return spilled_variables.at(variable);
   }
 
+  std::string get_location(const std::string& variable) const {
+    std::stringstream ss;
+    if (in_register(variable)) {
+      ss << "$" << get_register(variable);
+    } else {
+      ss << "BP[" << get_offset(variable) << "]";
+    }
+    return ss.str();
+  }
+
   friend std::ostream &operator<<(std::ostream &os,
                                   const RegisterAllocation &allocation) {
     using util::operator<<;
