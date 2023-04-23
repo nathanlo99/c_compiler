@@ -26,21 +26,17 @@ sw $11, -4($30)                 ;   push $11
 sub $30, $30, $4                ; Declaration addr_a
                                 ; Code for statements:
                                 ; addr_a = &a;
-
 add $3, $4, $4
 add $3, $3, $29
 sw $3, 0($29)
                                 ; b = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, 4($29)
                                 ; a = 69;
-
 lis $3
 .word 69                        ; Loading the literal 69
 sw $3, 8($29)
                                 ; b = (b + a);
-
 lw $3, 4($29)                   ; Loading b
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -50,7 +46,6 @@ lw $5, -4($30)                  ;   ^
 add $3, $5, $3
 sw $3, 4($29)
                                 ; *addr_a = 420;
-
 lw $3, 0($29)                   ; Loading addr_a
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -60,7 +55,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 sw $3, 0($5)
                                 ; b = (b + a);
-
 lw $3, 4($29)                   ; Loading b
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

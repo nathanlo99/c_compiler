@@ -185,6 +185,20 @@ struct LiteralExpr : Expr {
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
 };
 
+struct AssignmentExpr : Expr {
+  std::shared_ptr<LValueExpr> lhs;
+  std::shared_ptr<Expr> rhs;
+  AssignmentExpr(std::shared_ptr<LValueExpr> lhs, std::shared_ptr<Expr> rhs)
+      : Expr(lhs->type), lhs(lhs), rhs(rhs) {}
+  virtual ~AssignmentExpr() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+};
+
 enum class ComparisonOperation {
   LessThan,
   LessEqual,
@@ -374,6 +388,19 @@ struct FunctionCallExpr : Expr {
 };
 
 // Statements
+struct ExprStatement : Statement {
+  std::shared_ptr<Expr> expr;
+
+  ExprStatement(std::shared_ptr<Expr> expr) : expr(expr) {}
+  virtual ~ExprStatement() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+};
+
 struct AssignmentStatement : Statement {
   std::shared_ptr<LValueExpr> lhs;
   std::shared_ptr<Expr> rhs;

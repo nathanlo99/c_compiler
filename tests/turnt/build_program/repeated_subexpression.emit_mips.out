@@ -21,7 +21,6 @@ sw $0, -4($30)                  ;   push $0
 sub $30, $30, $4                ; Declaration c
                                 ; Code for statements:
                                 ; c = ((a + 2) * (2 + a));
-
 lw $3, 8($29)                   ; Loading a
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

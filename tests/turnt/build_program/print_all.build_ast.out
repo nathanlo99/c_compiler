@@ -29,38 +29,42 @@ Procedure {
             } : int*
           } : int
         }
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(sum) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(sum) : int
-              operation: Add
-              rhs: 
-                DereferenceExpr {
-                  BinaryExpr {
-                    lhs: 
-                      VariableExpr(arr) : int*
-                    operation: Add
-                    rhs: 
-                      VariableExpr(idx) : int
-                  } : int*
-                } : int
-            } : int
-        )
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(idx) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(idx) : int
-              operation: Add
-              rhs: 
-                1: int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(sum) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(sum) : int
+                operation: Add
+                rhs: 
+                  DereferenceExpr {
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(arr) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(idx) : int
+                    } : int*
+                  } : int
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(idx) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(idx) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
     }
   return_expr: 
     VariableExpr(sum) : int

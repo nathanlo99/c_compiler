@@ -12,6 +12,7 @@ struct Procedure;
 
 struct VariableLValueExpr;
 struct DereferenceLValueExpr;
+struct AssignmentExpr;
 struct TestExpr;
 struct VariableExpr;
 struct LiteralExpr;
@@ -22,6 +23,7 @@ struct NewExpr;
 struct FunctionCallExpr;
 
 struct Statements;
+struct ExprStatement;
 struct AssignmentStatement;
 struct IfStatement;
 struct WhileStatement;
@@ -35,6 +37,7 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(Procedure &) {}
   virtual void pre_visit(VariableLValueExpr &) {}
   virtual void pre_visit(DereferenceLValueExpr &) {}
+  virtual void pre_visit(AssignmentExpr &) {}
   virtual void pre_visit(TestExpr &) {}
   virtual void pre_visit(VariableExpr &) {}
   virtual void pre_visit(LiteralExpr &) {}
@@ -44,6 +47,7 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(NewExpr &) {}
   virtual void pre_visit(FunctionCallExpr &) {}
   virtual void pre_visit(Statements &) {}
+  virtual void pre_visit(ExprStatement &) {}
   virtual void pre_visit(AssignmentStatement &) {}
   virtual void pre_visit(IfStatement &) {}
   virtual void pre_visit(WhileStatement &) {}
@@ -54,6 +58,7 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(Procedure &) {}
   virtual void post_visit(VariableLValueExpr &) {}
   virtual void post_visit(DereferenceLValueExpr &) {}
+  virtual void post_visit(AssignmentExpr &) {}
   virtual void post_visit(TestExpr &) {}
   virtual void post_visit(VariableExpr &) {}
   virtual void post_visit(LiteralExpr &) {}
@@ -63,6 +68,7 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(NewExpr &) {}
   virtual void post_visit(FunctionCallExpr &) {}
   virtual void post_visit(Statements &) {}
+  virtual void post_visit(ExprStatement &) {}
   virtual void post_visit(AssignmentStatement &) {}
   virtual void post_visit(IfStatement &) {}
   virtual void post_visit(WhileStatement &) {}

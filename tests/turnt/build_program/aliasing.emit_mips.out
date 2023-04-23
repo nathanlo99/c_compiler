@@ -24,22 +24,18 @@ sw $11, -4($30)                 ;   push $11
 sub $30, $30, $4                ; Declaration c
                                 ; Code for statements:
                                 ; c = &a;
-
 add $3, $4, $4
 add $3, $3, $29
 sw $3, 0($29)
                                 ; a = 69;
-
 lis $3
 .word 69                        ; Loading the literal 69
 sw $3, 8($29)
                                 ; b = *c;
-
 lw $3, 0($29)                   ; Loading c
 lw $3, 0($3)
 sw $3, 4($29)
                                 ; a = 70;
-
 lis $3
 .word 70                        ; Loading the literal 70
 sw $3, 8($29)

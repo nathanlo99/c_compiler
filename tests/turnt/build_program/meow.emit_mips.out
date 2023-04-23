@@ -37,7 +37,6 @@ sw $11, -4($30)                 ;   push $11
 sub $30, $30, $4                ; Declaration null
                                 ; Code for statements:
                                 ; var = (var + var);
-
 lw $3, -8($29)                  ; Loading var
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

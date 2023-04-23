@@ -18,26 +18,30 @@ Procedure {
             VariableExpr(a) : int
         }
       body: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(ptr) : int*
-          rhs: 
-            NewExpr {
-              VariableExpr(b) : int
-            } : int*
-        )
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(i) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(i) : int
-              operation: Add
-              rhs: 
-                1: int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(ptr) : int*
+            rhs: 
+              NewExpr {
+                VariableExpr(b) : int
+              } : int*
+          } : int*
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(i) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(i) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
     }
   return_expr: 
     0: int

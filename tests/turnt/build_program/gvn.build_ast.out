@@ -28,45 +28,51 @@ Procedure {
                 VariableExpr(b) : int
             }
           true_statement: 
-            AssignmentStatement {
-              lhs: 
-                VariableLValueExpr(c) : int
-              rhs: 
-                BinaryExpr {
-                  lhs: 
-                    0: int
-                  operation: Sub
-                  rhs: 
-                    5: int
-                } : int
-            )
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(c) : int
+                rhs: 
+                  BinaryExpr {
+                    lhs: 
+                      0: int
+                    operation: Sub
+                    rhs: 
+                      5: int
+                  } : int
+              } : int
+            }
           false_statement: 
         }
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(a) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(d) : int
-              operation: Sub
-              rhs: 
-                VariableExpr(c) : int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(d) : int
+                operation: Sub
+                rhs: 
+                  VariableExpr(c) : int
+              } : int
+          } : int
+        }
       false_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(a) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(c) : int
-              operation: Sub
-              rhs: 
-                VariableExpr(d) : int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(c) : int
+                operation: Sub
+                rhs: 
+                  VariableExpr(d) : int
+              } : int
+          } : int
+        }
     }
   return_expr: 
     VariableExpr(a) : int

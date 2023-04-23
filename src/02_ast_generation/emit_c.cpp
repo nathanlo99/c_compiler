@@ -55,6 +55,12 @@ void DereferenceLValueExpr::emit_c(std::ostream &os, const size_t) const {
   argument->emit_c(os, 0);
 }
 
+void AssignmentExpr::emit_c(std::ostream &os, const size_t) const {
+  lhs->emit_c(os, 0);
+  os << " = ";
+  rhs->emit_c(os, 0);
+}
+
 void VariableExpr::emit_c(std::ostream &os, const size_t) const {
   os << variable.name;
 }
@@ -121,6 +127,12 @@ void FunctionCallExpr::emit_c(std::ostream &os, const size_t) const {
       os << ", ";
   }
   os << ")";
+}
+
+void ExprStatement::emit_c(std::ostream &os, const size_t indent_level) const {
+  os << pad(indent_level);
+  expr->emit_c(os, 0);
+  os << ";" << std::endl;
 }
 
 void AssignmentStatement::emit_c(std::ostream &os,

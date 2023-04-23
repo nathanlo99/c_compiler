@@ -1,6 +1,5 @@
 
 #include "ast_simple_visitor.hpp"
-#include "ast_node.hpp"
 
 #include "ast_node.hpp"
 
@@ -15,6 +14,10 @@ void VariableLValueExpr::accept_simple(ASTSimpleVisitor &visitor) {
 }
 
 void DereferenceLValueExpr::accept_simple(ASTSimpleVisitor &visitor) {
+  visitor.visit(*this);
+}
+
+void AssignmentExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
 
@@ -49,6 +52,10 @@ void FunctionCallExpr::accept_simple(ASTSimpleVisitor &visitor) {
 }
 
 void Statements::accept_simple(ASTSimpleVisitor &visitor) {
+  visitor.visit(*this);
+}
+
+void ExprStatement::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
 

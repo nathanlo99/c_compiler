@@ -7,30 +7,32 @@ Procedure {
   declarations: 
     c: int = 0 (used)
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(c) : int
-      rhs: 
-        BinaryExpr {
-          lhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(a) : int
-              operation: Add
-              rhs: 
-                2: int
-            } : int
-          operation: Mul
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                2: int
-              operation: Add
-              rhs: 
-                VariableExpr(a) : int
-            } : int
-        } : int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(c) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Add
+                rhs: 
+                  2: int
+              } : int
+            operation: Mul
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  2: int
+                operation: Add
+                rhs: 
+                  VariableExpr(a) : int
+              } : int
+          } : int
+      } : int
+    }
   return_expr: 
     BinaryExpr {
       lhs: 

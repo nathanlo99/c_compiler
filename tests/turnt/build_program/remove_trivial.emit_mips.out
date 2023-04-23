@@ -30,7 +30,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, ifelse0
                                 ; c = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, 0($29)
 beq $0, $0, ifendif0

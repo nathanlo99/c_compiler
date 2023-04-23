@@ -22,31 +22,35 @@ Procedure {
             0: int
         }
       true_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(a) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(a) : int
-              operation: Mul
-              rhs: 
-                VariableExpr(a) : int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Mul
+                rhs: 
+                  VariableExpr(a) : int
+              } : int
+          } : int
+        }
       false_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(a) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(a) : int
-              operation: Add
-              rhs: 
-                VariableExpr(a) : int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Add
+                rhs: 
+                  VariableExpr(a) : int
+              } : int
+          } : int
+        }
     }
     PrintStatement {
       VariableExpr(a) : int

@@ -7,20 +7,24 @@ Procedure {
   declarations: 
     idx: int = 0 (used)
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(arr) : int*
-      rhs: 
-        NewExpr {
-          VariableExpr(size) : int
-        } : int*
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(idx) : int
-      rhs: 
-        0: int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(arr) : int*
+        rhs: 
+          NewExpr {
+            VariableExpr(size) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(idx) : int
+        rhs: 
+          0: int
+      } : int
+    }
     WhileStatement {
       condition: 
         TestExpr {
@@ -31,45 +35,51 @@ Procedure {
             VariableExpr(size) : int
         }
       body: 
-        AssignmentStatement {
-          lhs: 
-            DereferenceLValueExpr {
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(arr) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(idx) : int
+                } : int*
+              } : int
+            rhs: 
               BinaryExpr {
                 lhs: 
-                  VariableExpr(arr) : int*
-                operation: Add
+                  VariableExpr(idx) : int
+                operation: Mul
                 rhs: 
                   VariableExpr(idx) : int
-              } : int*
-            } : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(idx) : int
-              operation: Mul
-              rhs: 
-                VariableExpr(idx) : int
-            } : int
-        )
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(idx) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(idx) : int
-              operation: Add
-              rhs: 
-                1: int
-            } : int
-        )
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(idx) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(idx) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
     }
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(idx) : int
-      rhs: 
-        0: int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(idx) : int
+        rhs: 
+          0: int
+      } : int
+    }
     WhileStatement {
       condition: 
         TestExpr {
@@ -91,18 +101,20 @@ Procedure {
             } : int*
           } : int
         }
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(idx) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(idx) : int
-              operation: Add
-              rhs: 
-                1: int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(idx) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(idx) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
     }
     DeleteStatement {
       VariableExpr(arr) : int*

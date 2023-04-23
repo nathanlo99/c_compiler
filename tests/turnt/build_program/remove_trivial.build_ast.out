@@ -17,12 +17,14 @@ Procedure {
             VariableExpr(b) : int
         }
       true_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(c) : int
-          rhs: 
-            0: int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(c) : int
+            rhs: 
+              0: int
+          } : int
+        }
       false_statement: 
     }
   return_expr: 

@@ -19,12 +19,14 @@ Procedure {
         }
       true_statement: 
       false_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(cont) : int
-          rhs: 
-            0: int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(cont) : int
+            rhs: 
+              0: int
+          } : int
+        }
         IfStatement {
           condition: 
             TestExpr {
@@ -36,12 +38,14 @@ Procedure {
             }
           true_statement: 
           false_statement: 
-            AssignmentStatement {
-              lhs: 
-                VariableLValueExpr(cont) : int
-              rhs: 
-                2: int
-            )
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(cont) : int
+                rhs: 
+                  2: int
+              } : int
+            }
         }
     }
   return_expr: 

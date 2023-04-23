@@ -109,7 +109,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
   } else if (production_str == "statement -> lvalue BECOMES expr SEMI") {
     const auto lhs = construct_ast<LValueExpr>(node->children[0]);
     const auto rhs = construct_ast<Expr>(node->children[2]);
-    return std::make_shared<AssignmentStatement>(lhs, rhs);
+    const auto expr = std::make_shared<AssignmentExpr>(lhs, rhs);
+    return std::make_shared<ExprStatement>(expr);
   } else if (production_str ==
              "statement -> IF LPAREN test RPAREN LBRACE "
              "statements RBRACE ELSE LBRACE statements RBRACE") {
@@ -228,6 +229,39 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     return std::make_shared<DereferenceLValueExpr>(rhs);
   } else if (production_str == "lvalue -> LPAREN lvalue RPAREN") {
     return construct_ast<LValueExpr>(node->children[1]);
+  }
+  // Begin augmented productions
+  else if (production_str == "expr -> test") {
+    return construct_ast<Expr>(node->children[0]);
+  } else if (production_str == "test -> sum GE sum" ||
+             production_str == "test -> sum GT sum" ||
+             production_str == "test -> sum LE sum" ||
+             production_str == "test -> sum LT sum" ||
+             production_str == "test -> sum NE sum" ||
+             production_str == "test -> sum EQ sum") {
+    const auto lhs = construct_ast<Expr>(node->children[0]);
+    const auto op = node->children[1]->token.kind;
+    const auto rhs = construct_ast<Expr>(node->children[2]);
+    return std::make_shared<TestExpr>(lhs, token_to_comparison_operation(op),
+                                      rhs);
+  } else if (production_str == "test -> sum") {
+    return construct_ast<Expr>(node->children[0]);
+  } else if (production_str == "sum -> term") {
+    return construct_ast<Expr>(node->children[0]);
+  } else if (production_str == "sum -> sum PLUS term" ||
+             production_str == "sum -> sum MINUS term") {
+    const auto lhs = construct_ast<Expr>(node->children[0]);
+    const auto op = node->children[1]->token.kind;
+    const auto rhs = construct_ast<Expr>(node->children[2]);
+    return std::make_shared<BinaryExpr>(lhs, token_to_binary_operation(op),
+                                        rhs);
+  } else if (production_str == "statement -> expr SEMI") {
+    return std::make_shared<ExprStatement>(
+        construct_ast<Expr>(node->children[0]));
+  } else if (production_str == "expr -> lvalue BECOMES expr") {
+    const auto lhs = construct_ast<LValueExpr>(node->children[0]);
+    const auto rhs = construct_ast<Expr>(node->children[2]);
+    return std::make_shared<AssignmentExpr>(lhs, rhs);
   }
   unreachable("WARN: Production " + production_str + " not yet handled");
 

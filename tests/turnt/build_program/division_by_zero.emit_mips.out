@@ -27,7 +27,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, ifelse0
                                 ; a = (1 / 0);
-
 add $3, $11, $0                 ; Loading the literal 1
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

@@ -19,7 +19,6 @@ sub $30, $30, $4                ;   ^
 sub $29, $30, $4
                                 ; Code for statements:
                                 ; *ptr = (value + 1);
-
 lw $3, 8($29)                   ; Loading ptr
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -34,7 +33,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 sw $3, 0($5)
                                 ; value = 2;
-
 add $3, $11, $11                ; Loading the literal 2
 sw $3, 4($29)
                                 ; Code for return value:

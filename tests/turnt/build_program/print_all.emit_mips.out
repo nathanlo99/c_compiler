@@ -58,7 +58,6 @@ jalr $5
 add $30, $30, $4                ;   pop $31
 lw $31, -4($30)                 ;   ^
                                 ; sum = (sum + *(arr + idx));
-
 lw $3, -4($29)                  ; Loading sum
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -77,7 +76,6 @@ lw $5, -4($30)                  ;   ^
 add $3, $5, $3
 sw $3, -4($29)
                                 ; idx = (idx + 1);
-
 lw $3, 0($29)                   ; Loading idx
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

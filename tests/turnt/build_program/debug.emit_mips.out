@@ -41,7 +41,6 @@ beq $3, $0, ifelse0
 beq $0, $0, ifendif0
 ifelse0:
                                 ; cont = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, 0($29)
 lw $3, 8($29)                   ; Loading n
@@ -55,7 +54,6 @@ beq $3, $0, ifelse1
 beq $0, $0, ifendif1
 ifelse1:
                                 ; cont = 2;
-
 add $3, $11, $11                ; Loading the literal 2
 sw $3, 0($29)
 ifendif1:

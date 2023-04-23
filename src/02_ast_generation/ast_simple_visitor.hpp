@@ -12,6 +12,7 @@ struct Procedure;
 
 struct VariableLValueExpr;
 struct DereferenceLValueExpr;
+struct AssignmentExpr;
 struct TestExpr;
 struct VariableExpr;
 struct LiteralExpr;
@@ -22,6 +23,7 @@ struct NewExpr;
 struct FunctionCallExpr;
 
 struct Statements;
+struct ExprStatement;
 struct AssignmentStatement;
 struct IfStatement;
 struct WhileStatement;
@@ -35,6 +37,7 @@ struct ASTSimpleVisitor {
   virtual void visit(Procedure &) {}
   virtual void visit(VariableLValueExpr &) {}
   virtual void visit(DereferenceLValueExpr &) {}
+  virtual void visit(AssignmentExpr &) {}
   virtual void visit(TestExpr &) {}
   virtual void visit(VariableExpr &) {}
   virtual void visit(LiteralExpr &) {}
@@ -44,6 +47,7 @@ struct ASTSimpleVisitor {
   virtual void visit(NewExpr &) {}
   virtual void visit(FunctionCallExpr &) {}
   virtual void visit(Statements &) {}
+  virtual void visit(ExprStatement &) {}
   virtual void visit(AssignmentStatement &) {}
   virtual void visit(IfStatement &) {}
   virtual void visit(WhileStatement &) {}

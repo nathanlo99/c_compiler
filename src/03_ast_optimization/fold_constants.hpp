@@ -14,6 +14,7 @@ struct ConstantFoldingVisitor : ASTRecursiveVisitor {
 
   void pre_visit(Procedure &) override;
 
+  void pre_visit(AssignmentExpr &) override;
   void pre_visit(TestExpr &) override;
   void pre_visit(BinaryExpr &) override;
   void pre_visit(NewExpr &) override;
@@ -21,6 +22,7 @@ struct ConstantFoldingVisitor : ASTRecursiveVisitor {
   void pre_visit(FunctionCallExpr &) override;
   void pre_visit(DereferenceLValueExpr &) override;
 
+  void pre_visit(ExprStatement &) override;
   void pre_visit(AssignmentStatement &) override;
   void pre_visit(PrintStatement &) override;
   void pre_visit(DeleteStatement &) override;

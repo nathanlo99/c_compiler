@@ -44,6 +44,28 @@ void SimpleBRILGenerator::visit(DereferenceLValueExpr &) {
       "BRIL generation for dereference should be handled in assignment");
 }
 
+void SimpleBRILGenerator::visit(AssignmentExpr &expr) {
+  expr.rhs->accept_simple(*this);
+  const std::string rhs_variable = last_result();
+  const Type type = last_type();
+  const std::string result_variable = temp();
+
+  if (const auto &lhs =
+          std::dynamic_pointer_cast<VariableLValueExpr>(expr.lhs)) {
+    id(lhs->variable.name, rhs_variable, type);
+    // id(result_variable, lhs->variable.name, type);
+  } else if (const auto &lhs =
+                 std::dynamic_pointer_cast<DereferenceLValueExpr>(expr.lhs)) {
+    lhs->argument->accept_simple(*this);
+    const std::string lhs_variable = last_result();
+    store(lhs_variable, rhs_variable);
+    // id(result_variable, rhs_variable, type);
+  } else {
+    runtime_assert(false, "Assigning to unknown kind of lvalue: was neither "
+                          "variable nor dereference");
+  }
+}
+
 void SimpleBRILGenerator::visit(TestExpr &expr) {
   expr.lhs->accept_simple(*this);
   const std::string lhs_variable = last_result();
@@ -162,6 +184,11 @@ void SimpleBRILGenerator::visit(Statements &statements) {
   for (auto &statement : statements.statements) {
     statement->accept_simple(*this);
   }
+}
+
+void SimpleBRILGenerator::visit(ExprStatement &statement) {
+  statement.expr->accept_simple(*this);
+  // Ignore result
 }
 
 void SimpleBRILGenerator::visit(AssignmentStatement &statement) {

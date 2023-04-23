@@ -27,6 +27,13 @@ void DereferenceLValueExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.post_visit(*this);
 }
 
+void AssignmentExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  lhs->accept_recursive(visitor);
+  rhs->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
 void TestExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   lhs->accept_recursive(visitor);
@@ -81,6 +88,12 @@ void Statements::accept_recursive(ASTRecursiveVisitor &visitor) {
   for (const auto &statement : statements) {
     statement->accept_recursive(visitor);
   }
+  visitor.post_visit(*this);
+}
+
+void ExprStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  expr->accept_recursive(visitor);
   visitor.post_visit(*this);
 }
 

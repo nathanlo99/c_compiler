@@ -48,7 +48,6 @@ lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
 beq $3, $0, ifelse1
                                 ; c = -5;
-
 lis $3
 .word -5                        ; Loading the literal -5
 sw $3, 0($29)
@@ -56,7 +55,6 @@ beq $0, $0, ifendif1
 ifelse1:
 ifendif1:
                                 ; a = (d - c);
-
 lw $3, -4($29)                  ; Loading d
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -68,7 +66,6 @@ sw $3, 8($29)
 beq $0, $0, ifendif0
 ifelse0:
                                 ; a = (c - d);
-
 lw $3, 0($29)                   ; Loading c
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

@@ -99,7 +99,6 @@ beq $3, $0, ifelse0
 beq $0, $0, ifendif0
 ifelse0:
                                 ; continueLooping = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -8($29)
 ifendif0:
@@ -126,14 +125,12 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, ifelse1
                                 ; answer = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -4($29)
 beq $0, $0, ifendif1
 ifelse1:
 ifendif1:
                                 ; i = (i + 1);
-
 lw $3, 0($29)                   ; Loading i
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -158,7 +155,6 @@ lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
 beq $3, $0, ifelse2
                                 ; continueLooping = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -8($29)
 beq $0, $0, ifendif2
@@ -171,7 +167,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, ifelse3
                                 ; continueLooping = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -8($29)
 beq $0, $0, ifendif3
@@ -195,7 +190,6 @@ sw $0, -4($30)                  ;   push $0
 sub $30, $30, $4                ; Declaration value
                                 ; Code for statements:
                                 ; value = *num;
-
 lw $3, 4($29)                   ; Loading num
 lw $3, 0($3)
 sw $3, 0($29)
@@ -208,7 +202,6 @@ lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
 beq $3, $0, ifelse4
                                 ; *num = 1;
-
 lw $3, 4($29)                   ; Loading num
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -233,7 +226,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, ifelse5
                                 ; *num = (value / 2);
-
 lw $3, 4($29)                   ; Loading num
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -251,7 +243,6 @@ sw $3, 0($5)
 beq $0, $0, ifendif5
 ifelse5:
                                 ; *num = (((3 * value) + 2) - 1);
-
 lw $3, 4($29)                   ; Loading num
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -311,7 +302,6 @@ sw $0, -4($30)                  ;   push $0
 sub $30, $30, $4                ; Declaration nextNumber
                                 ; Code for statements:
                                 ; result = new int[numPrimes];
-
 lw $3, 4($29)                   ; Loading numPrimes
 add $1, $3, $0
 sw $31, -4($30)                 ;   push $31
@@ -325,7 +315,6 @@ bne $3, $0, 1
 add $3, $11, $0
 sw $3, 0($29)
                                 ; nextNumber = startNumber;
-
 lw $3, 8($29)                   ; Loading startNumber
 sw $3, -8($29)
 whileloop1:
@@ -362,7 +351,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 bne $3, $5, whileend2
                                 ; nextNumber = (nextNumber + 1);
-
 lw $3, -8($29)                  ; Loading nextNumber
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -374,7 +362,6 @@ sw $3, -8($29)
 beq $0, $0, whileloop2
 whileend2:
                                 ; *(result + idx) = nextNumber;
-
 lw $3, 0($29)                   ; Loading result
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -391,7 +378,6 @@ add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 sw $3, 0($5)
                                 ; nextNumber = (nextNumber + 1);
-
 lw $3, -8($29)                  ; Loading nextNumber
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -401,7 +387,6 @@ lw $5, -4($30)                  ;   ^
 add $3, $5, $3
 sw $3, -8($29)
                                 ; idx = (idx + 1);
-
 lw $3, -4($29)                  ; Loading idx
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -413,7 +398,6 @@ sw $3, -4($29)
 beq $0, $0, whileloop1
 whileend1:
                                 ; idx = 0;
-
 add $3, $0, $0                  ; Loading the literal 0
 sw $3, -4($29)
 whileloop3:
@@ -444,7 +428,6 @@ jalr $5
 add $30, $30, $4                ;   pop $31
 lw $31, -4($30)                 ;   ^
                                 ; idx = (idx + 1);
-
 lw $3, -4($29)                  ; Loading idx
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -456,7 +439,6 @@ sw $3, -4($29)
 beq $0, $0, whileloop3
 whileend3:
                                 ; nextNumber = 40;
-
 lis $3
 .word 40                        ; Loading the literal 40
 sw $3, -8($29)
@@ -478,7 +460,6 @@ jalr $5
 add $30, $30, $4                ;   pop $31
 lw $31, -4($30)                 ;   ^
                                 ; idx = collatz(&nextNumber);
-
 sw $29, -4($30)                 ;   push $29
 sub $30, $30, $4                ;   ^
 sw $31, -4($30)                 ;   push $31

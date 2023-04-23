@@ -6,27 +6,33 @@ Procedure {
     b: int (unused)
   declarations: 
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        3: int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(a) : int
+        rhs: 
+          3: int
+      } : int
+    }
     PrintStatement {
       VariableExpr(a) : int
     }
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        4: int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        5: int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(a) : int
+        rhs: 
+          4: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(a) : int
+        rhs: 
+          5: int
+      } : int
+    }
   return_expr: 
     VariableExpr(a) : int
 }

@@ -4,6 +4,7 @@
 #include "mips_instruction.hpp"
 #include "util.hpp"
 #include <memory>
+#include <sys/errno.h>
 
 void NaiveMIPSGenerator::visit(Program &program) {
   table = program.table;
@@ -100,6 +101,28 @@ void NaiveMIPSGenerator::visit(VariableLValueExpr &) {
 
 void NaiveMIPSGenerator::visit(DereferenceLValueExpr &) {
   unreachable("Dereference lvalue code is handled in addressof and assignment");
+}
+
+void NaiveMIPSGenerator::visit(AssignmentExpr &expr) {
+  std::stringstream ss;
+  expr.emit_c(ss, 0);
+  ss << ";";
+  comment(ss.str());
+  if (const auto lvalue =
+          std::dynamic_pointer_cast<VariableLValueExpr>(expr.lhs)) {
+    const int offset = table.get_offset(lvalue->variable);
+    expr.rhs->accept_simple(*this);
+    sw(3, offset, 29);
+  } else if (const auto lvalue =
+                 std::dynamic_pointer_cast<DereferenceLValueExpr>(expr.lhs)) {
+    lvalue->argument->accept_simple(*this);
+    push(3);
+    expr.rhs->accept_simple(*this);
+    pop(5);
+    sw(3, 0, 5);
+  } else {
+    unreachable("Unknown lvalue type");
+  }
 }
 
 void NaiveMIPSGenerator::visit(TestExpr &) {
@@ -216,6 +239,10 @@ void NaiveMIPSGenerator::visit(Statements &statements) {
   for (auto &statement : statements.statements) {
     statement->accept_simple(*this);
   }
+}
+
+void NaiveMIPSGenerator::visit(ExprStatement &statement) {
+  statement.expr->accept_simple(*this);
 }
 
 void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {

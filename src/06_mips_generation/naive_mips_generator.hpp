@@ -16,6 +16,7 @@ struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   void visit(Procedure &) override;
   void visit(VariableLValueExpr &) override;
   void visit(DereferenceLValueExpr &) override;
+  void visit(AssignmentExpr &) override;
   void visit(TestExpr &) override;
   void visit(VariableExpr &) override;
   void visit(LiteralExpr &) override;
@@ -25,6 +26,7 @@ struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   void visit(NewExpr &) override;
   void visit(FunctionCallExpr &) override;
   void visit(Statements &) override;
+  void visit(ExprStatement &) override;
   void visit(AssignmentStatement &) override;
   void visit(IfStatement &) override;
   void visit(WhileStatement &) override;

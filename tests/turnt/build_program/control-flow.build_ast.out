@@ -17,18 +17,20 @@ Procedure {
             VariableExpr(c) : int
         }
       true_statement: 
-        AssignmentStatement {
-          lhs: 
-            VariableLValueExpr(a) : int
-          rhs: 
-            BinaryExpr {
-              lhs: 
-                VariableExpr(a) : int
-              operation: Add
-              rhs: 
-                1: int
-            } : int
-        )
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
       false_statement: 
     }
   return_expr: 

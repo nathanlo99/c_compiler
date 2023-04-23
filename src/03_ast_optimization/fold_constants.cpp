@@ -170,6 +170,10 @@ void ConstantFoldingVisitor::pre_visit(DereferenceLValueExpr &expr) {
   expr.argument = fold_constants(expr.argument);
 }
 
+void ConstantFoldingVisitor::pre_visit(AssignmentExpr &expr) {
+  expr.rhs = fold_constants(expr.rhs);
+}
+
 void ConstantFoldingVisitor::pre_visit(TestExpr &expr) {
   expr.lhs = fold_constants(expr.lhs);
   expr.rhs = fold_constants(expr.rhs);
@@ -192,6 +196,10 @@ void ConstantFoldingVisitor::pre_visit(FunctionCallExpr &expr) {
   for (auto &argument : expr.arguments) {
     argument = fold_constants(argument);
   }
+}
+
+void ConstantFoldingVisitor::pre_visit(ExprStatement &statement) {
+  statement.expr = fold_constants(statement.expr);
 }
 
 void ConstantFoldingVisitor::pre_visit(AssignmentStatement &statement) {

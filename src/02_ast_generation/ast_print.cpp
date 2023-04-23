@@ -57,6 +57,18 @@ void Program::print(const size_t depth) const {
   }
 }
 
+void AssignmentExpr::print(const size_t depth) const {
+  std::cout << pad(depth) << "AssignmentExpr {" << std::endl;
+  std::cout << pad(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << pad(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << pad(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
+}
+
 void VariableLValueExpr::print(const size_t depth) const {
   std::cout << pad(depth) << "VariableLValueExpr(" << variable.name << ")";
   if (type != Type::Unknown)
@@ -152,6 +164,12 @@ void FunctionCallExpr::print(const size_t depth) const {
   if (type != Type::Unknown)
     std::cout << " : " << type_to_string(type);
   std::cout << std::endl;
+}
+
+void ExprStatement::print(const size_t depth) const {
+  std::cout << pad(depth) << "ExprStatement {" << std::endl;
+  expr->print(depth + 1);
+  std::cout << pad(depth) << "}" << std::endl;
 }
 
 void AssignmentStatement::print(const size_t depth) const {

@@ -11,18 +11,20 @@ Procedure {
     ptr: int* = 1 (unused)
     null: int* = 1 (unused)
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(var) : int
-      rhs: 
-        BinaryExpr {
-          lhs: 
-            VariableExpr(var) : int
-          operation: Add
-          rhs: 
-            VariableExpr(var) : int
-        } : int
-    )
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(var) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(var) : int
+            operation: Add
+            rhs: 
+              VariableExpr(var) : int
+          } : int
+      } : int
+    }
   return_expr: 
     VariableExpr(meow) : int
 }

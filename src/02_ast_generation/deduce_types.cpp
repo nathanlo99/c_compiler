@@ -32,6 +32,12 @@ void DeduceTypesVisitor::post_visit(DereferenceLValueExpr &expr) {
   expr.type = Type::Int;
 }
 
+void DeduceTypesVisitor::post_visit(AssignmentExpr &expr) {
+  runtime_assert(expr.lhs->type == expr.rhs->type,
+                 "Cannot assign arguments of different types");
+  expr.type = expr.lhs->type;
+}
+
 void DeduceTypesVisitor::post_visit(TestExpr &expr) {
   runtime_assert(expr.lhs->type == expr.rhs->type,
                  "Cannot compare arguments of different types");

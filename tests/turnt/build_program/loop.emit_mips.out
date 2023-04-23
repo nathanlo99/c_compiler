@@ -48,7 +48,6 @@ lw $5, -4($30)                  ;   ^
 slt $3, $5, $3
 beq $3, $0, ifelse0
                                 ; x = (x + 1);
-
 lw $3, 0($29)                   ; Loading x
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -61,7 +60,6 @@ beq $0, $0, ifendif0
 ifelse0:
 ifendif0:
                                 ; x = (x * 2);
-
 lw $3, 0($29)                   ; Loading x
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -72,7 +70,6 @@ mult $5, $3
 mflo $3
 sw $3, 0($29)
                                 ; i = (i + 1);
-
 lw $3, -4($29)                  ; Loading i
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^

@@ -24,7 +24,6 @@ sub $30, $30, $4                ;   ^
 sub $29, $30, $4
                                 ; Code for statements:
                                 ; a = 3;
-
 sub $3, $4, $11                 ; Loading the literal 3
 sw $3, 8($29)
 lw $3, 8($29)                   ; Loading a
@@ -37,11 +36,9 @@ jalr $5
 add $30, $30, $4                ;   pop $31
 lw $31, -4($30)                 ;   ^
                                 ; a = 4;
-
 add $3, $4, $0                  ; Loading the literal 4
 sw $3, 8($29)
                                 ; a = 5;
-
 add $3, $11, $4                 ; Loading the literal 5
 sw $3, 8($29)
                                 ; Code for return value:

@@ -25,6 +25,7 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
 
   void post_visit(VariableLValueExpr &) override;
   void post_visit(DereferenceLValueExpr &) override;
+  void post_visit(AssignmentExpr &) override;
   void post_visit(TestExpr &) override;
   void post_visit(VariableExpr &) override;
   void post_visit(LiteralExpr &) override;

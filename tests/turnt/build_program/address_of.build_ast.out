@@ -7,58 +7,70 @@ Procedure {
   declarations: 
     addr_a: int* = 1 (used)
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(addr_a) : int*
-      rhs: 
-        AddressOfExpr {
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(addr_a) : int*
+        rhs: 
+          AddressOfExpr {
+            VariableLValueExpr(a) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(b) : int
+        rhs: 
+          0: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
           VariableLValueExpr(a) : int
-        } : int*
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(b) : int
-      rhs: 
-        0: int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        69: int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(b) : int
-      rhs: 
-        BinaryExpr {
-          lhs: 
-            VariableExpr(b) : int
-          operation: Add
-          rhs: 
-            VariableExpr(a) : int
-        } : int
-    )
-    AssignmentStatement {
-      lhs: 
-        DereferenceLValueExpr {
-          VariableExpr(addr_a) : int*
-        } : int
-      rhs: 
-        420: int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(b) : int
-      rhs: 
-        BinaryExpr {
-          lhs: 
-            VariableExpr(b) : int
-          operation: Add
-          rhs: 
-            VariableExpr(a) : int
-        } : int
-    )
+        rhs: 
+          69: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(b) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(b) : int
+            operation: Add
+            rhs: 
+              VariableExpr(a) : int
+          } : int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          DereferenceLValueExpr {
+            VariableExpr(addr_a) : int*
+          } : int
+        rhs: 
+          420: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(b) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(b) : int
+            operation: Add
+            rhs: 
+              VariableExpr(a) : int
+          } : int
+      } : int
+    }
   return_expr: 
     VariableExpr(b) : int
 }

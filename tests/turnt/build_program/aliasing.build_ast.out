@@ -7,34 +7,42 @@ Procedure {
   declarations: 
     c: int* = 1 (used)
   statements: 
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(c) : int*
-      rhs: 
-        AddressOfExpr {
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(c) : int*
+        rhs: 
+          AddressOfExpr {
+            VariableLValueExpr(a) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
           VariableLValueExpr(a) : int
-        } : int*
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        69: int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(b) : int
-      rhs: 
-        DereferenceExpr {
-          VariableExpr(c) : int*
-        } : int
-    )
-    AssignmentStatement {
-      lhs: 
-        VariableLValueExpr(a) : int
-      rhs: 
-        70: int
-    )
+        rhs: 
+          69: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(b) : int
+        rhs: 
+          DereferenceExpr {
+            VariableExpr(c) : int*
+          } : int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(a) : int
+        rhs: 
+          70: int
+      } : int
+    }
   return_expr: 
     BinaryExpr {
       lhs: 

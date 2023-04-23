@@ -355,6 +355,31 @@ void benchmark(const std::string &filename) {
   Timer::stop("10. MIPS generation");
 }
 
+void test_augmented_cfg(const std::string &filename) {
+  const std::string input = read_file(filename);
+  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  const ContextFreeGrammar grammar =
+      load_grammar_from_file("references/augmented.cfg");
+  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
+  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
+  std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
+
+  // Analysis passes
+  CanonicalizeConditions canonicalize_conditions;
+  program->accept_recursive(canonicalize_conditions);
+  PopulateSymbolTableVisitor symbol_table_visitor;
+  program->accept_recursive(symbol_table_visitor);
+  DeduceTypesVisitor deduce_types_visitor;
+  program->accept_recursive(deduce_types_visitor);
+
+  program->print(0);
+
+  bril::SimpleBRILGenerator generator;
+  program->accept_simple(generator);
+  const auto bril_program = generator.program();
+  std::cout << bril_program << std::endl;
+}
+
 void debug(const std::string &filename) {
   using namespace bril;
   auto program = get_optimized_bril_from_file(filename);
@@ -413,6 +438,9 @@ int main(int argc, char **argv) {
             {"--emit-naive-mips", test_emit_mips},
             {"--emit-mips", generate_mips},
             {"--benchmark", benchmark},
+
+            // Experimental options
+            {"--augmented-cfg", test_augmented_cfg},
         };
 
     if (options.count(argument) == 0) {
