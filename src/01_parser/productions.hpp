@@ -4,7 +4,8 @@
 constexpr const char *const context_free_grammar =
     R"(procedures -> procedure procedures
 procedures -> main
-procedure -> INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+# Allow procedures to return any type
+procedure -> type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
 main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
 params ->
 params -> paramlist

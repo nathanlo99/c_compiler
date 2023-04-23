@@ -276,9 +276,10 @@ struct Instruction {
   }
   static inline Instruction call(const std::string &destination,
                                  const std::string &function,
-                                 const std::vector<std::string> &arguments) {
-    return Instruction(Opcode::Call, destination, Type::Int, arguments,
-                       {function}, {});
+                                 const std::vector<std::string> &arguments,
+                                 const Type type) {
+    return Instruction(Opcode::Call, destination, type, arguments, {function},
+                       {});
   }
   static inline Instruction ret(const std::string &arg) {
     return Instruction(Opcode::Ret, Type::Void, "", {arg});

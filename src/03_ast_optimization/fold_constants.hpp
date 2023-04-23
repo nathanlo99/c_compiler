@@ -6,11 +6,11 @@
 struct Expr;
 std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr);
 
-struct FoldConstantsVisitor : ASTRecursiveVisitor {
+struct ConstantFoldingVisitor : ASTRecursiveVisitor {
   using ASTRecursiveVisitor::post_visit;
   using ASTRecursiveVisitor::pre_visit;
 
-  ~FoldConstantsVisitor() = default;
+  ~ConstantFoldingVisitor() = default;
 
   void pre_visit(Procedure &) override;
 

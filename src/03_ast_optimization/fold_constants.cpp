@@ -162,46 +162,46 @@ std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr) {
   }
 }
 
-void FoldConstantsVisitor::pre_visit(Procedure &procedure) {
+void ConstantFoldingVisitor::pre_visit(Procedure &procedure) {
   procedure.return_expr = fold_constants(procedure.return_expr);
 }
 
-void FoldConstantsVisitor::pre_visit(DereferenceLValueExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(DereferenceLValueExpr &expr) {
   expr.argument = fold_constants(expr.argument);
 }
 
-void FoldConstantsVisitor::pre_visit(TestExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(TestExpr &expr) {
   expr.lhs = fold_constants(expr.lhs);
   expr.rhs = fold_constants(expr.rhs);
 }
 
-void FoldConstantsVisitor::pre_visit(BinaryExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(BinaryExpr &expr) {
   expr.lhs = fold_constants(expr.lhs);
   expr.rhs = fold_constants(expr.rhs);
 }
 
-void FoldConstantsVisitor::pre_visit(NewExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(NewExpr &expr) {
   expr.rhs = fold_constants(expr.rhs);
 }
 
-void FoldConstantsVisitor::pre_visit(DereferenceExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(DereferenceExpr &expr) {
   expr.argument = fold_constants(expr.argument);
 }
 
-void FoldConstantsVisitor::pre_visit(FunctionCallExpr &expr) {
+void ConstantFoldingVisitor::pre_visit(FunctionCallExpr &expr) {
   for (auto &argument : expr.arguments) {
     argument = fold_constants(argument);
   }
 }
 
-void FoldConstantsVisitor::pre_visit(AssignmentStatement &statement) {
+void ConstantFoldingVisitor::pre_visit(AssignmentStatement &statement) {
   statement.rhs = fold_constants(statement.rhs);
 }
 
-void FoldConstantsVisitor::pre_visit(PrintStatement &statement) {
+void ConstantFoldingVisitor::pre_visit(PrintStatement &statement) {
   statement.expression = fold_constants(statement.expression);
 }
 
-void FoldConstantsVisitor::pre_visit(DeleteStatement &statement) {
+void ConstantFoldingVisitor::pre_visit(DeleteStatement &statement) {
   statement.expression = fold_constants(statement.expression);
 }

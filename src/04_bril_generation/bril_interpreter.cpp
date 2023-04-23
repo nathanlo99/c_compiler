@@ -1,6 +1,7 @@
 
 #include "bril_interpreter.hpp"
 #include "bril.hpp"
+#include "timer.hpp"
 #include "util.hpp"
 
 namespace bril {
@@ -33,7 +34,9 @@ void BRILInterpreter::run(std::ostream &os) {
     arguments[1] = BRILValue::integer(second_arg);
   }
 
+  Timer::start("Interpret");
   const BRILValue result = interpret(program.wain(), arguments, os);
+  Timer::stop("Interpret");
   std::cout << "wain returned " << result.int_value << std::endl;
   std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
             << std::endl;

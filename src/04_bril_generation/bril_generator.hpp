@@ -43,21 +43,15 @@ public:
   }
 
   void enter_function(const std::string &function) {
+    runtime_assert(functions.count(function) > 0,
+                   "Unrecognized function " + function);
     current_function = function;
   }
 
   void leave_function() { current_function.clear(); }
 
-  Function &function() {
-    runtime_assert(functions.count(current_function) > 0,
-                   "Unrecognized function " + current_function);
-    return functions.at(current_function);
-  }
-  const Function &function() const {
-    runtime_assert(functions.count(current_function) > 0,
-                   "Unrecognized function " + current_function);
-    return functions.at(current_function);
-  }
+  Function &function() { return functions.at(current_function); }
+  const Function &function() const { return functions.at(current_function); }
 
   inline void emit(const Instruction &instruction) {
     function().instructions.push_back(instruction);
@@ -125,8 +119,8 @@ public:
     emit(Instruction::br(dest, true_label, false_label));
   }
   inline void call(const std::string &destination, const std::string &function,
-                   const std::vector<std::string> &arguments) {
-    emit(Instruction::call(destination, function, arguments));
+                   const std::vector<std::string> &arguments, const Type type) {
+    emit(Instruction::call(destination, function, arguments, type));
   }
   void ret(const std::string &arg) { emit(Instruction::ret(arg)); }
   void constant(const std::string &destination, const Literal &value) {

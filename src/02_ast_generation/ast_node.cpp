@@ -38,10 +38,10 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     program->procedures.push_back(*main_procedure);
     return program;
   } else if (production_str ==
-             "procedure -> INT ID LPAREN params RPAREN LBRACE dcls statements "
+             "procedure -> type ID LPAREN params RPAREN LBRACE dcls statements "
              "RETURN expr SEMI RBRACE") {
     const auto procedure_name = node->children[1]->token.lexeme;
-    const auto return_type = Type::Int;
+    const auto return_type = parse_node_to_type(node->children[0]);
     const auto params = construct_ast<ParameterList>(node->children[3]);
     const auto decls = construct_ast<DeclarationList>(node->children[6]);
     const auto statements = construct_ast<Statements>(node->children[7]);

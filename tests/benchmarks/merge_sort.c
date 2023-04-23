@@ -56,13 +56,13 @@ int merge(int *arr, int left, int mid, int right) {
   return 0;
 }
 
-int merge_sort(int *arr, int left, int right) {
+int mergeSort(int *arr, int left, int right) {
   int mid = 0;
   int unused = 0;
   if (left < right) {
     mid = left + (right - left) / 2;
-    unused = merge_sort(arr, left, mid);
-    unused = merge_sort(arr, mid + 1, right);
+    unused = mergeSort(arr, left, mid);
+    unused = mergeSort(arr, mid + 1, right);
     unused = merge(arr, left, mid, right);
   }
   return 0;
@@ -75,7 +75,7 @@ int wain(int *a, int b) {
     println(*(a + i));
     i = i + 1;
   }
-  unused = merge_sort(a, 0, b - 1);
+  unused = mergeSort(a, 0, b - 1);
   i = 0;
   while (i < b) {
     println(*(a + i));

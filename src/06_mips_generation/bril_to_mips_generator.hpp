@@ -346,10 +346,6 @@ private:
       const auto &called_function = program.get_function(label);
       const auto &function_allocation = allocations.at(called_function.name);
 
-      // TODO: Test this
-      std::cerr << "Generating function call " << instruction.to_string()
-                << std::endl;
-
       // 1. Save the live registers, including $29
       std::set<size_t> live_registers = {29};
       for (const auto &var : live_variables_after) {

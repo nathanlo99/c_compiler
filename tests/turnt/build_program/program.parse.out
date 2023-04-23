@@ -1,5 +1,6 @@
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID eat
 LPAREN (
@@ -22,7 +23,8 @@ NUM 241
 SEMI ;
 RBRACE }
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID p
 LPAREN (
@@ -66,7 +68,8 @@ RPAREN )
 SEMI ;
 RBRACE }
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID q
 LPAREN (
@@ -115,7 +118,8 @@ RPAREN )
 SEMI ;
 RBRACE }
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID r
 LPAREN (
@@ -188,7 +192,8 @@ RPAREN )
 SEMI ;
 RBRACE }
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID loong
 LPAREN (

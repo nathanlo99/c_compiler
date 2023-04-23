@@ -205,6 +205,17 @@ void EarleyTable::report_error(const size_t i) const {
     using util::operator<<;
     ss << expected_symbols;
   }
+  const size_t num_tokens = 16;
+  const size_t end_idx = std::min<int>(token_stream.size(), i + num_tokens / 2);
+  const size_t begin_idx =
+      std::max<int>(0, static_cast<int>(end_idx) - num_tokens);
+  ss << std::endl << "Context:      ";
+  for (size_t j = begin_idx; j < end_idx; ++j) {
+    if (j == i - 1)
+      ss << "• ";
+    ss << token_stream[j].lexeme << " ";
+  }
+  ss << "     ";
 
   runtime_assert(false, ss.str());
 }

@@ -154,7 +154,8 @@ void SimpleBRILGenerator::visit(FunctionCallExpr &expr) {
     argument_names.push_back(argument_name);
   }
   const std::string destination = temp();
-  call(destination, expr.procedure_name, argument_names);
+  const Type type = type_from_ast_type(expr.type);
+  call(destination, expr.procedure_name, argument_names, type);
 }
 
 void SimpleBRILGenerator::visit(Statements &statements) {

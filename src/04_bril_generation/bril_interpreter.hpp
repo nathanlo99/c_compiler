@@ -255,6 +255,9 @@ struct BRILContext {
     const size_t offset = pointer.heap_offset;
     runtime_assert(idx < heap_memory.size(), "Invalid heap index");
     runtime_assert(heap_memory[idx].active, "Writing to freed memory");
+    runtime_assert(offset < heap_memory[idx].values.size(),
+                   "Writing out of bounds: " + std::to_string(offset) +
+                       " >= " + std::to_string(heap_memory[idx].values.size()));
     heap_memory[idx].values[offset] = value;
   }
 

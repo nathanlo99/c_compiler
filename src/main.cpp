@@ -18,6 +18,7 @@
 #include "populate_symbol_table.hpp"
 #include "simple_bril_generator.hpp"
 #include "symbol_table.hpp"
+#include "timer.hpp"
 #include "util.hpp"
 
 #include "parse_node.hpp"
@@ -140,7 +141,7 @@ void test_emit_mips(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
 
-  FoldConstantsVisitor fold_constants;
+  ConstantFoldingVisitor fold_constants;
   program->accept_recursive(fold_constants);
 
   NaiveMIPSGenerator generator;
@@ -289,6 +290,71 @@ void compute_call_graph(const std::string &filename) {
   std::cout << call_graph << std::endl;
 }
 
+void benchmark(const std::string &filename) {
+  const std::string &input = read_file(filename);
+  // 1. Lex the input
+  Timer::start("1. Lexing");
+  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  Timer::stop("1. Lexing");
+
+  // 2. Parse
+  Timer::start("2. Parsing");
+  const ContextFreeGrammar grammar = load_default_grammar();
+  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
+  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
+  Timer::stop("2. Parsing");
+
+  // 3. Convert to AST
+  Timer::start("3. AST construction");
+  std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
+  Timer::stop("3. AST construction");
+
+  // 4. Optimize AST (constant folding)
+  Timer::start("4. AST optimization");
+  CanonicalizeConditions canonicalize_conditions;
+  program->accept_recursive(canonicalize_conditions);
+  PopulateSymbolTableVisitor symbol_table_visitor;
+  program->accept_recursive(symbol_table_visitor);
+  DeduceTypesVisitor deduce_types_visitor;
+  program->accept_recursive(deduce_types_visitor);
+  ConstantFoldingVisitor constant_folding_visitor;
+  program->accept_recursive(constant_folding_visitor);
+  Timer::stop("4. AST optimization");
+
+  // 5. Convert to BRIL
+  Timer::start("5. BRIL generation");
+  bril::SimpleBRILGenerator bril_generator;
+  program->accept_simple(bril_generator);
+  bril::Program bril_program = bril_generator.program();
+  Timer::stop("5. BRIL generation");
+
+  // 6. Pre-SSA optimization
+  Timer::start("6. Pre-SSA optimization");
+  apply_optimizations(bril_program);
+  Timer::stop("6. Pre-SSA optimization");
+
+  // 7. Convert to SSA
+  Timer::start("7. Conversion to SSA");
+  bril_program.convert_to_ssa();
+  Timer::stop("7. Conversion to SSA");
+
+  // 8. Post-SSA optimization
+  Timer::start("8. Post-SSA optimization");
+  apply_optimizations(bril_program);
+  Timer::stop("8. Post-SSA optimization");
+
+  // 9. Convert from SSA
+  Timer::start("9. Conversion from SSA");
+  bril_program.convert_from_ssa();
+  apply_optimizations(bril_program);
+  Timer::stop("9. Conversion from SSA");
+
+  // 10. Generate MIPS
+  Timer::start("10. MIPS generation");
+  bril::BRILToMIPSGenerator bril_to_mips_generator(bril_program);
+  Timer::stop("10. MIPS generation");
+}
+
 void debug(const std::string &filename) {
   using namespace bril;
   auto program = get_optimized_bril_from_file(filename);
@@ -346,6 +412,7 @@ int main(int argc, char **argv) {
             {"--compute-call-graph", compute_call_graph},
             {"--emit-naive-mips", test_emit_mips},
             {"--emit-mips", generate_mips},
+            {"--benchmark", benchmark},
         };
 
     if (options.count(argument) == 0) {
@@ -356,8 +423,12 @@ int main(int argc, char **argv) {
       }
       return 1;
     }
-    options.at(argument)(filename);
 
+    Timer::start("Total");
+    options.at(argument)(filename);
+    Timer::stop("Total");
+
+    Timer::print(std::cerr);
   } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 1;

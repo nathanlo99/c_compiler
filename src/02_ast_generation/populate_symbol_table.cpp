@@ -3,7 +3,6 @@
 
 void PopulateSymbolTableVisitor::post_visit(Program &program) {
   program.table = table;
-
   for (Procedure &procedure : program.procedures) {
     procedure.table = table.get_table(procedure.name);
   }
@@ -15,7 +14,7 @@ void PopulateSymbolTableVisitor::pre_visit(Procedure &procedure) {
   for (const auto &variable : procedure.params) {
     table.add_parameter(name, variable);
   }
-  table.set_return_type(name, Type::Int);
+  table.set_return_type(name, procedure.return_type);
   for (const auto &variable : procedure.decls) {
     table.add_variable(name, variable);
   }
@@ -35,12 +34,12 @@ void PopulateSymbolTableVisitor::pre_visit(VariableLValueExpr &expr) {
 }
 
 // Populate import flags
-void PopulateSymbolTableVisitor::pre_visit(PrintStatement&) {
+void PopulateSymbolTableVisitor::pre_visit(PrintStatement &) {
   table.use_print = true;
 }
-void PopulateSymbolTableVisitor::pre_visit(DeleteStatement&) { 
+void PopulateSymbolTableVisitor::pre_visit(DeleteStatement &) {
   table.use_memory = true;
 }
-void PopulateSymbolTableVisitor::pre_visit(NewExpr&) {
+void PopulateSymbolTableVisitor::pre_visit(NewExpr &) {
   table.use_memory = true;
 }

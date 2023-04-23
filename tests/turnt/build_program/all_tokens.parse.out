@@ -1,5 +1,6 @@
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID isPrime
 LPAREN (
@@ -202,7 +203,8 @@ ID answer
 SEMI ;
 RBRACE }
 procedures procedure procedures
-procedure INT ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+type INT
 INT int
 ID collatz
 LPAREN (
