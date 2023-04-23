@@ -9,9 +9,9 @@ namespace bril {
 namespace interpreter {
 
 struct BRILValue {
-  enum class Type { Int, Bool, RawPointer, Address, HeapPointer, Undefined };
+  enum class Type { Int, RawPointer, Address, HeapPointer, Undefined };
 
-  // If the type is Int or Bool, the value is stored in int_value
+  // If the type is Int, the value is stored in int_value
   // If the type is Address, the name of the variable is stored in string_value
   // If the type is HeapPointer, the index of the heap memory is stored in
   // int_value
@@ -30,9 +30,6 @@ struct BRILValue {
   static BRILValue integer(const int value) {
     return BRILValue(Type::Int, value, "");
   }
-  static BRILValue boolean(const bool value) {
-    return BRILValue(Type::Bool, value, "");
-  }
   static BRILValue raw_pointer(const int value) {
     return BRILValue(Type::RawPointer, value, "");
   }
@@ -47,9 +44,6 @@ struct BRILValue {
     switch (value.type) {
     case Type::Int:
       os << value.int_value << ": int";
-      break;
-    case Type::Bool:
-      os << value.int_value << ": bool";
       break;
     case Type::RawPointer:
       os << value.int_value << ": int*";
@@ -74,8 +68,6 @@ struct BRILValue {
     switch (lhs.type) {
     case Type::Int:
       return lhs.int_value < rhs.int_value;
-    case Type::Bool:
-      throw std::runtime_error("Cannot compare booleans");
     case Type::RawPointer:
       return lhs.int_value < rhs.int_value;
     case Type::Address:
@@ -101,8 +93,6 @@ struct BRILValue {
       throw std::runtime_error("Cannot compare values of different types");
     switch (lhs.type) {
     case Type::Int:
-    case Type::Bool:
-      return lhs.int_value == rhs.int_value;
     case Type::RawPointer:
       return lhs.int_value == rhs.int_value;
     case Type::Address:
@@ -133,13 +123,6 @@ struct BRILStackFrame {
   std::map<std::string, BRILValue> variables;
 
   // Get the value of a variable
-  bool get_bool(const std::string &name) {
-    runtime_assert(variables.count(name) > 0,
-                   "Variable " + name + " not found");
-    runtime_assert(variables[name].type == BRILValue::Type::Bool,
-                   "Variable " + name + " is not a bool");
-    return variables[name].int_value;
-  }
   int get_int(const std::string &name) {
     runtime_assert(variables.count(name) > 0,
                    "Variable " + name + " not found");
@@ -162,9 +145,6 @@ struct BRILStackFrame {
   void write_raw_pointer(const std::string &name, const int value) {
     variables[name] = BRILValue::raw_pointer(value);
   }
-  void write_bool(const std::string &name, const bool value) {
-    variables[name] = BRILValue::boolean(value);
-  }
   void write_value(const std::string &name, const BRILValue &value) {
     variables[name] = value;
   }
@@ -180,11 +160,6 @@ struct BRILContext {
   }
 
   // Get the value of a variable
-  inline bool get_bool(const std::string &name) {
-    runtime_assert(name != "__undefined",
-                   "Reading from uninitialized variable");
-    return stack_frames.back().get_bool(name);
-  }
   inline int get_int(const std::string &name) {
     runtime_assert(name != "__undefined",
                    "Reading from uninitialized variable");
@@ -202,9 +177,6 @@ struct BRILContext {
   }
   void write_raw_pointer(const std::string &name, const int value) {
     stack_frames.back().write_raw_pointer(name, value);
-  }
-  void write_bool(const std::string &name, const bool value) {
-    stack_frames.back().write_bool(name, value);
   }
   void write_value(const std::string &name, const BRILValue &value) {
     stack_frames.back().write_value(name, value);

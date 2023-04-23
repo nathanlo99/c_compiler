@@ -15,7 +15,6 @@ struct Instruction;
 
 enum class Type {
   Void,
-  Bool,
   Int,
   IntStar,
   Unknown,
@@ -39,9 +38,6 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
   switch (type) {
   case Type::Void:
     os << "void";
-    break;
-  case Type::Bool:
-    os << "bool";
     break;
   case Type::Int:
     os << "int";
@@ -243,27 +239,27 @@ struct Instruction {
   }
   static inline Instruction lt(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Lt, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Lt, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction le(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Le, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Le, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction gt(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Gt, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Gt, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction ge(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Ge, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Ge, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction eq(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Eq, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Eq, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction ne(const std::string &dest, const std::string &lhs,
                                const std::string &rhs) {
-    return Instruction(Opcode::Ne, Type::Bool, dest, {lhs, rhs});
+    return Instruction(Opcode::Ne, Type::Int, dest, {lhs, rhs});
   }
   static inline Instruction jmp(const std::string &dest) {
     return Instruction(Opcode::Jmp, "", Type::Void, {}, {}, {dest});
@@ -426,11 +422,7 @@ struct Instruction {
       break;
 
     case Opcode::Const: {
-      const std::string value_string =
-          instruction.type == Type::Int ? std::to_string(instruction.value)
-          : instruction.type == Type::Bool
-              ? (instruction.value ? "true" : "false")
-              : std::to_string(instruction.value);
+      const std::string value_string = std::to_string(instruction.value);
       os << instruction.destination << ": " << instruction.type << " = const "
          << value_string << ";";
     } break;

@@ -23,6 +23,7 @@ struct ASTNode {
   virtual void emit_c(std::ostream &os, const size_t indent_level) const = 0;
   virtual void accept_simple(ASTSimpleVisitor &visitor) = 0;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) = 0;
+  virtual std::string node_type() const = 0;
 };
 
 struct Expr : ASTNode {
@@ -45,6 +46,7 @@ struct ParameterList : ASTNode {
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
+  virtual std::string node_type() const override { return "ParameterList"; }
 };
 
 struct DeclarationList : ASTNode {
@@ -61,6 +63,7 @@ struct DeclarationList : ASTNode {
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
+  virtual std::string node_type() const override { return "DeclarationList"; }
 };
 
 struct ArgumentList : ASTNode {
@@ -77,6 +80,7 @@ struct ArgumentList : ASTNode {
   virtual void accept_recursive(ASTRecursiveVisitor &) override {
     unreachable("");
   }
+  virtual std::string node_type() const override { return "ArgumentList"; }
 };
 
 struct Statements : Statement {
@@ -90,6 +94,7 @@ struct Statements : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "Statements"; }
 };
 
 struct Procedure : ASTNode {
@@ -117,6 +122,7 @@ struct Procedure : ASTNode {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "Procedure"; }
 };
 
 struct Program : ASTNode {
@@ -129,6 +135,7 @@ struct Program : ASTNode {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "Program"; }
 };
 
 // Expressions
@@ -144,6 +151,9 @@ struct VariableLValueExpr : LValueExpr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override {
+    return "VariableLValueExpr";
+  }
 };
 
 struct DereferenceLValueExpr : LValueExpr {
@@ -156,6 +166,9 @@ struct DereferenceLValueExpr : LValueExpr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override {
+    return "DereferenceLValueExpr";
+  }
 };
 
 struct VariableExpr : Expr {
@@ -169,6 +182,7 @@ struct VariableExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "VariableExpr"; }
 };
 
 struct LiteralExpr : Expr {
@@ -183,6 +197,7 @@ struct LiteralExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "LiteralExpr"; }
 };
 
 struct AssignmentExpr : Expr {
@@ -197,6 +212,7 @@ struct AssignmentExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "AssignmentExpr"; }
 };
 
 enum class ComparisonOperation {
@@ -308,6 +324,18 @@ struct TestExpr : Expr {
   TestExpr(std::shared_ptr<Expr> lhs, const ComparisonOperation operation,
            std::shared_ptr<Expr> rhs)
       : lhs(lhs), operation(operation), rhs(rhs) {}
+  TestExpr(std::shared_ptr<Expr> value) {
+    if (const auto &test_expr = std::dynamic_pointer_cast<TestExpr>(value);
+        test_expr) {
+      lhs = test_expr->lhs;
+      operation = test_expr->operation;
+      rhs = test_expr->rhs;
+    } else {
+      lhs = value;
+      rhs = std::make_shared<LiteralExpr>(0, Type::Int);
+      operation = ComparisonOperation::NotEqual;
+    }
+  }
   virtual ~TestExpr() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -315,6 +343,7 @@ struct TestExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "TestExpr"; }
 };
 
 struct BinaryExpr : Expr {
@@ -332,6 +361,7 @@ struct BinaryExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "BinaryExpr"; }
 };
 
 struct AddressOfExpr : Expr {
@@ -345,6 +375,7 @@ struct AddressOfExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "AddressOfExpr"; }
 };
 
 struct DereferenceExpr : Expr {
@@ -357,6 +388,7 @@ struct DereferenceExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "DereferenceExpr"; }
 };
 
 struct NewExpr : Expr {
@@ -369,6 +401,7 @@ struct NewExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "NewExpr"; }
 };
 
 struct FunctionCallExpr : Expr {
@@ -385,6 +418,7 @@ struct FunctionCallExpr : Expr {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "FunctionCallExpr"; }
 };
 
 // Statements
@@ -399,6 +433,7 @@ struct ExprStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "ExprStatement"; }
 };
 
 struct AssignmentStatement : Statement {
@@ -415,6 +450,9 @@ struct AssignmentStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override {
+    return "AssignmentStatement";
+  }
 };
 
 struct IfStatement : Statement {
@@ -422,11 +460,10 @@ struct IfStatement : Statement {
   Statements true_statements;
   Statements false_statements;
 
-  IfStatement(std::shared_ptr<TestExpr> test_expression,
-              const Statements &true_statements,
+  IfStatement(std::shared_ptr<Expr> cond, const Statements &true_statements,
               const Statements &false_statements)
-      : test_expression(test_expression), true_statements(true_statements),
-        false_statements(false_statements) {}
+      : test_expression(std::make_shared<TestExpr>(cond)),
+        true_statements(true_statements), false_statements(false_statements) {}
   virtual ~IfStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -434,15 +471,17 @@ struct IfStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "IfStatement"; }
 };
 
 struct WhileStatement : Statement {
   std::shared_ptr<TestExpr> test_expression;
   std::shared_ptr<Statement> body_statement;
 
-  WhileStatement(std::shared_ptr<TestExpr> test_expression,
+  WhileStatement(std::shared_ptr<Expr> test_expression,
                  std::shared_ptr<Statement> body_statement)
-      : test_expression(test_expression), body_statement(body_statement) {}
+      : test_expression(std::make_shared<TestExpr>(test_expression)),
+        body_statement(body_statement) {}
   virtual ~WhileStatement() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -450,6 +489,7 @@ struct WhileStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "WhileStatement"; }
 };
 
 struct PrintStatement : Statement {
@@ -462,6 +502,7 @@ struct PrintStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "PrintStatement"; }
 };
 
 struct DeleteStatement : Statement {
@@ -474,13 +515,20 @@ struct DeleteStatement : Statement {
                       const size_t indent_level) const override;
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "DeleteStatement"; }
 };
 
 std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node);
 
 template <typename Target>
 std::shared_ptr<Target> construct_ast(const std::shared_ptr<ParseNode> &node) {
-  const auto result = std::dynamic_pointer_cast<Target>(construct_ast(node));
-  runtime_assert(result != nullptr, "Unexpected AST node type");
+  const auto ast = construct_ast(node);
+  const auto result = std::dynamic_pointer_cast<Target>(ast);
+  if (result == nullptr) {
+    std::cerr << "BAD:" << std::endl;
+    ast->print(0);
+  }
+  runtime_assert(result != nullptr,
+                 "Unexpected AST node type: " + ast->node_type());
   return result;
 }

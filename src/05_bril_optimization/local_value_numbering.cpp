@@ -47,7 +47,7 @@ LocalValueNumber::LocalValueNumber(const int value, const Type type)
 
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
-  const static std::set<Type> foldable_types = {Type::Int, Type::Bool};
+  const static std::set<Type> foldable_types = {Type::Int};
   if (foldable_types.count(value.type) == 0)
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;

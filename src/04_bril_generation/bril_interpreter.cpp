@@ -127,37 +127,37 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     case Opcode::Lt: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs < rhs);
+      context.write_int(destination, lhs < rhs);
     } break;
 
     case Opcode::Le: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs <= rhs);
+      context.write_int(destination, lhs <= rhs);
     } break;
 
     case Opcode::Gt: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs > rhs);
+      context.write_int(destination, lhs > rhs);
     } break;
 
     case Opcode::Ge: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs >= rhs);
+      context.write_int(destination, lhs >= rhs);
     } break;
 
     case Opcode::Eq: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs == rhs);
+      context.write_int(destination, lhs == rhs);
     } break;
 
     case Opcode::Ne: {
       const BRILValue lhs = context.get_value(instruction.arguments[0]);
       const BRILValue rhs = context.get_value(instruction.arguments[1]);
-      context.write_bool(destination, lhs != rhs);
+      context.write_int(destination, lhs != rhs);
     } break;
 
     case Opcode::Jmp: {
@@ -169,7 +169,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::Br: {
-      const bool condition = context.get_bool(instruction.arguments[0]);
+      const bool condition = context.get_int(instruction.arguments[0]) != 0;
       const std::string label = instruction.labels[condition ? 0 : 1];
       last_block = current_block;
       current_block = label;
@@ -204,9 +204,6 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       } break;
       case Type::IntStar: {
         context.write_raw_pointer(destination, instruction.value);
-      } break;
-      case Type::Bool: {
-        context.write_bool(destination, instruction.value);
       } break;
       default:
         runtime_assert(false, "Invalid type for const instruction");
