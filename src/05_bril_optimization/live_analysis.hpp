@@ -140,6 +140,31 @@ struct RegisterInterferenceGraph {
   }
 };
 
+struct VariableLocation {
+  enum class Type { Register, Stack } type;
+  union {
+    size_t reg;
+    int offset;
+  };
+  static VariableLocation register_location(size_t reg) {
+    return {.type=Type::Register, .reg=reg};
+  }
+  static VariableLocation stack_location(int offset) {
+    return {.type=Type::Stack, .offset=offset};
+  }
+
+  bool in_memory() const { return type == Type::Stack; }
+
+  friend std::ostream& operator<<(std::ostream& os, const VariableLocation& location) {
+    switch (location.type) {
+      case Type::Register:
+        return os << "$" << location.reg;
+      case Type::Stack:
+        return os << location.offset << "($BP)";
+    }
+  }
+};
+
 struct RegisterAllocation {
   std::map<std::string, size_t> register_allocation;
   std::map<std::string, int> spilled_variables;
@@ -169,14 +194,13 @@ struct RegisterAllocation {
     return spilled_variables.at(variable);
   }
 
-  std::string get_location(const std::string& variable) const {
+  VariableLocation get_location(const std::string& variable) const {
     std::stringstream ss;
     if (in_register(variable)) {
-      ss << "$" << get_register(variable);
+      return VariableLocation::register_location(get_register(variable));
     } else {
-      ss << "BP[" << get_offset(variable) << "]";
+      return VariableLocation::stack_location(get_offset(variable));
     }
-    return ss.str();
   }
 
   friend std::ostream &operator<<(std::ostream &os,
