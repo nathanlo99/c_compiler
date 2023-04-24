@@ -344,9 +344,7 @@ void ControlFlowGraph::compute_dominators() {
   dominator_matrix[0] = std::vector<bool>(num_labels, false);
   dominator_matrix[0][0] = true;
 
-  size_t num_iterations = 0;
   while (true) {
-    num_iterations++;
     bool changed = false;
     for (size_t i = 1; i < num_labels; ++i) {
       const auto old_set = dominator_matrix[i];
@@ -365,10 +363,6 @@ void ControlFlowGraph::compute_dominators() {
     if (!changed)
       break;
   }
-  if (block_labels.size() >= 10)
-    fmt::print(stderr,
-               "Computed dominators for {} with {} labels in {} iterations\n",
-               name, block_labels.size(), num_iterations);
 
   for (size_t i = 0; i < num_labels; ++i) {
     const std::string label = block_labels[i];

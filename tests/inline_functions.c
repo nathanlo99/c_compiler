@@ -1,12 +1,15 @@
 
-// Returns max(a, b)
-int p(int a, int b) {
+int square(int n) { return n * n; }
+int cube(int n) { return n * n * n; }
+
+int max(int a, int b) {
   if (a < b) {
     a = b;
   }
   return a;
 }
 
-int q(int a, int b) { return a + b - p(a, b); }
+int min(int a, int b) { return a + b - max(a, b); }
+int pythagoras(int a, int b) { return square(min(a, b)) + square(max(a, b)); }
 
-int wain(int a, int b) { return q(a, b); }
+int wain(int a, int b) { return pythagoras(3, 4); }

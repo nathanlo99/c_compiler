@@ -186,4 +186,35 @@ void Program::inline_function_call(const std::string &function_name,
   function.recompute_graph(true);
 }
 
+// Given a function and a function to inline, inline all calls to the second
+// function in the first
+bool Program::inline_function(const std::string &function_name,
+                              const std::string &called_function_name) {
+  if (function_name == called_function_name)
+    return false;
+  bool result = false;
+  auto &function = get_function(function_name);
+  while (true) {
+    bool changed = false;
+    for (const auto &label : function.block_labels) {
+      auto &block = function.get_block(label);
+      for (size_t idx = 0; idx < block.instructions.size(); ++idx) {
+        auto &instruction = block.instructions[idx];
+        if (instruction.opcode == Opcode::Call &&
+            instruction.funcs[0] == called_function_name) {
+          inline_function_call(function_name, label, idx);
+          changed = true;
+          break;
+        }
+      }
+      if (changed)
+        break;
+    }
+    if (!changed)
+      break;
+    result = true;
+  }
+  return result;
+}
+
 } // namespace bril

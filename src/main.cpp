@@ -408,39 +408,34 @@ void test_augmented_cfg(const std::string &filename) {
   interpreter.run(std::cout);
 }
 
-void debug(const std::string &filename) {
+void inline_functions(const std::string &filename) {
   using namespace bril;
+  using util::operator<<;
   auto program = get_optimized_bril_from_file(filename);
 
-  std::set<std::string> to_inline = {"p", "eat", "q", "loong", "r"};
-  auto &wain = program.wain();
   while (true) {
     bool changed = false;
-    for (const auto &label : wain.block_labels) {
-      auto &block = wain.get_block(label);
-      for (size_t i = 0; i < block.instructions.size(); ++i) {
-        const auto &instruction = block.instructions[i];
-        if (instruction.opcode != bril::Opcode::Call ||
-            to_inline.count(instruction.funcs[0]) == 0)
-          continue;
-        program.inline_function_call(wain.name, label, i);
-        apply_optimizations(program);
-        changed = true;
-        break;
+    std::set<std::string> to_inline;
+    for (const auto &[name, function] : program.functions) {
+      if (function.num_instructions() <= 20 || function.num_labels() <= 5) {
+        to_inline.insert(name);
       }
-      if (changed)
-        break;
     }
+    std::cerr << "to_inline = " << to_inline << std::endl;
+    for (const auto &func : to_inline) {
+      const bool this_changed = program.inline_function("wain", func);
+      changed |= this_changed;
+    }
+    apply_optimizations(program);
     if (!changed)
       break;
   }
-  program.convert_to_ssa();
-  apply_optimizations(program);
-  program.convert_from_ssa();
-  apply_optimizations(program);
-  program.for_each_function(canonicalize_names);
 
-  std::cout << program << std::endl;
+  program.for_each_function(bril::canonicalize_names);
+  std::cerr << program << std::endl;
+
+  bril::BRILToMIPSGenerator generator(program);
+  generator.print(std::cout);
 }
 
 int main(int argc, char **argv) {
@@ -451,7 +446,7 @@ int main(int argc, char **argv) {
 
     const std::map<std::string, std::function<void(const std::string &)>>
         options = {
-            {"--debug", debug},
+            {"--debug", inline_functions},
             {"--lex", lex},
             {"--parse", parse},
             {"--build-ast", build_ast},
@@ -468,6 +463,7 @@ int main(int argc, char **argv) {
             {"--compute-call-graph", compute_call_graph},
             {"--emit-naive-mips", emit_naive_mips},
             {"--emit-mips", generate_mips},
+            {"--inline-functions", inline_functions},
             {"--benchmark", benchmark},
 
             // Experimental options

@@ -657,6 +657,16 @@ struct ControlFlowGraph {
     });
   }
 
+  size_t num_instructions() const {
+    size_t num_instructions = 0;
+    for (const auto &label : block_labels) {
+      num_instructions += get_block(label).instructions.size();
+    }
+    return num_instructions;
+  }
+
+  size_t num_labels() const { return block_labels.size(); }
+
   // Convert the CFG to SSA form, if it has no memory accesses
   void convert_to_ssa();
   void convert_from_ssa();
@@ -811,6 +821,8 @@ struct Program {
   void inline_function_call(const std::string &function_name,
                             const std::string &block_label,
                             const size_t instruction_idx);
+  bool inline_function(const std::string &function_name,
+                       const std::string &called_function_name);
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
     program.for_each_function(
