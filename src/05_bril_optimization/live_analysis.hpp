@@ -82,16 +82,14 @@ struct RegisterInterferenceGraph {
       }
     }
 
-    for (const auto &[label, block] : graph.blocks) {
-      const auto &live_variables = liveness_data.at(label).live_variables;
-      for (const auto &live_set : live_variables) {
-        for (const auto &var1 : live_set) {
-          for (const auto &var2 : live_set) {
+    graph.for_each_block([&](const Block &block) {
+      const auto &live_variables =
+          liveness_data.at(block.entry_label).live_variables;
+      for (const auto &live_set : live_variables)
+        for (const auto &var1 : live_set)
+          for (const auto &var2 : live_set)
             add_edge(var1, var2);
-          }
-        }
-      }
-    }
+    });
   }
 
   void add_variable(const std::string &var) {
@@ -226,13 +224,10 @@ allocate_registers(const ControlFlowGraph &function,
   // First, gather all variables from the function for which we take addresses,
   // since these always have to be spilled to memory
   std::set<std::string> addressed_variables;
-  for (const auto &[label, block] : function.blocks) {
-    for (const auto &instruction : block.instructions) {
-      if (instruction.opcode == Opcode::AddressOf) {
-        addressed_variables.insert(instruction.arguments[0]);
-      }
-    }
-  }
+  function.for_each_instruction([&](const Instruction &instruction) {
+    if (instruction.opcode == Opcode::AddressOf)
+      addressed_variables.insert(instruction.arguments[0]);
+  });
 
   RegisterInterferenceGraph graph(function);
   std::vector<size_t> node_stack;

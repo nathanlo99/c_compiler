@@ -22,19 +22,18 @@ struct CallGraph {
   }
 
   void compute_call_edges() {
-    for (const auto &[function_name, function] : program.functions)
-      graph.insert({function_name, {}});
+    program.for_each_function([&](const ControlFlowGraph &function) {
+      graph.insert({function.name, {}});
+    });
 
-    for (const auto &[function_name, function] : program.functions) {
-      for (const auto &[label, block] : function.blocks) {
-        for (const auto &instruction : block.instructions) {
-          if (instruction.opcode == Opcode::Call) {
-            const auto &called_function_name = instruction.funcs[0];
-            graph[function_name].insert(called_function_name);
-          }
+    program.for_each_function([&](const ControlFlowGraph &function) {
+      function.for_each_instruction([&](const Instruction &instruction) {
+        if (instruction.opcode == Opcode::Call) {
+          const auto &called_function_name = instruction.funcs[0];
+          graph[function.name].insert(called_function_name);
         }
-      }
-    }
+      });
+    });
   }
 
   void compute_strongly_connected_components() {

@@ -37,6 +37,10 @@ inline void canonicalize_names(ControlFlowGraph &function) {
     }
   }
 
+  using util::operator<<;
+  std::cout << "Renaming variables: " << renamed_variables << std::endl;
+  std::cout << "Renaming labels: " << renamed_labels << std::endl;
+
   for (const auto &block_label : function.block_labels) {
     auto &block = function.get_block(block_label);
     block.entry_label = renamed_labels.at(block.entry_label);

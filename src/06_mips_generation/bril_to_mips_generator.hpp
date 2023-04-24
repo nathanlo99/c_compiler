@@ -34,14 +34,11 @@ private:
   }
 
   void compute_allocations() {
-    for (const auto &[name, function] : program.functions) {
-      std::cerr << "Computing register allocation for function " << name
-                << std::endl;
-
+    program.for_each_function([&](const ControlFlowGraph &function) {
       allocations[function.name] =
           allocate_registers(function, available_registers);
       liveness_data[function.name] = allocations[function.name].liveness_data;
-    }
+    });
   }
 
   void copy_arguments(const std::vector<VariableLocation> &source_locations,
@@ -223,11 +220,11 @@ private:
 
     // Generate code for all the functions
     generate_function(program.wain());
-    for (const auto &[name, function] : program.functions) {
+    program.for_each_function([&](const auto &function) {
       if (function.name == "wain")
-        continue;
+        return;
       generate_function(function);
-    }
+    });
 
     optimize();
 

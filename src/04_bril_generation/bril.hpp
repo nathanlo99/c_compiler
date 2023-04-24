@@ -3,6 +3,7 @@
 
 #include "ast_node.hpp"
 #include "util.hpp"
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -517,29 +518,28 @@ struct Block {
     instructions.insert(it, instruction);
   }
 
+  template <typename Pred> bool all_of(const Pred &pred) const {
+    return std::all_of(instructions.begin(), instructions.end(), pred);
+  }
+  template <typename Pred> bool any_of(const Pred &pred) const {
+    return std::any_of(instructions.begin(), instructions.end(), pred);
+  }
+
   // Returns true if the block has any instructions other than labels.
   bool has_instructions() const {
-    for (const auto &instruction : instructions) {
-      if (instruction.opcode != Opcode::Label)
-        return true;
-    }
-    return false;
+    return any_of([](const auto &instruction) {
+      return instruction.opcode != Opcode::Label;
+    });
   }
 
   bool uses_pointers() const {
-    for (const auto &instruction : instructions) {
-      if (instruction.uses_memory())
-        return true;
-    }
-    return false;
+    return any_of(
+        [](const auto &instruction) { return instruction.uses_memory(); });
   }
 
   bool has_loads_or_stores() const {
-    for (const auto &instruction : instructions) {
-      if (instruction.is_load_or_store())
-        return true;
-    }
-    return false;
+    return any_of(
+        [](const auto &instruction) { return instruction.is_load_or_store(); });
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Block &block) {
@@ -618,40 +618,43 @@ struct ControlFlowGraph {
 
   void rename_label(const std::string &old_label, const std::string &new_label);
 
+  template <typename Pred> bool all_of_blocks(const Pred &pred) const {
+    return std::all_of(blocks.begin(), blocks.end(),
+                       [&pred](const auto &pair) { return pred(pair.second); });
+  }
+  template <typename Pred> bool any_of_blocks(const Pred &pred) const {
+    return std::any_of(blocks.begin(), blocks.end(),
+                       [&pred](const auto &pair) { return pred(pair.second); });
+  }
+
   bool uses_pointers() const {
-    for (const auto &[entry_label, block] : blocks) {
-      if (block.uses_pointers())
-        return true;
-    }
-    return false;
+    return any_of_blocks(
+        [](const auto &block) { return block.uses_pointers(); });
   }
+
   bool uses_print() const {
-    for (const auto &[entry_label, block] : blocks) {
-      for (const auto &instruction : block.instructions) {
-        if (instruction.opcode == Opcode::Print)
-          return true;
-      }
-    }
-    return false;
+    return any_of_blocks([](const auto &block) {
+      return block.any_of([](const Instruction &instruction) {
+        return instruction.opcode == Opcode::Print;
+      });
+    });
   }
+
   bool uses_heap() const {
-    for (const auto &[entry_label, block] : blocks) {
-      for (const auto &instruction : block.instructions) {
-        if (instruction.opcode == Opcode::Alloc ||
-            instruction.opcode == Opcode::Free)
-          return true;
-      }
-    }
-    return false;
+    return any_of_blocks([](const Block &block) {
+      return block.any_of([](const Instruction &instruction) {
+        return instruction.opcode == Opcode::Alloc ||
+               instruction.opcode == Opcode::Free;
+      });
+    });
   }
+
   bool has_phi_instructions() const {
-    for (const auto &[entry_label, block] : blocks) {
-      for (const auto &instruction : block.instructions) {
-        if (instruction.opcode == Opcode::Phi)
-          return true;
-      }
-    }
-    return false;
+    return any_of_blocks([](const Block &block) {
+      return block.any_of([](const Instruction &instruction) {
+        return instruction.opcode == Opcode::Phi;
+      });
+    });
   }
 
   // Convert the CFG to SSA form, if it has no memory accesses
@@ -668,11 +671,43 @@ struct ControlFlowGraph {
   template <typename Func> size_t apply_local_pass(const Func &func) {
     size_t num_removed_lines = 0;
     for (const auto &label : block_labels) {
-      auto &block = blocks.at(label);
+      auto &block = get_block(label);
       num_removed_lines += func(*this, block);
     }
     recompute_graph();
     return num_removed_lines;
+  }
+
+  template <typename Func> void for_each_block(const Func &func) const {
+    for (const auto &label : block_labels) {
+      const auto &block = get_block(label);
+      func(block);
+    }
+  }
+
+  template <typename Func> void for_each_instruction(const Func &func) const {
+    for (const auto &label : block_labels) {
+      const auto &block = get_block(label);
+      for (const auto &instruction : block.instructions) {
+        func(instruction);
+      }
+    }
+  }
+
+  template <typename Func> void for_each_block(const Func &func) {
+    for (const auto &label : block_labels) {
+      auto &block = get_block(label);
+      func(block);
+    }
+  }
+
+  template <typename Func> void for_each_instruction(const Func &func) {
+    for (const auto &label : block_labels) {
+      auto &block = get_block(label);
+      for (auto &instruction : block.instructions) {
+        func(instruction);
+      }
+    }
   }
 
   std::vector<Instruction> flatten() const {
@@ -769,31 +804,28 @@ struct Program {
   }
 
   void convert_to_ssa() {
-    for (auto &[name, function] : functions)
-      function.convert_to_ssa();
+    for_each_function(
+        [](ControlFlowGraph &function) { function.convert_to_ssa(); });
   }
   void convert_from_ssa() {
-    for (auto &[name, function] : functions)
-      function.convert_from_ssa();
+    for_each_function(
+        [](ControlFlowGraph &function) { function.convert_from_ssa(); });
   }
 
   bool has_phi_instructions() const {
-    for (const auto &[name, function] : functions)
-      if (function.has_phi_instructions())
-        return true;
-    return false;
+    return std::any_of(
+        functions.begin(), functions.end(),
+        [](const auto &pair) { return pair.second.has_phi_instructions(); });
   }
   bool uses_heap() const {
-    for (const auto &[name, function] : functions)
-      if (function.uses_heap())
-        return true;
-    return false;
+    return std::any_of(
+        functions.begin(), functions.end(),
+        [](const auto &pair) { return pair.second.uses_heap(); });
   }
   bool uses_print() const {
-    for (const auto &[name, function] : functions)
-      if (function.uses_print())
-        return true;
-    return false;
+    return std::any_of(
+        functions.begin(), functions.end(),
+        [](const auto &pair) { return pair.second.uses_print(); });
   }
 
   void inline_function_call(const std::string &function_name,
@@ -801,9 +833,8 @@ struct Program {
                             const size_t instruction_idx);
 
   friend std::ostream &operator<<(std::ostream &os, const Program &program) {
-    for (const auto &[name, function] : program.functions) {
-      os << function << std::endl;
-    }
+    program.for_each_function(
+        [&os](const auto &function) { os << function << std::endl; });
     return os;
   }
 
@@ -851,6 +882,41 @@ struct Program {
     for (auto &[name, function] : functions)
       num_removed_lines += function.apply_local_pass(func);
     return num_removed_lines;
+  }
+
+  template <typename Func> void for_each_function(const Func &func) const {
+    for (auto &[name, function] : functions)
+      func(function);
+  }
+
+  template <typename Func> void for_each_block(const Func &func) const {
+    for_each_function([&](const ControlFlowGraph &function) {
+      function.for_each_block(func);
+    });
+  }
+
+  template <typename Func> void for_each_instruction(const Func &func) const {
+    for_each_block([&](const Block &block) {
+      for (const auto &instruction : block.instructions)
+        func(instruction);
+    });
+  }
+
+  template <typename Func> void for_each_function(const Func &func) {
+    for (auto &[name, function] : functions)
+      func(function);
+  }
+
+  template <typename Func> void for_each_block(const Func &func) {
+    for_each_function(
+        [&](ControlFlowGraph &function) { function.for_each_block(func); });
+  }
+
+  template <typename Func> void for_each_instruction(const Func &func) {
+    for_each_block([&](Block &block) {
+      for (auto &instruction : block.instructions)
+        func(instruction);
+    });
   }
 };
 

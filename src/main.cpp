@@ -106,12 +106,11 @@ bril::Program get_optimized_bril_from_file(const std::string &filename) {
   apply_optimizations(bril_program);
   bril_program.convert_from_ssa();
   apply_optimizations(bril_program);
-  for (auto &[name, function] : bril_program.functions)
-    bril::canonicalize_names(function);
+  bril_program.for_each_function(bril::canonicalize_names);
   return bril_program;
 }
 
-void test_lexer(const std::string &filename) {
+void lex(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   for (const auto &token : token_stream) {
@@ -119,7 +118,7 @@ void test_lexer(const std::string &filename) {
   }
 }
 
-void test_parser(const std::string &filename) {
+void parse(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
   const ContextFreeGrammar grammar = load_default_grammar();
@@ -128,19 +127,19 @@ void test_parser(const std::string &filename) {
   parse_tree->print_preorder();
 }
 
-void test_build_ast(const std::string &filename) {
+void build_ast(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::shared_ptr<Program> program = get_program(input);
   program->print();
 }
 
-void test_emit_c(const std::string &filename) {
+void emit_c(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
   program->emit_c(std::cout, 0);
 }
 
-void test_emit_mips(const std::string &filename) {
+void emit_naive_mips(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
 
@@ -152,7 +151,7 @@ void test_emit_mips(const std::string &filename) {
   generator.print(std::cout);
 }
 
-void test_to_ssa(const std::string &filename) {
+void to_ssa(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
   std::cout << "Before optimizations: " << std::endl;
   std::cout << bril_program << std::endl;
@@ -166,7 +165,7 @@ void test_to_ssa(const std::string &filename) {
   bril_program.print_flattened(std::cout);
 }
 
-void test_ssa_round_trip(const std::string &filename) {
+void ssa_round_trip(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
   apply_optimizations(bril_program);
   bril_program.convert_to_ssa();
@@ -214,20 +213,14 @@ void round_trip_interpret(const std::string &filename) {
   interpreter.run(std::cout);
 }
 
-void debug_liveness(const std::string &filename) {
+void compute_liveness(const std::string &filename) {
   using namespace bril;
   using util::operator<<;
 
   static const std::string separator(100, '-'), padding(50, ' ');
 
-  auto program = get_bril_from_file(filename);
-  apply_optimizations(program);
-  program.convert_to_ssa();
-  apply_optimizations(program);
-  program.convert_from_ssa();
-  apply_optimizations(program);
-
-  for (const auto &[name, function] : program.functions) {
+  auto program = get_optimized_bril_from_file(filename);
+  program.for_each_function([](auto &function) {
     LivenessAnalysis analysis(function);
     const auto result = analysis.run();
     for (const auto &label : function.block_labels) {
@@ -245,19 +238,19 @@ void debug_liveness(const std::string &filename) {
                 << data.live_variables[block.instructions.size()] << std::endl;
     }
     std::cout << separator << std::endl;
-  }
+  });
 }
 
 void compute_rig(const std::string &filename) {
   const auto program = get_optimized_bril_from_file(filename);
   const std::string separator(100, '-'), padding(50, ' ');
 
-  for (const auto &[name, function] : program.functions) {
+  program.for_each_function([=](const auto &function) {
     std::cout << separator << std::endl;
-    std::cout << "Function: " << name << std::endl;
+    std::cout << "Function: " << function.name << std::endl;
     std::cout << "Register interference graph: " << std::endl;
     std::cout << bril::RegisterInterferenceGraph(function);
-  }
+  });
   std::cout << separator << std::endl;
 }
 
@@ -269,14 +262,14 @@ void allocate_registers(const std::string &filename) {
       3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16,
       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
 
-  for (const auto &[name, function] : program.functions) {
+  program.for_each_function([=](const auto &function) {
     std::cout << separator << std::endl;
-    std::cout << "Function: " << name << std::endl;
+    std::cout << "Function: " << function.name << std::endl;
     std::cout << "Register interference graph: " << std::endl;
     const auto register_allocation =
         bril::allocate_registers(function, available_registers);
     std::cout << register_allocation << std::endl;
-  }
+  });
   std::cout << separator << std::endl;
 }
 
@@ -358,13 +351,6 @@ void benchmark(const std::string &filename) {
   Timer::stop("10. MIPS generation");
 }
 
-void canonicalize_names(const std::string &filename) {
-  auto bril_program = get_optimized_bril_from_file(filename);
-  for (auto &[name, function] : bril_program.functions)
-    bril::canonicalize_names(function);
-  std::cout << bril_program << std::endl;
-}
-
 void test_augmented_cfg(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
@@ -428,6 +414,7 @@ void debug(const std::string &filename) {
   apply_optimizations(program);
   program.convert_from_ssa();
   apply_optimizations(program);
+  program.for_each_function(canonicalize_names);
 
   std::cout << program << std::endl;
 }
@@ -440,25 +427,24 @@ int main(int argc, char **argv) {
     const std::map<std::string, std::function<void(const std::string &)>>
         options = {
             {"--debug", debug},
-            {"--lex", test_lexer},
-            {"--parse", test_parser},
-            {"--build-ast", test_build_ast},
+            {"--lex", lex},
+            {"--parse", parse},
+            {"--build-ast", build_ast},
             {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},
             {"--round-trip-interpret", round_trip_interpret},
-            {"--emit-c", test_emit_c},
-            {"--ssa", test_to_ssa},
-            {"--ssa-round-trip", test_ssa_round_trip},
-            {"--liveness", debug_liveness},
+            {"--emit-c", emit_c},
+            {"--ssa", to_ssa},
+            {"--ssa-round-trip", ssa_round_trip},
+            {"--liveness", compute_liveness},
             {"--compute-rig", compute_rig},
             {"--allocate-registers", allocate_registers},
             {"--compute-call-graph", compute_call_graph},
-            {"--emit-naive-mips", test_emit_mips},
+            {"--emit-naive-mips", emit_naive_mips},
             {"--emit-mips", generate_mips},
             {"--benchmark", benchmark},
 
             // Experimental options
-            {"--canonicalize-names", canonicalize_names},
             {"--augmented-cfg", test_augmented_cfg},
         };
 

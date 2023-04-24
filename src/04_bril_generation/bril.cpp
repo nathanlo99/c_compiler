@@ -64,13 +64,13 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     }
   }
 
-  for (const auto &[label, block] : blocks) {
+  for_each_block([&](const Block &block) {
     for (const auto &exit_label : block.exit_labels) {
       runtime_assert(blocks.count(exit_label) > 0,
                      "Exit label " + exit_label + " not found in label map");
-      add_edge(label, exit_label);
+      add_edge(block.entry_label, exit_label);
     }
-  }
+  });
 
   // Ensure that the entry block has no predecessors, since this breaks SSA
   // conversion later
@@ -145,18 +145,15 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
                  "No block with label " + block_label);
 
   // If there are any jumps with this block as a target, throw an exception
-  for (const auto &[label, block] : blocks) {
-    for (const auto &instruction : block.instructions) {
-      if (!instruction.is_jump())
-        continue;
-
-      for (const auto &exit_label : instruction.labels) {
-        runtime_assert(exit_label != block_label,
-                       "Cannot remove block " + block_label +
-                           " because it is the target of a jump instruction");
-      }
+  for_each_instruction([&](const Instruction &instruction) {
+    if (!instruction.is_jump())
+      return;
+    for (const auto &exit_label : instruction.labels) {
+      runtime_assert(exit_label != block_label,
+                     "Cannot remove block " + block_label +
+                         " because it is the target of a jump instruction");
     }
-  }
+  });
 
   // If there are any phi nodes with this block as a target, remove them
   for (auto &[label, block] : blocks) {
@@ -394,8 +391,9 @@ bool ControlFlowGraph::_immediately_dominates(const std::string &source,
                                               const std::string &target) const {
   if (!_strictly_dominates(source, target))
     return false;
-  for (const auto &[k, _] : blocks) {
-    if (_strictly_dominates(source, k) && _strictly_dominates(k, target))
+  for (const auto &label : block_labels) {
+    if (_strictly_dominates(source, label) &&
+        _strictly_dominates(label, target))
       return false;
   }
   return true;

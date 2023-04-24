@@ -114,19 +114,16 @@ inline size_t remove_unused_blocks(ControlFlowGraph &graph) {
 
 inline size_t remove_unused_functions(Program &program) {
   std::set<std::string> unused_functions;
-  for (const auto &[name, function] : program.functions)
-    unused_functions.insert(name);
+  program.for_each_function([&](const ControlFlowGraph &function) {
+    unused_functions.insert(function.name);
+  });
 
   unused_functions.erase("wain");
-  for (const auto &[name, function] : program.functions) {
-    for (const auto &[label, block] : function.blocks) {
-      for (const auto &instruction : block.instructions) {
-        if (instruction.opcode == Opcode::Call) {
-          unused_functions.erase(instruction.funcs[0]);
-        }
-      }
+  program.for_each_instruction([&](const Instruction &instruction) {
+    if (instruction.opcode == Opcode::Call) {
+      unused_functions.erase(instruction.funcs[0]);
     }
-  }
+  });
 
   for (const auto &name : unused_functions) {
     std::cerr << "Removing unused function " << name << std::endl;
@@ -150,7 +147,7 @@ inline size_t remove_trivial_phi_instructions(ControlFlowGraph &,
   return result;
 }
 
-inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
+inline size_t combine_extended_blocks(ControlFlowGraph &function) {
   size_t result = 0;
 
   // First, identify the edges which can be contracted: (b1, b2) such that
@@ -159,14 +156,14 @@ inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
 
   while (true) {
     bool changed = false;
-    for (const auto &[block_label, block] : graph.blocks) {
+    for (const auto &[block_label, block] : function.blocks) {
       if (block.outgoing_blocks.size() != 1)
         continue;
       const auto &outgoing_block = *block.outgoing_blocks.begin();
-      if (graph.get_block(outgoing_block).incoming_blocks.size() != 1)
+      if (function.get_block(outgoing_block).incoming_blocks.size() != 1)
         continue;
 
-      graph.combine_blocks(block_label, outgoing_block);
+      function.combine_blocks(block_label, outgoing_block);
       changed = true;
       result++;
       break;
@@ -176,41 +173,6 @@ inline size_t combine_extended_blocks(ControlFlowGraph &graph) {
   }
 
   return result;
-}
-
-inline size_t move_constants_to_front(ControlFlowGraph &graph) {
-  if (!graph.is_in_ssa_form())
-    return 0;
-
-  // First, count the number of constants which are already at the front
-  size_t num_constants = 0;
-  for (const auto &instruction :
-       graph.get_block(graph.entry_label).instructions) {
-    if (instruction.opcode == Opcode::Const)
-      num_constants++;
-    else
-      break;
-  }
-
-  std::vector<Instruction> constant_instructions;
-  for (const auto &label : graph.block_labels) {
-    auto &block = graph.get_block(label);
-    for (size_t i = 0; i < block.instructions.size(); ++i) {
-      const auto &instruction = block.instructions[i];
-      if (instruction.opcode == Opcode::Const) {
-        constant_instructions.push_back(instruction);
-        block.instructions.erase(block.instructions.begin() + i);
-        i--;
-      }
-    }
-  }
-
-  auto &entry_instructions = graph.get_block(graph.entry_label).instructions;
-  for (size_t i = 0; i < constant_instructions.size(); ++i) {
-    const auto &instruction = constant_instructions[i];
-    entry_instructions.insert(entry_instructions.begin() + i, instruction);
-  }
-  return constant_instructions.size() > num_constants ? 1 : 0;
 }
 
 inline size_t remove_unused_parameters(Program &program) {
@@ -230,14 +192,11 @@ inline size_t remove_unused_parameters(Program &program) {
       unused_parameters[param.name] = idx;
     }
 
-    for (const auto &[block_label, block] : function.blocks) {
-      for (const auto &instruction : block.instructions) {
-        for (const auto &arg : instruction.arguments) {
-          unused_parameters.erase(arg);
-        }
-        unused_parameters.erase(instruction.destination);
-      }
-    }
+    function.for_each_instruction([&](const Instruction &instruction) {
+      for (const auto &argument : instruction.arguments)
+        unused_parameters.erase(argument);
+      unused_parameters.erase(instruction.destination);
+    });
 
     auto &indices = unused_parameter_indices[function_name];
     for (const auto &[param_name, param_idx] : unused_parameters) {
@@ -256,21 +215,18 @@ inline size_t remove_unused_parameters(Program &program) {
     }
 
     // Now remove the unused parameters from function calls
-    for (const auto &label : function.block_labels) {
-      auto &block = function.get_block(label);
-      for (auto &instruction : block.instructions) {
-        if (instruction.opcode != Opcode::Call)
-          continue;
-        const std::string called_function = instruction.funcs[0];
-        const auto &unused_indices = unused_parameter_indices[called_function];
-        for (auto rit = unused_indices.rbegin(); rit != unused_indices.rend();
-             ++rit) {
-          const auto idx = *rit;
-          instruction.arguments.erase(instruction.arguments.begin() + idx);
-          result++;
-        }
+    function.for_each_instruction([&](Instruction &instruction) {
+      if (instruction.opcode != Opcode::Call)
+        return;
+      const std::string called_function = instruction.funcs[0];
+      const auto &unused_indices = unused_parameter_indices[called_function];
+      for (auto rit = unused_indices.rbegin(); rit != unused_indices.rend();
+           ++rit) {
+        const auto idx = *rit;
+        instruction.arguments.erase(instruction.arguments.begin() + idx);
+        result++;
       }
-    }
+    });
   }
 
   return result;

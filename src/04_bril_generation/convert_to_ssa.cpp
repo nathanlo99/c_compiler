@@ -32,15 +32,16 @@ void ControlFlowGraph::convert_to_ssa() {
   std::map<std::string, std::set<std::string>> defs;
   std::map<std::string, size_t> num_defs;
   std::map<std::string, Type> types;
-  for (const auto &[entry_label, block] : blocks) {
+  for_each_block([&](const Block &block) {
     for (const auto &instruction : block.instructions) {
       if (instruction.destination != "") {
-        defs[instruction.destination].insert(entry_label);
+        defs[instruction.destination].insert(block.entry_label);
         num_defs[instruction.destination] += 1;
         types[instruction.destination] = instruction.type;
       }
     }
-  }
+  });
+
   for (const auto &argument : arguments) {
     defs[argument.name].insert(entry_label);
     num_defs[argument.name] += 1;
