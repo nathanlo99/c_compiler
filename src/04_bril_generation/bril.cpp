@@ -1,5 +1,6 @@
 
 #include "bril.hpp"
+#include "timer.hpp"
 #include "util.hpp"
 
 namespace bril {
@@ -8,6 +9,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     : name(function.name), arguments(function.arguments),
       return_type(function.return_type) {
 
+  Timer::start("    5b. CFG: " + function.name);
   std::map<std::string, std::string> canonical_label_name;
 
   // Loop over the instructions and create blocks:
@@ -63,11 +65,10 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
       }
     }
   }
-
   for_each_block([&](const Block &block) {
     for (const auto &exit_label : block.exit_labels) {
       debug_assert(blocks.count(exit_label) > 0,
-                   "Exit label " + exit_label + " not found in label map");
+                   "Exit label {} not found in label map", exit_label);
       add_edge(block.entry_label, exit_label);
     }
   });
@@ -89,7 +90,11 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     add_edge(new_entry_label, old_entry_label);
   }
 
+  Timer::start("      5b.1. CFG: " + function.name + " - Compute dominators");
   compute_dominators();
+  Timer::stop("      5b.1. CFG: " + function.name + " - Compute dominators");
+
+  Timer::stop("    5b. CFG: " + function.name);
 }
 
 void ControlFlowGraph::compute_edges() {
@@ -120,12 +125,12 @@ void ControlFlowGraph::add_edge(const std::string &source,
 
 void ControlFlowGraph::remove_edge(const std::string &source,
                                    const std::string &target) {
-  debug_assert(blocks.count(source) > 0, "No block with label " + source);
-  debug_assert(blocks.count(target) > 0, "No block with label " + target);
+  debug_assert(blocks.count(source) > 0, "No block with label {}", source);
+  debug_assert(blocks.count(target) > 0, "No block with label {}", target);
   debug_assert(get_block(source).outgoing_blocks.count(target) > 0,
-               "No edge between '" + source + "' and '" + target + "'");
+               "No edge between '{}' and '{}'", source, target);
   debug_assert(get_block(target).incoming_blocks.count(source) > 0,
-               "No edge between '" + source + "' and '" + target + "'");
+               "No edge between '{}' and '{}'", source, target);
 
   get_block(source).outgoing_blocks.erase(target);
   get_block(target).incoming_blocks.erase(source);
@@ -141,8 +146,8 @@ void ControlFlowGraph::add_block(const Block &block) {
 
 void ControlFlowGraph::remove_block(const std::string &block_label) {
   std::cerr << "Removing block " << block_label << std::endl;
-  debug_assert(blocks.count(block_label) > 0,
-               "No block with label " + block_label);
+  debug_assert(blocks.count(block_label) > 0, "No block with label {}",
+               block_label);
 
   // If there are any jumps with this block as a target, throw an exception
   for_each_instruction([&](const Instruction &instruction) {
@@ -150,8 +155,9 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
       return;
     for (const auto &exit_label : instruction.labels) {
       debug_assert(exit_label != block_label,
-                   "Cannot remove block " + block_label +
-                       " because it is the target of a jump instruction");
+                   "Cannot remove block {} because it is the target of a jump "
+                   "instruction",
+                   block_label);
     }
   });
 
@@ -194,14 +200,14 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
 void ControlFlowGraph::combine_blocks(const std::string &source,
                                       const std::string &target) {
   std::cerr << "Combining blocks " << source << " and " << target << std::endl;
-  debug_assert(blocks.count(source) > 0, "No block with label " + source);
-  debug_assert(blocks.count(target) > 0, "No block with label " + target);
+  debug_assert(blocks.count(source) > 0, "No block with label {}", source);
+  debug_assert(blocks.count(target) > 0, "No block with label {}", target);
   auto &source_block = get_block(source);
   auto &target_block = get_block(target);
   debug_assert(source_block.outgoing_blocks.count(target) > 0,
-               "No edge between '" + source + "' and '" + target + "'");
+               "No edge between '{}' and '{}'", source, target);
   debug_assert(target_block.incoming_blocks.count(source) > 0,
-               "No edge between '" + source + "' and '" + target + "'");
+               "No edge between '{}' and '{}'", source, target);
   debug_assert(source_block.outgoing_blocks.size() == 1,
                "Source block has multiple exit labels");
   debug_assert(target_block.incoming_blocks.size() == 1,
@@ -254,8 +260,8 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
 std::string ControlFlowGraph::split_block(const std::string &block_label,
                                           const size_t instruction_idx,
                                           const std::string &new_label_hint) {
-  debug_assert(blocks.count(block_label) > 0,
-               "No block with label " + block_label);
+  debug_assert(blocks.count(block_label) > 0, "No block with label {}",
+               block_label);
   auto &block = get_block(block_label);
   debug_assert(instruction_idx < block.instructions.size(),
                "Cannot split block at the last instruction");
@@ -288,9 +294,9 @@ void ControlFlowGraph::rename_label(const std::string &old_label,
   if (old_label == new_label)
     return;
   debug_assert(blocks.count(old_label) > 0,
-               "Cannot rename non-existent label '" + old_label + "'");
+               "Cannot rename non-existent label '{}'", old_label);
   debug_assert(blocks.count(new_label) == 0,
-               "Cannot rename label to an existing label '" + new_label + "'");
+               "Cannot rename label to an existing label '{}'", new_label);
   if (entry_label == old_label)
     entry_label = new_label;
 
@@ -416,7 +422,7 @@ ControlFlowGraph::immediate_dominator(const std::string &label) const {
   if (immediate_dominators.count(label) == 0)
     return "(none)";
   debug_assert(immediate_dominators.count(label) > 0,
-               "No immediate dominator for label " + label);
+               "No immediate dominator for label {}", label);
   return immediate_dominators.at(label);
 }
 

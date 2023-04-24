@@ -122,7 +122,7 @@ struct GVNTable {
 
   size_t query_variable(const std::string &variable) const {
     debug_assert(variable_to_value_number.count(variable) > 0,
-                 "Variable " + variable + " not found in GVNTable");
+                 "Variable {} not found in GVNTable", variable);
     return variable_to_value_number.at(variable);
   }
 

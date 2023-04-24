@@ -124,15 +124,15 @@ struct BRILStackFrame {
 
   // Get the value of a variable
   int get_int(const std::string &name) {
-    debug_assert(variables.count(name) > 0, "Variable " + name + " not found");
+    debug_assert(variables.count(name) > 0, "Variable {} not found", name);
     debug_assert(variables[name].type == BRILValue::Type::Int,
-                 "Variable " + name + " is not an int");
+                 "Variable {} is not an int", name);
     return variables[name].int_value;
   }
   BRILValue get_value(const std::string &name) {
     if (name == "__undefined")
       return BRILValue();
-    debug_assert(variables.count(name) > 0, "Variable " + name + " not found");
+    debug_assert(variables.count(name) > 0, "Variable {} not found", name);
     return variables[name];
   }
 
@@ -225,8 +225,8 @@ struct BRILContext {
     debug_assert(idx < heap_memory.size(), "Invalid heap index");
     debug_assert(heap_memory[idx].active, "Writing to freed memory");
     debug_assert(offset < heap_memory[idx].values.size(),
-                 "Writing out of bounds: " + std::to_string(offset) +
-                     " >= " + std::to_string(heap_memory[idx].values.size()));
+                 "Writing out of bounds: {} >= {}", offset,
+                 heap_memory[idx].values.size());
     heap_memory[idx].values[offset] = value;
   }
 

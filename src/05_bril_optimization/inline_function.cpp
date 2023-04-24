@@ -98,13 +98,12 @@ void Program::inline_function_call(const std::string &function_name,
     }
   };
   const auto get_renamed_variable = [&](const std::string &name) {
-    debug_assert(renamed_variables.count(name) > 0,
-                 "Variable " + name + " not renamed");
+    debug_assert(renamed_variables.count(name) > 0, "Variable {} not renamed",
+                 name);
     return renamed_variables.at(name);
   };
   const auto get_renamed_label = [&](const std::string &name) {
-    debug_assert(renamed_labels.count(name) > 0,
-                 "Label " + name + " not renamed");
+    debug_assert(renamed_labels.count(name) > 0, "Label {} not renamed", name);
     return renamed_labels.at(name);
   };
 

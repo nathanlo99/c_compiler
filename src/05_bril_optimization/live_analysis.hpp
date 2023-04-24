@@ -163,7 +163,7 @@ struct VariableLocation {
       os << location.offset << "($BP)";
       break;
     default:
-      debug_assert(false, "Invalid location type", location);
+      unreachable("Invalid VariableLocation type");
       break;
     }
     return os;
@@ -189,13 +189,16 @@ struct RegisterAllocation {
     return spilled_variables.count(variable) > 0;
   }
   size_t get_register(const std::string &variable) const {
-    debug_assert(in_register(variable),
-                 "Variable " + variable + " is not in a register");
+    debug_assert(
+        in_register(variable),
+        "RegisterAllocation::get_register: Variable {} is not in a register",
+        variable);
     return register_allocation.at(variable);
   }
   int get_offset(const std::string &variable) const {
     debug_assert(is_spilled(variable),
-                 "Variable " + variable + " is not spilled");
+                 "RegisterAllocation::get_offset: Variable {} is not spilled",
+                 variable);
     return spilled_variables.at(variable);
   }
 

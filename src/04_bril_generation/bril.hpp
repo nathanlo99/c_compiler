@@ -600,13 +600,13 @@ struct ControlFlowGraph {
   }
 
   Block &get_block(const std::string &block_label) {
-    debug_assert(blocks.count(block_label) > 0,
-                 "Block not found: " + block_label);
+    debug_assert(blocks.count(block_label) > 0, "Block not found: {}",
+                 block_label);
     return blocks.at(block_label);
   }
   const Block &get_block(const std::string &block_label) const {
-    debug_assert(blocks.count(block_label) > 0,
-                 "Block not found: " + block_label);
+    debug_assert(blocks.count(block_label) > 0, "Block not found: {}",
+                 block_label);
     return blocks.at(block_label);
   }
   void add_block(const Block &block);
@@ -792,11 +792,11 @@ struct Program {
   }
 
   ControlFlowGraph &get_function(const std::string &name) {
-    debug_assert(functions.count(name) > 0, "Function " + name + " not found");
+    debug_assert(functions.count(name) > 0, "Function {} not found", name);
     return functions.at(name);
   }
   const ControlFlowGraph &get_function(const std::string &name) const {
-    debug_assert(functions.count(name) > 0, "Function " + name + " not found");
+    debug_assert(functions.count(name) > 0, "Function {} not found", name);
     return functions.at(name);
   }
 

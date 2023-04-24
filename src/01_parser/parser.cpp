@@ -181,8 +181,8 @@ void EarleyTable::scan(const size_t i, const size_t j,
 void EarleyTable::report_error(const size_t i) const {
   std::stringstream ss;
   if (i == 0) {
-    debug_assert(false, "Unexpected token of type " +
-                            token_kind_to_string(token_stream[i].kind));
+    debug_assert(false, "Unexpected token of type {}",
+                 token_kind_to_string(token_stream[i].kind));
     return;
   }
 
@@ -216,7 +216,7 @@ void EarleyTable::report_error(const size_t i) const {
   }
   ss << "     ";
 
-  debug_assert(false, ss.str());
+  debug_assert(false, "{}", ss.str());
 }
 
 EarleyTable
@@ -309,8 +309,8 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
       } else {
         const Token token = token_stream[idx];
         debug_assert(token_kind_to_string(token.kind) == ingredient,
-                     "Expected token type " + ingredient + ", got " +
-                         token_kind_to_string(token.kind));
+                     "Expected token type {}, got {}", ingredient,
+                     token_kind_to_string(token.kind));
         child_candidate = std::make_shared<ParseNode>(token);
       }
       if (child_candidate == nullptr)

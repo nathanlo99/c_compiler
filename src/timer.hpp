@@ -23,20 +23,18 @@ public:
     return start_times.count(name) > 0 && end_times.count(name) == 0;
   }
   static void start(const std::string &name) {
-    debug_assert(start_times.count(name) == 0,
-                 "Timer '" + name + "' already started");
+    debug_assert(start_times.count(name) == 0, "Timer '{}' already started",
+                 name);
     start_times[name] = get_time_ms();
     names.push_back(name);
   }
   static void stop(const std::string &name) {
-    debug_assert(start_times.count(name) > 0,
-                 "Timer '" + name + "' not started");
-    debug_assert(end_times.count(name) == 0,
-                 "Timer '" + name + "' already ended");
+    debug_assert(start_times.count(name) > 0, "Timer '{}' not started", name);
+    debug_assert(end_times.count(name) == 0, "Timer '{}' not started", name);
     end_times[name] = get_time_ms();
   }
 
-  static void print(std::ostream &os) {
+  static void print(std::ostream &os, const size_t threshold_ms = 0) {
     os << "Timer data:" << std::endl;
     for (const auto &name : names) {
       const auto &start_time = start_times[name];
@@ -45,8 +43,9 @@ public:
         os << "  " << name << ": (still running)" << std::endl;
       } else {
         const auto &end_time = it->second;
-        os << "  " << name << ": " << (end_time - start_time) << "ms"
-           << std::endl;
+        const size_t running_time_ms = end_time - start_time;
+        if (running_time_ms > threshold_ms)
+          os << "  " << name << ": " << running_time_ms << "ms" << std::endl;
       }
     }
   }

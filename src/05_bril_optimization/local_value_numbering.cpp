@@ -153,7 +153,7 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
 
 std::string LocalValueTable::canonical_name(const std::string &variable) const {
   debug_assert(env.count(variable) > 0,
-               "Variable " + variable + " was not present in the table");
+               "Variable {} was not present in the table", variable);
   const size_t idx = env.at(variable);
   return canonical_variables[idx];
 }
@@ -257,7 +257,7 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
     std::vector<size_t> arguments;
     for (const auto &argument : instruction.arguments) {
       debug_assert(table.env.count(argument) > 0,
-                   "Argument " + argument + " not found in env");
+                   "Argument {} not found in env", argument);
       arguments.push_back(table.env.at(argument));
     }
     const LocalValueNumber value =
@@ -285,8 +285,7 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
     if (instruction.destination != "") {
       const std::string original_destination = instruction.destination;
       debug_assert(table.last_write.count(original_destination) > 0,
-                   "Destination " + original_destination +
-                       " not in last_write");
+                   "Destination {} not in last_write", original_destination);
       const bool dest_overwritten =
           table.last_write.at(original_destination) > i;
 

@@ -15,9 +15,8 @@ void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
 
 void DeduceTypesVisitor::post_visit(Procedure &procedure) {
   debug_assert(procedure.return_expr->type == procedure.return_type,
-               "Unexpected return type for prodecure " + procedure.name +
-                   ": expected int, got " +
-                   type_to_string(procedure.return_expr->type));
+               "Unexpected return type for procedure {}: expected int, got {}",
+               procedure.name, type_to_string(procedure.return_expr->type));
   table.leave_procedure();
 }
 
@@ -27,8 +26,8 @@ void DeduceTypesVisitor::post_visit(VariableLValueExpr &expr) {
 
 void DeduceTypesVisitor::post_visit(DereferenceLValueExpr &expr) {
   debug_assert(expr.argument->type == Type::IntStar,
-               "Dereference expected 'int*', got " +
-                   type_to_string(expr.argument->type));
+               "Dereference expected 'int*', got {}",
+               type_to_string(expr.argument->type));
   expr.type = Type::Int;
 }
 
@@ -84,9 +83,8 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
   case BinaryOperation::Mul:
   case BinaryOperation::Div:
   case BinaryOperation::Mod: {
-    debug_assert(integer_types.count(type_pair) > 0,
-                 std::string("Invalid types to ") +
-                     binary_operation_to_string(expr.operation));
+    debug_assert(integer_types.count(type_pair) > 0, "Invalid types to {}",
+                 binary_operation_to_string(expr.operation));
     expr.type = integer_types.at(type_pair);
   } break;
   default:
@@ -102,8 +100,8 @@ void DeduceTypesVisitor::post_visit(AddressOfExpr &expr) {
 
 void DeduceTypesVisitor::post_visit(DereferenceExpr &expr) {
   debug_assert(expr.argument->type == Type::IntStar,
-               "Dereference expected 'int*', got " +
-                   type_to_string(expr.argument->type));
+               "Dereference expected 'int*', got {}",
+               type_to_string(expr.argument->type));
   expr.type = Type::Int;
 }
 
@@ -119,17 +117,17 @@ void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
 
   std::vector<Type> argument_types;
   debug_assert(expr.arguments.size() == expected_arguments.size(),
-               "Wrong number of arguments to function call to " +
-                   procedure_name + ": expected " +
-                   std::to_string(expected_arguments.size()) + " but got " +
-                   std::to_string(expr.arguments.size()));
+               "Wrong number of arguments to function call to {}: expected {} "
+               "but got {}",
+               procedure_name, expected_arguments.size(),
+               expr.arguments.size());
 
   for (size_t i = 0; i < expected_arguments.size(); ++i) {
-    debug_assert(expr.arguments[i]->type == expected_arguments[i].type,
-                 "The " + std::to_string(i) + "th argument to " +
-                     procedure_name + " had the wrong type: expected " +
-                     type_to_string(expected_arguments[i].type) + ", got " +
-                     type_to_string(expr.arguments[i]->type));
+    debug_assert(
+        expr.arguments[i]->type == expected_arguments[i].type,
+        "The {}th argument to {} had the wrong type: expected {}, got {}", i,
+        procedure_name, type_to_string(expected_arguments[i].type),
+        type_to_string(expr.arguments[i]->type));
   }
 
   expr.type = table.get_return_type(procedure_name);
@@ -142,12 +140,12 @@ void DeduceTypesVisitor::post_visit(AssignmentStatement &statement) {
 
 void DeduceTypesVisitor::post_visit(PrintStatement &statement) {
   debug_assert(statement.expression->type == Type::Int,
-               "println expected int, got " +
-                   type_to_string(statement.expression->type));
+               "println expected int, got {}",
+               type_to_string(statement.expression->type));
 }
 
 void DeduceTypesVisitor::post_visit(DeleteStatement &statement) {
   debug_assert(statement.expression->type == Type::IntStar,
-               "delete expected int*, got " +
-                   type_to_string(statement.expression->type));
+               "delete expected int*, got {}",
+               type_to_string(statement.expression->type));
 }

@@ -295,9 +295,15 @@ void benchmark(const std::string &filename) {
 
   // 2. Parse
   Timer::start("2. Parsing");
+  Timer::start("  2a. Load grammar");
   const ContextFreeGrammar grammar = load_default_grammar();
+  Timer::stop("  2a. Load grammar");
+  Timer::start("  2b. Construct Earley Table");
   const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
+  Timer::stop("  2b. Construct Earley Table");
+  Timer::start("  2c. Convert EarleyTable to parse tree");
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
+  Timer::stop("  2c. Convert EarleyTable to parse tree");
   Timer::stop("2. Parsing");
 
   // 3. Convert to AST
@@ -320,8 +326,12 @@ void benchmark(const std::string &filename) {
   // 5. Convert to BRIL
   Timer::start("5. BRIL generation");
   bril::SimpleBRILGenerator bril_generator;
+  Timer::start("  5a. Generate BRIL functions");
   program->accept_simple(bril_generator);
+  Timer::stop("  5a. Generate BRIL functions");
+  Timer::start("  5b. Generate BRIL program");
   bril::Program bril_program = bril_generator.program();
+  Timer::stop("  5b. Generate BRIL program");
   Timer::stop("5. BRIL generation");
 
   // 6. Pre-SSA optimization
@@ -421,7 +431,7 @@ void debug(const std::string &filename) {
 
 int main(int argc, char **argv) {
   try {
-    VERIFY(argc == 3, "Expected a filename and an option");
+    debug_assert(argc == 3, "Expected a filename and an option");
     const std::string argument = argv[2], filename = argv[1];
 
     const std::map<std::string, std::function<void(const std::string &)>>
@@ -461,8 +471,8 @@ int main(int argc, char **argv) {
     options.at(argument)(filename);
     Timer::stop("Total");
 
-    Timer::print(std::cerr);
-  } catch (const libassert::verification_failure &e) {
+    Timer::print(std::cerr, 5);
+  } catch (const std::exception &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 1;
   }

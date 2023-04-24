@@ -2,22 +2,24 @@
 #pragma once
 
 #include <algorithm>
+#include <fmt/core.h>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "assert.hpp"
+// #include "assert.hpp"
 
-// [[maybe_unused]] static void debug_assert(const bool expr,
-//                                           const std::string &message) {
-//   if (!expr)
-//     throw std::runtime_error(message);
-// }
+#define debug_assert(expr, message, ...)                                       \
+  if (!(expr)) [[unlikely]] {                                                  \
+    const std::string formatted_message =                                      \
+        fmt::format((message), ##__VA_ARGS__);                                 \
+    throw std::runtime_error(formatted_message);                               \
+  }
 
-[[maybe_unused]] static void unreachable(const std::string &message) {
-  debug_assert(false, "Should be unreachable: " + message);
+inline void unreachable(const std::string &message) {
+  debug_assert(false, "Should be unreachable: {}", message);
   __builtin_unreachable();
 }
 

@@ -37,14 +37,14 @@ public:
   void add_function(const std::string &name,
                     const std::vector<Variable> &arguments,
                     const Type return_type) {
-    debug_assert(functions.count(name) == 0, "Duplicate function " + name);
+    debug_assert(functions.count(name) == 0, "Duplicate function {}", name);
     functions.insert(
         std::make_pair(name, Function(name, arguments, return_type)));
   }
 
   void enter_function(const std::string &function) {
-    debug_assert(functions.count(function) > 0,
-                 "Unrecognized function " + function);
+    debug_assert(functions.count(function) > 0, "Unrecognized function {}",
+                 function);
     current_function = function;
   }
 
@@ -58,14 +58,14 @@ public:
   }
   inline std::string last_result() const {
     debug_assert(function().instructions.size() > 0,
-                 "Cannot grab last result: no instructions in " +
-                     current_function);
+                 "Cannot grab last result: no instructions in {}",
+                 current_function);
     return function().instructions.back().destination;
   }
   inline Type last_type() const {
     debug_assert(function().instructions.size() > 0,
-                 "Cannot grab last result: no instructions in " +
-                     current_function);
+                 "Cannot grab last result: no instructions in {}",
+                 current_function);
     return function().instructions.back().type;
   }
 

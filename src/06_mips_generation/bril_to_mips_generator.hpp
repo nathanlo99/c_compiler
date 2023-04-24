@@ -274,8 +274,8 @@ private:
       return allocation.get_register(argument);
     } else {
       debug_assert(allocation.is_spilled(argument),
-                   "Variable " + argument +
-                       " is not in a register nor on the stack");
+                   "Variable {} is not in a register nor on the stack",
+                   argument);
       const int offset = allocation.get_offset(argument);
       lw(temp_reg, offset, 29);
       annotate("Loading variable " + argument + " from offset " +
@@ -657,7 +657,7 @@ private:
       const std::string &var = instruction.arguments[0];
       const size_t dest_reg = get_register(tmp1, dest, allocation);
       debug_assert(allocation.is_spilled(var),
-                   "Addressed variable " + var + " is not in memory");
+                   "Addressed variable {} is not in memory", var);
       const int offset = allocation.get_offset(var);
       add_const(dest_reg, 29, offset, tmp1);
       store_variable(dest, dest_reg, allocation);
