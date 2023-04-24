@@ -149,7 +149,7 @@ void ControlFlowGraph::rename_variables(
 
   for (const auto &other_label : block_labels) {
     if (other_label != block_label &&
-        _immediately_dominates(block_label, other_label)) {
+        immediate_dominator(other_label) == block_label) {
       rename_variables(other_label, definitions, next_idx);
     }
   }

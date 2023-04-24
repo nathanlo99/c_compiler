@@ -365,10 +365,10 @@ void ControlFlowGraph::compute_dominators() {
     if (!changed)
       break;
   }
-  fmt::print(
-      stderr,
-      "Computed dominators for function {} with {} labels in {} iterations\n",
-      name, block_labels.size(), num_iterations);
+  if (block_labels.size() >= 10)
+    fmt::print(stderr,
+               "Computed dominators for {} with {} labels in {} iterations\n",
+               name, block_labels.size(), num_iterations);
 
   for (size_t i = 0; i < num_labels; ++i) {
     const std::string label = block_labels[i];
@@ -379,56 +379,61 @@ void ControlFlowGraph::compute_dominators() {
   }
 
   // Set up memoized versions of the dominator queries
+  const auto dominates = [&](const size_t source, const size_t target) {
+    return dominator_matrix[target][source];
+  };
+  const auto strictly_dominates = [&](const size_t source,
+                                      const size_t target) {
+    return source != target && dominates(source, target);
+  };
+
+  const auto immediately_dominates = [&](const size_t source,
+                                         const size_t target) -> bool {
+    if (!strictly_dominates(source, target))
+      return false;
+    for (size_t label = 0; label < num_labels; ++label) {
+      if (strictly_dominates(source, label) &&
+          strictly_dominates(label, target))
+        return false;
+    }
+    return true;
+  };
+
+  // The domination frontier of 'source' contains 'target' if 'source' does
+  // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
+  const auto is_in_dominance_frontier = [&](const size_t source,
+                                            const size_t target) -> bool {
+    if (dominates(source, target))
+      return false;
+    const std::string target_label = block_labels[target];
+    for (const std::string &pred_label :
+         get_block(target_label).incoming_blocks) {
+      const size_t pred = label_to_index.at(pred_label);
+      if (dominates(source, pred))
+        return true;
+    }
+    return false;
+  };
+
+  const auto start_time = Timer::get_time_ms();
   immediate_dominators[entry_label] = "(none)";
-  for (const auto &i : block_labels) {
-    for (const auto &j : block_labels) {
-      if (_dominates(j, i))
-        dominators[i].insert(j);
-      if (_immediately_dominates(j, i))
-        immediate_dominators[i] = j;
-      if (_is_in_dominance_frontier(j, i))
-        dominance_frontiers[j].insert(i);
+  for (size_t i = 0; i < num_labels; ++i) {
+    const std::string label = block_labels[i];
+    for (size_t j = 0; j < num_labels; ++j) {
+      const std::string other_label = block_labels[j];
+      if (dominator_matrix[i][j])
+        dominators[label].insert(other_label);
+      if (immediately_dominates(j, i))
+        immediate_dominators[label] = other_label;
+      if (is_in_dominance_frontier(j, i))
+        dominance_frontiers[other_label].insert(label);
     }
   }
-}
-
-// Does every path through 'target' pass through 'source'?
-bool ControlFlowGraph::_dominates(const std::string &source,
-                                  const std::string &target) const {
-  return raw_dominators.at(target).at(source);
-}
-
-bool ControlFlowGraph::_strictly_dominates(const std::string &source,
-                                           const std::string &target) const {
-  return source != target && _dominates(source, target);
-}
-
-// 'source' immediately dominates 'target' if 'source' strictly dominates
-// 'target', but 'source' does not strictly dominate any other node that
-// strictly dominates 'target'
-bool ControlFlowGraph::_immediately_dominates(const std::string &source,
-                                              const std::string &target) const {
-  if (!_strictly_dominates(source, target))
-    return false;
-  for (const auto &label : block_labels) {
-    if (_strictly_dominates(source, label) &&
-        _strictly_dominates(label, target))
-      return false;
-  }
-  return true;
-}
-
-// The domination frontier of 'source' contains 'target' if 'source' does
-// NOT dominate 'target' but 'source' dominates a predecessor of 'target'
-bool ControlFlowGraph::_is_in_dominance_frontier(
-    const std::string &source, const std::string &target) const {
-  if (_dominates(source, target))
-    return false;
-  for (const std::string &pred : get_block(target).incoming_blocks) {
-    if (_dominates(source, pred))
-      return true;
-  }
-  return false;
+  const auto end_time = Timer::get_time_ms();
+  const auto elapsed_time = end_time - start_time;
+  if (block_labels.size() >= 10)
+    fmt::print(stderr, "Post-processed dominators for {} in {} ms\n", name,
+               elapsed_time);
 }
 
 std::string

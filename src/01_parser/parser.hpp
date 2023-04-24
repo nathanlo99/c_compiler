@@ -48,12 +48,6 @@ struct ContextFreeGrammar {
   std::vector<Production> find_productions(const std::string &product) const {
     return productions_by_product.at(product);
   }
-  std::set<std::string> get_non_terminal_symbols() const {
-    return non_terminal_symbols;
-  }
-  std::set<std::string> get_terminal_symbols() const {
-    return terminal_symbols;
-  }
   bool is_non_terminal(const std::string &symbol) const {
     return non_terminal_symbols.count(symbol) > 0;
   }
@@ -86,7 +80,6 @@ private:
 public:
   friend std::ostream &operator<<(std::ostream &os,
                                   const ContextFreeGrammar &grammar);
-  void print() const;
 };
 
 ContextFreeGrammar load_default_grammar();

@@ -9,14 +9,13 @@
 #include <algorithm>
 #include <iomanip>
 
-ContextFreeGrammar load_grammar_from_file(const std::string &filename) {
-  std::ifstream ifs(filename);
+ContextFreeGrammar load_grammar(std::stringstream &ss) {
   std::string line;
   ContextFreeGrammar result;
-  while (std::getline(ifs, line)) {
-    if (line.size() > 0 && line[0] == '#')
-      continue;
+  while (std::getline(ss, line)) {
     const auto tokens = util::split(line);
+    if (tokens.empty() || tokens[0][0] == '#')
+      continue;
     debug_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid production");
     const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
@@ -27,22 +26,16 @@ ContextFreeGrammar load_grammar_from_file(const std::string &filename) {
   return result;
 }
 
+ContextFreeGrammar load_grammar_from_file(const std::string &filename) {
+  std::ifstream ifs(filename);
+  std::stringstream ss;
+  ss << ifs.rdbuf();
+  return load_grammar(ss);
+}
+
 ContextFreeGrammar load_default_grammar() {
   std::stringstream iss(context_free_grammar);
-  std::string line;
-  ContextFreeGrammar result;
-  while (std::getline(iss, line)) {
-    if (line.empty() || line[0] == '#')
-      continue;
-    const auto tokens = util::split(line);
-    debug_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
-    const std::string &product = tokens[0];
-    const std::vector<std::string> ingredients(tokens.begin() + 2,
-                                               tokens.end());
-    result.add_production(product, ingredients);
-  }
-  result.finalize();
-  return result;
+  return load_grammar(iss);
 }
 
 void ContextFreeGrammar::add_production(
@@ -96,8 +89,8 @@ bool ContextFreeGrammar::definitely_nullable(const std::string &symbol) const {
 void ContextFreeGrammar::compute_nullable() {
   while (true) {
     bool changed = false;
-    for (const auto &symbol : get_non_terminal_symbols()) {
-      if (is_definitely_nullable(symbol) > 0)
+    for (const auto &symbol : non_terminal_symbols) {
+      if (is_definitely_nullable(symbol))
         continue;
       if (definitely_nullable(symbol)) {
         nullable_symbols.insert(symbol);

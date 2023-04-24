@@ -150,8 +150,6 @@ private:
   void generate() {
     compute_allocations();
 
-    std::cerr << program << std::endl;
-
     // Load the arguments to wain into the correct registers
     const auto &wain = program.wain();
     const auto wain_allocations = allocations.at(wain.name);

@@ -764,23 +764,6 @@ struct ControlFlowGraph {
   }
 
   std::string immediate_dominator(const std::string &label) const;
-
-  // Does every path through 'target' pass through 'source'?
-  bool _dominates(const std::string &source, const std::string &target) const;
-
-  bool _strictly_dominates(const std::string &source,
-                           const std::string &target) const;
-
-  // 'source' immediately dominates 'target' if 'source' strictly dominates
-  // 'target', but 'source' does not strictly dominate any other node that
-  // strictly dominates 'target'
-  bool _immediately_dominates(const std::string &source,
-                              const std::string &target) const;
-
-  // The domination frontier of 'source' contains 'target' if 'source' does
-  // NOT dominate 'target' but 'source' dominates a predecessor of 'target'
-  bool _is_in_dominance_frontier(const std::string &source,
-                                 const std::string &target) const;
 };
 
 struct Program {
