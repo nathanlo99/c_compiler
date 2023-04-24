@@ -427,8 +427,8 @@ void ControlFlowGraph::compute_dominators() {
   }
   for (size_t i = 0; i < num_labels; ++i) {
     const std::string label = block_labels[i];
-    for (size_t j = 0; j < num_labels; ++j) {
-      const std::string other_label = block_labels[j];
+    for (const std::string &other_label : dominators.at(label)) {
+      const size_t j = label_to_index.at(other_label);
       if (immediately_dominates(j, i))
         immediate_dominators[label] = other_label;
     }
