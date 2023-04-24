@@ -50,7 +50,7 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
     os << "?";
     break;
   default:
-    runtime_assert(false, "Unknown type in operator<<");
+    debug_assert(false, "Unknown type in operator<<");
   }
   return os;
 }
@@ -166,7 +166,7 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
   case Opcode::Phi:
     return os << "phi";
   default:
-    runtime_assert(false, "Unknown opcode type in operator<<");
+    debug_assert(false, "Unknown opcode type in operator<<");
   }
   return os;
 }
@@ -600,13 +600,13 @@ struct ControlFlowGraph {
   }
 
   Block &get_block(const std::string &block_label) {
-    runtime_assert(blocks.count(block_label) > 0,
-                   "Block not found: " + block_label);
+    debug_assert(blocks.count(block_label) > 0,
+                 "Block not found: " + block_label);
     return blocks.at(block_label);
   }
   const Block &get_block(const std::string &block_label) const {
-    runtime_assert(blocks.count(block_label) > 0,
-                   "Block not found: " + block_label);
+    debug_assert(blocks.count(block_label) > 0,
+                 "Block not found: " + block_label);
     return blocks.at(block_label);
   }
   void add_block(const Block &block);
@@ -787,18 +787,16 @@ struct Program {
   std::map<std::string, ControlFlowGraph> functions;
 
   const ControlFlowGraph &wain() const {
-    runtime_assert(functions.count("wain") > 0, "wain not found");
+    debug_assert(functions.count("wain") > 0, "wain not found");
     return functions.at("wain");
   }
 
   ControlFlowGraph &get_function(const std::string &name) {
-    runtime_assert(functions.count(name) > 0,
-                   "Function " + name + " not found");
+    debug_assert(functions.count(name) > 0, "Function " + name + " not found");
     return functions.at(name);
   }
   const ControlFlowGraph &get_function(const std::string &name) const {
-    runtime_assert(functions.count(name) > 0,
-                   "Function " + name + " not found");
+    debug_assert(functions.count(name) > 0, "Function " + name + " not found");
     return functions.at(name);
   }
 

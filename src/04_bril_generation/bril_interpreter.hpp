@@ -124,17 +124,15 @@ struct BRILStackFrame {
 
   // Get the value of a variable
   int get_int(const std::string &name) {
-    runtime_assert(variables.count(name) > 0,
-                   "Variable " + name + " not found");
-    runtime_assert(variables[name].type == BRILValue::Type::Int,
-                   "Variable " + name + " is not an int");
+    debug_assert(variables.count(name) > 0, "Variable " + name + " not found");
+    debug_assert(variables[name].type == BRILValue::Type::Int,
+                 "Variable " + name + " is not an int");
     return variables[name].int_value;
   }
   BRILValue get_value(const std::string &name) {
     if (name == "__undefined")
       return BRILValue();
-    runtime_assert(variables.count(name) > 0,
-                   "Variable " + name + " not found");
+    debug_assert(variables.count(name) > 0, "Variable " + name + " not found");
     return variables[name];
   }
 
@@ -161,8 +159,7 @@ struct BRILContext {
 
   // Get the value of a variable
   inline int get_int(const std::string &name) {
-    runtime_assert(name != "__undefined",
-                   "Reading from uninitialized variable");
+    debug_assert(name != "__undefined", "Reading from uninitialized variable");
     return stack_frames.back().get_int(name);
   }
   inline BRILValue get_value(const std::string &name) {
@@ -190,80 +187,80 @@ struct BRILContext {
   }
 
   void free(const BRILValue value) {
-    runtime_assert(value.type == BRILValue::Type::HeapPointer,
-                   "Freed object was not heap pointer");
-    runtime_assert(value.heap_offset == 0, "Freed object was not base pointer");
+    debug_assert(value.type == BRILValue::Type::HeapPointer,
+                 "Freed object was not heap pointer");
+    debug_assert(value.heap_offset == 0, "Freed object was not base pointer");
     const size_t heap_idx = value.heap_idx;
-    runtime_assert(heap_idx < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[heap_idx].active, "Double free");
+    debug_assert(heap_idx < heap_memory.size(), "Invalid heap index");
+    debug_assert(heap_memory[heap_idx].active, "Double free");
     heap_memory[heap_idx].active = false;
   }
 
   BRILValue load(const BRILValue pointer) {
     if (pointer.type == BRILValue::Type::Address) {
       const size_t stack_depth = pointer.int_value;
-      runtime_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
+      debug_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
       return stack_frames[stack_depth].get_value(pointer.string_value);
     }
-    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
-                   "Writing to non-heap pointer");
+    debug_assert(pointer.type == BRILValue::Type::HeapPointer,
+                 "Writing to non-heap pointer");
     const size_t idx = pointer.heap_idx;
     const size_t offset = pointer.heap_offset;
-    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[idx].active, "Reading from freed memory");
+    debug_assert(idx < heap_memory.size(), "Invalid heap index");
+    debug_assert(heap_memory[idx].active, "Reading from freed memory");
     return heap_memory[idx].values[offset];
   }
 
   void store(const BRILValue pointer, const BRILValue value) {
     if (pointer.type == BRILValue::Type::Address) {
       const size_t stack_depth = pointer.int_value;
-      runtime_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
+      debug_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
       stack_frames[stack_depth].write_value(pointer.string_value, value);
       return;
     }
-    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
-                   "Writing to non-heap pointer");
+    debug_assert(pointer.type == BRILValue::Type::HeapPointer,
+                 "Writing to non-heap pointer");
     const size_t idx = pointer.heap_idx;
     const size_t offset = pointer.heap_offset;
-    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
-    runtime_assert(heap_memory[idx].active, "Writing to freed memory");
-    runtime_assert(offset < heap_memory[idx].values.size(),
-                   "Writing out of bounds: " + std::to_string(offset) +
-                       " >= " + std::to_string(heap_memory[idx].values.size()));
+    debug_assert(idx < heap_memory.size(), "Invalid heap index");
+    debug_assert(heap_memory[idx].active, "Writing to freed memory");
+    debug_assert(offset < heap_memory[idx].values.size(),
+                 "Writing out of bounds: " + std::to_string(offset) +
+                     " >= " + std::to_string(heap_memory[idx].values.size()));
     heap_memory[idx].values[offset] = value;
   }
 
   // Pointer arithmetic
   BRILValue pointer_add(const BRILValue pointer, const int offset) {
-    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
-                   "Adding to non-heap pointer");
+    debug_assert(pointer.type == BRILValue::Type::HeapPointer,
+                 "Adding to non-heap pointer");
     const size_t idx = pointer.heap_idx;
     const size_t old_offset = pointer.heap_offset;
-    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
+    debug_assert(idx < heap_memory.size(), "Invalid heap index");
     return BRILValue::heap_pointer(idx, old_offset + offset);
   }
 
   BRILValue pointer_sub(const BRILValue pointer, const int offset) {
-    runtime_assert(pointer.type == BRILValue::Type::HeapPointer,
-                   "Subtracting from non-heap pointer");
+    debug_assert(pointer.type == BRILValue::Type::HeapPointer,
+                 "Subtracting from non-heap pointer");
     const size_t idx = pointer.heap_idx;
     const size_t old_offset = pointer.heap_offset;
-    runtime_assert(idx < heap_memory.size(), "Invalid heap index");
+    debug_assert(idx < heap_memory.size(), "Invalid heap index");
     return BRILValue::heap_pointer(idx, old_offset - offset);
   }
 
   int pointer_diff(const BRILValue p1, const BRILValue p2) {
-    runtime_assert(p1.type == BRILValue::Type::HeapPointer,
-                   "Subtracting non-heap pointer");
-    runtime_assert(p2.type == BRILValue::Type::HeapPointer,
-                   "Subtracting non-heap pointer");
+    debug_assert(p1.type == BRILValue::Type::HeapPointer,
+                 "Subtracting non-heap pointer");
+    debug_assert(p2.type == BRILValue::Type::HeapPointer,
+                 "Subtracting non-heap pointer");
     const size_t idx1 = p1.heap_idx;
     const size_t idx2 = p2.heap_idx;
     const size_t offset1 = p1.heap_offset;
     const size_t offset2 = p2.heap_offset;
-    runtime_assert(idx1 < heap_memory.size(), "Invalid heap index");
-    runtime_assert(idx2 < heap_memory.size(), "Invalid heap index");
-    runtime_assert(idx1 == idx2, "Subtracting pointers to different objects");
+    debug_assert(idx1 < heap_memory.size(), "Invalid heap index");
+    debug_assert(idx2 < heap_memory.size(), "Invalid heap index");
+    debug_assert(idx1 == idx2, "Subtracting pointers to different objects");
     return offset1 - offset2;
   }
 };

@@ -71,9 +71,9 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
   std::string current_block = graph.entry_label;
   while (true) {
     // 1. Get the current instruction
-    runtime_assert(instruction_idx <
-                       graph.get_block(current_block).instructions.size(),
-                   "Instruction idx out of range");
+    debug_assert(instruction_idx <
+                     graph.get_block(current_block).instructions.size(),
+                 "Instruction idx out of range");
     const auto &instruction =
         graph.get_block(current_block).instructions[instruction_idx];
     // std::cerr << "(" << graph.name << ":" << current_block << ":"
@@ -84,8 +84,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     if (instruction.opcode != Opcode::Label)
       ++num_dynamic_instructions;
     if (instruction_idx >= graph.get_block(current_block).instructions.size())
-      runtime_assert(instruction.is_jump(),
-                     "Last instruction in block must be jump");
+      debug_assert(instruction.is_jump(),
+                   "Last instruction in block must be jump");
 
     // 3. Interpret the instruction
     const std::string destination = instruction.destination;
@@ -206,7 +206,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
         context.write_raw_pointer(destination, instruction.value);
       } break;
       default:
-        runtime_assert(false, "Invalid type for const instruction");
+        debug_assert(false, "Invalid type for const instruction");
       }
     } break;
 
@@ -227,7 +227,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     // Memory instructions
     case Opcode::Alloc: {
       const int size = context.get_int(instruction.arguments[0]);
-      runtime_assert(size >= 0, "Allocation size must be non-negative");
+      debug_assert(size >= 0, "Allocation size must be non-negative");
       const BRILValue result = context.alloc(size);
       context.write_value(instruction.destination, result);
     } break;
@@ -282,8 +282,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Phi: {
       // std::cerr << "Last block: " << last_block << std::endl;
-      runtime_assert(last_block != "",
-                     "Reached phi instruction before any jumps or branches");
+      debug_assert(last_block != "",
+                   "Reached phi instruction before any jumps or branches");
       bool done = false;
       for (size_t i = 0; i < instruction.labels.size() && !done; ++i) {
         if (instruction.labels[i] == last_block) {
@@ -293,7 +293,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
           done = true;
         }
       }
-      runtime_assert(done, "No matching label for phi instruction");
+      debug_assert(done, "No matching label for phi instruction");
     } break;
 
     default:

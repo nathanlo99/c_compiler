@@ -8,14 +8,16 @@
 #include <string>
 #include <vector>
 
-[[maybe_unused]] static void runtime_assert(const bool expr,
-                                            const std::string &message) {
-  if (!expr)
-    throw std::runtime_error(message);
-}
+#include "assert.hpp"
+
+// [[maybe_unused]] static void debug_assert(const bool expr,
+//                                           const std::string &message) {
+//   if (!expr)
+//     throw std::runtime_error(message);
+// }
 
 [[maybe_unused]] static void unreachable(const std::string &message) {
-  runtime_assert(false, "Should be unreachable: " + message);
+  debug_assert(false, "Should be unreachable: " + message);
   __builtin_unreachable();
 }
 

@@ -25,8 +25,7 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
         continue;
       if (read_registers.count(written_register.value()) == 0) {
         if (instructions[i].opcode == ::Opcode::Lis) {
-          runtime_assert(i + 1 < instructions.size(),
-                         "Lis not followed by word");
+          debug_assert(i + 1 < instructions.size(), "Lis not followed by word");
           instructions[i + 1] = MIPSInstruction::comment("^");
         }
         instructions[i] =
@@ -88,7 +87,7 @@ bool BRILToMIPSGenerator::remove_locally_unused_writes() {
 
     if (!read) {
       if (instructions[i].opcode == ::Opcode::Lis) {
-        runtime_assert(i + 1 < instructions.size(), "Lis not followed by word");
+        debug_assert(i + 1 < instructions.size(), "Lis not followed by word");
         instructions[i + 1] = MIPSInstruction::comment("^");
       }
       instructions[i] = MIPSInstruction::comment(

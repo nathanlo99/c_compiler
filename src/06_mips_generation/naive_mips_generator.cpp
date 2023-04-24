@@ -182,7 +182,7 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
     mod(3, 5, 3);
     break;
   default:
-    runtime_assert(false, "Unknown binary operation");
+    debug_assert(false, "Unknown binary operation");
   }
 }
 

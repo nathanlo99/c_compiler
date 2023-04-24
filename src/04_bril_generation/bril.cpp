@@ -66,8 +66,8 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
 
   for_each_block([&](const Block &block) {
     for (const auto &exit_label : block.exit_labels) {
-      runtime_assert(blocks.count(exit_label) > 0,
-                     "Exit label " + exit_label + " not found in label map");
+      debug_assert(blocks.count(exit_label) > 0,
+                   "Exit label " + exit_label + " not found in label map");
       add_edge(block.entry_label, exit_label);
     }
   });
@@ -120,12 +120,12 @@ void ControlFlowGraph::add_edge(const std::string &source,
 
 void ControlFlowGraph::remove_edge(const std::string &source,
                                    const std::string &target) {
-  runtime_assert(blocks.count(source) > 0, "No block with label " + source);
-  runtime_assert(blocks.count(target) > 0, "No block with label " + target);
-  runtime_assert(get_block(source).outgoing_blocks.count(target) > 0,
-                 "No edge between '" + source + "' and '" + target + "'");
-  runtime_assert(get_block(target).incoming_blocks.count(source) > 0,
-                 "No edge between '" + source + "' and '" + target + "'");
+  debug_assert(blocks.count(source) > 0, "No block with label " + source);
+  debug_assert(blocks.count(target) > 0, "No block with label " + target);
+  debug_assert(get_block(source).outgoing_blocks.count(target) > 0,
+               "No edge between '" + source + "' and '" + target + "'");
+  debug_assert(get_block(target).incoming_blocks.count(source) > 0,
+               "No edge between '" + source + "' and '" + target + "'");
 
   get_block(source).outgoing_blocks.erase(target);
   get_block(target).incoming_blocks.erase(source);
@@ -141,17 +141,17 @@ void ControlFlowGraph::add_block(const Block &block) {
 
 void ControlFlowGraph::remove_block(const std::string &block_label) {
   std::cerr << "Removing block " << block_label << std::endl;
-  runtime_assert(blocks.count(block_label) > 0,
-                 "No block with label " + block_label);
+  debug_assert(blocks.count(block_label) > 0,
+               "No block with label " + block_label);
 
   // If there are any jumps with this block as a target, throw an exception
   for_each_instruction([&](const Instruction &instruction) {
     if (!instruction.is_jump())
       return;
     for (const auto &exit_label : instruction.labels) {
-      runtime_assert(exit_label != block_label,
-                     "Cannot remove block " + block_label +
-                         " because it is the target of a jump instruction");
+      debug_assert(exit_label != block_label,
+                   "Cannot remove block " + block_label +
+                       " because it is the target of a jump instruction");
     }
   });
 
@@ -173,8 +173,8 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
 
   // Graph bookkeeping
   const Block block = get_block(block_label);
-  runtime_assert(block.incoming_blocks.empty(),
-                 "Cannot remove block with incoming edges");
+  debug_assert(block.incoming_blocks.empty(),
+               "Cannot remove block with incoming edges");
   for (const auto &outgoing_block : block.outgoing_blocks) {
     get_block(outgoing_block).incoming_blocks.erase(block_label);
     is_graph_dirty = true;
@@ -194,25 +194,25 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
 void ControlFlowGraph::combine_blocks(const std::string &source,
                                       const std::string &target) {
   std::cerr << "Combining blocks " << source << " and " << target << std::endl;
-  runtime_assert(blocks.count(source) > 0, "No block with label " + source);
-  runtime_assert(blocks.count(target) > 0, "No block with label " + target);
+  debug_assert(blocks.count(source) > 0, "No block with label " + source);
+  debug_assert(blocks.count(target) > 0, "No block with label " + target);
   auto &source_block = get_block(source);
   auto &target_block = get_block(target);
-  runtime_assert(source_block.outgoing_blocks.count(target) > 0,
-                 "No edge between '" + source + "' and '" + target + "'");
-  runtime_assert(target_block.incoming_blocks.count(source) > 0,
-                 "No edge between '" + source + "' and '" + target + "'");
-  runtime_assert(source_block.outgoing_blocks.size() == 1,
-                 "Source block has multiple exit labels");
-  runtime_assert(target_block.incoming_blocks.size() == 1,
-                 "Target block has multiple incoming blocks");
+  debug_assert(source_block.outgoing_blocks.count(target) > 0,
+               "No edge between '" + source + "' and '" + target + "'");
+  debug_assert(target_block.incoming_blocks.count(source) > 0,
+               "No edge between '" + source + "' and '" + target + "'");
+  debug_assert(source_block.outgoing_blocks.size() == 1,
+               "Source block has multiple exit labels");
+  debug_assert(target_block.incoming_blocks.size() == 1,
+               "Target block has multiple incoming blocks");
 
   // Make sure the last instruction in the source block is a jump to target
   const auto last_instruction = source_block.instructions.back();
-  runtime_assert(last_instruction.is_jump(),
-                 "Last instruction in source block is not a jump");
-  runtime_assert(last_instruction.labels[0] == target,
-                 "Jump in source block does not target target block");
+  debug_assert(last_instruction.is_jump(),
+               "Last instruction in source block is not a jump");
+  debug_assert(last_instruction.labels[0] == target,
+               "Jump in source block does not target target block");
 
   // We want to keep the source block, so we remove the last instruction (which
   // must be a jump), and add the instructions from the target block
@@ -223,10 +223,10 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
     } else if (instruction.opcode == Opcode::Phi) {
       // If we encounter a phi node in the target block, it should only have
       // one argument, so we can just replace it with the argument
-      runtime_assert(instruction.arguments.size() == 1,
-                     "Phi node in target block has multiple arguments");
-      runtime_assert(instruction.labels == std::vector<std::string>({source}),
-                     "Phi node in target block has the wrong labels");
+      debug_assert(instruction.arguments.size() == 1,
+                   "Phi node in target block has multiple arguments");
+      debug_assert(instruction.labels == std::vector<std::string>({source}),
+                   "Phi node in target block has the wrong labels");
       const std::string &argument = instruction.arguments[0];
       source_block.instructions.push_back(
           Instruction::id(instruction.destination, argument, instruction.type));
@@ -254,11 +254,11 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
 std::string ControlFlowGraph::split_block(const std::string &block_label,
                                           const size_t instruction_idx,
                                           const std::string &new_label_hint) {
-  runtime_assert(blocks.count(block_label) > 0,
-                 "No block with label " + block_label);
+  debug_assert(blocks.count(block_label) > 0,
+               "No block with label " + block_label);
   auto &block = get_block(block_label);
-  runtime_assert(instruction_idx < block.instructions.size(),
-                 "Cannot split block at the last instruction");
+  debug_assert(instruction_idx < block.instructions.size(),
+               "Cannot split block at the last instruction");
 
   // Create a new block
   std::string new_block_label = get_fresh_label(new_label_hint);
@@ -287,11 +287,10 @@ void ControlFlowGraph::rename_label(const std::string &old_label,
                                     const std::string &new_label) {
   if (old_label == new_label)
     return;
-  runtime_assert(blocks.count(old_label) > 0,
-                 "Cannot rename non-existent label '" + old_label + "'");
-  runtime_assert(blocks.count(new_label) == 0,
-                 "Cannot rename label to an existing label '" + new_label +
-                     "'");
+  debug_assert(blocks.count(old_label) > 0,
+               "Cannot rename non-existent label '" + old_label + "'");
+  debug_assert(blocks.count(new_label) == 0,
+               "Cannot rename label to an existing label '" + new_label + "'");
   if (entry_label == old_label)
     entry_label = new_label;
 
@@ -416,8 +415,8 @@ std::string
 ControlFlowGraph::immediate_dominator(const std::string &label) const {
   if (immediate_dominators.count(label) == 0)
     return "(none)";
-  runtime_assert(immediate_dominators.count(label) > 0,
-                 "No immediate dominator for label " + label);
+  debug_assert(immediate_dominators.count(label) > 0,
+               "No immediate dominator for label " + label);
   return immediate_dominators.at(label);
 }
 

@@ -261,9 +261,9 @@ token_to_comparison_operation(const TokenKind operation) {
   case TokenKind::Ne:
     return ComparisonOperation::NotEqual;
   default:
-    runtime_assert(false, "Could not convert invalid type " +
-                              token_kind_to_string(operation) +
-                              " to comparison operation");
+    debug_assert(false, "Could not convert invalid type " +
+                            token_kind_to_string(operation) +
+                            " to comparison operation");
   }
   __builtin_unreachable();
 }
@@ -309,9 +309,9 @@ token_to_binary_operation(const TokenKind operation) {
   case TokenKind::Pct:
     return BinaryOperation::Mod;
   default:
-    runtime_assert(false, "Could not convert invalid type " +
-                              token_kind_to_string(operation) +
-                              " to binary operation");
+    debug_assert(false, "Could not convert invalid type " +
+                            token_kind_to_string(operation) +
+                            " to binary operation");
   }
   __builtin_unreachable();
 }
@@ -528,7 +528,7 @@ std::shared_ptr<Target> construct_ast(const std::shared_ptr<ParseNode> &node) {
     std::cerr << "BAD:" << std::endl;
     ast->print(0);
   }
-  runtime_assert(result != nullptr,
-                 "Unexpected AST node type: " + ast->node_type());
+  debug_assert(result != nullptr,
+               "Unexpected AST node type: " + ast->node_type());
   return result;
 }

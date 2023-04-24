@@ -12,8 +12,8 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
                                    const std::vector<size_t> &arguments,
                                    const Type type)
     : opcode(opcode), arguments(arguments), type(type) {
-  runtime_assert(opcode != Opcode::Const,
-                 "Const LVN should use other constructor");
+  debug_assert(opcode != Opcode::Const,
+               "Const LVN should use other constructor");
   // Operations OP for which [a OP b === b OP a], we canonicalize the arguments
   static const std::set<Opcode> commutative_operations = {
       Opcode::Add,
@@ -30,12 +30,12 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
 
   // Canonicalize arguments of commutative operations
   if (commutative_operations.count(opcode) > 0) {
-    runtime_assert(this->arguments.size() == 2,
-                   "Expected binary expression in commutative operation");
+    debug_assert(this->arguments.size() == 2,
+                 "Expected binary expression in commutative operation");
     std::sort(this->arguments.begin(), this->arguments.end());
   } else if (switch_order.count(opcode) > 0) {
-    runtime_assert(this->arguments.size() == 2,
-                   "Expected binary expression in switchable LVN");
+    debug_assert(this->arguments.size() == 2,
+                 "Expected binary expression in switchable LVN");
     const auto switched_opcode = switch_order.at(opcode);
     this->opcode = switched_opcode;
     std::swap(this->arguments[0], this->arguments[1]);
@@ -85,8 +85,8 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
     return value.value;
   if (foldable_ops.count(value.opcode) == 0)
     return std::nullopt;
-  runtime_assert(value.arguments.size() == 2,
-                 "Expected foldable opcode to have two arguments");
+  debug_assert(value.arguments.size() == 2,
+               "Expected foldable opcode to have two arguments");
 
   const LocalValueNumber lhs_value = values[value.arguments[0]];
   const LocalValueNumber rhs_value = values[value.arguments[1]];
@@ -152,8 +152,8 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
 }
 
 std::string LocalValueTable::canonical_name(const std::string &variable) const {
-  runtime_assert(env.count(variable) > 0,
-                 "Variable " + variable + " was not present in the table");
+  debug_assert(env.count(variable) > 0,
+               "Variable " + variable + " was not present in the table");
   const size_t idx = env.at(variable);
   return canonical_variables[idx];
 }
@@ -242,8 +242,8 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
         std::cerr << "LVN: Resolving the branch " << instruction
                   << " since the condition is always "
                   << (cond_value_bool ? "true" : "false") << std::endl;
-        runtime_assert(instruction.labels.size() == 2,
-                       "Branch instruction should have 2 labels");
+        debug_assert(instruction.labels.size() == 2,
+                     "Branch instruction should have 2 labels");
         const std::string target = instruction.labels[cond_value_bool ? 0 : 1];
 
         instruction = bril::Instruction::jmp(target);
@@ -256,8 +256,8 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
     // Construct value
     std::vector<size_t> arguments;
     for (const auto &argument : instruction.arguments) {
-      runtime_assert(table.env.count(argument) > 0,
-                     "Argument " + argument + " not found in env");
+      debug_assert(table.env.count(argument) > 0,
+                   "Argument " + argument + " not found in env");
       arguments.push_back(table.env.at(argument));
     }
     const LocalValueNumber value =
@@ -284,9 +284,9 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
 
     if (instruction.destination != "") {
       const std::string original_destination = instruction.destination;
-      runtime_assert(table.last_write.count(original_destination) > 0,
-                     "Destination " + original_destination +
-                         " not in last_write");
+      debug_assert(table.last_write.count(original_destination) > 0,
+                   "Destination " + original_destination +
+                       " not in last_write");
       const bool dest_overwritten =
           table.last_write.at(original_destination) > i;
 

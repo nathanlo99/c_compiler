@@ -13,28 +13,26 @@ void Program::inline_function_call(const std::string &function_name,
                                    const size_t instruction_idx) {
   auto &function = get_function(function_name);
   auto &block = function.get_block(block_label);
-  runtime_assert(instruction_idx < block.instructions.size(),
-                 "Instruction index out of bounds");
+  debug_assert(instruction_idx < block.instructions.size(),
+               "Instruction index out of bounds");
   const auto instruction = block.instructions[instruction_idx];
-  runtime_assert(instruction.opcode == Opcode::Call,
-                 "Instruction is not a call");
+  debug_assert(instruction.opcode == Opcode::Call, "Instruction is not a call");
   const std::string called_function_name = instruction.funcs[0];
-  runtime_assert(called_function_name != function_name,
-                 "Cannot inline a function into itself");
+  debug_assert(called_function_name != function_name,
+               "Cannot inline a function into itself");
 
   // Make sure the called function has an expected form: its entry block should
   // appear first, and it should have a single exit block, which appears last in
   // the list of block labels
   const auto &called_function = get_function(called_function_name);
-  runtime_assert(called_function.block_labels[0] == called_function.entry_label,
-                 "Called function does not start with its entry block");
-  runtime_assert(called_function.exiting_blocks ==
-                     std::set<std::string>{called_function.block_labels.back()},
-                 "Called function does not end with its unique exit block");
-  runtime_assert(instruction.arguments.size() ==
-                     called_function.arguments.size(),
-                 "Called function has different number of arguments than call "
-                 "instruction");
+  debug_assert(called_function.block_labels[0] == called_function.entry_label,
+               "Called function does not start with its entry block");
+  debug_assert(called_function.exiting_blocks ==
+                   std::set<std::string>{called_function.block_labels.back()},
+               "Called function does not end with its unique exit block");
+  debug_assert(instruction.arguments.size() == called_function.arguments.size(),
+               "Called function has different number of arguments than call "
+               "instruction");
 
   std::cerr << "Inlining function call to " << called_function_name
             << std::endl;
@@ -100,13 +98,13 @@ void Program::inline_function_call(const std::string &function_name,
     }
   };
   const auto get_renamed_variable = [&](const std::string &name) {
-    runtime_assert(renamed_variables.count(name) > 0,
-                   "Variable " + name + " not renamed");
+    debug_assert(renamed_variables.count(name) > 0,
+                 "Variable " + name + " not renamed");
     return renamed_variables.at(name);
   };
   const auto get_renamed_label = [&](const std::string &name) {
-    runtime_assert(renamed_labels.count(name) > 0,
-                   "Label " + name + " not renamed");
+    debug_assert(renamed_labels.count(name) > 0,
+                 "Label " + name + " not renamed");
     return renamed_labels.at(name);
   };
 
@@ -140,8 +138,8 @@ void Program::inline_function_call(const std::string &function_name,
   std::string return_variable = "(unknown)";
   called_function.for_each_instruction([&](const Instruction &instruction) {
     if (instruction.opcode == Opcode::Ret) {
-      runtime_assert(return_variable == "(unknown)",
-                     "Called function has multiple return instructions");
+      debug_assert(return_variable == "(unknown)",
+                   "Called function has multiple return instructions");
       return_variable = instruction.arguments[0];
     }
   });
@@ -176,13 +174,13 @@ void Program::inline_function_call(const std::string &function_name,
     block_idx++;
   }
 
-  runtime_assert(return_variable != "(unknown)",
-                 "Called function does not have a return instruction");
+  debug_assert(return_variable != "(unknown)",
+               "Called function does not have a return instruction");
   auto &exit_block = function.get_block(inline_exit_label);
   auto &calling_instruction = exit_block.instructions[1];
-  runtime_assert(calling_instruction.opcode == Opcode::Call &&
-                     calling_instruction.funcs[0] == called_function_name,
-                 "Expected exit block to start with the inlining call");
+  debug_assert(calling_instruction.opcode == Opcode::Call &&
+                   calling_instruction.funcs[0] == called_function_name,
+               "Expected exit block to start with the inlining call");
   calling_instruction = Instruction::id(calling_instruction.destination,
                                         renamed_variables.at(return_variable),
                                         called_function.return_type);

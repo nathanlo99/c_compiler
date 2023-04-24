@@ -18,12 +18,12 @@ struct GVNValue {
   GVNValue(const Opcode _opcode, const std::vector<size_t> &_arguments,
            const std::vector<std::string> &labels, const Type type)
       : opcode(_opcode), arguments(_arguments), labels(labels), type(type) {
-    runtime_assert(opcode != Opcode::Const,
-                   "Constant GVNValue should use other constructor");
-    runtime_assert(opcode != Opcode::Call, "Cannot create GVNValue for call");
+    debug_assert(opcode != Opcode::Const,
+                 "Constant GVNValue should use other constructor");
+    debug_assert(opcode != Opcode::Call, "Cannot create GVNValue for call");
 
     if (opcode != Opcode::Phi)
-      runtime_assert(labels.empty(), "Labels should only be used for phis");
+      debug_assert(labels.empty(), "Labels should only be used for phis");
 
     // If the operation is commutative, sort the arguments
     static const std::set<Opcode> commutative_ops = {
@@ -38,15 +38,15 @@ struct GVNValue {
     };
 
     if (commutative_ops.count(opcode) > 0) {
-      runtime_assert(arguments.size() == 2, "Expected binary operation");
+      debug_assert(arguments.size() == 2, "Expected binary operation");
       std::sort(arguments.begin(), arguments.end());
     } else if (switchable_ops.count(opcode) > 0) {
-      runtime_assert(arguments.size() == 2, "Expected binary operation");
+      debug_assert(arguments.size() == 2, "Expected binary operation");
       std::swap(arguments[0], arguments[1]);
       opcode = switchable_ops.at(opcode);
     } else if (opcode == Opcode::Phi) {
-      runtime_assert(arguments.size() == labels.size(),
-                     "Arguments and labels should be the same size");
+      debug_assert(arguments.size() == labels.size(),
+                   "Arguments and labels should be the same size");
       // Sort the labels but maintain the same order for the arguments
       std::vector<std::pair<std::string, size_t>> pairs;
       pairs.reserve(labels.size());
@@ -121,8 +121,8 @@ struct GVNTable {
   GVNValue simplify(const GVNValue &value) const;
 
   size_t query_variable(const std::string &variable) const {
-    runtime_assert(variable_to_value_number.count(variable) > 0,
-                   "Variable " + variable + " not found in GVNTable");
+    debug_assert(variable_to_value_number.count(variable) > 0,
+                 "Variable " + variable + " not found in GVNTable");
     return variable_to_value_number.at(variable);
   }
 
@@ -169,10 +169,10 @@ struct GlobalValueNumberingPass {
   GlobalValueNumberingPass(ControlFlowGraph &function) : function(function) {}
 
   void run_pass() {
-    runtime_assert(function.is_in_ssa_form(),
-                   "Function passed to GVN must be in SSA form");
-    runtime_assert(!function.uses_pointers(),
-                   "Function passed to GVN must not use pointers");
+    debug_assert(function.is_in_ssa_form(),
+                 "Function passed to GVN must be in SSA form");
+    debug_assert(!function.uses_pointers(),
+                 "Function passed to GVN must not use pointers");
     table.insert_parameters(function.arguments);
     process_block(function.entry_label);
     function.recompute_graph();

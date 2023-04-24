@@ -114,8 +114,8 @@ void ControlFlowGraph::rename_variables(
     if (instruction.opcode == Opcode::Phi)
       continue;
     for (auto &argument : instruction.arguments) {
-      runtime_assert(definitions.count(argument) > 0,
-                     "Variable " + argument + " not defined");
+      debug_assert(definitions.count(argument) > 0,
+                   "Variable " + argument + " not defined");
       argument = definitions[argument].back();
     }
     if (instruction.destination != "") {
@@ -135,8 +135,8 @@ void ControlFlowGraph::rename_variables(
       const std::string &target_label = block_label;
       const auto it = std::find(instruction.labels.begin(),
                                 instruction.labels.end(), target_label);
-      runtime_assert(it != instruction.labels.end(),
-                     "Label " + target_label + " not found in phi node");
+      debug_assert(it != instruction.labels.end(),
+                   "Label " + target_label + " not found in phi node");
       const size_t idx = it - instruction.labels.begin();
       const std::string old_argument = instruction.arguments[idx];
       if (definitions[old_argument].empty()) {

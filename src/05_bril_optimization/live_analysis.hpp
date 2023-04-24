@@ -157,10 +157,16 @@ struct VariableLocation {
                                   const VariableLocation &location) {
     switch (location.type) {
     case Type::Register:
-      return os << "$" << location.reg;
+      os << "$" << location.reg;
+      break;
     case Type::Stack:
-      return os << location.offset << "($BP)";
+      os << location.offset << "($BP)";
+      break;
+    default:
+      debug_assert(false, "Invalid location type", location);
+      break;
     }
+    return os;
   }
 };
 
@@ -183,13 +189,13 @@ struct RegisterAllocation {
     return spilled_variables.count(variable) > 0;
   }
   size_t get_register(const std::string &variable) const {
-    runtime_assert(in_register(variable),
-                   "Variable " + variable + " is not in a register");
+    debug_assert(in_register(variable),
+                 "Variable " + variable + " is not in a register");
     return register_allocation.at(variable);
   }
   int get_offset(const std::string &variable) const {
-    runtime_assert(is_spilled(variable),
-                   "Variable " + variable + " is not spilled");
+    debug_assert(is_spilled(variable),
+                 "Variable " + variable + " is not spilled");
     return spilled_variables.at(variable);
   }
 

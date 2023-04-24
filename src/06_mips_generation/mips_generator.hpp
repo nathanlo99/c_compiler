@@ -10,7 +10,7 @@ struct MIPSGenerator {
   bool constants_init = false;
 
   void annotate(const std::string &comment) {
-    runtime_assert(instructions.size() > 0, "No instructions to annotate");
+    debug_assert(instructions.size() > 0, "No instructions to annotate");
     instructions.back().comment_value = comment;
   }
 

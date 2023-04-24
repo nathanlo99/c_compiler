@@ -421,7 +421,7 @@ void debug(const std::string &filename) {
 
 int main(int argc, char **argv) {
   try {
-    runtime_assert(argc == 3, "Expected a filename and an option");
+    VERIFY(argc == 3, "Expected a filename and an option");
     const std::string argument = argv[2], filename = argv[1];
 
     const std::map<std::string, std::function<void(const std::string &)>>
@@ -462,7 +462,7 @@ int main(int argc, char **argv) {
     Timer::stop("Total");
 
     Timer::print(std::cerr);
-  } catch (const std::exception &e) {
+  } catch (const libassert::verification_failure &e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 1;
   }

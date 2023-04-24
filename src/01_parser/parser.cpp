@@ -17,8 +17,7 @@ ContextFreeGrammar load_grammar_from_file(const std::string &filename) {
     if (line.size() > 0 && line[0] == '#')
       continue;
     const auto tokens = util::split(line);
-    runtime_assert(tokens.size() >= 2 && tokens[1] == "->",
-                   "Invalid production");
+    debug_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid production");
     const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
                                                tokens.end());
@@ -35,7 +34,7 @@ ContextFreeGrammar load_default_grammar() {
     if (line.size() > 0 && line[0] == '#')
       continue;
     const auto tokens = util::split(line);
-    runtime_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
+    debug_assert(tokens.size() >= 2 && tokens[1] == "->", "Invalid CFG line");
     const std::string &product = tokens[0];
     const std::vector<std::string> ingredients(tokens.begin() + 2,
                                                tokens.end());
@@ -182,8 +181,8 @@ void EarleyTable::scan(const size_t i, const size_t j,
 void EarleyTable::report_error(const size_t i) const {
   std::stringstream ss;
   if (i == 0) {
-    runtime_assert(false, "Unexpected token of type " +
-                              token_kind_to_string(token_stream[i].kind));
+    debug_assert(false, "Unexpected token of type " +
+                            token_kind_to_string(token_stream[i].kind));
     return;
   }
 
@@ -217,7 +216,7 @@ void EarleyTable::report_error(const size_t i) const {
   }
   ss << "     ";
 
-  runtime_assert(false, ss.str());
+  debug_assert(false, ss.str());
 }
 
 EarleyTable
@@ -309,9 +308,9 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
         child_candidate = construct_parse_tree(idx, last_idx, ingredient);
       } else {
         const Token token = token_stream[idx];
-        runtime_assert(token_kind_to_string(token.kind) == ingredient,
-                       "Expected token type " + ingredient + ", got " +
-                           token_kind_to_string(token.kind));
+        debug_assert(token_kind_to_string(token.kind) == ingredient,
+                     "Expected token type " + ingredient + ", got " +
+                         token_kind_to_string(token.kind));
         child_candidate = std::make_shared<ParseNode>(token);
       }
       if (child_candidate == nullptr)
@@ -335,7 +334,7 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
 std::shared_ptr<ParseNode> EarleyTable::to_parse_tree() const {
   auto parse_tree =
       construct_parse_tree(0, data.size() - 1, grammar.start_symbol);
-  runtime_assert(parse_tree->tokens() == token_stream,
-                 "Bad parse: some tokens were missing");
+  debug_assert(parse_tree->tokens() == token_stream,
+               "Bad parse: some tokens were missing");
   return parse_tree;
 }

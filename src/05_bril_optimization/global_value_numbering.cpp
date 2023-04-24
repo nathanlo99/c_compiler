@@ -32,7 +32,7 @@ std::pair<size_t, size_t> GVNTable::get_complexity_key(const size_t idx) const {
 }
 
 Opcode GVNTable::get_opcode(const size_t idx) const {
-  runtime_assert(idx < expressions.size(), "Invalid index");
+  debug_assert(idx < expressions.size(), "Invalid index");
   return expressions[idx].opcode;
 }
 

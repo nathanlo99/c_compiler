@@ -56,9 +56,8 @@ struct ProcedureTable {
   }
 
   Type get_variable_type(const Variable &variable) const {
-    runtime_assert(types.count(variable.name) > 0, "Unknown variable " +
-                                                       variable.name +
-                                                       " in procedure " + name);
+    debug_assert(types.count(variable.name) > 0,
+                 "Unknown variable " + variable.name + " in procedure " + name);
     return types.at(variable.name);
   }
 
@@ -99,11 +98,11 @@ struct SymbolTable {
   }
 
   ProcedureTable &get_table(const std::string &name) {
-    runtime_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
+    debug_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
     return tables.at(name);
   }
   const ProcedureTable &get_table(const std::string &name) const {
-    runtime_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
+    debug_assert(tables.count(name) > 0, "Unknown procedure '" + name + "'");
     return tables.at(name);
   }
 

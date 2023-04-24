@@ -7,8 +7,8 @@
 
 Type parse_node_to_type(const std::shared_ptr<ParseNode> &node) {
   const std::string production_str = node->production.to_string();
-  runtime_assert(node->production.product == "type",
-                 "Argument to parse_node_to_type was not derived from 'type'");
+  debug_assert(node->production.product == "type",
+               "Argument to parse_node_to_type was not derived from 'type'");
   if (production_str == "type -> INT")
     return Type::Int;
   if (production_str == "type -> INT STAR")
@@ -179,8 +179,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                    std::dynamic_pointer_cast<VariableLValueExpr>(rhs)) {
       return std::make_shared<AddressOfExpr>(variable_node);
     } else {
-      runtime_assert(false, "lvalue argument to address-of operator was "
-                            "neither dereference nor variable");
+      debug_assert(false, "lvalue argument to address-of operator was "
+                          "neither dereference nor variable");
     }
   } else if (production_str == "factor -> STAR factor") {
     const auto rhs = construct_ast<Expr>(node->children[1]);

@@ -353,7 +353,7 @@ public:
     case Opcode::Comment:
       break;
     default:
-      runtime_assert(false, "Invalid opcode");
+      debug_assert(false, "Invalid opcode");
     }
 
     const int padding =

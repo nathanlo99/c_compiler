@@ -23,16 +23,16 @@ public:
     return start_times.count(name) > 0 && end_times.count(name) == 0;
   }
   static void start(const std::string &name) {
-    runtime_assert(start_times.count(name) == 0,
-                   "Timer '" + name + "' already started");
+    debug_assert(start_times.count(name) == 0,
+                 "Timer '" + name + "' already started");
     start_times[name] = get_time_ms();
     names.push_back(name);
   }
   static void stop(const std::string &name) {
-    runtime_assert(start_times.count(name) > 0,
-                   "Timer '" + name + "' not started");
-    runtime_assert(end_times.count(name) == 0,
-                   "Timer '" + name + "' already ended");
+    debug_assert(start_times.count(name) > 0,
+                 "Timer '" + name + "' not started");
+    debug_assert(end_times.count(name) == 0,
+                 "Timer '" + name + "' already ended");
     end_times[name] = get_time_ms();
   }
 

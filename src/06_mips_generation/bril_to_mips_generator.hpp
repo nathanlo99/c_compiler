@@ -59,8 +59,8 @@ private:
       } else if (source_location.in_memory()) {
         from_memory.push_back(i);
       } else {
-        runtime_assert(register_graph.count(target_location.reg) == 0,
-                       "Register graph has multiple edges");
+        debug_assert(register_graph.count(target_location.reg) == 0,
+                     "Register graph has multiple edges");
         register_graph[target_location.reg] = source_location.reg;
         sink_nodes.insert(target_location.reg);
       }
@@ -273,9 +273,9 @@ private:
     if (allocation.in_register(argument)) {
       return allocation.get_register(argument);
     } else {
-      runtime_assert(allocation.is_spilled(argument),
-                     "Variable " + argument +
-                         " is not in a register nor on the stack");
+      debug_assert(allocation.is_spilled(argument),
+                   "Variable " + argument +
+                       " is not in a register nor on the stack");
       const int offset = allocation.get_offset(argument);
       lw(temp_reg, offset, 29);
       annotate("Loading variable " + argument + " from offset " +
@@ -656,8 +656,8 @@ private:
     case Opcode::AddressOf: {
       const std::string &var = instruction.arguments[0];
       const size_t dest_reg = get_register(tmp1, dest, allocation);
-      runtime_assert(allocation.is_spilled(var),
-                     "Addressed variable " + var + " is not in memory");
+      debug_assert(allocation.is_spilled(var),
+                   "Addressed variable " + var + " is not in memory");
       const int offset = allocation.get_offset(var);
       add_const(dest_reg, 29, offset, tmp1);
       store_variable(dest, dest_reg, allocation);
