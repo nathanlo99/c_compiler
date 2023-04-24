@@ -1,310 +1,310 @@
-INT (int)
-ID (isPrime)
-LPAREN (()
-INT (int)
-ID (n)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (i)
-BECOMES (=)
-NUM (2)
-SEMI (;)
-INT (int)
-ID (answer)
-BECOMES (=)
-NUM (1)
-SEMI (;)
-INT (int)
-ID (continueLooping)
-BECOMES (=)
-NUM (1)
-SEMI (;)
-IF (if)
-LPAREN (()
-ID (n)
-LE (<=)
-NUM (3)
-RPAREN ())
-LBRACE ({)
-ID (continueLooping)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-RBRACE (})
-WHILE (while)
-LPAREN (()
-ID (continueLooping)
-NE (!=)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-IF (if)
-LPAREN (()
-ID (n)
-PCT (%)
-ID (i)
-EQ (==)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-ID (answer)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-RBRACE (})
-ID (i)
-BECOMES (=)
-ID (i)
-PLUS (+)
-NUM (1)
-SEMI (;)
-IF (if)
-LPAREN (()
-ID (i)
-STAR (*)
-ID (i)
-GT (>)
-ID (n)
-RPAREN ())
-LBRACE ({)
-ID (continueLooping)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-RBRACE (})
-ELSE (else)
-LBRACE ({)
-IF (if)
-LPAREN (()
-ID (answer)
-EQ (==)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-ID (continueLooping)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-RBRACE (})
-RBRACE (})
-RBRACE (})
-RETURN (return)
-ID (answer)
-SEMI (;)
-RBRACE (})
-INT (int)
-ID (collatz)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (num)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (value)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-ID (value)
-BECOMES (=)
-STAR (*)
-ID (num)
-SEMI (;)
-IF (if)
-LPAREN (()
-ID (value)
-GE (>=)
-NUM (2)
-RPAREN ())
-LBRACE ({)
-IF (if)
-LPAREN (()
-ID (value)
-PCT (%)
-NUM (2)
-NE (!=)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-STAR (*)
-ID (num)
-BECOMES (=)
-NUM (3)
-STAR (*)
-ID (value)
-PLUS (+)
-NUM (2)
-MINUS (-)
-NUM (1)
-SEMI (;)
-RBRACE (})
-ELSE (else)
-LBRACE ({)
-STAR (*)
-ID (num)
-BECOMES (=)
-ID (value)
-SLASH (/)
-NUM (2)
-SEMI (;)
-RBRACE (})
-RBRACE (})
-ELSE (else)
-LBRACE ({)
-STAR (*)
-ID (num)
-BECOMES (=)
-NUM (1)
-SEMI (;)
-RBRACE (})
-RETURN (return)
-NUM (0)
-SEMI (;)
-RBRACE (})
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-ID (startNumber)
-COMMA (,)
-INT (int)
-ID (numPrimes)
-RPAREN ())
-LBRACE ({)
-INT (int)
-STAR (*)
-ID (result)
-BECOMES (=)
-NULL (NULL)
-SEMI (;)
-INT (int)
-ID (idx)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-INT (int)
-ID (nextNumber)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-ID (result)
-BECOMES (=)
-NEW (new)
-INT (int)
-LBRACK ([)
-ID (numPrimes)
-RBRACK (])
-SEMI (;)
-ID (nextNumber)
-BECOMES (=)
-ID (startNumber)
-SEMI (;)
-WHILE (while)
-LPAREN (()
-ID (idx)
-LT (<)
-ID (numPrimes)
-RPAREN ())
-LBRACE ({)
-WHILE (while)
-LPAREN (()
-ID (isPrime)
-LPAREN (()
-ID (nextNumber)
-RPAREN ())
-EQ (==)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-ID (nextNumber)
-BECOMES (=)
-ID (nextNumber)
-PLUS (+)
-NUM (1)
-SEMI (;)
-RBRACE (})
-STAR (*)
-LPAREN (()
-ID (result)
-PLUS (+)
-ID (idx)
-RPAREN ())
-BECOMES (=)
-ID (nextNumber)
-SEMI (;)
-ID (nextNumber)
-BECOMES (=)
-ID (nextNumber)
-PLUS (+)
-NUM (1)
-SEMI (;)
-ID (idx)
-BECOMES (=)
-ID (idx)
-PLUS (+)
-NUM (1)
-SEMI (;)
-RBRACE (})
-ID (idx)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-WHILE (while)
-LPAREN (()
-ID (idx)
-LT (<)
-ID (numPrimes)
-RPAREN ())
-LBRACE ({)
-PRINTLN (println)
-LPAREN (()
-STAR (*)
-LPAREN (()
-ID (result)
-PLUS (+)
-ID (idx)
-RPAREN ())
-RPAREN ())
-SEMI (;)
-ID (idx)
-BECOMES (=)
-ID (idx)
-PLUS (+)
-NUM (1)
-SEMI (;)
-RBRACE (})
-ID (nextNumber)
-BECOMES (=)
-NUM (40)
-SEMI (;)
-WHILE (while)
-LPAREN (()
-ID (nextNumber)
-NE (!=)
-NUM (1)
-RPAREN ())
-LBRACE ({)
-PRINTLN (println)
-LPAREN (()
-ID (nextNumber)
-RPAREN ())
-SEMI (;)
-ID (idx)
-BECOMES (=)
-ID (collatz)
-LPAREN (()
-AMP (&)
-ID (nextNumber)
-RPAREN ())
-SEMI (;)
-RBRACE (})
-DELETE (delete)
-LBRACK ([)
-RBRACK (])
-ID (result)
-SEMI (;)
-RETURN (return)
-NUM (0)
-SEMI (;)
-RBRACE (})
+INT (int) at [2:1 - 2:3]
+ID (isPrime) at [2:5 - 2:11]
+LPAREN (() at [2:12 - 2:12]
+INT (int) at [2:13 - 2:15]
+ID (n) at [2:17 - 2:17]
+RPAREN ()) at [2:18 - 2:18]
+LBRACE ({) at [2:20 - 2:20]
+INT (int) at [3:3 - 3:5]
+ID (i) at [3:7 - 3:7]
+BECOMES (=) at [3:9 - 3:9]
+NUM (2) at [3:11 - 3:11]
+SEMI (;) at [3:12 - 3:12]
+INT (int) at [4:3 - 4:5]
+ID (answer) at [4:7 - 4:12]
+BECOMES (=) at [4:14 - 4:14]
+NUM (1) at [4:16 - 4:16]
+SEMI (;) at [4:17 - 4:17]
+INT (int) at [5:3 - 5:5]
+ID (continueLooping) at [5:7 - 5:21]
+BECOMES (=) at [5:23 - 5:23]
+NUM (1) at [5:25 - 5:25]
+SEMI (;) at [5:26 - 5:26]
+IF (if) at [7:3 - 7:4]
+LPAREN (() at [7:6 - 7:6]
+ID (n) at [7:7 - 7:7]
+LE (<=) at [7:9 - 7:10]
+NUM (3) at [7:12 - 7:12]
+RPAREN ()) at [7:13 - 7:13]
+LBRACE ({) at [7:15 - 7:15]
+ID (continueLooping) at [8:5 - 8:19]
+BECOMES (=) at [8:21 - 8:21]
+NUM (0) at [8:23 - 8:23]
+SEMI (;) at [8:24 - 8:24]
+RBRACE (}) at [9:3 - 9:3]
+WHILE (while) at [10:3 - 10:7]
+LPAREN (() at [10:9 - 10:9]
+ID (continueLooping) at [10:10 - 10:24]
+NE (!=) at [10:26 - 10:27]
+NUM (0) at [10:29 - 10:29]
+RPAREN ()) at [10:30 - 10:30]
+LBRACE ({) at [10:32 - 10:32]
+IF (if) at [11:5 - 11:6]
+LPAREN (() at [11:8 - 11:8]
+ID (n) at [11:9 - 11:9]
+PCT (%) at [11:11 - 11:11]
+ID (i) at [11:13 - 11:13]
+EQ (==) at [11:15 - 11:16]
+NUM (0) at [11:18 - 11:18]
+RPAREN ()) at [11:19 - 11:19]
+LBRACE ({) at [11:21 - 11:21]
+ID (answer) at [12:7 - 12:12]
+BECOMES (=) at [12:14 - 12:14]
+NUM (0) at [12:16 - 12:16]
+SEMI (;) at [12:17 - 12:17]
+RBRACE (}) at [13:5 - 13:5]
+ID (i) at [14:5 - 14:5]
+BECOMES (=) at [14:7 - 14:7]
+ID (i) at [14:9 - 14:9]
+PLUS (+) at [14:11 - 14:11]
+NUM (1) at [14:13 - 14:13]
+SEMI (;) at [14:14 - 14:14]
+IF (if) at [16:5 - 16:6]
+LPAREN (() at [16:8 - 16:8]
+ID (i) at [16:9 - 16:9]
+STAR (*) at [16:11 - 16:11]
+ID (i) at [16:13 - 16:13]
+GT (>) at [16:15 - 16:15]
+ID (n) at [16:17 - 16:17]
+RPAREN ()) at [16:18 - 16:18]
+LBRACE ({) at [16:20 - 16:20]
+ID (continueLooping) at [17:7 - 17:21]
+BECOMES (=) at [17:23 - 17:23]
+NUM (0) at [17:25 - 17:25]
+SEMI (;) at [17:26 - 17:26]
+RBRACE (}) at [18:5 - 18:5]
+ELSE (else) at [18:7 - 18:10]
+LBRACE ({) at [18:12 - 18:12]
+IF (if) at [19:7 - 19:8]
+LPAREN (() at [19:10 - 19:10]
+ID (answer) at [19:11 - 19:16]
+EQ (==) at [19:18 - 19:19]
+NUM (0) at [19:21 - 19:21]
+RPAREN ()) at [19:22 - 19:22]
+LBRACE ({) at [19:24 - 19:24]
+ID (continueLooping) at [20:9 - 20:23]
+BECOMES (=) at [20:25 - 20:25]
+NUM (0) at [20:27 - 20:27]
+SEMI (;) at [20:28 - 20:28]
+RBRACE (}) at [21:7 - 21:7]
+RBRACE (}) at [22:5 - 22:5]
+RBRACE (}) at [23:3 - 23:3]
+RETURN (return) at [24:3 - 24:8]
+ID (answer) at [24:10 - 24:15]
+SEMI (;) at [24:16 - 24:16]
+RBRACE (}) at [25:1 - 25:1]
+INT (int) at [28:1 - 28:3]
+ID (collatz) at [28:5 - 28:11]
+LPAREN (() at [28:12 - 28:12]
+INT (int) at [28:13 - 28:15]
+STAR (*) at [28:17 - 28:17]
+ID (num) at [28:18 - 28:20]
+RPAREN ()) at [28:21 - 28:21]
+LBRACE ({) at [28:23 - 28:23]
+INT (int) at [29:3 - 29:5]
+ID (value) at [29:7 - 29:11]
+BECOMES (=) at [29:13 - 29:13]
+NUM (0) at [29:15 - 29:15]
+SEMI (;) at [29:16 - 29:16]
+ID (value) at [30:3 - 30:7]
+BECOMES (=) at [30:9 - 30:9]
+STAR (*) at [30:11 - 30:11]
+ID (num) at [30:12 - 30:14]
+SEMI (;) at [30:15 - 30:15]
+IF (if) at [31:3 - 31:4]
+LPAREN (() at [31:6 - 31:6]
+ID (value) at [31:7 - 31:11]
+GE (>=) at [31:13 - 31:14]
+NUM (2) at [31:16 - 31:16]
+RPAREN ()) at [31:17 - 31:17]
+LBRACE ({) at [31:19 - 31:19]
+IF (if) at [32:5 - 32:6]
+LPAREN (() at [32:8 - 32:8]
+ID (value) at [32:9 - 32:13]
+PCT (%) at [32:15 - 32:15]
+NUM (2) at [32:17 - 32:17]
+NE (!=) at [32:19 - 32:20]
+NUM (0) at [32:22 - 32:22]
+RPAREN ()) at [32:23 - 32:23]
+LBRACE ({) at [32:25 - 32:25]
+STAR (*) at [33:7 - 33:7]
+ID (num) at [33:8 - 33:10]
+BECOMES (=) at [33:12 - 33:12]
+NUM (3) at [33:14 - 33:14]
+STAR (*) at [33:16 - 33:16]
+ID (value) at [33:18 - 33:22]
+PLUS (+) at [33:24 - 33:24]
+NUM (2) at [33:26 - 33:26]
+MINUS (-) at [33:28 - 33:28]
+NUM (1) at [33:30 - 33:30]
+SEMI (;) at [33:31 - 33:31]
+RBRACE (}) at [34:5 - 34:5]
+ELSE (else) at [34:7 - 34:10]
+LBRACE ({) at [34:12 - 34:12]
+STAR (*) at [35:7 - 35:7]
+ID (num) at [35:8 - 35:10]
+BECOMES (=) at [35:12 - 35:12]
+ID (value) at [35:14 - 35:18]
+SLASH (/) at [35:20 - 35:20]
+NUM (2) at [35:22 - 35:22]
+SEMI (;) at [35:23 - 35:23]
+RBRACE (}) at [36:5 - 36:5]
+RBRACE (}) at [37:3 - 37:3]
+ELSE (else) at [37:5 - 37:8]
+LBRACE ({) at [37:10 - 37:10]
+STAR (*) at [38:5 - 38:5]
+ID (num) at [38:6 - 38:8]
+BECOMES (=) at [38:10 - 38:10]
+NUM (1) at [38:12 - 38:12]
+SEMI (;) at [38:13 - 38:13]
+RBRACE (}) at [39:3 - 39:3]
+RETURN (return) at [40:3 - 40:8]
+NUM (0) at [40:10 - 40:10]
+SEMI (;) at [40:11 - 40:11]
+RBRACE (}) at [41:1 - 41:1]
+INT (int) at [46:1 - 46:3]
+WAIN (wain) at [46:5 - 46:8]
+LPAREN (() at [46:9 - 46:9]
+INT (int) at [46:10 - 46:12]
+ID (startNumber) at [46:14 - 46:24]
+COMMA (,) at [46:25 - 46:25]
+INT (int) at [46:27 - 46:29]
+ID (numPrimes) at [46:31 - 46:39]
+RPAREN ()) at [46:40 - 46:40]
+LBRACE ({) at [46:42 - 46:42]
+INT (int) at [47:3 - 47:5]
+STAR (*) at [47:7 - 47:7]
+ID (result) at [47:8 - 47:13]
+BECOMES (=) at [47:15 - 47:15]
+NULL (NULL) at [47:17 - 47:20]
+SEMI (;) at [47:21 - 47:21]
+INT (int) at [48:3 - 48:5]
+ID (idx) at [48:7 - 48:9]
+BECOMES (=) at [48:11 - 48:11]
+NUM (0) at [48:13 - 48:13]
+SEMI (;) at [48:14 - 48:14]
+INT (int) at [49:3 - 49:5]
+ID (nextNumber) at [49:7 - 49:16]
+BECOMES (=) at [49:18 - 49:18]
+NUM (0) at [49:20 - 49:20]
+SEMI (;) at [49:21 - 49:21]
+ID (result) at [50:3 - 50:8]
+BECOMES (=) at [50:10 - 50:10]
+NEW (new) at [50:12 - 50:14]
+INT (int) at [50:16 - 50:18]
+LBRACK ([) at [50:19 - 50:19]
+ID (numPrimes) at [50:20 - 50:28]
+RBRACK (]) at [50:29 - 50:29]
+SEMI (;) at [50:30 - 50:30]
+ID (nextNumber) at [51:3 - 51:12]
+BECOMES (=) at [51:14 - 51:14]
+ID (startNumber) at [51:16 - 51:26]
+SEMI (;) at [51:27 - 51:27]
+WHILE (while) at [53:3 - 53:7]
+LPAREN (() at [53:9 - 53:9]
+ID (idx) at [53:10 - 53:12]
+LT (<) at [53:14 - 53:14]
+ID (numPrimes) at [53:16 - 53:24]
+RPAREN ()) at [53:25 - 53:25]
+LBRACE ({) at [53:27 - 53:27]
+WHILE (while) at [54:5 - 54:9]
+LPAREN (() at [54:11 - 54:11]
+ID (isPrime) at [54:12 - 54:18]
+LPAREN (() at [54:19 - 54:19]
+ID (nextNumber) at [54:20 - 54:29]
+RPAREN ()) at [54:30 - 54:30]
+EQ (==) at [54:32 - 54:33]
+NUM (0) at [54:35 - 54:35]
+RPAREN ()) at [54:36 - 54:36]
+LBRACE ({) at [54:38 - 54:38]
+ID (nextNumber) at [55:7 - 55:16]
+BECOMES (=) at [55:18 - 55:18]
+ID (nextNumber) at [55:20 - 55:29]
+PLUS (+) at [55:31 - 55:31]
+NUM (1) at [55:33 - 55:33]
+SEMI (;) at [55:34 - 55:34]
+RBRACE (}) at [56:5 - 56:5]
+STAR (*) at [57:5 - 57:5]
+LPAREN (() at [57:6 - 57:6]
+ID (result) at [57:7 - 57:12]
+PLUS (+) at [57:14 - 57:14]
+ID (idx) at [57:16 - 57:18]
+RPAREN ()) at [57:19 - 57:19]
+BECOMES (=) at [57:21 - 57:21]
+ID (nextNumber) at [57:23 - 57:32]
+SEMI (;) at [57:33 - 57:33]
+ID (nextNumber) at [58:5 - 58:14]
+BECOMES (=) at [58:16 - 58:16]
+ID (nextNumber) at [58:18 - 58:27]
+PLUS (+) at [58:29 - 58:29]
+NUM (1) at [58:31 - 58:31]
+SEMI (;) at [58:32 - 58:32]
+ID (idx) at [59:5 - 59:7]
+BECOMES (=) at [59:9 - 59:9]
+ID (idx) at [59:11 - 59:13]
+PLUS (+) at [59:15 - 59:15]
+NUM (1) at [59:17 - 59:17]
+SEMI (;) at [59:18 - 59:18]
+RBRACE (}) at [60:3 - 60:3]
+ID (idx) at [62:3 - 62:5]
+BECOMES (=) at [62:7 - 62:7]
+NUM (0) at [62:9 - 62:9]
+SEMI (;) at [62:10 - 62:10]
+WHILE (while) at [63:3 - 63:7]
+LPAREN (() at [63:9 - 63:9]
+ID (idx) at [63:10 - 63:12]
+LT (<) at [63:14 - 63:14]
+ID (numPrimes) at [63:16 - 63:24]
+RPAREN ()) at [63:25 - 63:25]
+LBRACE ({) at [63:27 - 63:27]
+PRINTLN (println) at [64:5 - 64:11]
+LPAREN (() at [64:12 - 64:12]
+STAR (*) at [64:13 - 64:13]
+LPAREN (() at [64:14 - 64:14]
+ID (result) at [64:15 - 64:20]
+PLUS (+) at [64:22 - 64:22]
+ID (idx) at [64:24 - 64:26]
+RPAREN ()) at [64:27 - 64:27]
+RPAREN ()) at [64:28 - 64:28]
+SEMI (;) at [64:29 - 64:29]
+ID (idx) at [65:5 - 65:7]
+BECOMES (=) at [65:9 - 65:9]
+ID (idx) at [65:11 - 65:13]
+PLUS (+) at [65:15 - 65:15]
+NUM (1) at [65:17 - 65:17]
+SEMI (;) at [65:18 - 65:18]
+RBRACE (}) at [66:3 - 66:3]
+ID (nextNumber) at [68:3 - 68:12]
+BECOMES (=) at [68:14 - 68:14]
+NUM (40) at [68:16 - 68:17]
+SEMI (;) at [68:18 - 68:18]
+WHILE (while) at [69:3 - 69:7]
+LPAREN (() at [69:9 - 69:9]
+ID (nextNumber) at [69:10 - 69:19]
+NE (!=) at [69:21 - 69:22]
+NUM (1) at [69:24 - 69:24]
+RPAREN ()) at [69:25 - 69:25]
+LBRACE ({) at [69:27 - 69:27]
+PRINTLN (println) at [70:5 - 70:11]
+LPAREN (() at [70:12 - 70:12]
+ID (nextNumber) at [70:13 - 70:22]
+RPAREN ()) at [70:23 - 70:23]
+SEMI (;) at [70:24 - 70:24]
+ID (idx) at [71:5 - 71:7]
+BECOMES (=) at [71:9 - 71:9]
+ID (collatz) at [71:11 - 71:17]
+LPAREN (() at [71:18 - 71:18]
+AMP (&) at [71:19 - 71:19]
+ID (nextNumber) at [71:20 - 71:29]
+RPAREN ()) at [71:30 - 71:30]
+SEMI (;) at [71:31 - 71:31]
+RBRACE (}) at [72:3 - 72:3]
+DELETE (delete) at [74:3 - 74:8]
+LBRACK ([) at [74:9 - 74:9]
+RBRACK (]) at [74:10 - 74:10]
+ID (result) at [74:12 - 74:17]
+SEMI (;) at [74:18 - 74:18]
+RETURN (return) at [75:3 - 75:8]
+NUM (0) at [75:10 - 75:10]
+SEMI (;) at [75:11 - 75:11]
+RBRACE (}) at [76:1 - 76:1]

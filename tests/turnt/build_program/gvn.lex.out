@@ -1,61 +1,61 @@
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-ID (a)
-COMMA (,)
-INT (int)
-ID (b)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (c)
-BECOMES (=)
-NUM (5)
-SEMI (;)
-INT (int)
-ID (d)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-IF (if)
-LPAREN (()
-ID (a)
-LT (<)
-ID (b)
-RPAREN ())
-LBRACE ({)
-IF (if)
-LPAREN (()
-ID (b)
-GT (>)
-ID (a)
-RPAREN ())
-LBRACE ({)
-ID (c)
-BECOMES (=)
-NUM (0)
-MINUS (-)
-NUM (5)
-SEMI (;)
-RBRACE (})
-ID (a)
-BECOMES (=)
-ID (d)
-MINUS (-)
-ID (c)
-SEMI (;)
-RBRACE (})
-ELSE (else)
-LBRACE ({)
-ID (a)
-BECOMES (=)
-ID (c)
-MINUS (-)
-ID (d)
-SEMI (;)
-RBRACE (})
-RETURN (return)
-ID (a)
-SEMI (;)
-RBRACE (})
+INT (int) at [2:1 - 2:3]
+WAIN (wain) at [2:5 - 2:8]
+LPAREN (() at [2:9 - 2:9]
+INT (int) at [2:10 - 2:12]
+ID (a) at [2:14 - 2:14]
+COMMA (,) at [2:15 - 2:15]
+INT (int) at [2:17 - 2:19]
+ID (b) at [2:21 - 2:21]
+RPAREN ()) at [2:22 - 2:22]
+LBRACE ({) at [2:24 - 2:24]
+INT (int) at [3:3 - 3:5]
+ID (c) at [3:7 - 3:7]
+BECOMES (=) at [3:9 - 3:9]
+NUM (5) at [3:11 - 3:11]
+SEMI (;) at [3:12 - 3:12]
+INT (int) at [4:3 - 4:5]
+ID (d) at [4:7 - 4:7]
+BECOMES (=) at [4:9 - 4:9]
+NUM (0) at [4:11 - 4:11]
+SEMI (;) at [4:12 - 4:12]
+IF (if) at [5:3 - 5:4]
+LPAREN (() at [5:6 - 5:6]
+ID (a) at [5:7 - 5:7]
+LT (<) at [5:9 - 5:9]
+ID (b) at [5:11 - 5:11]
+RPAREN ()) at [5:12 - 5:12]
+LBRACE ({) at [5:14 - 5:14]
+IF (if) at [6:5 - 6:6]
+LPAREN (() at [6:8 - 6:8]
+ID (b) at [6:9 - 6:9]
+GT (>) at [6:11 - 6:11]
+ID (a) at [6:13 - 6:13]
+RPAREN ()) at [6:14 - 6:14]
+LBRACE ({) at [6:16 - 6:16]
+ID (c) at [7:7 - 7:7]
+BECOMES (=) at [7:9 - 7:9]
+NUM (0) at [7:11 - 7:11]
+MINUS (-) at [7:13 - 7:13]
+NUM (5) at [7:15 - 7:15]
+SEMI (;) at [7:16 - 7:16]
+RBRACE (}) at [8:5 - 8:5]
+ID (a) at [9:5 - 9:5]
+BECOMES (=) at [9:7 - 9:7]
+ID (d) at [9:9 - 9:9]
+MINUS (-) at [9:11 - 9:11]
+ID (c) at [9:13 - 9:13]
+SEMI (;) at [9:14 - 9:14]
+RBRACE (}) at [10:3 - 10:3]
+ELSE (else) at [10:5 - 10:8]
+LBRACE ({) at [10:10 - 10:10]
+ID (a) at [11:5 - 11:5]
+BECOMES (=) at [11:7 - 11:7]
+ID (c) at [11:9 - 11:9]
+MINUS (-) at [11:11 - 11:11]
+ID (d) at [11:13 - 11:13]
+SEMI (;) at [11:14 - 11:14]
+RBRACE (}) at [12:3 - 12:3]
+RETURN (return) at [13:3 - 13:8]
+ID (a) at [13:10 - 13:10]
+SEMI (;) at [13:11 - 13:11]
+RBRACE (}) at [14:1 - 14:1]

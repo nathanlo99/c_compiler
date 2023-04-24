@@ -1,60 +1,60 @@
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (arr)
-COMMA (,)
-INT (int)
-ID (length)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (idx)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-INT (int)
-ID (sum)
-BECOMES (=)
-NUM (0)
-SEMI (;)
-WHILE (while)
-LPAREN (()
-ID (idx)
-LT (<)
-ID (length)
-RPAREN ())
-LBRACE ({)
-PRINTLN (println)
-LPAREN (()
-STAR (*)
-LPAREN (()
-ID (arr)
-PLUS (+)
-ID (idx)
-RPAREN ())
-RPAREN ())
-SEMI (;)
-ID (sum)
-BECOMES (=)
-ID (sum)
-PLUS (+)
-STAR (*)
-LPAREN (()
-ID (arr)
-PLUS (+)
-ID (idx)
-RPAREN ())
-SEMI (;)
-ID (idx)
-BECOMES (=)
-ID (idx)
-PLUS (+)
-NUM (1)
-SEMI (;)
-RBRACE (})
-RETURN (return)
-ID (sum)
-SEMI (;)
-RBRACE (})
+INT (int) at [2:1 - 2:3]
+WAIN (wain) at [2:5 - 2:8]
+LPAREN (() at [2:9 - 2:9]
+INT (int) at [2:10 - 2:12]
+STAR (*) at [2:14 - 2:14]
+ID (arr) at [2:15 - 2:17]
+COMMA (,) at [2:18 - 2:18]
+INT (int) at [2:20 - 2:22]
+ID (length) at [2:24 - 2:29]
+RPAREN ()) at [2:30 - 2:30]
+LBRACE ({) at [2:32 - 2:32]
+INT (int) at [3:3 - 3:5]
+ID (idx) at [3:7 - 3:9]
+BECOMES (=) at [3:11 - 3:11]
+NUM (0) at [3:13 - 3:13]
+SEMI (;) at [3:14 - 3:14]
+INT (int) at [4:3 - 4:5]
+ID (sum) at [4:7 - 4:9]
+BECOMES (=) at [4:11 - 4:11]
+NUM (0) at [4:13 - 4:13]
+SEMI (;) at [4:14 - 4:14]
+WHILE (while) at [5:3 - 5:7]
+LPAREN (() at [5:9 - 5:9]
+ID (idx) at [5:10 - 5:12]
+LT (<) at [5:14 - 5:14]
+ID (length) at [5:16 - 5:21]
+RPAREN ()) at [5:22 - 5:22]
+LBRACE ({) at [5:24 - 5:24]
+PRINTLN (println) at [6:5 - 6:11]
+LPAREN (() at [6:12 - 6:12]
+STAR (*) at [6:13 - 6:13]
+LPAREN (() at [6:14 - 6:14]
+ID (arr) at [6:15 - 6:17]
+PLUS (+) at [6:19 - 6:19]
+ID (idx) at [6:21 - 6:23]
+RPAREN ()) at [6:24 - 6:24]
+RPAREN ()) at [6:25 - 6:25]
+SEMI (;) at [6:26 - 6:26]
+ID (sum) at [7:5 - 7:7]
+BECOMES (=) at [7:9 - 7:9]
+ID (sum) at [7:11 - 7:13]
+PLUS (+) at [7:15 - 7:15]
+STAR (*) at [7:17 - 7:17]
+LPAREN (() at [7:18 - 7:18]
+ID (arr) at [7:19 - 7:21]
+PLUS (+) at [7:23 - 7:23]
+ID (idx) at [7:25 - 7:27]
+RPAREN ()) at [7:28 - 7:28]
+SEMI (;) at [7:29 - 7:29]
+ID (idx) at [8:5 - 8:7]
+BECOMES (=) at [8:9 - 8:9]
+ID (idx) at [8:11 - 8:13]
+PLUS (+) at [8:15 - 8:15]
+NUM (1) at [8:17 - 8:17]
+SEMI (;) at [8:18 - 8:18]
+RBRACE (}) at [9:3 - 9:3]
+RETURN (return) at [10:3 - 10:8]
+ID (sum) at [10:10 - 10:12]
+SEMI (;) at [10:13 - 10:13]
+RBRACE (}) at [11:1 - 11:1]

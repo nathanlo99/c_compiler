@@ -1,165 +1,165 @@
-INT (int)
-ID (eat)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (food)
-RPAREN ())
-LBRACE ({)
-RETURN (return)
-NUM (241)
-SEMI (;)
-RBRACE (})
-INT (int)
-ID (p)
-LPAREN (()
-INT (int)
-ID (p)
-COMMA (,)
-INT (int)
-STAR (*)
-ID (q)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (r)
-BECOMES (=)
-NUM (241)
-SEMI (;)
-RETURN (return)
-ID (eat)
-LPAREN (()
-ID (q)
-RPAREN ())
-SEMI (;)
-RBRACE (})
-INT (int)
-ID (q)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (q)
-COMMA (,)
-INT (int)
-ID (r)
-RPAREN ())
-LBRACE ({)
-RETURN (return)
-ID (p)
-LPAREN (()
-ID (eat)
-LPAREN (()
-ID (q)
-RPAREN ())
-COMMA (,)
-ID (q)
-RPAREN ())
-SEMI (;)
-RBRACE (})
-INT (int)
-ID (r)
-LPAREN (()
-INT (int)
-ID (a)
-COMMA (,)
-INT (int)
-ID (b)
-RPAREN ())
-LBRACE ({)
-INT (int)
-ID (p)
-BECOMES (=)
-NUM (241)
-SEMI (;)
-INT (int)
-ID (q)
-BECOMES (=)
-NUM (241)
-SEMI (;)
-INT (int)
-STAR (*)
-ID (n)
-BECOMES (=)
-NULL (NULL)
-SEMI (;)
-RETURN (return)
-ID (q)
-LPAREN (()
-ID (n)
-COMMA (,)
-ID (eat)
-LPAREN (()
-ID (n)
-RPAREN ())
-RPAREN ())
-SEMI (;)
-RBRACE (})
-INT (int)
-ID (loong)
-LPAREN (()
-INT (int)
-ID (a)
-COMMA (,)
-INT (int)
-ID (b)
-COMMA (,)
-INT (int)
-ID (c)
-COMMA (,)
-INT (int)
-ID (d)
-COMMA (,)
-INT (int)
-ID (e)
-COMMA (,)
-INT (int)
-ID (f)
-RPAREN ())
-LBRACE ({)
-RETURN (return)
-NUM (0)
-SEMI (;)
-RBRACE (})
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (a)
-COMMA (,)
-INT (int)
-ID (b)
-RPAREN ())
-LBRACE ({)
-RETURN (return)
-ID (r)
-LPAREN (()
-ID (q)
-LPAREN (()
-ID (a)
-COMMA (,)
-ID (p)
-LPAREN (()
-ID (b)
-COMMA (,)
-ID (a)
-RPAREN ())
-RPAREN ())
-COMMA (,)
-ID (loong)
-LPAREN (()
-NUM (1)
-COMMA (,)
-NUM (2)
-COMMA (,)
-NUM (3)
-COMMA (,)
-NUM (4)
-COMMA (,)
-NUM (5)
-COMMA (,)
-NUM (6)
-RPAREN ())
-RPAREN ())
-SEMI (;)
-RBRACE (})
+INT (int) at [1:1 - 1:3]
+ID (eat) at [1:5 - 1:7]
+LPAREN (() at [1:8 - 1:8]
+INT (int) at [1:9 - 1:11]
+STAR (*) at [1:13 - 1:13]
+ID (food) at [1:14 - 1:17]
+RPAREN ()) at [1:18 - 1:18]
+LBRACE ({) at [1:20 - 1:20]
+RETURN (return) at [1:22 - 1:27]
+NUM (241) at [1:29 - 1:31]
+SEMI (;) at [1:32 - 1:32]
+RBRACE (}) at [1:34 - 1:34]
+INT (int) at [2:1 - 2:3]
+ID (p) at [2:5 - 2:5]
+LPAREN (() at [2:6 - 2:6]
+INT (int) at [2:7 - 2:9]
+ID (p) at [2:11 - 2:11]
+COMMA (,) at [2:12 - 2:12]
+INT (int) at [2:14 - 2:16]
+STAR (*) at [2:18 - 2:18]
+ID (q) at [2:19 - 2:19]
+RPAREN ()) at [2:20 - 2:20]
+LBRACE ({) at [2:22 - 2:22]
+INT (int) at [3:3 - 3:5]
+ID (r) at [3:7 - 3:7]
+BECOMES (=) at [3:9 - 3:9]
+NUM (241) at [3:11 - 3:13]
+SEMI (;) at [3:14 - 3:14]
+RETURN (return) at [4:3 - 4:8]
+ID (eat) at [4:10 - 4:12]
+LPAREN (() at [4:13 - 4:13]
+ID (q) at [4:14 - 4:14]
+RPAREN ()) at [4:15 - 4:15]
+SEMI (;) at [4:16 - 4:16]
+RBRACE (}) at [5:1 - 5:1]
+INT (int) at [6:1 - 6:3]
+ID (q) at [6:5 - 6:5]
+LPAREN (() at [6:6 - 6:6]
+INT (int) at [6:7 - 6:9]
+STAR (*) at [6:11 - 6:11]
+ID (q) at [6:12 - 6:12]
+COMMA (,) at [6:13 - 6:13]
+INT (int) at [6:15 - 6:17]
+ID (r) at [6:19 - 6:19]
+RPAREN ()) at [6:20 - 6:20]
+LBRACE ({) at [6:22 - 6:22]
+RETURN (return) at [6:24 - 6:29]
+ID (p) at [6:31 - 6:31]
+LPAREN (() at [6:32 - 6:32]
+ID (eat) at [6:33 - 6:35]
+LPAREN (() at [6:36 - 6:36]
+ID (q) at [6:37 - 6:37]
+RPAREN ()) at [6:38 - 6:38]
+COMMA (,) at [6:39 - 6:39]
+ID (q) at [6:41 - 6:41]
+RPAREN ()) at [6:42 - 6:42]
+SEMI (;) at [6:43 - 6:43]
+RBRACE (}) at [6:45 - 6:45]
+INT (int) at [7:1 - 7:3]
+ID (r) at [7:5 - 7:5]
+LPAREN (() at [7:6 - 7:6]
+INT (int) at [7:7 - 7:9]
+ID (a) at [7:11 - 7:11]
+COMMA (,) at [7:12 - 7:12]
+INT (int) at [7:14 - 7:16]
+ID (b) at [7:18 - 7:18]
+RPAREN ()) at [7:19 - 7:19]
+LBRACE ({) at [7:21 - 7:21]
+INT (int) at [8:3 - 8:5]
+ID (p) at [8:7 - 8:7]
+BECOMES (=) at [8:9 - 8:9]
+NUM (241) at [8:11 - 8:13]
+SEMI (;) at [8:14 - 8:14]
+INT (int) at [9:3 - 9:5]
+ID (q) at [9:7 - 9:7]
+BECOMES (=) at [9:9 - 9:9]
+NUM (241) at [9:11 - 9:13]
+SEMI (;) at [9:14 - 9:14]
+INT (int) at [10:3 - 10:5]
+STAR (*) at [10:7 - 10:7]
+ID (n) at [10:8 - 10:8]
+BECOMES (=) at [10:10 - 10:10]
+NULL (NULL) at [10:12 - 10:15]
+SEMI (;) at [10:16 - 10:16]
+RETURN (return) at [11:3 - 11:8]
+ID (q) at [11:10 - 11:10]
+LPAREN (() at [11:11 - 11:11]
+ID (n) at [11:12 - 11:12]
+COMMA (,) at [11:13 - 11:13]
+ID (eat) at [11:15 - 11:17]
+LPAREN (() at [11:18 - 11:18]
+ID (n) at [11:19 - 11:19]
+RPAREN ()) at [11:20 - 11:20]
+RPAREN ()) at [11:21 - 11:21]
+SEMI (;) at [11:22 - 11:22]
+RBRACE (}) at [12:1 - 12:1]
+INT (int) at [13:1 - 13:3]
+ID (loong) at [13:5 - 13:9]
+LPAREN (() at [13:10 - 13:10]
+INT (int) at [13:11 - 13:13]
+ID (a) at [13:15 - 13:15]
+COMMA (,) at [13:16 - 13:16]
+INT (int) at [13:18 - 13:20]
+ID (b) at [13:22 - 13:22]
+COMMA (,) at [13:23 - 13:23]
+INT (int) at [13:25 - 13:27]
+ID (c) at [13:29 - 13:29]
+COMMA (,) at [13:30 - 13:30]
+INT (int) at [13:32 - 13:34]
+ID (d) at [13:36 - 13:36]
+COMMA (,) at [13:37 - 13:37]
+INT (int) at [13:39 - 13:41]
+ID (e) at [13:43 - 13:43]
+COMMA (,) at [13:44 - 13:44]
+INT (int) at [13:46 - 13:48]
+ID (f) at [13:50 - 13:50]
+RPAREN ()) at [13:51 - 13:51]
+LBRACE ({) at [13:53 - 13:53]
+RETURN (return) at [13:55 - 13:60]
+NUM (0) at [13:62 - 13:62]
+SEMI (;) at [13:63 - 13:63]
+RBRACE (}) at [13:65 - 13:65]
+INT (int) at [14:1 - 14:3]
+WAIN (wain) at [14:5 - 14:8]
+LPAREN (() at [14:9 - 14:9]
+INT (int) at [14:10 - 14:12]
+STAR (*) at [14:14 - 14:14]
+ID (a) at [14:15 - 14:15]
+COMMA (,) at [14:16 - 14:16]
+INT (int) at [14:18 - 14:20]
+ID (b) at [14:22 - 14:22]
+RPAREN ()) at [14:23 - 14:23]
+LBRACE ({) at [14:25 - 14:25]
+RETURN (return) at [14:27 - 14:32]
+ID (r) at [14:34 - 14:34]
+LPAREN (() at [14:35 - 14:35]
+ID (q) at [14:36 - 14:36]
+LPAREN (() at [14:37 - 14:37]
+ID (a) at [14:38 - 14:38]
+COMMA (,) at [14:39 - 14:39]
+ID (p) at [14:41 - 14:41]
+LPAREN (() at [14:42 - 14:42]
+ID (b) at [14:43 - 14:43]
+COMMA (,) at [14:44 - 14:44]
+ID (a) at [14:46 - 14:46]
+RPAREN ()) at [14:47 - 14:47]
+RPAREN ()) at [14:48 - 14:48]
+COMMA (,) at [14:49 - 14:49]
+ID (loong) at [14:51 - 14:55]
+LPAREN (() at [14:56 - 14:56]
+NUM (1) at [14:57 - 14:57]
+COMMA (,) at [14:58 - 14:58]
+NUM (2) at [14:60 - 14:60]
+COMMA (,) at [14:61 - 14:61]
+NUM (3) at [14:63 - 14:63]
+COMMA (,) at [14:64 - 14:64]
+NUM (4) at [14:66 - 14:66]
+COMMA (,) at [14:67 - 14:67]
+NUM (5) at [14:69 - 14:69]
+COMMA (,) at [14:70 - 14:70]
+NUM (6) at [14:72 - 14:72]
+RPAREN ()) at [14:73 - 14:73]
+RPAREN ()) at [14:74 - 14:74]
+SEMI (;) at [14:75 - 14:75]
+RBRACE (}) at [14:77 - 14:77]

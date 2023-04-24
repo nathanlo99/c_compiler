@@ -1,28 +1,28 @@
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-ID (a)
-COMMA (,)
-INT (int)
-ID (b)
-RPAREN ())
-LBRACE ({)
-IF (if)
-LPAREN (()
-NUM (1)
-EQ (==)
-NUM (0)
-RPAREN ())
-LBRACE ({)
-ID (a)
-BECOMES (=)
-NUM (1)
-SLASH (/)
-NUM (0)
-SEMI (;)
-RBRACE (})
-RETURN (return)
-ID (a)
-SEMI (;)
-RBRACE (})
+INT (int) at [2:1 - 2:3]
+WAIN (wain) at [2:5 - 2:8]
+LPAREN (() at [2:9 - 2:9]
+INT (int) at [2:10 - 2:12]
+ID (a) at [2:14 - 2:14]
+COMMA (,) at [2:15 - 2:15]
+INT (int) at [2:17 - 2:19]
+ID (b) at [2:21 - 2:21]
+RPAREN ()) at [2:22 - 2:22]
+LBRACE ({) at [2:24 - 2:24]
+IF (if) at [3:3 - 3:4]
+LPAREN (() at [3:6 - 3:6]
+NUM (1) at [3:7 - 3:7]
+EQ (==) at [3:9 - 3:10]
+NUM (0) at [3:12 - 3:12]
+RPAREN ()) at [3:13 - 3:13]
+LBRACE ({) at [3:15 - 3:15]
+ID (a) at [4:5 - 4:5]
+BECOMES (=) at [4:7 - 4:7]
+NUM (1) at [4:9 - 4:9]
+SLASH (/) at [4:11 - 4:11]
+NUM (0) at [4:13 - 4:13]
+SEMI (;) at [4:14 - 4:14]
+RBRACE (}) at [5:3 - 5:3]
+RETURN (return) at [6:3 - 6:8]
+ID (a) at [6:10 - 6:10]
+SEMI (;) at [6:11 - 6:11]
+RBRACE (}) at [7:1 - 7:1]

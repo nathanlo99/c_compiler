@@ -1,34 +1,34 @@
-INT (int)
-WAIN (wain)
-LPAREN (()
-INT (int)
-STAR (*)
-ID (ptr)
-COMMA (,)
-INT (int)
-ID (value)
-RPAREN ())
-LBRACE ({)
-STAR (*)
-ID (ptr)
-BECOMES (=)
-STAR (*)
-LPAREN (()
-AMP (&)
-ID (value)
-RPAREN ())
-PLUS (+)
-NUM (1)
-SEMI (;)
-STAR (*)
-LPAREN (()
-AMP (&)
-ID (value)
-RPAREN ())
-BECOMES (=)
-NUM (2)
-SEMI (;)
-RETURN (return)
-ID (value)
-SEMI (;)
-RBRACE (})
+INT (int) at [2:1 - 2:3]
+WAIN (wain) at [2:5 - 2:8]
+LPAREN (() at [2:9 - 2:9]
+INT (int) at [2:10 - 2:12]
+STAR (*) at [2:14 - 2:14]
+ID (ptr) at [2:15 - 2:17]
+COMMA (,) at [2:18 - 2:18]
+INT (int) at [2:20 - 2:22]
+ID (value) at [2:24 - 2:28]
+RPAREN ()) at [2:29 - 2:29]
+LBRACE ({) at [2:31 - 2:31]
+STAR (*) at [3:3 - 3:3]
+ID (ptr) at [3:4 - 3:6]
+BECOMES (=) at [3:8 - 3:8]
+STAR (*) at [3:10 - 3:10]
+LPAREN (() at [3:11 - 3:11]
+AMP (&) at [3:12 - 3:12]
+ID (value) at [3:13 - 3:17]
+RPAREN ()) at [3:18 - 3:18]
+PLUS (+) at [3:20 - 3:20]
+NUM (1) at [3:22 - 3:22]
+SEMI (;) at [3:23 - 3:23]
+STAR (*) at [4:3 - 4:3]
+LPAREN (() at [4:4 - 4:4]
+AMP (&) at [4:5 - 4:5]
+ID (value) at [4:6 - 4:10]
+RPAREN ()) at [4:11 - 4:11]
+BECOMES (=) at [4:13 - 4:13]
+NUM (2) at [4:15 - 4:15]
+SEMI (;) at [4:16 - 4:16]
+RETURN (return) at [5:3 - 5:8]
+ID (value) at [5:10 - 5:14]
+SEMI (;) at [5:15 - 5:15]
+RBRACE (}) at [6:1 - 6:1]
