@@ -139,6 +139,7 @@ struct DFA {
   size_t num_states = 0;
   std::vector<TokenKind> accepting_states;
   std::vector<std::array<uint64_t, 128>> transitions;
+  const static inline uint64_t ERROR_STATE = -1;
 
   void add_state(const TokenKind kind,
                  const std::array<uint64_t, 128> &state_transitions);
@@ -157,7 +158,7 @@ struct NFA {
   void add_transitions(const int source, const int target,
                        const std::string &transitions);
   void add_transitions(const int source, const int target,
-                       const std::function<bool(int)> &pred);
+                       const std::function<bool(char)> &pred);
   void add_string(const std::string &lexeme, const TokenKind state);
 
   DFA to_dfa() const;

@@ -29,8 +29,8 @@ std::ostream &operator<<(std::ostream &os, const DFA &dfa) {
     os << "State " << state << ": "
        << (is_accepting ? "(accepting: " + token_str + ")" : "") << std::endl;
     for (int ch = 0; ch < 128; ++ch) {
-      const int target = dfa.transitions[state].at(ch);
-      if (target == -1)
+      const uint64_t target = dfa.transitions[state].at(ch);
+      if (target == DFA::ERROR_STATE)
         continue;
       os << "  '" << static_cast<char>(ch) << "' (" << ch << ") -> " << target
          << std::endl;
@@ -51,10 +51,11 @@ void NFA::add_transitions(const int source, const int target,
 }
 
 void NFA::add_transitions(const int source, const int target,
-                          const std::function<bool(int)> &pred) {
+                          const std::function<bool(char)> &pred) {
   for (int c = 0; c < 128; ++c) {
-    if (pred(c)) {
-      entries[source][c].insert(target);
+    const char ch = static_cast<char>(c);
+    if (pred(ch)) {
+      entries[source][ch].insert(target);
     }
   }
 }
@@ -264,13 +265,13 @@ bool is_valid_number_literal(const std::string &lexeme) {
 
 Token Lexer::next() {
   const size_t start_idx = next_idx;
-  int state = 0;
+  uint64_t state = 0;
   size_t last_accepting_idx = -1;
   TokenKind last_accepting_kind = TokenKind::None;
   while (next_idx < input.size()) {
     const char next_char = input[next_idx];
     state = dfa.transitions[state][next_char];
-    if (state == -1)
+    if (state == DFA::ERROR_STATE)
       break;
     const TokenKind accepting = dfa.accepting_states[state];
     if (accepting != TokenKind::None) {

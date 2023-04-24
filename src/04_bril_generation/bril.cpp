@@ -261,7 +261,7 @@ std::string ControlFlowGraph::split_block(const std::string &block_label,
                  "Cannot split block at the last instruction");
 
   // Create a new block
-  const std::string new_block_label = get_fresh_label(new_label_hint);
+  std::string new_block_label = get_fresh_label(new_label_hint);
   Block new_block;
   new_block.entry_label = new_block_label;
   new_block.instructions.push_back(Instruction::label(new_block_label));

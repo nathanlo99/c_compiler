@@ -78,7 +78,7 @@ void Program::inline_function_call(const std::string &function_name,
       return renamed_variables.at(name);
     size_t idx = 0;
     while (true) {
-      const std::string fresh_name = name + "." + std::to_string(idx);
+      std::string fresh_name = name + "." + std::to_string(idx);
       if (current_variables.count(fresh_name) == 0) {
         current_variables.insert(fresh_name);
         renamed_variables[name] = fresh_name;
@@ -92,7 +92,7 @@ void Program::inline_function_call(const std::string &function_name,
       return renamed_labels.at(name);
     size_t idx = 0;
     while (true) {
-      const std::string fresh_name = name + "." + std::to_string(idx);
+      std::string fresh_name = name + "." + std::to_string(idx);
       if (current_labels.count(fresh_name) == 0) {
         current_labels.insert(fresh_name);
         renamed_labels[name] = fresh_name;

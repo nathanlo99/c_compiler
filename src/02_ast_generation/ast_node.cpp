@@ -78,10 +78,6 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     auto rest = construct_ast<ParameterList>(node->children[2]);
     rest->parameters.insert(rest->parameters.begin(), first);
     return rest;
-  } else if (production_str == "type -> INT") {
-    unreachable("Handled further up");
-  } else if (production_str == "type -> INT STAR") {
-    unreachable("Handled further up");
   } else if (production_str == "dcls ->") {
     return std::make_shared<DeclarationList>();
   } else if (production_str == "dcls -> dcls dcl BECOMES NUM SEMI") {
