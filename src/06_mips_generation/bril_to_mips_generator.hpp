@@ -28,6 +28,11 @@ struct BRILToMIPSGenerator : MIPSGenerator {
   }
 
 private:
+  static std::string create_label(const std::string &function_name,
+                                  const std::string &label_name) {
+    return function_name + label_name.substr(1);
+  }
+
   void compute_allocations() {
     for (const auto &[name, function] : program.functions) {
       std::cerr << "Computing register allocation for function " << name
@@ -213,7 +218,7 @@ private:
     add_const(30, 30, -4 * stack_size, tmp1);
 
     // Jump to wain
-    beq(0, 0, wain.entry_label);
+    beq(0, 0, create_label("wain", wain.entry_label));
     annotate("Done prologue, jumping to wain");
 
     // Generate code for all the functions
@@ -252,14 +257,14 @@ private:
   void generate_function(const ControlFlowGraph &function) {
     const RegisterAllocation allocation = allocations.at(function.name);
     comment("Code for function " + function.name);
-    label(function.entry_label);
+    label(create_label(function.name, function.entry_label));
     for (const auto &label : function.block_labels) {
       const auto block = function.get_block(label);
       const auto &live_variables =
           allocation.liveness_data.at(label).live_variables;
       for (size_t i = 0; i < block.instructions.size(); ++i) {
         const auto &instruction = block.instructions[i];
-        generate_instruction(instruction, live_variables[i],
+        generate_instruction(function.name, instruction, live_variables[i],
                              live_variables[i + 1], allocation);
       }
     }
@@ -298,7 +303,7 @@ private:
   }
 
   void generate_instruction(
-      const Instruction &instruction,
+      const std::string &function_name, const Instruction &instruction,
       [[maybe_unused]] const std::set<std::string> &live_variables_before,
       const std::set<std::string> &live_variables_after,
       const RegisterAllocation &allocation) {
@@ -436,7 +441,7 @@ private:
 
     case Opcode::Jmp: {
       const std::string &label = instruction.labels[0];
-      beq(0, 0, label);
+      beq(0, 0, create_label(function_name, label));
       annotate(instruction.to_string());
     } break;
 
@@ -445,9 +450,9 @@ private:
           load_variable(tmp1, instruction.arguments[0], allocation);
       const std::string &true_label = instruction.labels[0];
       const std::string &false_label = instruction.labels[1];
-      beq(condition_reg, 0, false_label);
+      beq(condition_reg, 0, create_label(function_name, false_label));
       annotate(instruction.to_string());
-      beq(0, 0, true_label);
+      beq(0, 0, create_label(function_name, true_label));
     } break;
 
     case Opcode::Call: {
@@ -500,7 +505,8 @@ private:
 
       // 4. Jump to the function
       push(31);
-      load_and_jalr(2, called_function.entry_label);
+      load_and_jalr(
+          2, create_label(called_function.name, called_function.entry_label));
       annotate("4. Jump to " + called_function.name);
       pop(31);
 
@@ -661,7 +667,7 @@ private:
     } break;
 
     case Opcode::Label: {
-      label(instruction.labels[0]);
+      label(create_label(function_name, instruction.labels[0]));
     } break;
 
     default: {

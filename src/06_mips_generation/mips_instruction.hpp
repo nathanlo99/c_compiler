@@ -89,19 +89,17 @@ struct MIPSInstruction {
 private:
   static std::string make_label(const std::string &label) {
     std::stringstream ss;
-    bool last_was_underscore = false;
+    bool capitalize_next = false;
     for (const char ch : label) {
       if (ch == '_') {
-        last_was_underscore = true;
-      } else if (last_was_underscore && '0' <= ch && ch <= '9') {
-        ss << ch;
-        last_was_underscore = false;
-      } else if (last_was_underscore && 'a' <= ch && ch <= 'z') {
+        capitalize_next = true;
+        continue;
+      } else if (capitalize_next && 'a' <= ch && ch <= 'z') {
         ss << static_cast<char>(ch + 'A' - 'a');
-        last_was_underscore = false;
-      } else if (!last_was_underscore) {
+      } else {
         ss << ch;
       }
+      capitalize_next = false;
     }
     return ss.str();
   }
