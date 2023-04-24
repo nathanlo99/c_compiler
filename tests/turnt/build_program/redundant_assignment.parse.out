@@ -20,11 +20,14 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 3
@@ -32,32 +35,42 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a
 RPAREN )
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 4
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 5
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a

@@ -3,8 +3,8 @@
 
 #include <array>
 #include <cstdint>
-#include <optional>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -87,13 +87,32 @@ struct MIPSInstruction {
   }
 
 private:
+  static std::string make_label(const std::string &label) {
+    std::stringstream ss;
+    bool last_was_underscore = false;
+    for (const char ch : label) {
+      if (ch == '_') {
+        last_was_underscore = true;
+      } else if (last_was_underscore && '0' <= ch && ch <= '9') {
+        ss << ch;
+        last_was_underscore = false;
+      } else if (last_was_underscore && 'a' <= ch && ch <= 'z') {
+        ss << static_cast<char>(ch + 'A' - 'a');
+        last_was_underscore = false;
+      } else if (!last_was_underscore) {
+        ss << ch;
+      }
+    }
+    return ss.str();
+  }
+
   MIPSInstruction(Opcode opcode, int s, int t, int d, int32_t i,
                   bool has_label = false, const std::string &label_name = "")
       : opcode(opcode), s(s), t(t), d(d), i(i), has_label(has_label),
-        string_value(label_name) {}
+        string_value(make_label(label_name)) {}
   MIPSInstruction(const std::string &label_name)
       : opcode(Opcode::Label), s(0), t(0), d(0), i(0), has_label(true),
-        string_value(label_name) {}
+        string_value(make_label(label_name)) {}
 
 public:
   static MIPSInstruction add(int d, int s, int t) {
@@ -160,8 +179,6 @@ public:
     return MIPSInstruction(Opcode::Word, 0, 0, 0, 0, true, label);
   }
   static MIPSInstruction label(const std::string &name) {
-    runtime_assert(name.find('_') == std::string::npos,
-                   "Label name cannot have underscores: " + name);
     return MIPSInstruction(name);
   }
   static MIPSInstruction import(const std::string &value) {

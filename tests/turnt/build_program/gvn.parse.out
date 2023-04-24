@@ -36,13 +36,13 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID a
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID b
@@ -54,13 +54,13 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr GT expr
-expr term
+test sum GT sum
+sum term
 term factor
 factor ID
 ID b
 GT >
-expr term
+sum term
 term factor
 factor ID
 ID a
@@ -68,12 +68,15 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID c
 BECOMES =
-expr expr MINUS term
-expr term
+expr test
+test sum
+sum sum MINUS term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -83,12 +86,15 @@ factor NUM
 NUM 5
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr expr MINUS term
-expr term
+expr test
+test sum
+sum sum MINUS term
+sum term
 term factor
 factor ID
 ID d
@@ -102,12 +108,15 @@ ELSE else
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr expr MINUS term
-expr term
+expr test
+test sum
+sum sum MINUS term
+sum term
 term factor
 factor ID
 ID c
@@ -118,7 +127,9 @@ ID d
 SEMI ;
 RBRACE }
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a

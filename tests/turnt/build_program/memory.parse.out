@@ -19,20 +19,25 @@ dcls .EMPTY
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor ID
 ID ptr
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor AMP lvalue
 AMP &
@@ -44,12 +49,15 @@ term factor
 factor NUM
 NUM 1
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor AMP lvalue
 AMP &
@@ -57,13 +65,17 @@ lvalue ID
 ID value
 RPAREN )
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 2
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID value

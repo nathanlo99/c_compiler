@@ -17,29 +17,38 @@ dcls ->
 dcls -> dcls dcl BECOMES NUM SEMI
 dcls -> dcls dcl BECOMES NULL SEMI
 dcl -> type ID
+# Statements
 statements ->
 statements -> statements statement
-statement -> lvalue BECOMES expr SEMI
 statement -> IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
-# Added simple if-statements
+statement -> expr SEMI
 statement -> IF LPAREN test RPAREN LBRACE statements RBRACE
-# statement -> FOR LPAREN statement SEMI test SEMI statement RPAREN LBRACE statements RBRACE
+statement -> FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
 statement -> WHILE LPAREN test RPAREN LBRACE statements RBRACE
 statement -> PRINTLN LPAREN expr RPAREN SEMI
 statement -> DELETE LBRACK RBRACK expr SEMI
-test -> expr EQ expr
-test -> expr NE expr
-test -> expr LT expr
-test -> expr LE expr
-test -> expr GE expr
-test -> expr GT expr
-expr -> term
-expr -> expr PLUS term
-expr -> expr MINUS term
+# Exprs
+# Precedence: 16
+expr -> test
+expr -> lvalue BECOMES expr
+# Precedence: 9
+test -> sum EQ sum
+test -> sum NE sum
+test -> sum LT sum
+test -> sum LE sum
+test -> sum GE sum
+test -> sum GT sum
+test -> sum
+# Precedence: 6
+sum -> term
+sum -> sum PLUS term
+sum -> sum MINUS term
+# Precedence: 5
 term -> factor
 term -> term STAR factor
 term -> term SLASH factor
 term -> term PCT factor
+# Precedence: 3
 factor -> ID
 factor -> NUM
 factor -> NULL

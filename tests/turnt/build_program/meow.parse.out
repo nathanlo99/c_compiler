@@ -60,12 +60,15 @@ NULL NULL
 SEMI ;
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID var
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID var
@@ -75,7 +78,9 @@ factor ID
 ID var
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID meow

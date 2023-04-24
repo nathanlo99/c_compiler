@@ -31,27 +31,35 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID arr
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NEW INT LBRACK expr RBRACK
 NEW new
 INT int
 LBRACK [
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID size
 RBRACK ]
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -59,13 +67,13 @@ SEMI ;
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID idx
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID size
@@ -74,13 +82,16 @@ LBRACE {
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID arr
@@ -90,7 +101,9 @@ factor ID
 ID idx
 RPAREN )
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term term STAR factor
 term factor
 factor ID
@@ -99,12 +112,15 @@ STAR *
 factor ID
 ID idx
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID idx
@@ -114,11 +130,14 @@ factor NUM
 NUM 1
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -126,13 +145,13 @@ SEMI ;
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID idx
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID size
@@ -144,14 +163,18 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID arr
@@ -162,12 +185,15 @@ ID idx
 RPAREN )
 RPAREN )
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID idx
@@ -181,13 +207,17 @@ statement DELETE LBRACK RBRACK expr SEMI
 DELETE delete
 LBRACK [
 RBRACK ]
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID arr
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0

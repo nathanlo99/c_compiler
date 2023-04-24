@@ -29,49 +29,63 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID c
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor AMP lvalue
 AMP &
 lvalue ID
 ID a
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 69
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID b
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor STAR factor
 STAR *
 factor ID
 ID c
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 70
 SEMI ;
 RETURN return
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID a

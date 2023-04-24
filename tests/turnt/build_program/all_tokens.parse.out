@@ -43,13 +43,13 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr LE expr
-expr term
+test sum LE sum
+sum term
 term factor
 factor ID
 ID n
 LE <=
-expr term
+sum term
 term factor
 factor NUM
 NUM 3
@@ -57,11 +57,14 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID continueLooping
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -70,13 +73,13 @@ RBRACE }
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr NE expr
-expr term
+test sum NE sum
+sum term
 term factor
 factor ID
 ID continueLooping
 NE !=
-expr term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -89,8 +92,8 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr EQ expr
-expr term
+test sum EQ sum
+sum term
 term term PCT factor
 term factor
 factor ID
@@ -99,7 +102,7 @@ PCT %
 factor ID
 ID i
 EQ ==
-expr term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -107,22 +110,28 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID answer
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID i
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID i
@@ -134,8 +143,8 @@ SEMI ;
 statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr GT expr
-expr term
+test sum GT sum
+sum term
 term term STAR factor
 term factor
 factor ID
@@ -144,7 +153,7 @@ STAR *
 factor ID
 ID i
 GT >
-expr term
+sum term
 term factor
 factor ID
 ID n
@@ -152,11 +161,14 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID continueLooping
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -169,13 +181,13 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr EQ expr
-expr term
+test sum EQ sum
+sum term
 term factor
 factor ID
 ID answer
 EQ ==
-expr term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -183,11 +195,14 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID continueLooping
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -196,7 +211,9 @@ RBRACE }
 RBRACE }
 RBRACE }
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID answer
@@ -229,11 +246,14 @@ SEMI ;
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID value
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor STAR factor
 STAR *
@@ -243,13 +263,13 @@ SEMI ;
 statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr GE expr
-expr term
+test sum GE sum
+sum term
 term factor
 factor ID
 ID value
 GE >=
-expr term
+sum term
 term factor
 factor NUM
 NUM 2
@@ -260,8 +280,8 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr NE expr
-expr term
+test sum NE sum
+sum term
 term term PCT factor
 term factor
 factor ID
@@ -270,7 +290,7 @@ PCT %
 factor NUM
 NUM 2
 NE !=
-expr term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -278,15 +298,18 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor ID
 ID num
 BECOMES =
-expr expr MINUS term
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum MINUS term
+sum sum PLUS term
+sum term
 term term STAR factor
 term factor
 factor NUM
@@ -308,13 +331,16 @@ ELSE else
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor ID
 ID num
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term term SLASH factor
 term factor
 factor ID
@@ -329,20 +355,25 @@ ELSE else
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor ID
 ID num
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 1
 SEMI ;
 RBRACE }
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -399,27 +430,35 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID result
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NEW INT LBRACK expr RBRACK
 NEW new
 INT int
 LBRACK [
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID numPrimes
 RBRACK ]
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID startNumber
@@ -427,13 +466,13 @@ SEMI ;
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID idx
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID numPrimes
@@ -447,20 +486,22 @@ statements .EMPTY
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr EQ expr
-expr term
+test sum EQ sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID isPrime
 LPAREN (
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID nextNumber
 RPAREN )
 EQ ==
-expr term
+sum term
 term factor
 factor NUM
 NUM 0
@@ -468,12 +509,15 @@ RPAREN )
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID nextNumber
@@ -483,13 +527,16 @@ factor NUM
 NUM 1
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID result
@@ -499,17 +546,22 @@ factor ID
 ID idx
 RPAREN )
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID nextNumber
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID nextNumber
@@ -518,12 +570,15 @@ term factor
 factor NUM
 NUM 1
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID idx
@@ -533,11 +588,14 @@ factor NUM
 NUM 1
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -545,13 +603,13 @@ SEMI ;
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID idx
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID numPrimes
@@ -563,14 +621,18 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID result
@@ -581,12 +643,15 @@ ID idx
 RPAREN )
 RPAREN )
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID idx
@@ -596,11 +661,14 @@ factor NUM
 NUM 1
 SEMI ;
 RBRACE }
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 40
@@ -608,13 +676,13 @@ SEMI ;
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test expr NE expr
-expr term
+test sum NE sum
+sum term
 term factor
 factor ID
 ID nextNumber
 NE !=
-expr term
+sum term
 term factor
 factor NUM
 NUM 1
@@ -626,23 +694,30 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID nextNumber
 RPAREN )
 SEMI ;
-statement lvalue BECOMES expr SEMI
+statement expr SEMI
+expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID collatz
 LPAREN (
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor AMP lvalue
 AMP &
@@ -655,13 +730,17 @@ statement DELETE LBRACK RBRACK expr SEMI
 DELETE delete
 LBRACK [
 RBRACK ]
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID result
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0

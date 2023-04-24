@@ -21,13 +21,13 @@ statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr LT expr
-expr term
+test sum LT sum
+sum term
 term factor
 factor ID
 ID a
 LT <
-expr term
+sum term
 term factor
 factor ID
 ID b
@@ -38,7 +38,9 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a
@@ -48,13 +50,13 @@ RBRACE }
 statement IF LPAREN test RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test expr GT expr
-expr term
+test sum GT sum
+sum term
 term factor
 factor ID
 ID b
 GT >
-expr term
+sum term
 term factor
 factor ID
 ID a
@@ -65,7 +67,9 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID b
@@ -73,7 +77,9 @@ RPAREN )
 SEMI ;
 RBRACE }
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a

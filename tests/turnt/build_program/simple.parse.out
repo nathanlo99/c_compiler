@@ -17,9 +17,11 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr expr PLUS term
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum sum PLUS term
+sum term
 term term STAR factor
 term factor
 factor NUM

@@ -22,7 +22,9 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 241
@@ -31,12 +33,16 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr MINUS term
-expr term
+expr test
+test sum
+sum sum MINUS term
+sum term
 term factor
 factor ID
 ID b
@@ -50,17 +56,23 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr term
+expr test
+test sum
+sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr expr PLUS term
-expr term
+expr test
+test sum
+sum sum PLUS term
+sum term
 term factor
 factor ID
 ID a
@@ -77,7 +89,9 @@ RPAREN )
 RPAREN )
 SEMI ;
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 1

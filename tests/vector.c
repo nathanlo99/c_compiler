@@ -1,10 +1,12 @@
 
+// ------------ UTIL ------------
 // A compiler-optimization-safe way to throw an error
 int throw_error() {
   println(*NULL);
   return 0;
 }
 
+// ------------ VECTOR ------------
 // The structure of a dynamic array is the following:
 // - The number of elements in the array
 // - The capacity of the allocated region
@@ -52,6 +54,7 @@ int *vector_push_back(int *vec, int value) {
   return result;
 }
 
+// ------------ MAIN ------------
 int wain(int numElements, int i) {
   int *vec = NULL;
   vec = vector_new(1);

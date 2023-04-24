@@ -16,7 +16,9 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 241
@@ -54,13 +56,17 @@ NUM 241
 SEMI ;
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID eat
 LPAREN (
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID q
@@ -91,26 +97,34 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID p
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID eat
 LPAREN (
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID q
 RPAREN )
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID q
@@ -165,25 +179,33 @@ NULL NULL
 SEMI ;
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID q
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID n
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID eat
 LPAREN (
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID n
@@ -238,7 +260,9 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 0
@@ -264,37 +288,49 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID r
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID q
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID p
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID b
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID
 ID a
@@ -302,43 +338,57 @@ RPAREN )
 RPAREN )
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID loong
 LPAREN (
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 1
 COMMA ,
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 2
 COMMA ,
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 3
 COMMA ,
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 4
 COMMA ,
 arglist expr COMMA arglist
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 5
 COMMA ,
 arglist expr
-expr term
+expr test
+test sum
+sum term
 term factor
 factor NUM
 NUM 6
