@@ -5,6 +5,7 @@
 #include "bril_to_mips_generator.hpp"
 #include "call_graph.hpp"
 #include "canonicalize_conditions.hpp"
+#include "canonicalize_names.hpp"
 #include "data_flow.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
@@ -105,6 +106,8 @@ bril::Program get_optimized_bril_from_file(const std::string &filename) {
   apply_optimizations(bril_program);
   bril_program.convert_from_ssa();
   apply_optimizations(bril_program);
+  for (auto &[name, function] : bril_program.functions)
+    bril::canonicalize_names(function);
   return bril_program;
 }
 
@@ -355,6 +358,13 @@ void benchmark(const std::string &filename) {
   Timer::stop("10. MIPS generation");
 }
 
+void canonicalize_names(const std::string &filename) {
+  auto bril_program = get_optimized_bril_from_file(filename);
+  for (auto &[name, function] : bril_program.functions)
+    bril::canonicalize_names(function);
+  std::cout << bril_program << std::endl;
+}
+
 void test_augmented_cfg(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::vector<Token> token_stream = Lexer(input).token_stream();
@@ -440,6 +450,7 @@ int main(int argc, char **argv) {
             {"--benchmark", benchmark},
 
             // Experimental options
+            {"--canonicalize-names", canonicalize_names},
             {"--augmented-cfg", test_augmented_cfg},
         };
 
