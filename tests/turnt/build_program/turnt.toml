@@ -13,6 +13,11 @@ command = "../../../build/compile {filename} --build-ast"
 return_code = 0
 output."build_ast.out" = "-"
 
+[envs.compute_dominators]
+command = "../../../build/compile {filename} --compute-dominators"
+return_code = 0
+output."dominators.out" = "-"
+
 [envs.emit_c]
 command = "../../../build/compile {filename} --emit-c"
 return_code = 0

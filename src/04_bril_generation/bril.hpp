@@ -764,6 +764,7 @@ struct ControlFlowGraph {
   }
 
   std::string immediate_dominator(const std::string &label) const;
+  std::set<std::string> dominance_frontier(const std::string &label) const;
 };
 
 struct Program {

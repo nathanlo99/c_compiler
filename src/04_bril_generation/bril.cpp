@@ -389,7 +389,7 @@ void ControlFlowGraph::compute_dominators() {
 
   const auto immediately_dominates = [&](const size_t source,
                                          const size_t target) -> bool {
-    if (!strictly_dominates(source, target))
+    if (source == target || !dominates(source, target))
       return false;
     for (size_t label = 0; label < num_labels; ++label) {
       if (strictly_dominates(source, label) &&
@@ -423,12 +423,25 @@ void ControlFlowGraph::compute_dominators() {
       const std::string other_label = block_labels[j];
       if (dominator_matrix[i][j])
         dominators[label].insert(other_label);
+    }
+  }
+  for (size_t i = 0; i < num_labels; ++i) {
+    const std::string label = block_labels[i];
+    for (size_t j = 0; j < num_labels; ++j) {
+      const std::string other_label = block_labels[j];
       if (immediately_dominates(j, i))
         immediate_dominators[label] = other_label;
+    }
+  }
+  for (size_t i = 0; i < num_labels; ++i) {
+    const std::string label = block_labels[i];
+    for (size_t j = 0; j < num_labels; ++j) {
+      const std::string other_label = block_labels[j];
       if (is_in_dominance_frontier(j, i))
         dominance_frontiers[other_label].insert(label);
     }
   }
+
   const auto end_time = Timer::get_time_ms();
   const auto elapsed_time = end_time - start_time;
   if (block_labels.size() >= 10)
@@ -440,9 +453,14 @@ std::string
 ControlFlowGraph::immediate_dominator(const std::string &label) const {
   if (immediate_dominators.count(label) == 0)
     return "(none)";
-  debug_assert(immediate_dominators.count(label) > 0,
-               "No immediate dominator for label {}", label);
   return immediate_dominators.at(label);
+}
+
+std::set<std::string>
+ControlFlowGraph::dominance_frontier(const std::string &label) const {
+  if (dominance_frontiers.count(label) == 0)
+    return {};
+  return dominance_frontiers.at(label);
 }
 
 } // namespace bril

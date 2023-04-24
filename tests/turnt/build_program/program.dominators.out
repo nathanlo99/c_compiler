@@ -1,0 +1,24 @@
+Function: eat
+  Block: eatEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+Function: loong
+  Block: loongEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+Function: p
+  Block: pEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+Function: q
+  Block: qEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+Function: r
+  Block: rEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+Function: wain
+  Block: wainEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}

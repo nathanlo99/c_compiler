@@ -1,0 +1,93 @@
+Function: collatz
+  Block: collatzEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+  Block: ifTrue4
+  - Immediate dominator: collatzEntry
+  - Dominance frontier: {ifEndif5}
+  Block: ifFalse4
+  - Immediate dominator: collatzEntry
+  - Dominance frontier: {ifEndif5}
+  Block: ifTrue5
+  - Immediate dominator: ifFalse4
+  - Dominance frontier: {ifEndif5}
+  Block: ifFalse5
+  - Immediate dominator: ifFalse4
+  - Dominance frontier: {ifEndif5}
+  Block: ifEndif5
+  - Immediate dominator: collatzEntry
+  - Dominance frontier: {}
+Function: isPrime
+  Block: isPrimeEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+  Block: ifTrue0
+  - Immediate dominator: isPrimeEntry
+  - Dominance frontier: {ifEndif0}
+  Block: ifFalse0
+  - Immediate dominator: isPrimeEntry
+  - Dominance frontier: {ifEndif0}
+  Block: ifEndif0
+  - Immediate dominator: isPrimeEntry
+  - Dominance frontier: {}
+  Block: whileBody0
+  - Immediate dominator: ifEndif0
+  - Dominance frontier: {ifEndif0}
+  Block: ifTrue1
+  - Immediate dominator: whileBody0
+  - Dominance frontier: {ifFalse1}
+  Block: ifFalse1
+  - Immediate dominator: whileBody0
+  - Dominance frontier: {ifEndif0}
+  Block: ifTrue2
+  - Immediate dominator: ifFalse1
+  - Dominance frontier: {ifFalse3}
+  Block: ifFalse2
+  - Immediate dominator: ifFalse1
+  - Dominance frontier: {ifFalse3}
+  Block: ifTrue3
+  - Immediate dominator: ifFalse2
+  - Dominance frontier: {ifFalse3}
+  Block: ifFalse3
+  - Immediate dominator: ifFalse1
+  - Dominance frontier: {ifEndif0}
+  Block: whileEnd0
+  - Immediate dominator: ifEndif0
+  - Dominance frontier: {}
+Function: wain
+  Block: wainEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+  Block: whileLoop1
+  - Immediate dominator: wainEntry
+  - Dominance frontier: {}
+  Block: whileBody1
+  - Immediate dominator: whileLoop1
+  - Dominance frontier: {whileLoop1}
+  Block: whileBody2
+  - Immediate dominator: whileBody1
+  - Dominance frontier: {whileBody1}
+  Block: whileEnd2
+  - Immediate dominator: whileBody1
+  - Dominance frontier: {whileLoop1}
+  Block: whileEnd1
+  - Immediate dominator: whileLoop1
+  - Dominance frontier: {}
+  Block: whileLoop3
+  - Immediate dominator: whileEnd1
+  - Dominance frontier: {}
+  Block: whileBody3
+  - Immediate dominator: whileLoop3
+  - Dominance frontier: {whileLoop3}
+  Block: whileEnd3
+  - Immediate dominator: whileLoop3
+  - Dominance frontier: {}
+  Block: whileLoop4
+  - Immediate dominator: whileEnd3
+  - Dominance frontier: {}
+  Block: whileBody4
+  - Immediate dominator: whileLoop4
+  - Dominance frontier: {whileLoop4}
+  Block: whileEnd4
+  - Immediate dominator: whileLoop4
+  - Dominance frontier: {}

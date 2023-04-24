@@ -210,6 +210,21 @@ void round_trip_interpret(const std::string &filename) {
   interpreter.run(std::cout);
 }
 
+void compute_dominators(const std::string &filename) {
+  using util::operator<<;
+  const auto program = get_bril_from_file(filename);
+  program.for_each_function([&](const bril::ControlFlowGraph &function) {
+    std::cout << "Function: " << function.name << std::endl;
+    for (const auto &label : function.block_labels) {
+      std::cout << "  Block: " << label << std::endl;
+      std::cout << "  - Immediate dominator: "
+                << function.immediate_dominator(label) << std::endl;
+      std::cout << "  - Dominance frontier: "
+                << function.dominance_frontier(label) << std::endl;
+    }
+  });
+}
+
 void compute_liveness(const std::string &filename) {
   using namespace bril;
   using util::operator<<;
@@ -440,6 +455,7 @@ int main(int argc, char **argv) {
             {"--lex", lex},
             {"--parse", parse},
             {"--build-ast", build_ast},
+            {"--compute-dominators", compute_dominators},
             {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},
             {"--round-trip-interpret", round_trip_interpret},

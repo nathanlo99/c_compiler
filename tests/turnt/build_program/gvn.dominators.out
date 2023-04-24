@@ -1,0 +1,19 @@
+Function: wain
+  Block: wainEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+  Block: ifTrue0
+  - Immediate dominator: wainEntry
+  - Dominance frontier: {ifEndif0}
+  Block: ifTrue1
+  - Immediate dominator: ifTrue0
+  - Dominance frontier: {ifFalse1}
+  Block: ifFalse1
+  - Immediate dominator: ifTrue0
+  - Dominance frontier: {ifEndif0}
+  Block: ifFalse0
+  - Immediate dominator: wainEntry
+  - Dominance frontier: {ifEndif0}
+  Block: ifEndif0
+  - Immediate dominator: wainEntry
+  - Dominance frontier: {}

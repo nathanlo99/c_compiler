@@ -1,0 +1,22 @@
+Function: wain
+  Block: wainEntry
+  - Immediate dominator: (none)
+  - Dominance frontier: {}
+  Block: whileLoop0
+  - Immediate dominator: wainEntry
+  - Dominance frontier: {}
+  Block: whileBody0
+  - Immediate dominator: whileLoop0
+  - Dominance frontier: {whileLoop0}
+  Block: whileEnd0
+  - Immediate dominator: whileLoop0
+  - Dominance frontier: {}
+  Block: whileLoop1
+  - Immediate dominator: whileEnd0
+  - Dominance frontier: {}
+  Block: whileBody1
+  - Immediate dominator: whileLoop1
+  - Dominance frontier: {whileLoop1}
+  Block: whileEnd1
+  - Immediate dominator: whileLoop1
+  - Dominance frontier: {}
