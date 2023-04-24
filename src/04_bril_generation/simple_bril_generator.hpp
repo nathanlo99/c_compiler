@@ -39,4 +39,5 @@ struct SimpleBRILGenerator : BRILGenerator, ASTSimpleVisitor {
   void visit(PrintStatement &) override;
   void visit(DeleteStatement &) override;
 };
+
 } // namespace bril

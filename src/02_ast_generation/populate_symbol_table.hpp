@@ -27,7 +27,7 @@ struct PopulateSymbolTableVisitor : ASTRecursiveVisitor {
   void post_visit(Program &program) override;
 
   // Update import flags
-  void pre_visit(PrintStatement&) override;
-  void pre_visit(DeleteStatement&) override;
-  void pre_visit(NewExpr&) override;
+  void pre_visit(PrintStatement &) override;
+  void pre_visit(DeleteStatement &) override;
+  void pre_visit(NewExpr &) override;
 };

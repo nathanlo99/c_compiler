@@ -11,7 +11,7 @@ namespace bril {
 
 struct BRILToMIPSGenerator : MIPSGenerator {
   static const inline std::vector<size_t> available_registers = {
-      3,  5,  8,  9,  10, 12, 13, 14, 15, 16, 17, 
+      3,  5,  8,  9,  10, 12, 13, 14, 15, 16, 17,
       18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
   static const size_t tmp1 = 1, tmp2 = 2, tmp3 = 6, tmp4 = 7;
 
@@ -39,8 +39,8 @@ private:
     }
   }
 
-  void copy_arguments(const std::vector<VariableLocation>& source_locations, 
-                      const std::vector<VariableLocation>& target_locations) {
+  void copy_arguments(const std::vector<VariableLocation> &source_locations,
+                      const std::vector<VariableLocation> &target_locations) {
     comment("Copying arguments");
     const size_t num_arguments = source_locations.size();
     // Points from source registers to target registers
@@ -57,12 +57,13 @@ private:
       } else if (source_location.in_memory()) {
         from_memory.push_back(i);
       } else {
-        runtime_assert(register_graph.count(target_location.reg) == 0, "Register graph has multiple edges");
+        runtime_assert(register_graph.count(target_location.reg) == 0,
+                       "Register graph has multiple edges");
         register_graph[target_location.reg] = source_location.reg;
         sink_nodes.insert(target_location.reg);
       }
     }
-    for (const auto& [source, target] : register_graph) {
+    for (const auto &[source, target] : register_graph) {
       sink_nodes.erase(target);
     }
 
@@ -78,24 +79,27 @@ private:
       if (source_location.in_memory()) {
         lw(tmp1, source_location.offset, 29);
         sw(tmp1, target_location.offset, 30);
-        annotate("Copying argument " + std::to_string(i) + " from memory to memory");
+        annotate("Copying argument " + std::to_string(i) +
+                 " from memory to memory");
       } else {
         sw(source_location.reg, target_location.offset, 30);
-        annotate("Copying argument " + std::to_string(i) + " from register to memory");
+        annotate("Copying argument " + std::to_string(i) +
+                 " from register to memory");
       }
     }
 
     // 2. Handle register to register moves
     // 2a. Handle chains: A -> B -> C -> D
     // - D is the sink, so we copy D to C, C to B, and B to A
-    for (const auto& sink : sink_nodes) {
+    for (const auto &sink : sink_nodes) {
       size_t node = sink;
       while (register_graph.count(node) != 0) {
         const size_t next = register_graph[node];
         register_graph.erase(node);
         copy(node, next);
         std::cerr << "$" << node << " <- $" << next << std::endl;
-        annotate("Copying argument from register " + std::to_string(node) + " to register " + std::to_string(next));
+        annotate("Copying argument from register " + std::to_string(node) +
+                 " to register " + std::to_string(next));
         node = next;
       }
     }
@@ -109,22 +113,26 @@ private:
       auto node_next = *register_graph.begin();
       size_t node = node_next.first, next = node_next.second, start = node;
       register_graph.erase(node);
-      if (node == next) continue;
+      if (node == next)
+        continue;
       std::cerr << "Beginning cycle: " << std::endl;
       copy(1, node);
       std::cerr << "$1 <- $" << node << std::endl;
-      annotate("Copying argument from register " + std::to_string(node) + " to register 1");
+      annotate("Copying argument from register " + std::to_string(node) +
+               " to register 1");
       while (next != start) {
         node = next;
         next = register_graph[node];
         register_graph.erase(node);
         copy(next, node);
         std::cerr << "$" << next << " <- $" << node << std::endl;
-        annotate("Copying argument from register " + std::to_string(node) + " to register " + std::to_string(next));
+        annotate("Copying argument from register " + std::to_string(node) +
+                 " to register " + std::to_string(next));
       }
       copy(node, 1);
       std::cerr << "$" << node << " <- $1" << std::endl;
-      annotate("Copying argument from register 1 to register " + std::to_string(node));
+      annotate("Copying argument from register 1 to register " +
+               std::to_string(node));
     }
 
     // 3. Move arguments from memory to registers
@@ -132,7 +140,8 @@ private:
       const auto source_location = source_locations[i];
       const auto target_location = target_locations[i];
       lw(target_location.reg, source_location.offset, 29);
-      annotate("Copying argument " + std::to_string(i) + " from memory to register");
+      annotate("Copying argument " + std::to_string(i) +
+               " from memory to register");
     }
   }
 
@@ -208,11 +217,14 @@ private:
     annotate("Done prologue, jumping to wain");
 
     // Generate code for all the functions
+    generate_function(program.wain());
     for (const auto &[name, function] : program.functions) {
+      if (function.name == "wain")
+        continue;
       generate_function(function);
     }
 
-    // optimize();
+    optimize();
 
     comment("Number of instructions: " +
             std::to_string(num_assembly_instructions()));
@@ -462,7 +474,7 @@ private:
       // 3. For each argument in memory, copy it to the stack
       //    for each argument in register, load it into the register
       // NOTE: We have to preserve $29 to access variables on the stack
-      // TODO: When we need to write to a register which we also need to read 
+      // TODO: When we need to write to a register which we also need to read
       // from, we have to save the target register's value to the stack first
 
       const size_t num_arguments = called_function.arguments.size();
@@ -473,9 +485,9 @@ private:
         const auto &argument = called_function.arguments[i].name;
         source_locations.push_back(allocation.get_location(parameter));
         target_locations.push_back(function_allocation.get_location(argument));
-        std::cerr << "Copying argument " << parameter << " at " 
-        << source_locations.back() << " to " << argument 
-        << " at " << target_locations.back() << std::endl;
+        std::cerr << "Copying argument " << parameter << " at "
+                  << source_locations.back() << " to " << argument << " at "
+                  << target_locations.back() << std::endl;
       }
 
       copy_arguments(source_locations, target_locations);

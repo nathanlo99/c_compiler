@@ -382,12 +382,20 @@ void test_augmented_cfg(const std::string &filename) {
   DeduceTypesVisitor deduce_types_visitor;
   program->accept_recursive(deduce_types_visitor);
 
-  program->print(0);
+  program->emit_c(std::cerr, 0);
 
   bril::SimpleBRILGenerator generator;
   program->accept_simple(generator);
-  const auto bril_program = generator.program();
-  std::cout << bril_program << std::endl;
+  auto bril_program = generator.program();
+
+  apply_optimizations(bril_program);
+  bril_program.convert_to_ssa();
+  apply_optimizations(bril_program);
+  bril_program.convert_from_ssa();
+  apply_optimizations(bril_program);
+
+  bril::interpreter::BRILInterpreter interpreter(bril_program);
+  interpreter.run(std::cout);
 }
 
 void debug(const std::string &filename) {

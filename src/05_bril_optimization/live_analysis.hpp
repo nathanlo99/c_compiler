@@ -77,7 +77,7 @@ struct RegisterInterferenceGraph {
     liveness_data = analysis.run();
     // TODO: Skip adding edges if the variable is never used
     for (const auto &arg1 : graph.arguments) {
-      for (const auto& arg2 : graph.arguments) {
+      for (const auto &arg2 : graph.arguments) {
         add_edge(arg1.name, arg2.name);
       }
     }
@@ -147,20 +147,21 @@ struct VariableLocation {
     int offset;
   };
   static VariableLocation register_location(size_t reg) {
-    return {.type=Type::Register, .reg=reg};
+    return {.type = Type::Register, .reg = reg};
   }
   static VariableLocation stack_location(int offset) {
-    return {.type=Type::Stack, .offset=offset};
+    return {.type = Type::Stack, .offset = offset};
   }
 
   bool in_memory() const { return type == Type::Stack; }
 
-  friend std::ostream& operator<<(std::ostream& os, const VariableLocation& location) {
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const VariableLocation &location) {
     switch (location.type) {
-      case Type::Register:
-        return os << "$" << location.reg;
-      case Type::Stack:
-        return os << location.offset << "($BP)";
+    case Type::Register:
+      return os << "$" << location.reg;
+    case Type::Stack:
+      return os << location.offset << "($BP)";
     }
   }
 };
@@ -194,7 +195,7 @@ struct RegisterAllocation {
     return spilled_variables.at(variable);
   }
 
-  VariableLocation get_location(const std::string& variable) const {
+  VariableLocation get_location(const std::string &variable) const {
     std::stringstream ss;
     if (in_register(variable)) {
       return VariableLocation::register_location(get_register(variable));

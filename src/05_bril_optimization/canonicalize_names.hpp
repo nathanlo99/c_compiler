@@ -15,6 +15,9 @@ inline void canonicalize_names(ControlFlowGraph &function) {
   const auto insert_parameter = [&](const std::string &arg) {
     renamed_variables[arg] = arg;
   };
+  const auto insert_entry_label = [&](const std::string &entry_label) {
+    renamed_labels[entry_label] = entry_label;
+  };
   const auto insert_variable = [&](const std::string &var) {
     if (renamed_variables.count(var) == 0)
       renamed_variables[var] = "%" + std::to_string(next_variable_idx++);
@@ -26,6 +29,7 @@ inline void canonicalize_names(ControlFlowGraph &function) {
 
   for (const auto &argument : function.arguments)
     insert_parameter(argument.name);
+  insert_entry_label(function.entry_label);
   for (const auto &block_label : function.block_labels) {
     insert_label(block_label);
     const auto &block = function.get_block(block_label);

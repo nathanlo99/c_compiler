@@ -52,11 +52,13 @@ int wain(int num_primes, int start_number) {
     }
     *(result + idx) = next_number;
     next_number = next_number + 1;
+    idx = idx + 1;
   }
 
   idx = 0;
   while (idx < num_primes) {
     println(*(result + idx));
+    idx = idx + 1;
   }
 
   next_number = 40;
