@@ -36,11 +36,45 @@ struct ContextFreeGrammar {
     }
   };
 
-  std::map<std::string, bool> is_non_terminal_symbol;
+  // std::map<std::string, bool> is_non_terminal_symbol;
   std::string start_symbol;
-  std::vector<Production> productions;
+  std::map<std::string, std::vector<Production>> productions_by_product;
 
+  std::set<std::string> symbols;
+  std::set<std::string> non_terminal_symbols;
+  std::set<std::string> terminal_symbols;
   std::set<std::string> nullable_symbols;
+
+  std::vector<Production> find_productions(const std::string &product) const {
+    return productions_by_product.at(product);
+  }
+  std::set<std::string> get_non_terminal_symbols() const {
+    return non_terminal_symbols;
+  }
+  std::set<std::string> get_terminal_symbols() const {
+    return terminal_symbols;
+  }
+  bool is_non_terminal(const std::string &symbol) const {
+    return non_terminal_symbols.count(symbol) > 0;
+  }
+  bool is_definitely_nullable(const std::string &symbol) const {
+    return nullable_symbols.count(symbol) > 0;
+  }
+
+  void finalize() {
+    for (const auto &[product, productions] : productions_by_product) {
+      symbols.insert(product);
+      non_terminal_symbols.insert(product);
+      for (const auto &production : productions)
+        for (const auto &ingredient : production.ingredients)
+          symbols.insert(ingredient);
+      for (const auto &symbol : symbols) {
+        if (non_terminal_symbols.count(symbol) == 0)
+          terminal_symbols.insert(symbol);
+      }
+    }
+    compute_nullable();
+  }
 
   void add_production(const std::string &product,
                       const std::vector<std::string> &ingredients);
