@@ -262,8 +262,26 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     const auto lhs = construct_ast<LValueExpr>(node->children[0]);
     const auto rhs = construct_ast<Expr>(node->children[2]);
     return std::make_shared<AssignmentExpr>(lhs, rhs);
+  } else if (production_str == "statement -> FOR LPAREN expr SEMI expr SEMI "
+                               "expr RPAREN LBRACE statements RBRACE") {
+    const auto init = construct_ast<Expr>(node->children[2]);
+    const auto cond = construct_ast<Expr>(node->children[4]);
+    const auto update = construct_ast<Expr>(node->children[6]);
+    auto body = construct_ast<Statements>(node->children[9]);
+
+    // for (init; cond; update) { body; }
+    //   BECOMES
+    // init; while (cond) { body; update; }
+    auto result = std::make_shared<Statements>();
+    result->statements.push_back(std::make_shared<ExprStatement>(init));
+
+    body->statements.push_back(std::make_shared<ExprStatement>(update));
+    auto while_loop = std::make_shared<WhileStatement>(cond, body);
+
+    result->statements.push_back(while_loop);
+    return result;
   }
-  unreachable("WARN: Production " + production_str + " not yet handled");
+  unreachable("WARN: Production '" + production_str + "' not yet handled");
 
   return nullptr;
 }

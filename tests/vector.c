@@ -17,13 +17,12 @@ int *vector_at(int *vec, int idx) { return vector_data(vec) + idx; }
 
 int *vector_new(int n) {
   int *v = NULL;
-  if (n >= 0) {
-    v = new int[n + 2];
-    *vector_size(v) = 0;
-    *vector_capacity(v) = n;
-  } else {
+  if (n < 0) {
     throw_error();
   }
+  v = new int[n + 2];
+  *vector_size(v) = 0;
+  *vector_capacity(v) = n;
   return v;
 }
 
@@ -56,15 +55,11 @@ int *vector_push_back(int *vec, int value) {
 int wain(int numElements, int i) {
   int *vec = NULL;
   vec = vector_new(1);
-  i = 0;
-  while (i < numElements) {
-    vec = vector_push_back(vec, i);
-    i = i + 1;
+  for (i = 0; i < numElements; i = i + 1) {
+    vec = vector_push_back(vec, i * i);
   }
-  i = 0;
-  while (i < numElements) {
+  for (i = 0; i < numElements; i = i + 1) {
     println(*vector_at(vec, i));
-    i = i + 1;
   }
   vector_delete(vec);
   return 0;

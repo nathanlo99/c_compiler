@@ -299,5 +299,8 @@ Token Lexer::next() {
     throw std::runtime_error("NUM literal out of range: " + lexeme +
                              " at index " + std::to_string(next_idx));
 
-  return Token(lexeme, last_accepting_kind);
+  const InputLocation first_char = input_chars[start_idx];
+  const InputLocation last_char = input_chars[last_accepting_idx - 1];
+  return Token(lexeme, last_accepting_kind, first_char.line, first_char.column,
+               last_char.line, last_char.column);
 }

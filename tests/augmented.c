@@ -1,24 +1,13 @@
-// Comments
+// Returns true if the given number is prime, false otherwise
 int is_prime(int n) {
-  int i = 2;
+  int i = 0;
   int answer = 1;
-  int continueLooping = 1;
-
-  if (n <= 3) {
-    continueLooping = 0;
+  if (n < 2) {
+    answer = 0;
   }
-  while (continueLooping) {
+  for (i = 2; i * i <= n; i = i + 1) {
     if (n % i == 0) {
       answer = 0;
-    }
-    i = i + 1;
-
-    if (i * i > n) {
-      continueLooping = 0;
-    } else {
-      if (answer == 0) {
-        continueLooping = 0;
-      }
     }
   }
   return answer;
@@ -46,23 +35,20 @@ int wain(int num_primes, int start_number) {
   result = new int[num_primes];
   next_number = start_number;
 
-  while (idx < num_primes) {
+  for (idx = 0; idx < num_primes; idx = idx + 1) {
     while (is_prime(next_number) == 0) {
       next_number = next_number + 1;
     }
     *(result + idx) = next_number;
     next_number = next_number + 1;
-    idx = idx + 1;
   }
 
-  idx = 0;
-  while (idx < num_primes) {
+  for (idx = 0; idx < num_primes; idx = idx + 1) {
     println(*(result + idx));
-    idx = idx + 1;
   }
 
   next_number = 40;
-  while (next_number != 1) {
+  while (next_number - 1) {
     println(next_number);
     collatz(&next_number);
   }

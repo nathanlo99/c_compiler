@@ -172,30 +172,63 @@ std::map<std::string, TokenKind> get_keywords();
 struct Token {
   std::string lexeme;
   TokenKind kind;
+  size_t start_line = 0, start_column = 0;
+  size_t end_line = 0, end_column = 0;
 
-  Token() : Token("", TokenKind::None) {}
-  Token(const std::string &lexeme, const TokenKind &kind)
-      : lexeme(lexeme), kind(kind) {}
+  Token() : Token("", TokenKind::None, 0, 0, 0, 0) {}
+  Token(const std::string &lexeme, const TokenKind &kind,
+        const size_t start_line, const size_t start_column,
+        const size_t end_line, const size_t end_column)
+      : lexeme(lexeme), kind(kind), start_line(start_line),
+        start_column(start_column), end_line(end_line), end_column(end_column) {
+  }
 
   bool operator==(const Token &other) const {
-    return lexeme == other.lexeme && kind == other.kind;
+    return lexeme == other.lexeme && kind == other.kind &&
+           start_line == other.start_line &&
+           start_column == other.start_column && end_line == other.end_line &&
+           end_column == other.end_column;
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Token &token) {
     return os << token_kind_to_string(token.kind) << " (" << token.lexeme
-              << ")";
+              << ") at [" << token.start_line << ":" << token.start_column
+              << " - " << token.end_line << ":" << token.end_column << "]";
   }
 };
 
 struct Lexer {
+  struct InputLocation {
+    size_t line;
+    size_t column;
+  };
+
   const std::string input;
+  const std::vector<InputLocation> input_chars;
   size_t next_idx;
   const DFA dfa;
   const std::map<std::string, TokenKind> keywords;
 
   Lexer(const std::string &input)
-      : input(input), next_idx(0), dfa(construct_dfa()),
-        keywords(get_keywords()) {}
+      : input(input), input_chars(index_input_string(input)), next_idx(0),
+        dfa(construct_dfa()), keywords(get_keywords()) {}
+
+  static std::vector<InputLocation>
+  index_input_string(const std::string &input) {
+    std::vector<InputLocation> result;
+    result.reserve(input.size());
+    size_t line = 1, column = 1;
+    for (char ch : input) {
+      result.push_back({line, column});
+      if (ch == '\n') {
+        line++;
+        column = 1;
+      } else {
+        column++;
+      }
+    }
+    return result;
+  }
 
   Token next();
   bool done() { return next_idx >= input.size(); }
