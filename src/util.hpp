@@ -12,11 +12,8 @@
 // #include "assert.hpp"
 
 #define debug_assert(expr, message, ...)                                       \
-  if (!(expr)) [[unlikely]] {                                                  \
-    const std::string formatted_message =                                      \
-        fmt::format((message), ##__VA_ARGS__);                                 \
-    throw std::runtime_error(formatted_message);                               \
-  }
+  if (!(expr)) [[unlikely]]                                                    \
+    throw std::runtime_error(fmt::format(message, ##__VA_ARGS__));
 
 inline void unreachable(const std::string &message) {
   debug_assert(false, "Should be unreachable: {}", message);
