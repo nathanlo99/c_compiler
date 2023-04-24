@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <fmt/core.h>
+#include <iostream>
 #include <map>
 #include <set>
 #include <sstream>
@@ -13,12 +14,18 @@
 
 #define debug_assert(expr, message, ...)                                       \
   if (!(expr)) [[unlikely]]                                                    \
-    throw std::runtime_error(fmt::format(message, ##__VA_ARGS__));
+    throw std::runtime_error(                                                  \
+        fmt::format("{}:{} -- " message, __FILE__, __LINE__, ##__VA_ARGS__));
 
 inline void unreachable(const std::string &message) {
   debug_assert(false, "Should be unreachable: {}", message);
   __builtin_unreachable();
 }
+
+#define log(message, ...)                                                      \
+  std::clog << fmt::format("LOG: {}:{} -- " message, __FILE__, __LINE__,       \
+                           ##__VA_ARGS__)                                      \
+            << std::endl;
 
 namespace util {
 

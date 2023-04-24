@@ -63,8 +63,7 @@ inline void canonicalize_names(ControlFlowGraph &function) {
   function.entry_label = renamed_labels.at(function.entry_label);
   function.exiting_blocks = new_exit_blocks;
 
-  function.is_graph_dirty = true;
-  function.recompute_graph();
+  function.recompute_graph(true);
 }
 
 } // namespace bril

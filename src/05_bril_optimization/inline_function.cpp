@@ -183,8 +183,7 @@ void Program::inline_function_call(const std::string &function_name,
   calling_instruction = Instruction::id(calling_instruction.destination,
                                         renamed_variables.at(return_variable),
                                         called_function.return_type);
-  function.is_graph_dirty = true;
-  function.recompute_graph();
+  function.recompute_graph(true);
 }
 
 } // namespace bril

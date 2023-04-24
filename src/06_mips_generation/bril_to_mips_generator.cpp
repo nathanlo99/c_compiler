@@ -26,7 +26,7 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
       if (read_registers.count(written_register.value()) == 0) {
         if (instructions[i].opcode == ::Opcode::Lis) {
           debug_assert(i + 1 < instructions.size(), "Lis not followed by word");
-          instructions[i + 1] = MIPSInstruction::comment("^");
+          instructions[i + 1] = MIPSInstruction::comment("  (removed lis)");
         }
         instructions[i] =
             MIPSInstruction::comment("Removing globally unused write to $" +

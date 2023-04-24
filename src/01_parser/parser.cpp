@@ -257,7 +257,10 @@ EarleyParser::construct_table(const std::vector<Token> &token_stream) const {
 std::optional<StateItem>
 EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
                        const std::string &target) const {
-  assert(end_idx < data.size());
+  debug_assert(end_idx < data.size(),
+               "EarleyTable::find_item: cannot find item since end index {} "
+               "is out of bounds ({} >= {})",
+               end_idx, end_idx, data.size());
   for (const auto &item : data[end_idx]) {
     if (item.origin_idx == start_idx && item.complete() &&
         item.production.product == target)
@@ -269,23 +272,18 @@ EarleyTable::find_item(const size_t start_idx, const size_t end_idx,
 std::shared_ptr<ParseNode>
 EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
                                   const std::string &target_symbol) const {
-  // std::cout << "Constructing parse tree starting at " << start_idx
-  //           << ", ending at " << end_idx << " for the target '"
-  //           << target_symbol << "'" << std::endl;
-
   // 1. Find the production which starts at start_idx, ends at end_idx, and
   // which produces target
   const auto item = find_item(start_idx, end_idx, target_symbol);
   if (item == std::nullopt)
     return nullptr;
-  // std::cout << "Found candidate item:" << std::endl;
-  // item->print();
 
   std::shared_ptr<ParseNode> result =
       std::make_shared<ParseNode>(item->production);
 
-  assert(column_contains(start_idx,
-                         StateItem(item->production, item->origin_idx)));
+  debug_assert(
+      column_contains(start_idx, StateItem(item->production, item->origin_idx)),
+      "Internal parse error");
 
   size_t next_idx = end_idx;
   for (int dot = item->production.ingredients.size() - 1; dot >= 0; --dot) {
@@ -293,10 +291,6 @@ EarleyTable::construct_parse_tree(const size_t start_idx, const size_t end_idx,
     const StateItem target = StateItem(item->production, item->origin_idx, dot);
     const std::string ingredient = item->production.ingredients[dot];
     const bool is_non_terminal = grammar.is_non_terminal_symbol.at(ingredient);
-
-    // std::cout << "Starting search for target with ingredient " << ingredient
-    //           << std::endl;
-    // std::cout << target << std::endl;
 
     bool added_child = false;
     for (size_t idx = last_idx; idx >= start_idx; --idx) {

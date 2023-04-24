@@ -8,10 +8,7 @@ namespace bril {
 
 Program import_bril(const std::string &filename) {
   std::ifstream ifs(filename);
-  if (!ifs.good()) {
-    std::cerr << "Error: cannot open file " << filename << std::endl;
-    exit(1);
-  }
+  debug_assert(ifs.good(), "Cannot open file {}", filename);
 
   std::string line;
   std::stringstream tokens;

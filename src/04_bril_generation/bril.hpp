@@ -754,8 +754,8 @@ struct ControlFlowGraph {
 
   void compute_edges();
   void compute_dominators();
-  void recompute_graph() {
-    if (!is_graph_dirty)
+  void recompute_graph(const bool force = false) {
+    if (!force && !is_graph_dirty)
       return;
     // std::cerr << "Recomputing graph" << std::endl;
     compute_edges();

@@ -183,7 +183,6 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
                "Cannot remove block with incoming edges");
   for (const auto &outgoing_block : block.outgoing_blocks) {
     get_block(outgoing_block).incoming_blocks.erase(block_label);
-    is_graph_dirty = true;
   }
 
   // Remove the actual block from the block list
@@ -194,7 +193,7 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
   // Remove the block from the set of exiting blocks
   exiting_blocks.erase(block_label);
 
-  is_graph_dirty = true;
+  recompute_graph(true);
 }
 
 void ControlFlowGraph::combine_blocks(const std::string &source,
@@ -246,13 +245,12 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
     exiting_blocks.insert(source);
   }
 
-  is_graph_dirty = true;
   blocks.erase(target);
   block_labels.erase(
       std::find(block_labels.begin(), block_labels.end(), target));
   exiting_blocks.erase(target);
 
-  recompute_graph();
+  recompute_graph(true);
 }
 
 // Splits the given block so that the given instruction idx becomes the first
@@ -283,8 +281,7 @@ std::string ControlFlowGraph::split_block(const std::string &block_label,
       std::find(block_labels.begin(), block_labels.end(), block_label);
   block_labels.insert(label_it + 1, new_block_label);
 
-  is_graph_dirty = true;
-  recompute_graph();
+  recompute_graph(true);
 
   return new_block_label;
 }
@@ -318,50 +315,67 @@ void ControlFlowGraph::rename_label(const std::string &old_label,
       std::find(block_labels.begin(), block_labels.end(), old_label);
   *it = new_label;
 
-  is_graph_dirty = true;
-  recompute_graph();
+  recompute_graph(true);
 }
 
 // Dominators
-
 void ControlFlowGraph::compute_dominators() {
   raw_dominators.clear();
   dominators.clear();
   immediate_dominators.clear();
   dominance_frontiers.clear();
 
-  // Setup relevant sets of labels: all blocks and non-entry blocks
-  std::set<std::string> non_entry_blocks;
-  for (const auto &label : block_labels) {
-    if (label != entry_label)
-      non_entry_blocks.insert(label);
+  const size_t num_labels = block_labels.size();
+
+  // Create a mapping from labels to their indices in the block_labels vector
+  std::unordered_map<std::string, size_t> label_to_index;
+  for (size_t i = 0; i < num_labels; i++) {
+    label_to_index[block_labels[i]] = i;
   }
 
   // Initialize the dominator matrix
-  for (const auto &label : non_entry_blocks) {
-    for (const auto &other_label : block_labels) {
-      raw_dominators[label][other_label] = true;
-    }
+  std::vector<std::vector<bool>> dominator_matrix;
+  dominator_matrix.resize(num_labels);
+  // Initially, every non-entry block is dominated by every other block
+  for (size_t i = 1; i < num_labels; i++) {
+    dominator_matrix[i].resize(num_labels, true);
   }
-  for (const auto &label : non_entry_blocks) {
-    raw_dominators[entry_label][label] = false;
-  }
-  raw_dominators[entry_label][entry_label] = true;
+  // ... and the entry block is only dominated by itself
+  dominator_matrix[0] = std::vector<bool>(num_labels, false);
+  dominator_matrix[0][0] = true;
 
+  size_t num_iterations = 0;
   while (true) {
+    num_iterations++;
     bool changed = false;
-    for (const auto &i : non_entry_blocks) {
-      const auto old_set = raw_dominators[i];
-      for (const std::string &pred : blocks.at(i).incoming_blocks) {
-        for (const auto &k : block_labels)
-          raw_dominators[i][k] =
-              raw_dominators[i][k] && raw_dominators[pred][k];
+    for (size_t i = 1; i < num_labels; ++i) {
+      const auto old_set = dominator_matrix[i];
+      for (const std::string &pred :
+           get_block(block_labels[i]).incoming_blocks) {
+        const size_t pred_index = label_to_index[pred];
+        // dominator_matrix[i] &= dominator_matrix[pred]
+        for (size_t k = 0; k < num_labels; k++) {
+          dominator_matrix[i][k] =
+              dominator_matrix[i][k] && dominator_matrix[pred_index][k];
+        }
       }
-      raw_dominators[i][i] = true;
-      changed |= old_set != raw_dominators[i];
+      dominator_matrix[i][i] = true;
+      changed |= old_set != dominator_matrix[i];
     }
     if (!changed)
       break;
+  }
+  fmt::print(
+      stderr,
+      "Computed dominators for function {} with {} labels in {} iterations\n",
+      name, block_labels.size(), num_iterations);
+
+  for (size_t i = 0; i < num_labels; ++i) {
+    const std::string label = block_labels[i];
+    for (size_t j = 0; j < num_labels; ++j) {
+      const std::string other_label = block_labels[j];
+      raw_dominators[label][other_label] = dominator_matrix[i][j];
+    }
   }
 
   // Set up memoized versions of the dominator queries

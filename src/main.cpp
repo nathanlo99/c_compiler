@@ -27,10 +27,7 @@
 
 std::string read_file(const std::string &filename) {
   std::ifstream ifs(filename);
-  if (!ifs.good()) {
-    std::cerr << "Error: cannot open file " << filename << std::endl;
-    exit(1);
-  }
+  debug_assert(ifs.good(), "Cannot open file {}", filename);
   std::stringstream buffer;
   buffer << ifs.rdbuf();
   return buffer.str();
@@ -297,9 +294,11 @@ void benchmark(const std::string &filename) {
   Timer::start("2. Parsing");
   Timer::start("  2a. Load grammar");
   const ContextFreeGrammar grammar = load_default_grammar();
+  const EarleyParser parser(grammar);
   Timer::stop("  2a. Load grammar");
+
   Timer::start("  2b. Construct Earley Table");
-  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
+  const EarleyTable table = parser.construct_table(token_stream);
   Timer::stop("  2b. Construct Earley Table");
   Timer::start("  2c. Convert EarleyTable to parse tree");
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
@@ -431,8 +430,9 @@ void debug(const std::string &filename) {
 
 int main(int argc, char **argv) {
   try {
-    debug_assert(argc == 3, "Expected a filename and an option");
-    const std::string argument = argv[2], filename = argv[1];
+    debug_assert(argc >= 2, "Expected a filename");
+    const std::string argument = argc > 2 ? argv[2] : "--debug",
+                      filename = argv[1];
 
     const std::map<std::string, std::function<void(const std::string &)>>
         options = {
@@ -459,10 +459,10 @@ int main(int argc, char **argv) {
         };
 
     if (options.count(argument) == 0) {
-      std::cerr << "Unknown option: " << argument << std::endl;
-      std::cerr << "Options are: " << std::endl;
+      fmt::print(stderr, "Unknown option: {}\n", argument);
+      fmt::print(stderr, "Options are:\n");
       for (const auto &[option, _] : options) {
-        std::cerr << "  " << option << std::endl;
+        fmt::print(stderr, "  {}\n", option);
       }
       return 1;
     }
@@ -473,7 +473,7 @@ int main(int argc, char **argv) {
 
     Timer::print(std::cerr, 5);
   } catch (const std::exception &e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
+    fmt::print(stderr, "ERROR: {}\n", e.what());
     return 1;
   }
 }

@@ -1,5 +1,6 @@
 
 #include "lexer.hpp"
+#include "util.hpp"
 
 #include <bit>
 #include <cassert>
@@ -94,8 +95,8 @@ std::ostream &operator<<(std::ostream &os, const NFA &nfa) {
 
 DFA NFA::to_dfa() const {
   // For the current NFA, this is reasonable: it only has 35 states
-  std::cerr << "NFA has " << entries.size() << " states" << std::endl;
-  assert(entries.size() <= 64);
+  debug_assert(entries.size() <= 64, "NFA has too many states ({})",
+               entries.size());
   using state_t = uint64_t;
   const state_t start_state = 1 << 0;
   DFA result;
@@ -119,7 +120,9 @@ DFA NFA::to_dfa() const {
       const TokenKind kind =
           (it == accepting_states.end()) ? TokenKind::None : it->second;
       if (kind != TokenKind::None) {
-        assert(accepting_kind == TokenKind::None || kind == accepting_kind);
+        debug_assert(accepting_kind == TokenKind::None ||
+                         kind == accepting_kind,
+                     "NFA has multiple accepting states");
         accepting_kind = kind;
       }
     }
@@ -132,7 +135,8 @@ DFA NFA::to_dfa() const {
         if (entries[source].count(ch) == 0)
           continue;
         for (int nfa_target : entries[source].at(ch)) {
-          assert(nfa_target <= 64);
+          debug_assert(nfa_target <= 64, "NFA has too many states ({})",
+                       nfa_target);
           dfa_target |= (1ULL << nfa_target);
         }
       }
@@ -282,11 +286,10 @@ Token Lexer::next() {
   }
   if (last_accepting_kind == TokenKind::None) {
     if (next_idx < input.size()) {
-      throw std::runtime_error(std::string("Unexpected character ") +
-                               input[next_idx] + " at index " +
-                               std::to_string(next_idx));
+      debug_assert(false, "Lex: Unexpected character {} at index {}",
+                   input[next_idx], next_idx);
     } else {
-      throw std::runtime_error("Unexpected end of file");
+      debug_assert(false, "Lex: Unexpected end of file");
     }
   }
 

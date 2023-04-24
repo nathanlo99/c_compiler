@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "lexer.hpp"
+#include "util.hpp"
 
 struct ParseNode; // From parse_node.hpp
 
@@ -75,7 +76,7 @@ struct StateItem {
   }
 
   StateItem step() const {
-    assert(!complete());
+    debug_assert(!complete(), "StateItem::step: Item is already complete");
     return StateItem(production, origin_idx, dot + 1);
   }
 

@@ -70,9 +70,9 @@ private:
     }
 
     // Sink nodes are nodes with no outgoing edges
-    using util::operator<<;
-    std::cerr << "Graph: " << register_graph << std::endl;
-    std::cerr << "Sink nodes: " << sink_nodes << std::endl;
+    // using util::operator<<;
+    // std::cerr << "Graph: " << register_graph << std::endl;
+    // std::cerr << "Sink nodes: " << sink_nodes << std::endl;
 
     // 1. Move arguments from registers to memory
     for (size_t i : to_memory) {
@@ -99,7 +99,7 @@ private:
         const size_t next = register_graph[node];
         register_graph.erase(node);
         copy(node, next);
-        std::cerr << "$" << node << " <- $" << next << std::endl;
+        // std::cerr << "$" << node << " <- $" << next << std::endl;
         annotate("Copying argument from register " + std::to_string(node) +
                  " to register " + std::to_string(next));
         node = next;
@@ -117,9 +117,9 @@ private:
       register_graph.erase(node);
       if (node == next)
         continue;
-      std::cerr << "Beginning cycle: " << std::endl;
+      // std::cerr << "Beginning cycle: " << std::endl;
       copy(1, node);
-      std::cerr << "$1 <- $" << node << std::endl;
+      // std::cerr << "$1 <- $" << node << std::endl;
       annotate("Copying argument from register " + std::to_string(node) +
                " to register 1");
       while (next != start) {
@@ -127,12 +127,12 @@ private:
         next = register_graph[node];
         register_graph.erase(node);
         copy(next, node);
-        std::cerr << "$" << next << " <- $" << node << std::endl;
+        // std::cerr << "$" << next << " <- $" << node << std::endl;
         annotate("Copying argument from register " + std::to_string(node) +
                  " to register " + std::to_string(next));
       }
       copy(node, 1);
-      std::cerr << "$" << node << " <- $1" << std::endl;
+      // std::cerr << "$" << node << " <- $1" << std::endl;
       annotate("Copying argument from register 1 to register " +
                std::to_string(node));
     }
@@ -487,9 +487,9 @@ private:
         const auto &argument = called_function.arguments[i].name;
         source_locations.push_back(allocation.get_location(parameter));
         target_locations.push_back(function_allocation.get_location(argument));
-        std::cerr << "Copying argument " << parameter << " at "
-                  << source_locations.back() << " to " << argument << " at "
-                  << target_locations.back() << std::endl;
+        // std::cerr << "Copying argument " << parameter << " at "
+        //           << source_locations.back() << " to " << argument << " at "
+        //           << target_locations.back() << std::endl;
       }
 
       copy_arguments(source_locations, target_locations);
