@@ -736,14 +736,13 @@ struct ControlFlowGraph {
     }
     os << ") : " << graph.return_type << std::endl;
 
-    for (const auto &label : graph.block_labels) {
-      const auto &block = graph.get_block(label);
+    graph.for_each_block([&](const Block &block) {
       os << separator << std::endl;
-      os << "label: " << label << std::endl;
-      os << "immediate dominator: " << graph.immediate_dominator(label)
-         << std::endl;
+      os << "label: " << block.entry_label << std::endl;
+      os << "immediate dominator: "
+         << graph.immediate_dominator(block.entry_label) << std::endl;
       os << block;
-    }
+    });
     os << separator << std::endl;
     os << "exiting blocks: " << graph.exiting_blocks << std::endl;
     os << separator << std::endl;

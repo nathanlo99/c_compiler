@@ -36,7 +36,7 @@ void Program::inline_function_call(const std::string &function_name,
                  "Called function has different number of arguments than call "
                  "instruction");
 
-  std::cout << "Inlining function call to " << called_function_name
+  std::cerr << "Inlining function call to " << called_function_name
             << std::endl;
 
   const std::string inline_exit_label = function.split_block(
@@ -68,8 +68,6 @@ void Program::inline_function_call(const std::string &function_name,
         current_labels.insert(label);
     }
   }
-
-  // std::cout << "Done collecting variables" << std::endl;
 
   std::map<std::string, std::string> renamed_variables;
   std::map<std::string, std::string> renamed_labels;
@@ -140,16 +138,13 @@ void Program::inline_function_call(const std::string &function_name,
 
   // Determine the return variable
   std::string return_variable = "(unknown)";
-  for (const auto &block_label : called_function.block_labels) {
-    const auto &block = called_function.get_block(block_label);
-    for (const auto &instruction : block.instructions) {
-      if (instruction.opcode == Opcode::Ret) {
-        runtime_assert(return_variable == "(unknown)",
-                       "Called function has multiple return instructions");
-        return_variable = instruction.arguments[0];
-      }
+  called_function.for_each_instruction([&](const Instruction &instruction) {
+    if (instruction.opcode == Opcode::Ret) {
+      runtime_assert(return_variable == "(unknown)",
+                     "Called function has multiple return instructions");
+      return_variable = instruction.arguments[0];
     }
-  }
+  });
 
   // Add the called function's blocks to the current function
   size_t block_idx = std::find(function.block_labels.begin(),
@@ -188,9 +183,9 @@ void Program::inline_function_call(const std::string &function_name,
   runtime_assert(calling_instruction.opcode == Opcode::Call &&
                      calling_instruction.funcs[0] == called_function_name,
                  "Expected exit block to start with the inlining call");
-  calling_instruction.opcode = Opcode::Id;
-  calling_instruction.arguments = {renamed_variables.at(return_variable)};
-
+  calling_instruction = Instruction::id(calling_instruction.destination,
+                                        renamed_variables.at(return_variable),
+                                        called_function.return_type);
   function.is_graph_dirty = true;
   function.recompute_graph();
 }

@@ -99,8 +99,8 @@ DFA NFA::to_dfa() const {
   using state_t = uint64_t;
   const state_t start_state = 1 << 0;
   DFA result;
-  std::map<state_t, int> state_to_idx;
-  state_to_idx[0] = -1;
+  std::map<state_t, size_t> state_to_idx;
+  state_to_idx[0] = DFA::ERROR_STATE;
 
   std::queue<state_t> active_nodes;
   active_nodes.push(start_state);
