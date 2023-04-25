@@ -5,7 +5,8 @@
 
 namespace bril {
 
-void optimize_call_graph(Program &program) {
+bool optimize_call_graph(Program &program) {
+  bool result = false;
   CallGraph call_graph(program);
   const auto should_inline = [&](const ControlFlowGraph &function) {
     if (call_graph.graph.at(function.name).count(function.name) > 0)
@@ -38,11 +39,14 @@ void optimize_call_graph(Program &program) {
         }
         run_optimization_passes(program);
       }
+      result |= changed;
       if (!changed)
         break;
     }
     run_optimization_passes(program);
   }
+
+  return result;
 }
 
 } // namespace bril

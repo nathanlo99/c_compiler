@@ -4,6 +4,6 @@
 
 namespace bril {
 
-void optimize_call_graph(Program &program);
+bool optimize_call_graph(Program &program);
 
 } // namespace bril

@@ -82,7 +82,8 @@ bril::Program get_optimized_bril_from_file(const std::string &filename) {
   run_optimization_passes(bril_program);
   bril_program.convert_from_ssa();
   run_optimization_passes(bril_program);
-  bril::optimize_call_graph(bril_program);
+  while (bril::optimize_call_graph(bril_program))
+    ;
   bril_program.for_each_function(bril::canonicalize_names);
   return bril_program;
 }
