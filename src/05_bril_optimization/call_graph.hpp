@@ -92,7 +92,10 @@ struct CallGraph {
 
   friend std::ostream &operator<<(std::ostream &os, const CallGraph &graph) {
     using util::operator<<;
-    os << "Function edges: " << graph.graph << std::endl;
+    os << "Function edges: " << std::endl;
+    for (const auto &[function, called_functions] : graph.graph) {
+      os << "  " << function << ": " << called_functions << std::endl;
+    }
     os << "Strongly connected components: " << graph.components << std::endl;
     os << "Component graph: " << std::endl;
     for (size_t i = 0; i < graph.component_graph.size(); ++i)

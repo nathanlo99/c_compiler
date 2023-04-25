@@ -409,8 +409,6 @@ void ControlFlowGraph::compute_dominators() {
     return false;
   };
 
-  const auto start_time = Timer::get_time_ms();
-  immediate_dominators[entry_label] = "(none)";
   for (size_t i = 0; i < num_labels; ++i) {
     const std::string label = block_labels[i];
     for (size_t j = 0; j < num_labels; ++j) {
@@ -419,6 +417,8 @@ void ControlFlowGraph::compute_dominators() {
         dominators[label].insert(other_label);
     }
   }
+
+  immediate_dominators[entry_label] = "(none)";
   for (size_t i = 0; i < num_labels; ++i) {
     const std::string label = block_labels[i];
     for (const std::string &other_label : dominators.at(label)) {
@@ -435,12 +435,6 @@ void ControlFlowGraph::compute_dominators() {
         dominance_frontiers[other_label].insert(label);
     }
   }
-
-  const auto end_time = Timer::get_time_ms();
-  const auto elapsed_time = end_time - start_time;
-  if (block_labels.size() >= 10)
-    fmt::print(stderr, "Post-processed dominators for {} in {} ms\n", name,
-               elapsed_time);
 }
 
 std::string

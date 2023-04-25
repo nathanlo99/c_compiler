@@ -124,13 +124,13 @@ simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
       return lhs;
     // lhs / 0 == ERROR
     if (value == 0 && operation == BinaryOperation::Div)
-      debug_assert(false, "Division by zero");
+      return expr;
     // lhs % 1 == 0
     if (value == 1 && operation == BinaryOperation::Mod)
       return std::make_shared<LiteralExpr>(0, Type::Int);
     // lhs % 0 == ERROR
     if (value == 0 && operation == BinaryOperation::Mod)
-      debug_assert(false, "Modulo by zero");
+      return expr;
   }
 
   // If neither side is a literal, but they're still cancellable, then cancel

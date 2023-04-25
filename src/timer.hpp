@@ -18,6 +18,11 @@ public:
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
         .count();
   }
+  static size_t get_time_ns() {
+    using namespace std::chrono;
+    return duration_cast<nanoseconds>(system_clock::now().time_since_epoch())
+        .count();
+  }
 
   static inline bool is_running(const std::string &name) {
     return start_times.count(name) > 0 && end_times.count(name) == 0;
@@ -25,16 +30,16 @@ public:
   static void start(const std::string &name) {
     debug_assert(start_times.count(name) == 0, "Timer '{}' already started",
                  name);
-    start_times[name] = get_time_ms();
+    start_times[name] = get_time_ns();
     names.push_back(name);
   }
   static void stop(const std::string &name) {
     debug_assert(start_times.count(name) > 0, "Timer '{}' not started", name);
     debug_assert(end_times.count(name) == 0, "Timer '{}' not started", name);
-    end_times[name] = get_time_ms();
+    end_times[name] = get_time_ns();
   }
 
-  static void print(std::ostream &os, const size_t threshold_ms = 0) {
+  static void print(std::ostream &os, const double threshold_ms = 0.0) {
     os << "Timer data:" << std::endl;
     for (const auto &name : names) {
       const auto &start_time = start_times[name];
@@ -43,8 +48,8 @@ public:
         os << "  " << name << ": (still running)" << std::endl;
       } else {
         const auto &end_time = it->second;
-        const size_t running_time_ms = end_time - start_time;
-        if (running_time_ms > threshold_ms)
+        const double running_time_ms = (end_time - start_time) / 1'000'000.0;
+        if (running_time_ms >= threshold_ms)
           os << "  " << name << ": " << running_time_ms << "ms" << std::endl;
       }
     }

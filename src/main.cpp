@@ -485,7 +485,7 @@ int main(int argc, char **argv) {
     options.at(argument)(filename);
     Timer::stop("Total");
 
-    Timer::print(std::cerr, 5);
+    Timer::print(std::cerr, 5.0);
   } catch (const std::exception &e) {
     fmt::print(stderr, "ERROR: {}\n", e.what());
     return 1;
