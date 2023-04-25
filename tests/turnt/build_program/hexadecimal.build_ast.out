@@ -1,0 +1,16 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (unused)
+    b: int (unused)
+  declarations: 
+    null: int* = 1 (unused)
+    stdout: int* = 4294901772 (unused)
+    almost_nice: int = 105 (unused)
+    nice: int = 69 (used)
+  statements: 
+  return_expr: 
+    VariableExpr(nice) : int
+}
+

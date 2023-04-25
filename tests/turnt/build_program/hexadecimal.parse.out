@@ -1,0 +1,61 @@
+procedures main
+main INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+INT int
+WAIN wain
+LPAREN (
+dcl type ID
+type INT
+INT int
+ID a
+COMMA ,
+dcl type ID
+type INT
+INT int
+ID b
+RPAREN )
+LBRACE {
+dcls dcls dcl BECOMES NUM SEMI
+dcls dcls dcl BECOMES NUM SEMI
+dcls dcls dcl BECOMES NUM SEMI
+dcls dcls dcl BECOMES NUM SEMI
+dcls .EMPTY
+dcl type ID
+type INT STAR
+INT int
+STAR *
+ID null
+BECOMES =
+NUM 0x1
+SEMI ;
+dcl type ID
+type INT STAR
+INT int
+STAR *
+ID stdout
+BECOMES =
+NUM 0xffff000c
+SEMI ;
+dcl type ID
+type INT
+INT int
+ID almost_nice
+BECOMES =
+NUM 0x69
+SEMI ;
+dcl type ID
+type INT
+INT int
+ID nice
+BECOMES =
+NUM 69
+SEMI ;
+statements .EMPTY
+RETURN return
+expr test
+test sum
+sum term
+term factor
+factor ID
+ID nice
+SEMI ;
+RBRACE }

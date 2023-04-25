@@ -6,7 +6,6 @@
 #include <memory>
 
 int64_t parse_literal(const std::string &lexeme) {
-  std::cerr << "Parsing literal " << lexeme << std::endl;
   try {
     const int64_t result = std::stoll(lexeme, nullptr, 0);
     if (result < 0 && (lexeme.starts_with("0x") || lexeme.starts_with("0X")))

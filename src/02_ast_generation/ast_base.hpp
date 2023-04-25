@@ -19,7 +19,7 @@ struct Literal {
     else if (type == Type::Int)
       return std::to_string(value);
     else if (type == Type::IntStar)
-      return fmt::format("{:x}", value);
+      return fmt::format("0x{:x}", value);
     unreachable("Invalid Literal type");
     return "????";
   }

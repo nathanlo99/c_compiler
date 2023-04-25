@@ -1,0 +1,8 @@
+int wain(int a, int b) {
+  int* null = NULL;
+  int* stdout = 0xffff000c;
+  int almost_nice = 105;
+  int nice = 69;
+  return nice;
+}
+
