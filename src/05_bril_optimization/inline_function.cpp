@@ -35,8 +35,8 @@ void Program::inline_function_call(const std::string &function_name,
                "Called function has different number of arguments than call "
                "instruction");
 
-  std::cerr << "Inlining function call to " << called_function_name
-            << std::endl;
+  std::cerr << "Inlining call to " << called_function_name << " in "
+            << function_name << std::endl;
 
   const std::string inline_exit_label = function.split_block(
       block_label, instruction_idx, called_function_name + "InlineExit");

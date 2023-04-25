@@ -132,7 +132,7 @@ size_t remove_unused_functions(Program &program) {
   });
 
   for (const auto &name : unused_functions) {
-    // std::cerr << "Removing unused function " << name << std::endl;
+    std::cerr << "Removing unused function " << name << std::endl;
     program.functions.erase(name);
   }
   return unused_functions.size();

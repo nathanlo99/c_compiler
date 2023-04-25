@@ -19,4 +19,4 @@ int isEven(int n) {
   return answer;
 }
 
-int wain(int a, int b) { return isOdd(5000); }
+int wain(int a, int b) { return isOdd(500) * isEven(500); }

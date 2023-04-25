@@ -123,10 +123,32 @@ struct CallGraph {
     // Reverse the order so that the functions which call no other functions are
     // first
     std::reverse(topological_order.begin(), topological_order.end());
+
+    // Reorder the components
     std::vector<StronglyConnectedComponent> ordered_components;
-    for (const auto &node : topological_order)
+    for (const size_t node : topological_order) {
       ordered_components.push_back(components[node]);
+    }
     components = ordered_components;
+
+    // Recompute the function to component mapping
+    for (size_t i = 0; i < components.size(); ++i) {
+      for (const auto &function : components[i]) {
+        function_to_component[function] = i;
+      }
+    }
+
+    // Recompute the edges
+    component_graph.clear();
+    component_graph.resize(components.size());
+    for (const auto &[node, neighbours] : graph) {
+      const auto &component = function_to_component.at(node);
+      for (const auto &neighbour : neighbours) {
+        const auto &next_component = function_to_component.at(neighbour);
+        if (component != next_component)
+          component_graph[component].insert(next_component);
+      }
+    }
   }
 
   friend std::ostream &operator<<(std::ostream &os, const CallGraph &graph) {

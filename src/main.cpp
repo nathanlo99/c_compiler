@@ -4,6 +4,7 @@
 #include "bril_interpreter.hpp"
 #include "bril_to_mips_generator.hpp"
 #include "call_graph.hpp"
+#include "call_graph_walk.hpp"
 #include "canonicalize_conditions.hpp"
 #include "canonicalize_names.hpp"
 #include "data_flow.hpp"
@@ -17,6 +18,7 @@
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
+#include "run_optimization.hpp"
 #include "simple_bril_generator.hpp"
 #include "symbol_table.hpp"
 #include "timer.hpp"
@@ -73,36 +75,13 @@ bril::Program get_bril_from_file(const std::string &filename) {
   return get_bril(program);
 }
 
-size_t apply_optimizations(bril::Program &program) {
-  using namespace bril;
-  size_t num_removed_lines = 0;
-  while (true) {
-    const size_t old_num_removed_lines = num_removed_lines;
-    num_removed_lines += program.apply_pass(remove_unused_functions);
-    num_removed_lines += program.apply_local_pass(local_value_numbering);
-    num_removed_lines += program.apply_global_pass(global_value_numbering);
-    num_removed_lines +=
-        program.apply_local_pass(remove_trivial_phi_instructions);
-    num_removed_lines +=
-        program.apply_global_pass(remove_global_unused_assignments);
-    num_removed_lines +=
-        program.apply_local_pass(remove_local_unused_assignments);
-    num_removed_lines += program.apply_pass(remove_unused_parameters);
-    num_removed_lines += program.apply_global_pass(combine_extended_blocks);
-    num_removed_lines += program.apply_global_pass(remove_unused_blocks);
-    if (num_removed_lines == old_num_removed_lines)
-      break;
-  }
-  return num_removed_lines;
-}
-
 bril::Program get_optimized_bril_from_file(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_from_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.for_each_function(bril::canonicalize_names);
   return bril_program;
 }
@@ -153,9 +132,9 @@ void to_ssa(const std::string &filename) {
   std::cout << "Before optimizations: " << std::endl;
   std::cout << bril_program << std::endl;
 
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
 
   std::cout << bril_program << std::endl;
 
@@ -164,11 +143,11 @@ void to_ssa(const std::string &filename) {
 
 void ssa_round_trip(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_from_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.print_flattened(std::cout);
 }
 
@@ -199,11 +178,11 @@ void round_trip_interpret(const std::string &filename) {
   const auto program = get_program(input);
   auto bril_program = get_bril(program);
 
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_from_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
 
   BRILInterpreter interpreter(bril_program);
   bril_program.print_flattened(std::cerr);
@@ -295,9 +274,9 @@ void generate_mips(const std::string &filename) {
 
 void compute_call_graph(const std::string &filename) {
   using util::operator<<;
-  const auto program = get_optimized_bril_from_file(filename);
-  const auto call_graph = bril::CallGraph(program);
-  std::cout << call_graph << std::endl;
+  auto program = get_optimized_bril_from_file(filename);
+  bril::optimize_call_graph(program);
+  std::cout << program << std::endl;
 }
 
 void benchmark(const std::string &filename) {
@@ -352,7 +331,7 @@ void benchmark(const std::string &filename) {
 
   // 6. Pre-SSA optimization
   Timer::start("6. Pre-SSA optimization");
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   Timer::stop("6. Pre-SSA optimization");
 
   // 7. Convert to SSA
@@ -362,13 +341,13 @@ void benchmark(const std::string &filename) {
 
   // 8. Post-SSA optimization
   Timer::start("8. Post-SSA optimization");
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   Timer::stop("8. Post-SSA optimization");
 
   // 9. Convert from SSA
   Timer::start("9. Conversion from SSA");
   bril_program.convert_from_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   Timer::stop("9. Conversion from SSA");
 
   // 10. Generate MIPS
@@ -400,11 +379,11 @@ void test_augmented_cfg(const std::string &filename) {
   program->accept_simple(generator);
   auto bril_program = generator.program();
 
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
   bril_program.convert_from_ssa();
-  apply_optimizations(bril_program);
+  run_optimization_passes(bril_program);
 
   bril::interpreter::BRILInterpreter interpreter(bril_program);
   interpreter.run(std::cout);
@@ -428,7 +407,7 @@ void inline_functions(const std::string &filename) {
       const bool this_changed = program.inline_function("wain", func);
       changed |= this_changed;
     }
-    apply_optimizations(program);
+    run_optimization_passes(program);
     if (!changed)
       break;
   }
