@@ -15,7 +15,7 @@ int print(int *str) {
   int i = 0;
   size = *vector_size(str);
   for (i = 0; i < size; i = i + 1) {
-    print_char(stdout, *vector_at(str, i));
+    print_char(*vector_at(str, i));
   }
   return 0;
 }
@@ -24,11 +24,11 @@ int print_num(int num) {
   int *stdout = 0xffff000c;
   int digit = 0;
   if (num == 0) {
-    print_char(stdout, 48);
+    print_char(48);
   } else {
     while (num != 0) {
       digit = num % 10;
-      print_char(stdout, digit + 48);
+      print_char(digit + 48);
       num = num / 10;
     }
   }

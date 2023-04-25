@@ -36,10 +36,155 @@ enum class Opcode {
   NumOpcodes,
 };
 
+enum class Reg {
+  R0,
+  R1,
+  R2,
+  R3,
+  R4,
+  R5,
+  R6,
+  R7,
+  R8,
+  R9,
+  R10,
+  R11,
+  R12,
+  R13,
+  R14,
+  R15,
+  R16,
+  R17,
+  R18,
+  R19,
+  R20,
+  R21,
+  R22,
+  R23,
+  R24,
+  R25,
+  R26,
+  R27,
+  R28,
+  R29,
+  R30,
+  R31,
+  // Aliases
+  FP = R29,
+  SP = R30,
+};
+
+template <> struct fmt::formatter<Reg> : formatter<string_view> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(Reg reg, FormatContext &ctx) const {
+    string_view name = "???";
+    switch (reg) {
+    case Reg::R0:
+      name = "$0";
+      break;
+    case Reg::R1:
+      name = "$1";
+      break;
+    case Reg::R2:
+      name = "$2";
+      break;
+    case Reg::R3:
+      name = "$3";
+      break;
+    case Reg::R4:
+      name = "$4";
+      break;
+    case Reg::R5:
+      name = "$5";
+      break;
+    case Reg::R6:
+      name = "$6";
+      break;
+    case Reg::R7:
+      name = "$7";
+      break;
+    case Reg::R8:
+      name = "$8";
+      break;
+    case Reg::R9:
+      name = "$9";
+      break;
+    case Reg::R10:
+      name = "$10";
+      break;
+    case Reg::R11:
+      name = "$11";
+      break;
+    case Reg::R12:
+      name = "$12";
+      break;
+    case Reg::R13:
+      name = "$13";
+      break;
+    case Reg::R14:
+      name = "$14";
+      break;
+    case Reg::R15:
+      name = "$15";
+      break;
+    case Reg::R16:
+      name = "$16";
+      break;
+    case Reg::R17:
+      name = "$17";
+      break;
+    case Reg::R18:
+      name = "$18";
+      break;
+    case Reg::R19:
+      name = "$19";
+      break;
+    case Reg::R20:
+      name = "$20";
+      break;
+    case Reg::R21:
+      name = "$21";
+      break;
+    case Reg::R22:
+      name = "$22";
+      break;
+    case Reg::R23:
+      name = "$23";
+      break;
+    case Reg::R24:
+      name = "$24";
+      break;
+    case Reg::R25:
+      name = "$25";
+      break;
+    case Reg::R26:
+      name = "$26";
+      break;
+    case Reg::R27:
+      name = "$27";
+      break;
+    case Reg::R28:
+      name = "$28";
+      break;
+    case Reg::R29:
+      name = "$29";
+      break;
+    case Reg::R30:
+      name = "$30";
+      break;
+    case Reg::R31:
+      name = "$31";
+      break;
+    }
+    return formatter<string_view>::format(name, ctx);
+  }
+};
+
 struct MIPSInstruction {
   Opcode opcode;
-  size_t s, t, d;
-  int32_t i;
+  Reg s, t, d;
+  int64_t i;
 
   bool has_label;
   std::string string_value;
@@ -104,86 +249,93 @@ private:
     return ss.str();
   }
 
-  MIPSInstruction(Opcode opcode, int s, int t, int d, int32_t i,
+  MIPSInstruction(Opcode opcode, Reg s, Reg t, Reg d, int64_t i,
                   bool has_label = false, const std::string &label_name = "")
       : opcode(opcode), s(s), t(t), d(d), i(i), has_label(has_label),
         string_value(make_label(label_name)) {}
   MIPSInstruction(const std::string &label_name)
-      : opcode(Opcode::Label), s(0), t(0), d(0), i(0), has_label(true),
-        string_value(make_label(label_name)) {}
+      : opcode(Opcode::Label), s(Reg::R0), t(Reg::R0), d(Reg::R0), i(0),
+        has_label(true), string_value(make_label(label_name)) {}
 
 public:
-  static MIPSInstruction add(int d, int s, int t) {
+  static MIPSInstruction add(Reg d, Reg s, Reg t) {
     return MIPSInstruction(Opcode::Add, s, t, d, 0);
   }
-  static MIPSInstruction sub(int d, int s, int t) {
+  static MIPSInstruction sub(Reg d, Reg s, Reg t) {
     return MIPSInstruction(Opcode::Sub, s, t, d, 0);
   }
-  static MIPSInstruction mult(int s, int t) {
-    return MIPSInstruction(Opcode::Mult, s, t, 0, 0);
+  static MIPSInstruction mult(Reg s, Reg t) {
+    return MIPSInstruction(Opcode::Mult, s, t, Reg::R0, 0);
   }
-  static MIPSInstruction multu(int s, int t) {
-    return MIPSInstruction(Opcode::Multu, s, t, 0, 0);
+  static MIPSInstruction multu(Reg s, Reg t) {
+    return MIPSInstruction(Opcode::Multu, s, t, Reg::R0, 0);
   }
-  static MIPSInstruction div(int s, int t) {
-    return MIPSInstruction(Opcode::Div, s, t, 0, 0);
+  static MIPSInstruction div(Reg s, Reg t) {
+    return MIPSInstruction(Opcode::Div, s, t, Reg::R0, 0);
   }
-  static MIPSInstruction divu(int s, int t) {
-    return MIPSInstruction(Opcode::Divu, s, t, 0, 0);
+  static MIPSInstruction divu(Reg s, Reg t) {
+    return MIPSInstruction(Opcode::Divu, s, t, Reg::R0, 0);
   }
-  static MIPSInstruction mfhi(int d) {
-    return MIPSInstruction(Opcode::Mfhi, 0, 0, d, 0);
+  static MIPSInstruction mfhi(Reg d) {
+    return MIPSInstruction(Opcode::Mfhi, Reg::R0, Reg::R0, d, 0);
   }
-  static MIPSInstruction mflo(int d) {
-    return MIPSInstruction(Opcode::Mflo, 0, 0, d, 0);
+  static MIPSInstruction mflo(Reg d) {
+    return MIPSInstruction(Opcode::Mflo, Reg::R0, Reg::R0, d, 0);
   }
-  static MIPSInstruction lis(int d) {
-    return MIPSInstruction(Opcode::Lis, 0, 0, d, 0);
+  static MIPSInstruction lis(Reg d) {
+    return MIPSInstruction(Opcode::Lis, Reg::R0, Reg::R0, d, 0);
   }
-  static MIPSInstruction lw(int t, int32_t i, int s) {
-    return MIPSInstruction(Opcode::Lw, s, t, 0, i);
+  static MIPSInstruction lw(Reg t, int32_t i, Reg s) {
+    return MIPSInstruction(Opcode::Lw, s, t, Reg::R0, i);
   }
-  static MIPSInstruction sw(int t, int32_t i, int s) {
-    return MIPSInstruction(Opcode::Sw, s, t, 0, i);
+  static MIPSInstruction sw(Reg t, int32_t i, Reg s) {
+    return MIPSInstruction(Opcode::Sw, s, t, Reg::R0, i);
   }
-  static MIPSInstruction slt(int d, int s, int t) {
+  static MIPSInstruction slt(Reg d, Reg s, Reg t) {
     return MIPSInstruction(Opcode::Slt, s, t, d, 0);
   }
-  static MIPSInstruction sltu(int d, int s, int t) {
+  static MIPSInstruction sltu(Reg d, Reg s, Reg t) {
     return MIPSInstruction(Opcode::Sltu, s, t, d, 0);
   }
-  static MIPSInstruction beq(int s, int t, int i) {
-    return MIPSInstruction(Opcode::Beq, s, t, 0, i);
+  static MIPSInstruction beq(Reg s, Reg t, int64_t i) {
+    debug_assert(false, "WARN: Using beq with an immediate value impedes "
+                        "peephole optimizations");
+    return MIPSInstruction(Opcode::Beq, s, t, Reg::R0, i);
   }
-  static MIPSInstruction beq(int s, int t, const std::string &label) {
-    return MIPSInstruction(Opcode::Beq, s, t, 0, 0, true, label);
+  static MIPSInstruction beq(Reg s, Reg t, const std::string &label) {
+    return MIPSInstruction(Opcode::Beq, s, t, Reg::R0, 0, true, label);
   }
-  static MIPSInstruction bne(int s, int t, int i) {
-    return MIPSInstruction(Opcode::Bne, s, t, 0, i);
+  static MIPSInstruction bne(Reg s, Reg t, int64_t i) {
+    debug_assert(false, "WARN: Using bne with an immediate value impedes "
+                        "peephole optimizations");
+    return MIPSInstruction(Opcode::Bne, s, t, Reg::R0, i);
   }
-  static MIPSInstruction bne(int s, int t, const std::string &label) {
-    return MIPSInstruction(Opcode::Bne, s, t, 0, 0, true, label);
+  static MIPSInstruction bne(Reg s, Reg t, const std::string &label) {
+    return MIPSInstruction(Opcode::Bne, s, t, Reg::R0, 0, true, label);
   }
-  static MIPSInstruction jr(int s) {
-    return MIPSInstruction(Opcode::Jr, s, 0, 0, 0);
+  static MIPSInstruction jr(Reg s) {
+    return MIPSInstruction(Opcode::Jr, s, Reg::R0, Reg::R0, 0);
   }
-  static MIPSInstruction jalr(int s) {
-    return MIPSInstruction(Opcode::Jalr, s, 0, 0, 0);
+  static MIPSInstruction jalr(Reg s) {
+    return MIPSInstruction(Opcode::Jalr, s, Reg::R0, Reg::R0, 0);
   }
-  static MIPSInstruction word(int32_t i) {
-    return MIPSInstruction(Opcode::Word, 0, 0, 0, i);
+  static MIPSInstruction word(int64_t i) {
+    return MIPSInstruction(Opcode::Word, Reg::R0, Reg::R0, Reg::R0, i);
   }
   static MIPSInstruction word(const std::string &label) {
-    return MIPSInstruction(Opcode::Word, 0, 0, 0, 0, true, label);
+    return MIPSInstruction(Opcode::Word, Reg::R0, Reg::R0, Reg::R0, 0, true,
+                           label);
   }
   static MIPSInstruction label(const std::string &name) {
     return MIPSInstruction(name);
   }
   static MIPSInstruction import(const std::string &value) {
-    return MIPSInstruction(Opcode::Import, 0, 0, 0, 0, true, value);
+    return MIPSInstruction(Opcode::Import, Reg::R0, Reg::R0, Reg::R0, 0, true,
+                           value);
   }
   static MIPSInstruction comment(const std::string &value) {
-    auto result = MIPSInstruction(Opcode::Comment, 0, 0, 0, 0, true, "");
+    auto result = MIPSInstruction(Opcode::Comment, Reg::R0, Reg::R0, Reg::R0, 0,
+                                  true, "");
     result.comment_value = value;
     return result;
   }
@@ -193,7 +345,7 @@ public:
            opcode == Opcode::Beq || opcode == Opcode::Bne;
   }
 
-  bool substitute_arguments(const size_t from, const size_t to) {
+  bool substitute_arguments(const Reg from, const Reg to) {
     if (from == to)
       return false;
     bool changed = false;
@@ -229,13 +381,12 @@ public:
       break;
     }
     if (changed)
-      comment_value += " (replaced $" + std::to_string(from) + " with $" +
-                       std::to_string(to) + ")";
+      comment_value += fmt::format(" (replaced {} with {})", from, to);
     return changed;
   }
 
-  std::set<size_t> read_registers() const {
-    std::set<size_t> result;
+  std::set<Reg> read_registers() const {
+    std::set<Reg> result;
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
@@ -267,7 +418,7 @@ public:
     return {};
   }
 
-  std::optional<size_t> written_register() const {
+  std::optional<Reg> written_register() const {
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:
@@ -308,34 +459,34 @@ public:
     case Opcode::Sub:
     case Opcode::Slt:
     case Opcode::Sltu:
-      ss << name << " $" << d << ", $" << s << ", $" << t;
+      ss << fmt::format("{} {}, {}, {}", name, d, s, t);
       break;
     case Opcode::Mult:
     case Opcode::Multu:
     case Opcode::Div:
     case Opcode::Divu:
-      ss << name << " $" << s << ", $" << t;
+      ss << fmt::format("{} {}, {}", name, s, t);
       break;
     case Opcode::Mfhi:
     case Opcode::Mflo:
     case Opcode::Lis:
-      ss << name << " $" << d;
+      ss << fmt::format("{} {}", name, d);
       break;
     case Opcode::Lw:
     case Opcode::Sw:
-      ss << name << " $" << t << ", " << i << "($" << s << ")";
+      ss << fmt::format("{} {}, {}({})", name, t, i, s);
       break;
     case Opcode::Beq:
     case Opcode::Bne:
       if (has_label) {
-        ss << name << " $" << s << ", $" << t << ", " << string_value;
+        ss << fmt::format("{} {}, {}, {}", name, s, t, string_value);
       } else {
-        ss << name << " $" << s << ", $" << t << ", " << i;
+        ss << fmt::format("{} {}, {}, {}", name, s, t, i);
       }
       break;
     case Opcode::Jr:
     case Opcode::Jalr:
-      ss << name << " $" << s;
+      ss << fmt::format("{} {}", name, s);
       break;
     case Opcode::Word:
       if (has_label) {

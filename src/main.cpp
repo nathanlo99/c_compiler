@@ -270,9 +270,11 @@ void allocate_registers(const std::string &filename) {
   const auto program = get_optimized_bril_from_file(filename);
   const std::string separator(100, '-'), padding(50, ' ');
 
-  const std::vector<size_t> available_registers = {
-      3,  5,  6,  7,  8,  9,  10, 12, 13, 14, 15, 16,
-      17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+  const std::vector<Reg> available_registers = {
+      Reg::R3,  Reg::R5,  Reg::R6,  Reg::R7,  Reg::R8,  Reg::R9,
+      Reg::R10, Reg::R12, Reg::R13, Reg::R14, Reg::R15, Reg::R16,
+      Reg::R17, Reg::R18, Reg::R19, Reg::R20, Reg::R21, Reg::R22,
+      Reg::R23, Reg::R24, Reg::R25, Reg::R26, Reg::R27, Reg::R28};
 
   program.for_each_function([=](const auto &function) {
     std::cout << separator << std::endl;

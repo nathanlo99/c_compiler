@@ -176,7 +176,7 @@ struct Instruction {
   Type type = Type::Void;
   std::string destination;
 
-  int value;
+  int64_t value;
   std::vector<std::string> arguments;
   std::vector<std::string> funcs;
   std::vector<std::string> labels;
@@ -194,7 +194,8 @@ struct Instruction {
       : opcode(opcode), type(type), destination(destination),
         arguments(arguments) {}
 
-  Instruction(const std::string &destination, const int value, const Type type)
+  Instruction(const std::string &destination, const int64_t value,
+              const Type type)
       : opcode(Opcode::Const), type(type), destination(destination),
         value(value) {}
 
@@ -282,7 +283,7 @@ struct Instruction {
     return Instruction(Opcode::Ret, Type::Void, "", {arg});
   }
   static inline Instruction constant(const std::string &destination,
-                                     const int value, const Type type) {
+                                     const int64_t value, const Type type) {
     return Instruction(destination, value, type);
   }
   static inline Instruction constant(const std::string &destination,

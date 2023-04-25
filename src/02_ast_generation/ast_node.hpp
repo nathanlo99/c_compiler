@@ -188,7 +188,7 @@ struct VariableExpr : Expr {
 struct LiteralExpr : Expr {
   Literal literal;
   LiteralExpr(const Literal &literal) : Expr(literal.type), literal(literal) {}
-  LiteralExpr(const int32_t value, const Type type)
+  LiteralExpr(const int64_t value, const Type type)
       : Expr(type), literal(value, type) {}
   virtual ~LiteralExpr() = default;
 

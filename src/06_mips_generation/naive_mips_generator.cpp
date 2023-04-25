@@ -26,11 +26,11 @@ void NaiveMIPSGenerator::visit(Program &program) {
 
   if (table.use_print) {
     import("print");
-    load_const(10, "print");
+    load_const(Reg::R10, "print");
   }
 
   init_constants();
-  beq(0, 0, "wain");
+  beq(Reg::R0, Reg::R0, "wain");
   annotate("Done prologue, jumping to wain");
 
   for (auto &procedure : program.procedures) {
@@ -53,26 +53,26 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   comment("Generating code for " + procedure_name);
   label(procedure_name);
   if (is_wain) {
-    push(1);
-    push(2);
+    push(Reg::R1);
+    push(Reg::R2);
 
     if (table.use_memory) {
       comment("Calling init");
       const bool first_arg_is_array =
           table.get_arguments("wain")[0].type == Type::IntStar;
       if (!first_arg_is_array) {
-        add(2, 0, 0);
+        add(Reg::R2, Reg::R0, Reg::R0);
       }
-      push(31);
-      load_and_jalr(5, "init");
-      pop(31);
+      push(Reg::R31);
+      load_and_jalr(Reg::R5, "init");
+      pop(Reg::R31);
       comment("Done calling init");
     }
   }
-  sub(29, 30, 4);
+  sub(Reg::R29, Reg::R30, Reg::R4);
 
   for (const auto &variable : procedure.decls) {
-    push_const(3, variable.initial_value.value);
+    push_const(Reg::R3, variable.initial_value.value);
     annotate("Declaration " + variable.name);
   }
 
@@ -89,7 +89,7 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
     pop_and_discard(procedure.decls.size());
   }
 
-  jr(31);
+  jr(Reg::R31);
   annotate("Done generating code for " + procedure_name);
 
   table.leave_procedure();
@@ -112,14 +112,14 @@ void NaiveMIPSGenerator::visit(AssignmentExpr &expr) {
           std::dynamic_pointer_cast<VariableLValueExpr>(expr.lhs)) {
     const int offset = table.get_offset(lvalue->variable);
     expr.rhs->accept_simple(*this);
-    sw(3, offset, 29);
+    sw(Reg::R3, offset, Reg::R29);
   } else if (const auto lvalue =
                  std::dynamic_pointer_cast<DereferenceLValueExpr>(expr.lhs)) {
     lvalue->argument->accept_simple(*this);
-    push(3);
+    push(Reg::R3);
     expr.rhs->accept_simple(*this);
-    pop(5);
-    sw(3, 0, 5);
+    pop(Reg::R5);
+    sw(Reg::R3, 0, Reg::R5);
   } else {
     unreachable("Unknown lvalue type");
   }
@@ -132,12 +132,12 @@ void NaiveMIPSGenerator::visit(TestExpr &) {
 
 void NaiveMIPSGenerator::visit(VariableExpr &expr) {
   const int offset = table.get_offset(expr.variable);
-  lw(3, offset, 29);
+  lw(Reg::R3, offset, Reg::R29);
   annotate("Loading " + expr.variable.name);
 }
 
 void NaiveMIPSGenerator::visit(LiteralExpr &expr) {
-  load_const(3, expr.literal.value);
+  load_const(Reg::R3, expr.literal.value);
   annotate("Loading the literal " + expr.literal.value_to_string());
 }
 
@@ -145,41 +145,41 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
   const auto lhs_type = expr.lhs->type;
   const auto rhs_type = expr.rhs->type;
   expr.lhs->accept_simple(*this);
-  push(3);
+  push(Reg::R3);
   expr.rhs->accept_simple(*this);
-  pop(5);
+  pop(Reg::R5);
   switch (expr.operation) {
   case BinaryOperation::Add:
     if (lhs_type == Type::IntStar) {
       // Multiply rhs ($3) by 4
-      mult(3, 3, 4);
+      mult(Reg::R3, Reg::R3, Reg::R4);
     } else if (rhs_type == Type::IntStar) {
       // Multiply lhs ($5) by 4
-      mult(5, 5, 4);
+      mult(Reg::R5, Reg::R5, Reg::R4);
     }
-    add(3, 5, 3);
+    add(Reg::R3, Reg::R5, Reg::R3);
     break;
   case BinaryOperation::Sub:
     if (lhs_type == Type::Int && rhs_type == Type::Int) {
-      sub(3, 5, 3);
+      sub(Reg::R3, Reg::R5, Reg::R3);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::Int) {
       // lhs - 4 * rhs  -->  $5 - 4 * $3
-      mult(3, 3, 4);
-      sub(3, 5, 3);
+      mult(Reg::R3, Reg::R3, Reg::R4);
+      sub(Reg::R3, Reg::R5, Reg::R3);
     } else if (lhs_type == Type::IntStar && rhs_type == Type::IntStar) {
       // (lhs - rhs) / 4  --> ($5 - $3) / $4
-      sub(3, 5, 3);
-      div(3, 3, 4);
+      sub(Reg::R3, Reg::R5, Reg::R3);
+      div(Reg::R3, Reg::R3, Reg::R4);
     }
     break;
   case BinaryOperation::Mul:
-    mult(3, 5, 3);
+    mult(Reg::R3, Reg::R5, Reg::R3);
     break;
   case BinaryOperation::Div:
-    div(3, 5, 3);
+    div(Reg::R3, Reg::R5, Reg::R3);
     break;
   case BinaryOperation::Mod:
-    mod(3, 5, 3);
+    mod(Reg::R3, Reg::R5, Reg::R3);
     break;
   default:
     debug_assert(false, "Unknown binary operation");
@@ -190,8 +190,8 @@ void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {
   if (const auto lhs =
           std::dynamic_pointer_cast<VariableLValueExpr>(expr.argument)) {
     const int offset = table.get_offset(lhs->variable);
-    load_const(3, offset);
-    add(3, 3, 29);
+    load_const(Reg::R3, offset);
+    add(Reg::R3, Reg::R3, Reg::R29);
   } else if (const auto lhs = std::dynamic_pointer_cast<DereferenceLValueExpr>(
                  expr.argument)) {
     lhs->argument->accept_simple(*this);
@@ -202,37 +202,37 @@ void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {
 
 void NaiveMIPSGenerator::visit(DereferenceExpr &expr) {
   expr.argument->accept_simple(*this);
-  lw(3, 0, 3);
+  lw(Reg::R3, 0, Reg::R3);
 }
 
 void NaiveMIPSGenerator::visit(NewExpr &expr) {
   expr.rhs->accept_simple(*this);
-  add(1, 3, 0);
-  push(31);
-  load_and_jalr(5, "new");
-  pop(31);
+  add(Reg::R1, Reg::R3, Reg::R0);
+  push(Reg::R31);
+  load_and_jalr(Reg::R5, "new");
+  pop(Reg::R31);
   // The result is stored in $1: copy it to $3, and return NULL (1) if it was 0
-  bne(3, 0, 1);
-  add(3, 11, 0);
+  bne(Reg::R3, Reg::R0, 1);
+  add(Reg::R3, Reg::R11, Reg::R0);
 }
 
 void NaiveMIPSGenerator::visit(FunctionCallExpr &expr) {
   const std::string procedure_name = expr.procedure_name;
   const auto params = table.get_arguments(procedure_name);
   const size_t num_arguments = params.size();
-  push(29);
-  push(31);
+  push(Reg::R29);
+  push(Reg::R31);
   for (size_t i = 0; i < num_arguments; ++i) {
     comment("Pushing argument " + params[i].name);
     auto &argument = expr.arguments[i];
     argument->accept_simple(*this);
-    push(3);
+    push(Reg::R3);
     comment("Done pushing argument " + params[i].name);
   }
-  load_and_jalr(5, procedure_name);
+  load_and_jalr(Reg::R5, procedure_name);
   pop_and_discard(num_arguments);
-  pop(31);
-  pop(29);
+  pop(Reg::R31);
+  pop(Reg::R29);
 }
 
 void NaiveMIPSGenerator::visit(Statements &statements) {
@@ -253,15 +253,15 @@ void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
           std::dynamic_pointer_cast<VariableLValueExpr>(statement.lhs)) {
     const int offset = table.get_offset(lvalue->variable);
     statement.rhs->accept_simple(*this);
-    sw(3, offset, 29);
+    sw(Reg::R3, offset, Reg::R29);
   } else if (const auto lvalue =
                  std::dynamic_pointer_cast<DereferenceLValueExpr>(
                      statement.lhs)) {
     lvalue->argument->accept_simple(*this);
-    push(3);
+    push(Reg::R3);
     statement.rhs->accept_simple(*this);
-    pop(5);
-    sw(3, 0, 5);
+    pop(Reg::R5);
+    sw(Reg::R3, 0, Reg::R5);
   } else {
     unreachable("Unknown lvalue type");
   }
@@ -274,24 +274,24 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   const auto &test_expr = statement.test_expression;
   const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
                              test_expr->rhs->type == Type::IntStar;
-  const auto &compare = [&](const int d, const int s, const int t) {
+  const auto &compare = [&](const Reg d, const Reg s, const Reg t) {
     uses_pointers ? sltu(d, s, t) : slt(d, s, t);
   };
   const auto &lhs = test_expr->lhs;
   const auto &rhs = test_expr->rhs;
 
   lhs->accept_simple(*this);
-  push(3);
+  push(Reg::R3);
   rhs->accept_simple(*this);
-  pop(5);
+  pop(Reg::R5);
 
   switch (test_expr->operation) {
   case ComparisonOperation::LessThan: {
-    compare(3, 5, 3);
-    beq(3, 0, else_label);
+    compare(Reg::R3, Reg::R5, Reg::R3);
+    beq(Reg::R3, Reg::R0, else_label);
   } break;
   case ComparisonOperation::Equal: {
-    bne(3, 5, else_label);
+    bne(Reg::R3, Reg::R5, else_label);
   } break;
   default: {
     unreachable("Non-canonical comparison operation");
@@ -299,7 +299,7 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   }
 
   statement.true_statements.accept_simple(*this);
-  beq(0, 0, endif_label);
+  beq(Reg::R0, Reg::R0, endif_label);
   label(else_label);
   statement.false_statements.accept_simple(*this);
   label(endif_label);
@@ -312,63 +312,63 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   const auto &test_expr = statement.test_expression;
   const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
                              test_expr->rhs->type == Type::IntStar;
-  const auto &compare = [&](const int d, const int s, const int t) {
+  const auto &compare = [&](const Reg d, const Reg s, const Reg t) {
     uses_pointers ? sltu(d, s, t) : slt(d, s, t);
   };
 
   label(loop_label);
   test_expr->lhs->accept_simple(*this);
-  push(3);
+  push(Reg::R3);
   test_expr->rhs->accept_simple(*this);
-  pop(5);
+  pop(Reg::R5);
 
   // $5 = lhs, $3 = rhs
   // Jump to end if the condition is false
   switch (test_expr->operation) {
   case ComparisonOperation::LessThan: {
-    compare(3, 5, 3);
-    beq(3, 0, end_label);
+    compare(Reg::R3, Reg::R5, Reg::R3);
+    beq(Reg::R3, Reg::R0, end_label);
   } break;
   case ComparisonOperation::LessEqual: {
-    compare(3, 3, 5);
-    bne(3, 0, end_label);
+    compare(Reg::R3, Reg::R3, Reg::R5);
+    bne(Reg::R3, Reg::R0, end_label);
   } break;
   case ComparisonOperation::GreaterThan: {
-    compare(3, 3, 5);
-    beq(3, 0, end_label);
+    compare(Reg::R3, Reg::R3, Reg::R5);
+    beq(Reg::R3, Reg::R0, end_label);
   } break;
   case ComparisonOperation::GreaterEqual: {
-    compare(3, 5, 3);
-    bne(3, 0, end_label);
+    compare(Reg::R3, Reg::R5, Reg::R3);
+    bne(Reg::R3, Reg::R0, end_label);
   } break;
   case ComparisonOperation::Equal: {
-    bne(3, 5, end_label);
+    bne(Reg::R3, Reg::R5, end_label);
   } break;
   case ComparisonOperation::NotEqual: {
-    beq(3, 5, end_label);
+    beq(Reg::R3, Reg::R5, end_label);
   } break;
   }
 
   statement.body_statement->accept_simple(*this);
-  beq(0, 0, loop_label);
+  beq(Reg::R0, Reg::R0, loop_label);
   label(end_label);
 }
 
 void NaiveMIPSGenerator::visit(PrintStatement &statement) {
   statement.expression->accept_simple(*this);
-  add(1, 3, 0);
-  push(31);
-  load_and_jalr(5, "print");
-  pop(31);
+  add(Reg::R1, Reg::R3, Reg::R0);
+  push(Reg::R31);
+  load_and_jalr(Reg::R5, "print");
+  pop(Reg::R31);
 }
 
 void NaiveMIPSGenerator::visit(DeleteStatement &statement) {
   const auto skip_label = generate_label("deleteskip");
   statement.expression->accept_simple(*this);
-  beq(3, 11, skip_label);
-  add(1, 3, 0);
-  push(31);
-  load_and_jalr(5, "delete");
-  pop(31);
+  beq(Reg::R3, Reg::R11, skip_label);
+  add(Reg::R1, Reg::R3, Reg::R0);
+  push(Reg::R31);
+  load_and_jalr(Reg::R5, "delete");
+  pop(Reg::R31);
   label(skip_label);
 }

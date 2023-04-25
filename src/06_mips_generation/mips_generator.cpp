@@ -3,10 +3,10 @@
 
 bool MIPSGenerator::peephole_optimize() {
   bool changed = false;
-  const MIPSInstruction push_3_0 = MIPSInstruction::sw(3, -4, 30);
-  const MIPSInstruction push_3_1 = MIPSInstruction::sub(30, 30, 4);
-  const MIPSInstruction pop_5_0 = MIPSInstruction::add(30, 30, 4);
-  const MIPSInstruction pop_5_1 = MIPSInstruction::lw(5, -4, 30);
+  const MIPSInstruction push_3_0 = MIPSInstruction::sw(Reg::R3, -4, Reg::SP);
+  const MIPSInstruction push_3_1 = MIPSInstruction::sub(Reg::SP, Reg::SP, Reg::R4);
+  const MIPSInstruction pop_5_0 = MIPSInstruction::add(Reg::SP, Reg::SP, Reg::R4);
+  const MIPSInstruction pop_5_1 = MIPSInstruction::lw(Reg::R5, -4, Reg::SP);
   for (size_t i = 0; i + 1 < instructions.size(); ++i) {
     const bool is_push_3 =
         instructions[i] == push_3_0 && instructions[i + 1] == push_3_1;
@@ -18,7 +18,7 @@ bool MIPSGenerator::peephole_optimize() {
       const auto &instruction = instructions[j];
 
       if (is_pop_5) {
-        instructions[i] = MIPSInstruction::add(5, 3, 0);
+        instructions[i] = MIPSInstruction::add(Reg::R5, Reg::R3, Reg::R0);
         instructions[i].comment_value = "Peephole optimization: push 3, pop 5";
         instructions.erase(instructions.begin() + j + 1);
         instructions.erase(instructions.begin() + j);
@@ -33,8 +33,8 @@ bool MIPSGenerator::peephole_optimize() {
           instruction.opcode == Opcode::Jr ||
           instruction.opcode == Opcode::Label ||
           instruction.opcode == Opcode::Beq ||
-          instruction.opcode == Opcode::Bne || instruction.d == 5 ||
-          instruction.s == 5 || instruction.t == 5) {
+          instruction.opcode == Opcode::Bne || instruction.d == Reg::R5 ||
+          instruction.s == Reg::R5 || instruction.t == Reg::R5) {
         break;
       }
     }
@@ -49,19 +49,19 @@ bool MIPSGenerator::optimize_moves() {
     // LHS move: add $d, $s, $0 (essentially $d = $s)
     const bool is_lhs_move = (copy_instruction.opcode == Opcode::Add ||
                               copy_instruction.opcode == Opcode::Sub) &&
-                             copy_instruction.t == 0;
+                             copy_instruction.t == Reg::R0;
     // RHS move: add $d, $0, $t (essentially $d = $t)
     const bool is_rhs_move = (copy_instruction.opcode == Opcode::Add ||
                               copy_instruction.opcode == Opcode::Sub) &&
-                             copy_instruction.s == 0;
+                             copy_instruction.s == Reg::R0;
     if (!is_lhs_move && !is_rhs_move) // Not a move
       continue;
     if (is_lhs_move && is_rhs_move) // Can't optimize $d = $0
       continue;
     copy_instruction.comment_value += " (move)";
 
-    const size_t destination = copy_instruction.d;
-    const size_t source = is_lhs_move ? copy_instruction.s : copy_instruction.t;
+    const Reg destination = copy_instruction.d;
+    const Reg source = is_lhs_move ? copy_instruction.s : copy_instruction.t;
 
     for (size_t j = i + 1; j < instructions.size(); ++j) {
       auto &use_instruction = instructions[j];
@@ -77,13 +77,11 @@ bool MIPSGenerator::optimize_moves() {
       // Uses are okay, writes are bad
       if (use_instruction.s == destination) {
         use_instruction.s = source;
-        use_instruction.comment_value +=
-            " (moved $s <- $" + std::to_string(destination) + ")";
+        use_instruction.comment_value += fmt::format(" (moved $s <- {}", source, destination);
       }
       if (use_instruction.t == destination) {
         use_instruction.t = source;
-        use_instruction.comment_value +=
-            " (moved $t <- $" + std::to_string(destination) + ")";
+        use_instruction.comment_value  += fmt::format(" (moved $t <- {}", source, destination);
       }
       if (use_instruction.d == source || use_instruction.d == destination)
         break;

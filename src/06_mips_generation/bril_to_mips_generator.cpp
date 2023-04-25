@@ -10,7 +10,7 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
     // Whenever a register is written to, but never read, remove the write
     // NOTE: We ensure that the register 3 is always globally read, since it is
     // the return value of the function
-    std::set<size_t> read_registers = {3, 31};
+    std::set<Reg> read_registers = {Reg::R3, Reg::R31};
     // First, gather the set of registers that are read
     for (size_t i = 0; i < instructions.size(); ++i) {
       const auto &instruction = instructions[i];
@@ -28,9 +28,8 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
           debug_assert(i + 1 < instructions.size(), "Lis not followed by word");
           instructions[i + 1] = MIPSInstruction::comment("  (removed lis)");
         }
-        instructions[i] =
-            MIPSInstruction::comment("Removing globally unused write to $" +
-                                     std::to_string(written_register.value()));
+        instructions[i] = MIPSInstruction::comment(fmt::format(
+            "Removing globally unused write to {}", written_register.value()));
         changed = true;
       }
     }
@@ -49,11 +48,11 @@ bool BRILToMIPSGenerator::remove_locally_unused_writes() {
     const auto dest_optional = instruction.written_register();
     if (!dest_optional.has_value())
       continue;
-    const size_t dest = dest_optional.value();
+    const Reg dest = dest_optional.value();
 
     // These registers' values are read by the callers of the function, so we
     // cannot remove writes to them
-    if (dest == 31 || dest == 30 || dest == 29)
+    if (dest == Reg::R31 || dest == Reg::R30 || dest == Reg::R29)
       continue;
 
     bool read = false;
@@ -68,7 +67,7 @@ bool BRILToMIPSGenerator::remove_locally_unused_writes() {
           other_instruction.opcode == ::Opcode::Label) {
         // If we're exiting the function and the register is not $3, the
         // register is not read
-        if (other_instruction.opcode == ::Opcode::Jr && dest != 3) {
+        if (other_instruction.opcode == ::Opcode::Jr && dest != Reg::R3) {
           read = false;
         } else {
           read = true;
@@ -91,7 +90,7 @@ bool BRILToMIPSGenerator::remove_locally_unused_writes() {
         instructions[i + 1] = MIPSInstruction::comment("^");
       }
       instructions[i] = MIPSInstruction::comment(
-          "Removing locally unused write to $" + std::to_string(dest));
+          fmt::format("Removing locally unused write to {}", dest));
       changed = true;
     }
   }
@@ -154,19 +153,19 @@ bool BRILToMIPSGenerator::collapse_moves() {
   // overwritten
   for (size_t i = 0; i < instructions.size(); ++i) {
     auto &instruction = instructions[i];
-    if (instruction.opcode == ::Opcode::Sub && instruction.t == 0)
-      instruction = MIPSInstruction::add(instruction.d, instruction.s, 0);
+    if (instruction.opcode == ::Opcode::Sub && instruction.t == Reg::R0)
+      instruction = MIPSInstruction::add(instruction.d, instruction.s, Reg::R0);
     if (instruction.opcode != ::Opcode::Add)
       continue;
-    if (instruction.s == 0 && instruction.t != 0) {
+    if (instruction.s == Reg::R0 && instruction.t != Reg::R0) {
       std::swap(instruction.s, instruction.t);
       changed = true;
     }
     // Now if there is a 0, it must be in the t register
-    if (instruction.t != 0)
+    if (instruction.t != Reg::R0)
       continue;
 
-    const size_t src = instruction.s, dest = instruction.d;
+    const Reg src = instruction.s, dest = instruction.d;
     if (src == dest) {
       instructions[i] = MIPSInstruction::comment("Removing move to self");
       changed = true;

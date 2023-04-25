@@ -2,18 +2,26 @@
 #pragma once
 
 #include "types.hpp"
+#include "util.hpp"
 
 struct Literal {
-  int32_t value = 0;
+  int64_t value = 0;
   Type type = Type::Int;
 
   constexpr Literal() = default;
-  constexpr Literal(const int32_t value, const Type type)
+  constexpr Literal(const int64_t value, const Type type)
       : value(value), type(type) {}
 
   void print(const size_t depth) const;
   inline std::string value_to_string() const {
-    return *this == null() ? "NULL" : std::to_string(value);
+    if (*this == null())
+      return "NULL";
+    else if (type == Type::Int)
+      return std::to_string(value);
+    else if (type == Type::IntStar)
+      return fmt::format("{:x}", value);
+    unreachable("Invalid Literal type");
+    return "????";
   }
 
   static constexpr inline Literal null() { return Literal(1, Type::IntStar); }

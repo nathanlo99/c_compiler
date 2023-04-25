@@ -3,6 +3,7 @@
 
 #include "bril.hpp"
 #include "data_flow.hpp"
+#include "mips_instruction.hpp"
 #include "util.hpp"
 #include <queue>
 
@@ -141,10 +142,10 @@ struct RegisterInterferenceGraph {
 struct VariableLocation {
   enum class Type { Register, Stack } type;
   union {
-    size_t reg;
+    Reg reg;
     int offset;
   };
-  static VariableLocation register_location(size_t reg) {
+  static VariableLocation register_location(Reg reg) {
     return {.type = Type::Register, .reg = reg};
   }
   static VariableLocation stack_location(int offset) {
@@ -157,7 +158,7 @@ struct VariableLocation {
                                   const VariableLocation &location) {
     switch (location.type) {
     case Type::Register:
-      os << "$" << location.reg;
+      os << fmt::format("{}", location.reg);
       break;
     case Type::Stack:
       os << location.offset << "($BP)";
@@ -171,7 +172,7 @@ struct VariableLocation {
 };
 
 struct RegisterAllocation {
-  std::map<std::string, size_t> register_allocation;
+  std::map<std::string, Reg> register_allocation;
   std::map<std::string, int> spilled_variables;
   std::map<std::string, LivenessData> liveness_data;
 
@@ -188,7 +189,7 @@ struct RegisterAllocation {
   bool is_spilled(const std::string &variable) const {
     return spilled_variables.count(variable) > 0;
   }
-  size_t get_register(const std::string &variable) const {
+  Reg get_register(const std::string &variable) const {
     debug_assert(
         in_register(variable),
         "RegisterAllocation::get_register: Variable {} is not in a register",
@@ -216,7 +217,7 @@ struct RegisterAllocation {
     using util::operator<<;
     os << "Register allocation:" << std::endl;
     for (const auto &[var, reg] : allocation.register_allocation) {
-      os << "  " << var << " -> $" << reg << std::endl;
+      os << fmt::format("  {} -> {}", var, reg) << std::endl;
     }
     os << "Spilled variables: " << std::endl;
     for (const auto &[var, offset] : allocation.spilled_variables) {
@@ -228,7 +229,7 @@ struct RegisterAllocation {
 
 inline RegisterAllocation
 allocate_registers(const ControlFlowGraph &function,
-                   const std::vector<size_t> &available_registers) {
+                   const std::vector<Reg> &available_registers) {
 
   // First, gather all variables from the function for which we take addresses,
   // since these always have to be spilled to memory
@@ -281,13 +282,12 @@ allocate_registers(const ControlFlowGraph &function,
       continue;
     }
 
-    std::set<size_t> available_neighbours(available_registers.begin(),
-                                          available_registers.end());
+    std::set<Reg> available_neighbours(available_registers.begin(),
+                                       available_registers.end());
     for (const size_t neighbour : graph.edges[node]) {
-      if (result.register_allocation.count(graph.index_to_variable[neighbour]) >
-          0) {
-        available_neighbours.erase(
-            result.register_allocation[graph.index_to_variable[neighbour]]);
+      const auto neighbour_var = graph.index_to_variable[neighbour];
+      if (result.register_allocation.count(neighbour_var) > 0) {
+        available_neighbours.erase(result.register_allocation[neighbour_var]);
       }
     }
 

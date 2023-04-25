@@ -5,6 +5,18 @@
 #include "util.hpp"
 #include <memory>
 
+int64_t parse_literal(const std::string &lexeme) {
+  std::cerr << "Parsing literal " << lexeme << std::endl;
+  try {
+    const int64_t result = std::stoll(lexeme, nullptr, 0);
+    if (result < 0 && (lexeme.starts_with("0x") || lexeme.starts_with("0X")))
+      return result + 0x1'0000'0000LL;
+    return result;
+  } catch (const std::exception &e) {
+    throw std::runtime_error("Could not parse literal: " + lexeme);
+  }
+}
+
 Type parse_node_to_type(const std::shared_ptr<ParseNode> &node) {
   const std::string production_str = node->production.to_string();
   debug_assert(node->production.product == "type",
@@ -83,8 +95,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
   } else if (production_str == "dcls -> dcls dcl BECOMES NUM SEMI") {
     auto rest = construct_ast<DeclarationList>(node->children[0]);
     auto decl = parse_node_to_variable(node->children[1]);
-    decl.initial_value =
-        Literal(std::stoi(node->children[3]->token.lexeme), Type::Int);
+    const int64_t value = parse_literal(node->children[3]->token.lexeme);
+    decl.initial_value = Literal(value, decl.type);
     rest->declarations.push_back(decl);
     return rest;
   } else if (production_str == "dcls -> dcls dcl BECOMES NULL SEMI") {

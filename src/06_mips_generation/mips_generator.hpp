@@ -17,25 +17,25 @@ struct MIPSGenerator {
   void init_constants() {
     if (constants_init)
       return;
-    load_const(4, 4);
-    slt(11, 0, 4);
+    load_const(Reg::R4, 4);
+    slt(Reg::R11, Reg::R0, Reg::R4);
     annotate("$11 = ($0 < $4) = 1");
     constants_init = true;
   }
 
   void pop_and_discard(const size_t num_values = 1) {
-    // Two options: one is to repeat 'add $30, $30, $4', stack_size times
+    // Two options: one is to repeat 'add $30, $30, $4', num_values times
     // The other is lis, word, add
-    // The second option is better when stack_size > 3
+    // The second option is better when num_values > 3
     if (num_values > 3) {
       // NOTE: We really don't want to use $3 here because this happens after
       // the return value of a function is computed, and we don't want to
       // clobber it
-      load_const(5, num_values * 4);
-      add(30, 30, 5);
+      load_const(Reg::R5, num_values * 4);
+      add(Reg::SP, Reg::SP, Reg::R5);
     } else {
       for (size_t i = 0; i < num_values; ++i)
-        add(30, 30, 4);
+        add(Reg::SP, Reg::SP, Reg::R4);
     }
   }
 
@@ -45,84 +45,85 @@ struct MIPSGenerator {
     return label_type + std::to_string(idx);
   }
 
-  void load_const(int reg, int value) {
+  void load_const(const Reg reg, const int64_t value) {
     if (value == 0) {
-      add(reg, 0, 0);
+      add(reg, Reg::R0, Reg::R0);
     } else if (value == -4 && constants_init) {
-      sub(reg, 0, 4);
+      sub(reg, Reg::R0, Reg::R4);
     } else if (value == -3 && constants_init) {
-      sub(reg, 11, 4);
+      sub(reg, Reg::R11, Reg::R4);
     } else if (value == -1 && constants_init) {
-      sub(reg, 0, 1);
+      sub(reg, Reg::R0, Reg::R1);
     } else if (value == 1 && constants_init) {
-      add(reg, 11, 0);
+      add(reg, Reg::R11, Reg::R0);
     } else if (value == 2 && constants_init) {
-      add(reg, 11, 11);
+      add(reg, Reg::R11, Reg::R11);
     } else if (value == 3 && constants_init) {
-      sub(reg, 4, 11);
+      sub(reg, Reg::R4, Reg::R11);
     } else if (value == 4 && constants_init) {
-      add(reg, 4, 0);
+      add(reg, Reg::R4, Reg::R0);
     } else if (value == 5 && constants_init) {
-      add(reg, 11, 4);
+      add(reg, Reg::R11, Reg::R4);
     } else if (value == 8 && constants_init) {
-      add(reg, 4, 4);
+      add(reg, Reg::R4, Reg::R4);
     } else {
       lis(reg);
       word(value);
     }
   }
 
-  void load_const(int reg, const std::string &label) {
+  void load_const(const Reg reg, const std::string &label) {
     lis(reg);
     word(label);
   }
 
-  void add_const(int reg, int src, int value, int temp_reg) {
+  void add_const(const Reg reg, const Reg src, const int64_t value,
+                 const Reg temp_reg) {
     if (value == 0) {
       copy(reg, src);
     } else if (value == 1) {
-      add(reg, src, 11);
+      add(reg, src, Reg::R11);
     } else if (value == 4) {
-      add(reg, src, 4);
+      add(reg, src, Reg::R4);
     } else if (value == -4) {
-      sub(reg, src, 4);
+      sub(reg, src, Reg::R4);
     } else if (value == -1) {
-      sub(reg, src, 11);
+      sub(reg, src, Reg::R11);
     } else {
       load_const(temp_reg, value);
       add(reg, src, temp_reg);
     }
   }
 
-  void push_const(int reg, int value) {
+  void push_const(const Reg reg, const int64_t value) {
     if (value == 0) {
-      push(0);
+      push(Reg::R0);
     } else if (value == 1 && constants_init) {
-      push(11);
+      push(Reg::R11);
     } else if (value == 4 && constants_init) {
-      push(4);
+      push(Reg::R4);
     } else {
       load_const(reg, value);
       push(reg);
     }
   }
 
-  void load_and_jalr(const size_t reg, const std::string &label) {
+  void load_and_jalr(const Reg reg, const std::string &label) {
     load_const(reg, label);
     jalr(reg);
   }
 
-  void push(int reg) {
-    sw(reg, -4, 30);
-    annotate("  push $" + std::to_string(reg));
-    sub(30, 30, 4);
+  void push(const Reg reg) {
+    sw(reg, -4, Reg::SP);
+    annotate(fmt::format("  push {}", reg));
+    sub(Reg::SP, Reg::SP, Reg::R4);
     annotate("  ^");
   }
 
-  void pop(int reg) {
-    add(30, 30, 4);
-    annotate("  pop $" + std::to_string(reg));
-    lw(reg, -4, 30);
+  void pop(const Reg reg) {
+    add(Reg::SP, Reg::SP, Reg::R4);
+    annotate(fmt::format("  pop {}", reg));
+    lw(reg, -4, Reg::SP);
     annotate("  ^");
   }
 
@@ -156,82 +157,82 @@ struct MIPSGenerator {
   bool optimize_moves();
 
   // Convenience functions
-  void copy(int d, int s) {
+  void copy(Reg d, Reg s) {
     if (d != s)
-      add(d, s, 0);
+      add(d, s, Reg::R0);
   }
-  void mult(int d, int s, int t) {
+  void mult(Reg d, Reg s, Reg t) {
     mult(s, t);
     mflo(d);
   }
-  void multu(int d, int s, int t) {
+  void multu(Reg d, Reg s, Reg t) {
     multu(s, t);
     mflo(d);
   }
-  void div(int d, int s, int t) {
+  void div(Reg d, Reg s, Reg t) {
     div(s, t);
     mflo(d);
   }
-  void divu(int d, int s, int t) {
+  void divu(Reg d, Reg s, Reg t) {
     divu(s, t);
     mflo(d);
   }
-  void mod(int d, int s, int t) {
+  void mod(Reg d, Reg s, Reg t) {
     div(s, t);
     mfhi(d);
   }
-  void modu(int d, int s, int t) {
+  void modu(Reg d, Reg s, Reg t) {
     divu(s, t);
     mfhi(d);
   }
 
   // Raw instructions
-  void add(int d, int s, int t) {
+  void add(Reg d, Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::add(d, s, t));
   }
-  void sub(int d, int s, int t) {
+  void sub(Reg d, Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::sub(d, s, t));
   }
-  void mult(int s, int t) {
+  void mult(Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::mult(s, t));
   }
-  void multu(int s, int t) {
+  void multu(Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::multu(s, t));
   }
-  void div(int s, int t) { instructions.push_back(MIPSInstruction::div(s, t)); }
-  void divu(int s, int t) {
+  void div(Reg s, Reg t) { instructions.push_back(MIPSInstruction::div(s, t)); }
+  void divu(Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::divu(s, t));
   }
-  void mfhi(int d) { instructions.push_back(MIPSInstruction::mfhi(d)); }
-  void mflo(int d) { instructions.push_back(MIPSInstruction::mflo(d)); }
-  void lis(int d) { instructions.push_back(MIPSInstruction::lis(d)); }
-  void lw(int t, int32_t i, int s) {
+  void mfhi(Reg d) { instructions.push_back(MIPSInstruction::mfhi(d)); }
+  void mflo(Reg d) { instructions.push_back(MIPSInstruction::mflo(d)); }
+  void lis(Reg d) { instructions.push_back(MIPSInstruction::lis(d)); }
+  void lw(Reg t, int32_t i, Reg s) {
     instructions.push_back(MIPSInstruction::lw(t, i, s));
   }
-  void sw(int t, int32_t i, int s) {
+  void sw(Reg t, int32_t i, Reg s) {
     instructions.push_back(MIPSInstruction::sw(t, i, s));
   }
-  void slt(int d, int s, int t) {
+  void slt(Reg d, Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::slt(d, s, t));
   }
-  void sltu(int d, int s, int t) {
+  void sltu(Reg d, Reg s, Reg t) {
     instructions.push_back(MIPSInstruction::sltu(d, s, t));
   }
-  void beq(int s, int t, int i) {
+  void beq(Reg s, Reg t, int32_t i) {
     instructions.push_back(MIPSInstruction::beq(s, t, i));
   }
-  void beq(int s, int t, const std::string &label) {
+  void beq(Reg s, Reg t, const std::string &label) {
     instructions.push_back(MIPSInstruction::beq(s, t, label));
   }
-  void bne(int s, int t, int i) {
+  void bne(Reg s, Reg t, int32_t i) {
     instructions.push_back(MIPSInstruction::bne(s, t, i));
   }
-  void bne(int s, int t, const std::string &label) {
+  void bne(Reg s, Reg t, const std::string &label) {
     instructions.push_back(MIPSInstruction::bne(s, t, label));
   }
-  void jr(int s) { instructions.push_back(MIPSInstruction::jr(s)); }
-  void jalr(int s) { instructions.push_back(MIPSInstruction::jalr(s)); }
-  void word(int32_t i) { instructions.push_back(MIPSInstruction::word(i)); }
+  void jr(Reg s) { instructions.push_back(MIPSInstruction::jr(s)); }
+  void jalr(Reg s) { instructions.push_back(MIPSInstruction::jalr(s)); }
+  void word(int64_t i) { instructions.push_back(MIPSInstruction::word(i)); }
   void word(const std::string &label) {
     instructions.push_back(MIPSInstruction::word(label));
   }

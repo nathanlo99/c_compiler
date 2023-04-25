@@ -198,17 +198,30 @@ NFA construct_nfa() {
     return result;
   }();
 
-  NFA nfa(10);
+  NFA nfa(13);
+  // State 0 is the start state
+  // State 1 is the ID accepting state
   nfa.add_accepting_state(1, TokenKind::Id);
+  // State 2 is the accepting state we reach after seeing a single digit
   nfa.add_accepting_state(2, TokenKind::Num);
+  // State 3 is the accepting state we reach after seeing a non-zero digit
   nfa.add_accepting_state(3, TokenKind::Num);
   // State 4 is the state we reach after seeing a single slash
+  // State 5 is the accepting state we reach after seeing two slashes
   nfa.add_accepting_state(5, TokenKind::Comment);
+  // State 6 is the accepting state we reach after seeing whitespace
   nfa.add_accepting_state(6, TokenKind::Whitespace);
   // State 7 is the state we reach after seeing /*
   // State 8 is the state we reach in a multi-line comment after seeing the
   // first exiting *
+  // State 9 is the state we reach in a multi-line comment after seeing the
+  // ending */
   nfa.add_accepting_state(9, TokenKind::Comment);
+  // State 10 is the state we reach after seeing a single 0
+  // State 11 is the state we reach after seeing 0x
+  // State 12 is the state we reach after seeing 0x and at least one hex digit
+  nfa.add_accepting_state(12, TokenKind::Num);
+
   nfa.add_transitions(0, 1, letters);
   nfa.add_transitions(1, 1, alphanumeric + "_");
   nfa.add_transitions(0, 2, digits);
@@ -227,6 +240,11 @@ NFA construct_nfa() {
   nfa.add_transitions(8, 7, [](char c) { return c != '*' && c != '/'; });
   nfa.add_transitions(8, 8, "*");
   nfa.add_transitions(8, 9, "/");
+
+  nfa.add_transitions(0, 10, "0");
+  nfa.add_transitions(10, 11, "xX");
+  nfa.add_transitions(11, 12, "0123456789abcdefABCDEF");
+  nfa.add_transitions(12, 12, "0123456789abcdefABCDEF");
 
   for (const auto &[lexeme, token_kind] : simple_nfa_rules) {
     nfa.add_string(lexeme, token_kind);
