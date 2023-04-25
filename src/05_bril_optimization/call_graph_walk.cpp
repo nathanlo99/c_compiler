@@ -7,9 +7,9 @@ namespace bril {
 
 void optimize_call_graph(Program &program) {
   CallGraph call_graph(program);
-  std::cout << call_graph << std::endl;
-
-  const auto should_inline = [](const ControlFlowGraph &function) {
+  const auto should_inline = [&](const ControlFlowGraph &function) {
+    if (call_graph.graph.at(function.name).count(function.name) > 0)
+      return false;
     return function.num_instructions() < 10 || function.num_labels() < 5;
   };
 
