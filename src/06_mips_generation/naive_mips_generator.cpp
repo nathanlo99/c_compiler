@@ -206,14 +206,16 @@ void NaiveMIPSGenerator::visit(DereferenceExpr &expr) {
 }
 
 void NaiveMIPSGenerator::visit(NewExpr &expr) {
+  const std::string new_success_label = generate_label("newSuccess");
   expr.rhs->accept_simple(*this);
   add(Reg::R1, Reg::R3, Reg::R0);
   push(Reg::R31);
   load_and_jalr(Reg::R5, "new");
   pop(Reg::R31);
   // The result is stored in $1: copy it to $3, and return NULL (1) if it was 0
-  bne(Reg::R3, Reg::R0, 1);
+  bne(Reg::R3, Reg::R0, new_success_label);
   add(Reg::R3, Reg::R11, Reg::R0);
+  label(new_success_label);
 }
 
 void NaiveMIPSGenerator::visit(FunctionCallExpr &expr) {

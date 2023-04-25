@@ -58,8 +58,9 @@ lis $5
 jalr $5
 add $30, $30, $4                ;   pop $31
 lw $31, -4($30)                 ;   ^
-bne $3, $0, 1
+bne $3, $0, newSuccess0
 add $3, $11, $0
+newSuccess0:
 sw $3, -4($29)
                                 ; i = (i + 1);
 lw $3, 0($29)                   ; Loading i
