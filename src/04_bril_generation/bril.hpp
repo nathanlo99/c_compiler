@@ -659,8 +659,8 @@ struct ControlFlowGraph {
 
   size_t num_instructions() const {
     size_t num_instructions = 0;
-    for (const auto &label : block_labels) {
-      num_instructions += get_block(label).instructions.size();
+    for (const auto &[label, block] : blocks) {
+      num_instructions += block.instructions.size();
     }
     return num_instructions;
   }
@@ -849,7 +849,7 @@ struct Program {
           const auto padding = 50 - label.size();
           os << instruction.labels[0] << ":" << std::string(padding, ' ')
              << "preds = " << function.get_block(label).incoming_blocks
-             << std::endl;
+             << ", dominators = " << function.dominators.at(label) << std::endl;
         } else {
           os << "  " << instruction << std::endl;
         }

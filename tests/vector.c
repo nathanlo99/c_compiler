@@ -1,8 +1,37 @@
 
 // ------------ UTIL ------------
 // A compiler-optimization-safe way to throw an error
-int throw_error() {
-  println(*NULL);
+int throw_error() { return *NULL; }
+
+// ------------ IO ------------
+int print_char(int c) {
+  int *stdout = 0xffff000c;
+  return *stdout = c;
+}
+
+int print(int *str) {
+  int *stdout = 0xffff000c;
+  int size = 0;
+  int i = 0;
+  size = *vector_size(str);
+  for (i = 0; i < size; i = i + 1) {
+    print_char(stdout, *vector_at(str, i));
+  }
+  return 0;
+}
+
+int print_num(int num) {
+  int *stdout = 0xffff000c;
+  int digit = 0;
+  if (num == 0) {
+    print_char(stdout, 48);
+  } else {
+    while (num != 0) {
+      digit = num % 10;
+      print_char(stdout, digit + 48);
+      num = num / 10;
+    }
+  }
   return 0;
 }
 
@@ -55,15 +84,23 @@ int *vector_push_back(int *vec, int value) {
 }
 
 // ------------ MAIN ------------
-int wain(int numElements, int i) {
+int wain(int n, int unused) {
   int *vec = NULL;
+  int i = 0;
+
   vec = vector_new(1);
-  for (i = 0; i < numElements; i = i + 1) {
+  for (i = 0; i < n; i = i + 1) {
     vec = vector_push_back(vec, i * i);
   }
-  for (i = 0; i < numElements; i = i + 1) {
-    println(*vector_at(vec, i));
+  for (i = 0; i < n; i = i + 1) {
+    if (i > 0) {
+      print_char(32);
+    }
+    print_num(*vector_at(vec, i));
+    print_char(32);
   }
+  print_char(10);
+
   vector_delete(vec);
   return 0;
 }
