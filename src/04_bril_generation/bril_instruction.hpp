@@ -413,7 +413,10 @@ struct Instruction {
       break;
 
     case Opcode::Const: {
-      const std::string value_string = std::to_string(instruction.value);
+      const std::string value_string =
+          instruction.type == Type::Int
+              ? std::to_string(instruction.value)
+              : fmt::format("0x{:x}", instruction.value);
       os << instruction.destination << ": " << instruction.type << " = const "
          << value_string << ";";
     } break;

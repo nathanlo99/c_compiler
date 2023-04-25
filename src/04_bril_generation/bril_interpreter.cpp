@@ -7,7 +7,8 @@
 namespace bril {
 namespace interpreter {
 
-void BRILInterpreter::run(std::ostream &os) {
+void BRILInterpreter::run(const Program &program) {
+  this->program = program;
   context.clear();
   std::vector<BRILValue> arguments(2);
   const bool wain_is_array = program.wain().arguments[0].type == Type::IntStar;
@@ -35,7 +36,7 @@ void BRILInterpreter::run(std::ostream &os) {
   }
 
   Timer::start("Interpret");
-  const BRILValue result = interpret(program.wain(), arguments, os);
+  const BRILValue result = interpret(program.wain(), arguments);
   Timer::stop("Interpret");
   std::cout << "wain returned " << result.int_value << std::endl;
   std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
@@ -56,8 +57,7 @@ void BRILInterpreter::run(std::ostream &os) {
 }
 
 BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
-                                     const std::vector<BRILValue> &arguments,
-                                     std::ostream &os) {
+                                     const std::vector<BRILValue> &arguments) {
   using util::operator<<;
   // std::cerr << "Calling " << graph.name << " with arguments: " << arguments
   //           << std::endl;
@@ -185,7 +185,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       for (const auto &argument : instruction.arguments) {
         arguments.push_back(context.get_value(argument));
       }
-      const BRILValue result = interpret(function, arguments, os);
+      const BRILValue result = interpret(function, arguments);
       context.write_value(destination, result);
     } break;
 
@@ -217,7 +217,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Print: {
       const int value = context.get_int(instruction.arguments[0]);
-      os << value << std::flush << std::endl;
+      stdout << value << std::flush << std::endl;
     } break;
 
     case Opcode::Nop: {

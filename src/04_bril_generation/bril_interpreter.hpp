@@ -17,11 +17,11 @@ struct BRILValue {
   // int_value
   Type type;
   std::string string_value;
-  int int_value;
+  int64_t int_value;
   size_t heap_idx, heap_offset;
 
   BRILValue() : type(Type::Undefined) {}
-  BRILValue(const Type type, const int int_value,
+  BRILValue(const Type type, const int64_t int_value,
             const std::string &string_value)
       : type(type), string_value(string_value), int_value(int_value) {}
   BRILValue(const size_t heap_idx, const size_t heap_offset)
@@ -30,7 +30,7 @@ struct BRILValue {
   static BRILValue integer(const int value) {
     return BRILValue(Type::Int, value, "");
   }
-  static BRILValue raw_pointer(const int value) {
+  static BRILValue raw_pointer(const int64_t value) {
     return BRILValue(Type::RawPointer, value, "");
   }
   static BRILValue address(const size_t stack_depth, const std::string &name) {
@@ -39,6 +39,8 @@ struct BRILValue {
   static BRILValue heap_pointer(const size_t idx, const int offset) {
     return BRILValue(idx, offset);
   }
+  static BRILValue stdout() { return BRILValue::raw_pointer(0xffff000cLL); }
+  static BRILValue stdin() { return BRILValue::raw_pointer(0xffff0004LL); }
 
   friend std::ostream &operator<<(std::ostream &os, const BRILValue &value) {
     switch (value.type) {
@@ -46,7 +48,8 @@ struct BRILValue {
       os << value.int_value << ": int";
       break;
     case Type::RawPointer:
-      os << value.int_value << ": int*";
+      os << std::showbase << std::hex << value.int_value << std::dec
+         << ": int*";
       break;
     case Type::Address:
       os << "&" << value.string_value << ": int*";
@@ -140,7 +143,7 @@ struct BRILStackFrame {
   void write_int(const std::string &name, const int value) {
     variables[name] = BRILValue::integer(value);
   }
-  void write_raw_pointer(const std::string &name, const int value) {
+  void write_raw_pointer(const std::string &name, const int64_t value) {
     variables[name] = BRILValue::raw_pointer(value);
   }
   void write_value(const std::string &name, const BRILValue &value) {
@@ -151,6 +154,10 @@ struct BRILStackFrame {
 struct BRILContext {
   std::vector<BRILStackFrame> stack_frames;
   std::vector<BRILAlloc> heap_memory;
+  std::istream &in;
+  std::ostream &out;
+
+  BRILContext(std::istream &in, std::ostream &out) : in(in), out(out) {}
 
   void clear() {
     stack_frames.clear();
@@ -172,7 +179,7 @@ struct BRILContext {
   void write_int(const std::string &name, const int value) {
     stack_frames.back().write_int(name, value);
   }
-  void write_raw_pointer(const std::string &name, const int value) {
+  void write_raw_pointer(const std::string &name, const int64_t value) {
     stack_frames.back().write_raw_pointer(name, value);
   }
   void write_value(const std::string &name, const BRILValue &value) {
@@ -197,6 +204,16 @@ struct BRILContext {
   }
 
   BRILValue load(const BRILValue pointer) {
+    if (pointer.type == BRILValue::Type::RawPointer) {
+      if (pointer == BRILValue::stdin()) {
+        const int ch = in.get();
+        if (ch == EOF)
+          return BRILValue::integer(-1);
+        return BRILValue::integer(ch);
+      }
+      debug_assert(false, "Loading from invalid raw pointer 0x{:x}",
+                   pointer.int_value);
+    }
     if (pointer.type == BRILValue::Type::Address) {
       const size_t stack_depth = pointer.int_value;
       debug_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
@@ -212,6 +229,19 @@ struct BRILContext {
   }
 
   void store(const BRILValue pointer, const BRILValue value) {
+    if (pointer.type == BRILValue::Type::RawPointer) {
+      if (pointer == BRILValue::stdout()) {
+        const int ch = value.int_value;
+        debug_assert(0 <= ch && ch < 128,
+                     "Writing invalid ASCII value to stdout: {}", ch);
+        out << static_cast<char>(ch);
+        return;
+      }
+      debug_assert(
+          false,
+          "Writing to invalid raw pointer 0x{:x}, can only write to 0x{:x}",
+          pointer.int_value, BRILValue::stdout().int_value);
+    }
     if (pointer.type == BRILValue::Type::Address) {
       const size_t stack_depth = pointer.int_value;
       debug_assert(stack_depth < stack_frames.size(), "Invalid stack depth");
@@ -271,15 +301,32 @@ struct BRILInterpreter {
   BRILContext context;
   size_t num_dynamic_instructions = 0;
 
-  BRILInterpreter(const bril::Program &program) : program(program) {}
+  std::istream &stdin;
+  std::ostream &stdout;
 
-  void run(std::ostream &os);
+  BRILInterpreter(std::istream &stdin, std::ostream &stdout)
+      : context(stdin, stdout), stdin(stdin), stdout(stdout) {}
+
+  void run(const bril::Program &program);
 
   // Interpret a bril function, piping the output to the given stream
   BRILValue interpret(const bril::ControlFlowGraph &graph,
-                      const std::vector<BRILValue> &arguments,
-                      std::ostream &os);
+                      const std::vector<BRILValue> &arguments);
 };
 
 } // namespace interpreter
 } // namespace bril
+
+// Implement a fmt::formatter for BRILValue
+template <>
+struct fmt::formatter<bril::interpreter::BRILValue>
+    : fmt::formatter<std::string> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(const bril::interpreter::BRILValue &value,
+              FormatContext &ctx) const {
+    std::stringstream ss;
+    ss << value;
+    fmt::formatter<std::string>::format(ss.str(), ctx);
+  }
+};

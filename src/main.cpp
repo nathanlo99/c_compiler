@@ -158,9 +158,9 @@ void bare_interpret(const std::string &filename) {
   // Calls the BRIL interpreter on the given file.
   using namespace bril::interpreter;
   auto bril_program = get_bril_from_file(filename);
-  BRILInterpreter interpreter(bril_program);
   bril_program.print_flattened(std::cerr);
-  interpreter.run(std::cout);
+  BRILInterpreter interpreter(std::cin, std::cout);
+  interpreter.run(bril_program);
 }
 
 void interpret(const std::string &filename) {
@@ -168,9 +168,9 @@ void interpret(const std::string &filename) {
   using namespace bril::interpreter;
   const auto bril_program = get_optimized_bril_from_file(filename);
 
-  BRILInterpreter interpreter(bril_program);
+  BRILInterpreter interpreter(std::cin, std::cout);
   bril_program.print_flattened(std::cerr);
-  interpreter.run(std::cout);
+  interpreter.run(bril_program);
 }
 
 void round_trip_interpret(const std::string &filename) {
@@ -186,9 +186,9 @@ void round_trip_interpret(const std::string &filename) {
   bril_program.convert_from_ssa();
   run_optimization_passes(bril_program);
 
-  BRILInterpreter interpreter(bril_program);
+  BRILInterpreter interpreter(std::cin, std::cout);
   bril_program.print_flattened(std::cerr);
-  interpreter.run(std::cout);
+  interpreter.run(bril_program);
 }
 
 void compute_dominators(const std::string &filename) {
@@ -387,8 +387,8 @@ void test_augmented_cfg(const std::string &filename) {
   bril_program.convert_from_ssa();
   run_optimization_passes(bril_program);
 
-  bril::interpreter::BRILInterpreter interpreter(bril_program);
-  interpreter.run(std::cout);
+  bril::interpreter::BRILInterpreter interpreter(std::cin, std::cout);
+  interpreter.run(bril_program);
 }
 
 void inline_functions(const std::string &filename) {
