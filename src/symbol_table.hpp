@@ -9,16 +9,18 @@
 #include <map>
 #include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 struct ProcedureTable {
   std::string name;
-  std::map<std::string, Type> types;
+  std::unordered_map<std::string, Type> types;
   std::vector<Variable> arguments;
   Type return_type;
-  std::set<std::string> used_variables;
+  std::unordered_set<std::string> used_variables;
 
-  std::map<std::string, int> offsets;
+  std::unordered_map<std::string, int> offsets;
   int next_offset = 0;
 
   ProcedureTable(const std::string &name) : name(name) {}

@@ -12,6 +12,8 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 enum class TokenKind {
@@ -148,8 +150,8 @@ struct DFA {
 };
 
 struct NFA {
-  using NFAEntry = std::map<char, std::set<int>>;
-  std::map<int, TokenKind> accepting_states;
+  using NFAEntry = std::unordered_map<char, std::unordered_set<int>>;
+  std::unordered_map<int, TokenKind> accepting_states;
   std::vector<NFAEntry> entries;
 
   NFA(const int num_states) : entries(num_states) {}
@@ -168,7 +170,7 @@ struct NFA {
 
 NFA construct_nfa();
 DFA construct_dfa();
-std::map<std::string, TokenKind> get_keywords();
+std::unordered_map<std::string, TokenKind> get_keywords();
 
 struct Token {
   std::string lexeme;
@@ -208,7 +210,7 @@ struct Lexer {
   const std::vector<InputLocation> input_chars;
   size_t next_idx;
   const DFA dfa;
-  const std::map<std::string, TokenKind> keywords;
+  const std::unordered_map<std::string, TokenKind> keywords;
 
   Lexer(const std::string &input)
       : input(input), input_chars(index_input_string(input)), next_idx(0),

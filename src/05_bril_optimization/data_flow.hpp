@@ -18,9 +18,9 @@ template <typename Data> struct ForwardDataFlowPass {
   virtual OutResult transfer(const InResult &in, const std::string &label,
                              Data &data) = 0;
 
-  std::map<std::string, Data> run() {
-    std::map<std::string, Data> result;
-    std::set<std::string> worklist;
+  std::unordered_map<std::string, Data> run() {
+    std::unordered_map<std::string, Data> result;
+    std::unordered_set<std::string> worklist;
 
     for (const auto &label : graph.block_labels) {
       result.insert(std::make_pair(label, Data(graph.get_block(label))));
@@ -71,9 +71,9 @@ template <typename Data> struct BackwardDataFlowPass {
   virtual InResult transfer(const OutResult &in, const std::string &label,
                             Data &data) = 0;
 
-  std::map<std::string, Data> run() {
-    std::map<std::string, Data> result;
-    std::set<std::string> worklist;
+  std::unordered_map<std::string, Data> run() {
+    std::unordered_map<std::string, Data> result;
+    std::unordered_set<std::string> worklist;
 
     for (const auto &label : graph.block_labels) {
       result.insert(std::make_pair(label, Data(graph.get_block(label))));

@@ -10,7 +10,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
       return_type(function.return_type) {
 
   Timer::start("    5b. CFG: " + function.name);
-  std::map<std::string, std::string> canonical_label_name;
+  std::unordered_map<std::string, std::string> canonical_label_name;
 
   // Loop over the instructions and create blocks:
   // - Labels start new blocks, and fallthrough from the previous block
@@ -18,7 +18,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   Block current_block;
   entry_label = function.name + "Entry";
   current_block.entry_label = entry_label;
-  std::map<std::string, std::set<std::string>> entry_labels;
+  std::unordered_map<std::string, std::unordered_set<std::string>> entry_labels;
   for (const auto &instruction : function.instructions) {
     if (instruction.opcode == Opcode::Label) {
       const auto &label = instruction.labels[0];
@@ -450,7 +450,7 @@ ControlFlowGraph::immediate_dominator(const std::string &label) const {
   return immediate_dominators.at(label);
 }
 
-std::set<std::string>
+std::unordered_set<std::string>
 ControlFlowGraph::dominance_frontier(const std::string &label) const {
   if (dominance_frontiers.count(label) == 0)
     return {};

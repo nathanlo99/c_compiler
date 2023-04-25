@@ -40,7 +40,7 @@ struct MIPSGenerator {
   }
 
   std::string generate_label(const std::string &label_type) {
-    static std::map<std::string, int> next_idx;
+    static std::unordered_map<std::string, int> next_idx;
     const int idx = next_idx[label_type]++;
     return label_type + std::to_string(idx);
   }

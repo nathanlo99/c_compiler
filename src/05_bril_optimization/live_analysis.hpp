@@ -6,18 +6,19 @@
 #include "mips_instruction.hpp"
 #include "util.hpp"
 #include <queue>
+#include <unordered_set>
 
 namespace bril {
 
 struct LivenessData {
-  using InResult = std::set<std::string>;
-  using OutResult = std::set<std::string>;
+  using InResult = std::unordered_set<std::string>;
+  using OutResult = std::unordered_set<std::string>;
 
   InResult in;
   OutResult out;
 
   // Stores the set of live instructions **before** every instruction
-  std::vector<std::set<std::string>> live_variables;
+  std::vector<std::unordered_set<std::string>> live_variables;
 
   LivenessData(const Block &block)
       : in(), out(), live_variables(block.instructions.size() + 1) {}
@@ -66,12 +67,12 @@ struct LivenessAnalysis : BackwardDataFlowPass<LivenessData> {
 };
 
 struct RegisterInterferenceGraph {
-  std::map<std::string, LivenessData> liveness_data;
+  std::unordered_map<std::string, LivenessData> liveness_data;
 
-  std::map<std::string, size_t> variable_to_index;
+  std::unordered_map<std::string, size_t> variable_to_index;
   std::vector<std::string> index_to_variable;
 
-  std::vector<std::set<size_t>> edges;
+  std::vector<std::unordered_set<size_t>> edges;
 
   RegisterInterferenceGraph(const ControlFlowGraph &graph) {
     LivenessAnalysis analysis(graph);
@@ -172,9 +173,9 @@ struct VariableLocation {
 };
 
 struct RegisterAllocation {
-  std::map<std::string, Reg> register_allocation;
-  std::map<std::string, int> spilled_variables;
-  std::map<std::string, LivenessData> liveness_data;
+  std::unordered_map<std::string, Reg> register_allocation;
+  std::unordered_map<std::string, int> spilled_variables;
+  std::unordered_map<std::string, LivenessData> liveness_data;
 
   int next_offset = 0;
 
@@ -232,12 +233,12 @@ allocate_registers(const ControlFlowGraph &function,
                    const std::vector<Reg> &available_registers) {
   RegisterInterferenceGraph graph(function);
   std::vector<size_t> node_stack;
-  std::set<size_t> processed_nodes;
-  std::vector<std::set<size_t>> edges = graph.edges;
+  std::unordered_set<size_t> processed_nodes;
+  std::vector<std::unordered_set<size_t>> edges = graph.edges;
 
   // First, gather all variables from the function for which we take addresses,
   // since these always have to be spilled to memory
-  std::set<std::string> addressed_variables;
+  std::unordered_set<std::string> addressed_variables;
   function.for_each_instruction([&](const Instruction &instruction) {
     if (instruction.opcode == Opcode::AddressOf) {
       addressed_variables.insert(instruction.arguments[0]);
@@ -280,8 +281,8 @@ allocate_registers(const ControlFlowGraph &function,
   std::reverse(node_stack.begin(), node_stack.end());
 
   RegisterAllocation result;
-  std::vector<std::set<Reg>> node_available_registers;
-  node_available_registers.resize(graph.index_to_variable.size());
+  std::vector<std::set<Reg>> node_available_registers(
+      graph.index_to_variable.size());
   for (size_t i = 0; i < node_available_registers.size(); ++i) {
     if (addressed_variables.count(graph.index_to_variable[i]) == 0)
       node_available_registers[i].insert(available_registers.begin(),

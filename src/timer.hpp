@@ -8,8 +8,8 @@
 #include <string>
 
 class Timer {
-  static inline std::map<std::string, size_t> start_times;
-  static inline std::map<std::string, size_t> end_times;
+  static inline std::unordered_map<std::string, size_t> start_times;
+  static inline std::unordered_map<std::string, size_t> end_times;
   static inline std::vector<std::string> names;
 
 public:

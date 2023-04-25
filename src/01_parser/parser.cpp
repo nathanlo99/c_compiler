@@ -181,7 +181,7 @@ void EarleyTable::report_error(const size_t i) const {
   }
 
   // Compute the set of symbols we expected instead of token_stream[i - 1]
-  std::set<std::string> expected_symbols;
+  std::unordered_set<std::string> expected_symbols;
   for (const auto &item : data[i - 1]) {
     if (item.complete())
       continue;

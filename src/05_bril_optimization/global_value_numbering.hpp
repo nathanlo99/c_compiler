@@ -26,13 +26,13 @@ struct GVNValue {
       debug_assert(labels.empty(), "Labels should only be used for phis");
 
     // If the operation is commutative, sort the arguments
-    static const std::set<Opcode> commutative_ops = {
+    static const std::unordered_set<Opcode> commutative_ops = {
         Opcode::Add,
         Opcode::Mul,
         Opcode::Eq,
         Opcode::Ne,
     };
-    static const std::map<Opcode, Opcode> switchable_ops = {
+    static const std::unordered_map<Opcode, Opcode> switchable_ops = {
         std::make_pair(Opcode::Gt, Opcode::Lt),
         std::make_pair(Opcode::Ge, Opcode::Le),
     };
@@ -89,7 +89,7 @@ struct GVNTable {
   static constexpr size_t NOT_FOUND = -1;
 
   // A map from variables to value numbers
-  std::map<std::string, size_t> variable_to_value_number;
+  std::unordered_map<std::string, size_t> variable_to_value_number;
   // A vector of expressions (GVNValue's)
   std::vector<GVNValue> expressions;
   // A map from value numbers to canonical variable name

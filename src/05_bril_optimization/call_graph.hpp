@@ -8,12 +8,12 @@ namespace bril {
 
 struct CallGraph {
   const Program &program;
-  std::map<std::string, std::set<std::string>> graph;
+  std::unordered_map<std::string, std::unordered_set<std::string>> graph;
 
-  using StronglyConnectedComponent = std::set<std::string>;
-  std::map<std::string, size_t> function_to_component;
+  using StronglyConnectedComponent = std::unordered_set<std::string>;
+  std::unordered_map<std::string, size_t> function_to_component;
   std::vector<StronglyConnectedComponent> components;
-  std::vector<std::set<size_t>> component_graph;
+  std::vector<std::unordered_set<size_t>> component_graph;
 
   CallGraph(const Program &program) : program(program) {
     compute_call_edges();
@@ -39,9 +39,9 @@ struct CallGraph {
   void compute_strongly_connected_components() {
     // Tarjan's algorithm
     size_t next_idx = 0;
-    std::map<std::string, size_t> indices;
-    std::map<std::string, size_t> low_links;
-    std::set<std::string> stack_set;
+    std::unordered_map<std::string, size_t> indices;
+    std::unordered_map<std::string, size_t> low_links;
+    std::unordered_set<std::string> stack_set;
     std::vector<std::string> stack;
 
     const std::function<void(const std::string &)> dfs =

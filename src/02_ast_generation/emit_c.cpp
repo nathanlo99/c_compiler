@@ -70,14 +70,15 @@ void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void TestExpr::emit_c(std::ostream &os, const size_t) const {
-  const static std::map<ComparisonOperation, const char *> operation_to_string({
-      std::make_pair(ComparisonOperation::LessThan, "<"),
-      std::make_pair(ComparisonOperation::LessEqual, "<="),
-      std::make_pair(ComparisonOperation::GreaterThan, ">"),
-      std::make_pair(ComparisonOperation::GreaterEqual, ">="),
-      std::make_pair(ComparisonOperation::Equal, "=="),
-      std::make_pair(ComparisonOperation::NotEqual, "!="),
-  });
+  const static std::unordered_map<ComparisonOperation, const char *>
+      operation_to_string({
+          std::make_pair(ComparisonOperation::LessThan, "<"),
+          std::make_pair(ComparisonOperation::LessEqual, "<="),
+          std::make_pair(ComparisonOperation::GreaterThan, ">"),
+          std::make_pair(ComparisonOperation::GreaterEqual, ">="),
+          std::make_pair(ComparisonOperation::Equal, "=="),
+          std::make_pair(ComparisonOperation::NotEqual, "!="),
+      });
   // HACK: TestExpr's will always be surrounded by brackets since they only
   // appear in IfStatements and WhileStatements, so we don't need to surround
   // them
@@ -89,13 +90,14 @@ void TestExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void BinaryExpr::emit_c(std::ostream &os, const size_t) const {
-  const static std::map<BinaryOperation, const char *> operation_to_string({
-      std::make_pair(BinaryOperation::Add, "+"),
-      std::make_pair(BinaryOperation::Sub, "-"),
-      std::make_pair(BinaryOperation::Mul, "*"),
-      std::make_pair(BinaryOperation::Div, "/"),
-      std::make_pair(BinaryOperation::Mod, "%"),
-  });
+  const static std::unordered_map<BinaryOperation, const char *>
+      operation_to_string({
+          std::make_pair(BinaryOperation::Add, "+"),
+          std::make_pair(BinaryOperation::Sub, "-"),
+          std::make_pair(BinaryOperation::Mul, "*"),
+          std::make_pair(BinaryOperation::Div, "/"),
+          std::make_pair(BinaryOperation::Mod, "%"),
+      });
   os << "(";
   lhs->emit_c(os, 0);
   os << " " << operation_to_string.at(operation) << " ";

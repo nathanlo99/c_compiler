@@ -10,7 +10,7 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
     // Whenever a register is written to, but never read, remove the write
     // NOTE: We ensure that the register 3 is always globally read, since it is
     // the return value of the function
-    std::set<Reg> read_registers = {Reg::R3, Reg::R31};
+    std::unordered_set<Reg> read_registers = {Reg::R3, Reg::R31};
     // First, gather the set of registers that are read
     for (size_t i = 0; i < instructions.size(); ++i) {
       const auto &instruction = instructions[i];
@@ -124,9 +124,9 @@ bool BRILToMIPSGenerator::remove_fallthrough_jumps() {
 
 bool BRILToMIPSGenerator::remove_unused_labels() {
   bool changed = false;
-  std::set<std::string> used_labels;
-  const std::set<::Opcode> used_opcodes = {::Opcode::Beq, ::Opcode::Bne,
-                                           ::Opcode::Word};
+  std::unordered_set<std::string> used_labels;
+  const std::unordered_set<::Opcode> used_opcodes = {
+      ::Opcode::Beq, ::Opcode::Bne, ::Opcode::Word};
   for (size_t i = 0; i < instructions.size(); ++i) {
     const auto &instruction = instructions[i];
     if (used_opcodes.count(instruction.opcode) == 0 ||
@@ -172,7 +172,7 @@ bool BRILToMIPSGenerator::collapse_moves() {
       continue;
     }
 
-    const std::set<::Opcode> substitutable_opcodes = {
+    const std::unordered_set<::Opcode> substitutable_opcodes = {
         ::Opcode::Add, ::Opcode::Sub,  ::Opcode::Mult, ::Opcode::Multu,
         ::Opcode::Div, ::Opcode::Divu, ::Opcode::Slt,  ::Opcode::Sltu,
         ::Opcode::Beq, ::Opcode::Bne,  ::Opcode::Sw,   ::Opcode::Lw,

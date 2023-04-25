@@ -8,6 +8,8 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 // #include "assert.hpp"
@@ -36,6 +38,12 @@ template <typename T>
 static std::ostream &operator<<(std::ostream &os, const std::set<T> &list);
 template <typename T, typename U>
 static std::ostream &operator<<(std::ostream &os, const std::map<T, U> &dict);
+template <typename T>
+static std::ostream &operator<<(std::ostream &os,
+                                const std::unordered_set<T> &list);
+template <typename T, typename U>
+static std::ostream &operator<<(std::ostream &os,
+                                const std::unordered_map<T, U> &dict);
 
 template <typename T, typename U>
 static inline std::ostream &operator<<(std::ostream &os,
@@ -74,6 +82,37 @@ static inline std::ostream &operator<<(std::ostream &os,
 template <typename T, typename U>
 static inline std::ostream &operator<<(std::ostream &os,
                                        const std::map<T, U> &dict) {
+  bool first = true;
+  os << "{";
+  for (const auto &[key, value] : dict) {
+    if (first)
+      first = false;
+    else
+      os << ", ";
+    os << key << ": " << value;
+  }
+  os << "}";
+  return os;
+}
+
+template <typename T>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::unordered_set<T> &list) {
+  os << "{";
+  size_t i = 0;
+  for (const auto &item : list) {
+    os << item;
+    if (i != list.size() - 1)
+      os << ", ";
+    i++;
+  }
+  os << "}";
+  return os;
+}
+
+template <typename T, typename U>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::unordered_map<T, U> &dict) {
   bool first = true;
   os << "{";
   for (const auto &[key, value] : dict) {

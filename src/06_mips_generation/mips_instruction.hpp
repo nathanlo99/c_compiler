@@ -385,8 +385,8 @@ public:
     return changed;
   }
 
-  std::set<Reg> read_registers() const {
-    std::set<Reg> result;
+  std::unordered_set<Reg> read_registers() const {
+    std::unordered_set<Reg> result;
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:

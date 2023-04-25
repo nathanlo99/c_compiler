@@ -100,7 +100,7 @@ DFA NFA::to_dfa() const {
   using state_t = uint64_t;
   const state_t start_state = 1 << 0;
   DFA result;
-  std::map<state_t, size_t> state_to_idx;
+  std::unordered_map<state_t, size_t> state_to_idx;
   state_to_idx[0] = DFA::ERROR_STATE;
 
   std::queue<state_t> active_nodes;
@@ -257,9 +257,9 @@ DFA construct_dfa() {
   return result;
 }
 
-std::map<std::string, TokenKind> get_keywords() {
-  static std::map<std::string, TokenKind> keywords = []() {
-    std::map<std::string, TokenKind> result;
+std::unordered_map<std::string, TokenKind> get_keywords() {
+  static std::unordered_map<std::string, TokenKind> keywords = []() {
+    std::unordered_map<std::string, TokenKind> result;
     result["return"] = TokenKind::Return;
     result["if"] = TokenKind::If;
     result["else"] = TokenKind::Else;

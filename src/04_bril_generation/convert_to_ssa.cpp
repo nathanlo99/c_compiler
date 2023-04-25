@@ -6,7 +6,7 @@ namespace bril {
 // Returns true if the function is in SSA form; that is, if every variable is
 // defined at most once
 bool ControlFlowGraph::is_in_ssa_form() const {
-  std::set<std::string> seen_variables;
+  std::unordered_set<std::string> seen_variables;
   for (const auto &argument : arguments)
     seen_variables.insert(argument.name);
   for (const auto &[entry_label, block] : blocks) {
@@ -29,9 +29,9 @@ void ControlFlowGraph::convert_to_ssa() {
     return;
 
   // 0. Gather variables and the blocks they're defined in
-  std::map<std::string, std::set<std::string>> defs;
-  std::map<std::string, size_t> num_defs;
-  std::map<std::string, Type> types;
+  std::unordered_map<std::string, std::unordered_set<std::string>> defs;
+  std::unordered_map<std::string, size_t> num_defs;
+  std::unordered_map<std::string, Type> types;
   for_each_block([&](const Block &block) {
     for (const auto &instruction : block.instructions) {
       if (instruction.destination != "") {
@@ -53,9 +53,9 @@ void ControlFlowGraph::convert_to_ssa() {
     if (num_defs[var] <= 1)
       continue;
 
-    std::set<std::string> queue = blocks_with_var;
-    std::set<std::string> has_def = blocks_with_var;
-    std::set<std::string> has_phi;
+    std::unordered_set<std::string> queue = blocks_with_var;
+    std::unordered_set<std::string> has_def = blocks_with_var;
+    std::unordered_set<std::string> has_phi;
     while (!queue.empty()) {
       const std::string block_label = *queue.begin();
       queue.erase(queue.begin());
@@ -83,8 +83,8 @@ void ControlFlowGraph::convert_to_ssa() {
     }
   }
 
-  std::map<std::string, std::vector<std::string>> definitions;
-  std::map<std::string, size_t> next_idx;
+  std::unordered_map<std::string, std::vector<std::string>> definitions;
+  std::unordered_map<std::string, size_t> next_idx;
   for (const auto &argument : arguments) {
     definitions[argument.name] = {argument.name};
   }
@@ -93,8 +93,8 @@ void ControlFlowGraph::convert_to_ssa() {
 
 void ControlFlowGraph::rename_variables(
     const std::string &block_label,
-    std::map<std::string, std::vector<std::string>> definitions,
-    std::map<std::string, size_t> &next_idx) {
+    std::unordered_map<std::string, std::vector<std::string>> definitions,
+    std::unordered_map<std::string, size_t> &next_idx) {
 
   Block &block = blocks.at(block_label);
 

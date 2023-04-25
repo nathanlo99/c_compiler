@@ -8,9 +8,9 @@ namespace bril {
 
 inline void canonicalize_names(ControlFlowGraph &function) {
   size_t next_variable_idx = 0;
-  std::map<std::string, std::string> renamed_variables;
+  std::unordered_map<std::string, std::string> renamed_variables;
   size_t next_label_idx = 0;
-  std::map<std::string, std::string> renamed_labels;
+  std::unordered_map<std::string, std::string> renamed_labels;
 
   const auto insert_parameter = [&](const std::string &arg) {
     renamed_variables[arg] = arg;
@@ -49,9 +49,9 @@ inline void canonicalize_names(ControlFlowGraph &function) {
         label = renamed_labels.at(label);
     }
   }
-  std::map<std::string, Block> new_blocks;
+  std::unordered_map<std::string, Block> new_blocks;
   std::vector<std::string> new_block_labels;
-  std::set<std::string> new_exit_blocks;
+  std::unordered_set<std::string> new_exit_blocks;
   for (const auto &label : function.block_labels) {
     new_blocks[renamed_labels.at(label)] = function.get_block(label);
     new_block_labels.push_back(renamed_labels.at(label));

@@ -27,9 +27,10 @@ void Program::inline_function_call(const std::string &function_name,
   const auto &called_function = get_function(called_function_name);
   debug_assert(called_function.block_labels[0] == called_function.entry_label,
                "Called function does not start with its entry block");
-  debug_assert(called_function.exiting_blocks ==
-                   std::set<std::string>{called_function.block_labels.back()},
-               "Called function does not end with its unique exit block");
+  debug_assert(
+      called_function.exiting_blocks ==
+          std::unordered_set<std::string>{called_function.block_labels.back()},
+      "Called function does not end with its unique exit block");
   debug_assert(instruction.arguments.size() == called_function.arguments.size(),
                "Called function has different number of arguments than call "
                "instruction");
@@ -43,7 +44,7 @@ void Program::inline_function_call(const std::string &function_name,
       function.get_fresh_label(called_function_name + "InlineEntry");
 
   // Create and map each variable in the called function to a fresh name
-  std::set<std::string> current_variables, current_labels;
+  std::unordered_set<std::string> current_variables, current_labels;
   for (const auto &block_label : function.block_labels) {
     const auto &block = function.get_block(block_label);
     for (const auto &instruction : block.instructions) {
@@ -67,8 +68,8 @@ void Program::inline_function_call(const std::string &function_name,
     }
   }
 
-  std::map<std::string, std::string> renamed_variables;
-  std::map<std::string, std::string> renamed_labels;
+  std::unordered_map<std::string, std::string> renamed_variables;
+  std::unordered_map<std::string, std::string> renamed_labels;
   const auto get_fresh_variable = [&](const std::string &name) {
     if (renamed_variables.count(name) > 0)
       return renamed_variables.at(name);

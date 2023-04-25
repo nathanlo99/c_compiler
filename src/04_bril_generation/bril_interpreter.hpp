@@ -120,7 +120,7 @@ struct BRILAlloc {
 };
 
 struct BRILStackFrame {
-  std::map<std::string, BRILValue> variables;
+  std::unordered_map<std::string, BRILValue> variables;
 
   // Get the value of a variable
   int get_int(const std::string &name) {

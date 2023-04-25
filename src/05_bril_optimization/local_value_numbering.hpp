@@ -25,9 +25,8 @@ struct LocalValueNumber {
 struct LocalValueTable {
   std::vector<LocalValueNumber> values;
   std::vector<std::string> canonical_variables;
-  std::map<std::string, size_t> env;
-
-  std::map<std::string, size_t> last_write;
+  std::unordered_map<std::string, size_t> env;
+  std::unordered_map<std::string, size_t> last_write;
 
   static inline size_t NOT_FOUND = -1;
   std::string canonical_name(const std::string &variable) const;

@@ -36,14 +36,14 @@ struct ContextFreeGrammar {
     }
   };
 
-  // std::map<std::string, bool> is_non_terminal_symbol;
   std::string start_symbol;
-  std::map<std::string, std::vector<Production>> productions_by_product;
+  std::unordered_map<std::string, std::vector<Production>>
+      productions_by_product;
 
-  std::set<std::string> symbols;
-  std::set<std::string> non_terminal_symbols;
-  std::set<std::string> terminal_symbols;
-  std::set<std::string> nullable_symbols;
+  std::unordered_set<std::string> symbols;
+  std::unordered_set<std::string> non_terminal_symbols;
+  std::unordered_set<std::string> terminal_symbols;
+  std::unordered_set<std::string> nullable_symbols;
 
   std::vector<Production> find_productions(const std::string &product) const {
     return productions_by_product.at(product);

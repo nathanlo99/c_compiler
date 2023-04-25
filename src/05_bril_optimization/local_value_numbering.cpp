@@ -15,7 +15,7 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
   debug_assert(opcode != Opcode::Const,
                "Const LVN should use other constructor");
   // Operations OP for which [a OP b === b OP a], we canonicalize the arguments
-  static const std::set<Opcode> commutative_operations = {
+  static const std::unordered_set<Opcode> commutative_operations = {
       Opcode::Add,
       Opcode::Mul,
       Opcode::Eq,
@@ -23,7 +23,7 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
   };
   // Operations OP for which there is a canonical OP' for which
   // [a OP b = b OP' a], we canonicalize the opcode
-  static const std::map<Opcode, Opcode> switch_order = {
+  static const std::unordered_map<Opcode, Opcode> switch_order = {
       std::make_pair(Opcode::Gt, Opcode::Lt),
       std::make_pair(Opcode::Ge, Opcode::Le),
   };
@@ -47,11 +47,11 @@ LocalValueNumber::LocalValueNumber(const int value, const Type type)
 
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
-  const static std::set<Type> foldable_types = {Type::Int};
+  const static std::unordered_set<Type> foldable_types = {Type::Int};
   if (foldable_types.count(value.type) == 0)
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
-  const std::map<Opcode, BinaryFunc> foldable_ops = {
+  const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
       std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
       std::make_pair(Opcode::Sub, [](int a, int b) { return a - b; }),
       std::make_pair(Opcode::Mul, [](int a, int b) { return a * b; }),
@@ -73,7 +73,7 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
       std::make_pair(Opcode::Ne, [](int a, int b) { return a != b; }),
   };
   // func --> func(x, x), if this is a constant expression
-  const std::map<Opcode, int> cancellable_ops = {
+  const std::unordered_map<Opcode, int> cancellable_ops = {
       std::make_pair(Opcode::Sub, 0), std::make_pair(Opcode::Div, 1),
       std::make_pair(Opcode::Mod, 0), std::make_pair(Opcode::Lt, 0),
       std::make_pair(Opcode::Le, 1),  std::make_pair(Opcode::Gt, 0),
@@ -171,8 +171,8 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
   LocalValueTable table;
 
   // Compute the last indices every destination is written to
-  std::set<std::string> read_before_written;
-  std::map<std::string, Type> types;
+  std::unordered_set<std::string> read_before_written;
+  std::unordered_map<std::string, Type> types;
   for (size_t i = 0; i < block.instructions.size(); ++i) {
     const auto &instruction = block.instructions[i];
     const std::string destination = instruction.destination;

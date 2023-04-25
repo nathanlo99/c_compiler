@@ -45,7 +45,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
 
   // Constant folding
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
-  const std::map<Opcode, BinaryFunc> foldable_ops = {
+  const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
       std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
       std::make_pair(Opcode::Sub, [](int a, int b) { return a - b; }),
       std::make_pair(Opcode::Mul, [](int a, int b) { return a * b; }),
@@ -67,7 +67,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
       std::make_pair(Opcode::Ne, [](int a, int b) { return a != b; }),
   };
   // func --> func(x, x), if this is a constant expression
-  const std::map<Opcode, int> cancellable_ops = {
+  const std::unordered_map<Opcode, int> cancellable_ops = {
       std::make_pair(Opcode::Sub, 0), std::make_pair(Opcode::Div, 1),
       std::make_pair(Opcode::Mod, 0), std::make_pair(Opcode::Lt, 0),
       std::make_pair(Opcode::Le, 1),  std::make_pair(Opcode::Gt, 0),
@@ -93,7 +93,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
       return GVNValue(result, type);
     }
 
-    std::map<Opcode, Opcode> reverse_operation = {
+    std::unordered_map<Opcode, Opcode> reverse_operation = {
         std::make_pair(Opcode::Add, Opcode::Sub),
         std::make_pair(Opcode::Sub, Opcode::Add),
         // NOTE: We don't do this for multiplication since (a / b) * b != a
@@ -156,8 +156,8 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
   // Phi simplification
   if (value.opcode == Opcode::Phi) {
     // If all the arguments are the same, we can just use that
-    const std::set<size_t> unique_arguments(value.arguments.begin(),
-                                            value.arguments.end());
+    const std::unordered_set<size_t> unique_arguments(value.arguments.begin(),
+                                                      value.arguments.end());
     if (unique_arguments.size() == 1)
       return expressions[*unique_arguments.begin()];
     return value;
@@ -227,7 +227,7 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
     table.insert_axiom(destination, instruction.type);
     std::vector<std::string> arguments;
     arguments.reserve(instruction.arguments.size());
-    std::set<std::string> argument_set;
+    std::unordered_set<std::string> argument_set;
     for (const auto &argument : instruction.arguments) {
       const auto it = table.variable_to_value_number.find(argument);
       const std::string canonical_argument =

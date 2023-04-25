@@ -11,8 +11,8 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   // - If we never use 'var' anywhere else in the function, remove the
   //   assignment
   size_t num_removed_lines = 0;
-  std::set<std::string> used_variables;
-  std::set<std::string> addressed_variables;
+  std::unordered_set<std::string> used_variables;
+  std::unordered_set<std::string> addressed_variables;
   for (const auto &[block_label, block] : graph.blocks) {
     for (const auto &instruction : block.instructions) {
       for (const auto &argument : instruction.arguments) {
@@ -48,7 +48,7 @@ inline size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
 inline size_t remove_local_unused_assignments(ControlFlowGraph &graph,
                                               Block &block) {
   std::set<size_t> to_delete;
-  std::map<std::string, size_t> last_def;
+  std::unordered_map<std::string, size_t> last_def;
   for (size_t idx = 0; idx < block.instructions.size(); ++idx) {
     const auto &instruction = block.instructions[idx];
     const std::string destination = instruction.destination;
@@ -113,7 +113,7 @@ inline size_t remove_unused_blocks(ControlFlowGraph &graph) {
 }
 
 inline size_t remove_unused_functions(Program &program) {
-  std::set<std::string> unused_functions;
+  std::unordered_set<std::string> unused_functions;
   program.for_each_function([&](const ControlFlowGraph &function) {
     unused_functions.insert(function.name);
   });
@@ -180,13 +180,13 @@ inline size_t remove_unused_parameters(Program &program) {
   size_t result = 0;
 
   // First, identify the unused variables in each function
-  std::map<std::string, std::vector<size_t>> unused_parameter_indices;
+  std::unordered_map<std::string, std::vector<size_t>> unused_parameter_indices;
   for (auto &[function_name, function] : program.functions) {
     // Ignore unused parameters in wain
     if (function.name == wain_name)
       continue;
 
-    std::map<std::string, size_t> unused_parameters;
+    std::unordered_map<std::string, size_t> unused_parameters;
     for (size_t idx = 0; idx < function.arguments.size(); ++idx) {
       const auto &param = function.arguments[idx];
       unused_parameters[param.name] = idx;

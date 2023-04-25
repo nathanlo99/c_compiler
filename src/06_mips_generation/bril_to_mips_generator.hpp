@@ -22,8 +22,9 @@ struct BRILToMIPSGenerator : MIPSGenerator {
   const Program &program;
   bool uses_heap = false;
   bool uses_print = false;
-  std::map<std::string, RegisterAllocation> allocations;
-  std::map<std::string, std::map<std::string, LivenessData>> liveness_data;
+  std::unordered_map<std::string, RegisterAllocation> allocations;
+  std::unordered_map<std::string, std::unordered_map<std::string, LivenessData>>
+      liveness_data;
 
   BRILToMIPSGenerator(const Program &program) : program(program) {
     uses_heap = program.uses_heap();
@@ -52,10 +53,10 @@ private:
     comment("Copying arguments");
     const size_t num_arguments = source_locations.size();
     // Points from source registers to target registers
-    std::map<Reg, Reg> register_graph;
+    std::unordered_map<Reg, Reg> register_graph;
     std::vector<size_t> to_memory;
     std::vector<size_t> from_memory;
-    std::set<Reg> sink_nodes;
+    std::unordered_set<Reg> sink_nodes;
 
     for (size_t i = 0; i < num_arguments; ++i) {
       const auto source_location = source_locations[i];
@@ -305,8 +306,9 @@ private:
 
   void generate_instruction(
       const std::string &function_name, const Instruction &instruction,
-      [[maybe_unused]] const std::set<std::string> &live_variables_before,
-      const std::set<std::string> &live_variables_after,
+      [[maybe_unused]] const std::unordered_set<std::string>
+          &live_variables_before,
+      const std::unordered_set<std::string> &live_variables_after,
       const RegisterAllocation &allocation) {
     const std::string &dest = instruction.destination;
 

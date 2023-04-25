@@ -508,8 +508,8 @@ struct Block {
   std::vector<Instruction> instructions;
   std::vector<std::string> exit_labels;
 
-  std::set<std::string> incoming_blocks;
-  std::set<std::string> outgoing_blocks;
+  std::unordered_set<std::string> incoming_blocks;
+  std::unordered_set<std::string> outgoing_blocks;
 
   // Insert an instruction at the beginning of the block, after any labels.
   void prepend(const Instruction &instruction) {
@@ -571,14 +571,16 @@ struct ControlFlowGraph {
 
   std::vector<std::string> block_labels;
   std::string entry_label;
-  std::map<std::string, Block> blocks;
-  std::set<std::string> exiting_blocks;
+  std::unordered_map<std::string, Block> blocks;
+  std::unordered_set<std::string> exiting_blocks;
 
   // Dominator data structures
-  std::map<std::string, std::map<std::string, bool>> raw_dominators;
-  std::map<std::string, std::set<std::string>> dominators;
-  std::map<std::string, std::string> immediate_dominators;
-  std::map<std::string, std::set<std::string>> dominance_frontiers;
+  std::unordered_map<std::string, std::unordered_map<std::string, bool>>
+      raw_dominators;
+  std::unordered_map<std::string, std::unordered_set<std::string>> dominators;
+  std::unordered_map<std::string, std::string> immediate_dominators;
+  std::unordered_map<std::string, std::unordered_set<std::string>>
+      dominance_frontiers;
 
   // True if the graph has been modified since the last time dominator data was
   // computed
@@ -672,10 +674,10 @@ struct ControlFlowGraph {
   void convert_to_ssa();
   void convert_from_ssa();
   bool is_in_ssa_form() const;
-  void
-  rename_variables(const std::string &block_label,
-                   std::map<std::string, std::vector<std::string>> definitions,
-                   std::map<std::string, size_t> &next_idx);
+  void rename_variables(
+      const std::string &block_label,
+      std::unordered_map<std::string, std::vector<std::string>> definitions,
+      std::unordered_map<std::string, size_t> &next_idx);
 
   // Applies a local pass to each block in the CFG and returns the number of
   // removed lines
@@ -774,7 +776,8 @@ struct ControlFlowGraph {
   }
 
   std::string immediate_dominator(const std::string &label) const;
-  std::set<std::string> dominance_frontier(const std::string &label) const;
+  std::unordered_set<std::string>
+  dominance_frontier(const std::string &label) const;
 };
 
 struct Program {

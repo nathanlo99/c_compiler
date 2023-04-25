@@ -12,7 +12,7 @@ namespace bril {
 
 class BRILGenerator {
   std::string current_function;
-  std::map<std::string, Function> functions;
+  std::unordered_map<std::string, Function> functions;
 
 public:
   Program program() const {
@@ -29,7 +29,7 @@ public:
     return "_t" + std::to_string(idx);
   }
   inline std::string generate_label(const std::string label_type) {
-    static std::map<std::string, int> next_indices;
+    static std::unordered_map<std::string, int> next_indices;
     const int next_idx = next_indices[label_type]++;
     return label_type + std::to_string(next_idx);
   }

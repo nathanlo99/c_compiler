@@ -417,7 +417,7 @@ void inline_functions(const std::string &filename) {
 
   while (true) {
     bool changed = false;
-    std::set<std::string> to_inline;
+    std::unordered_set<std::string> to_inline;
     for (const auto &[name, function] : program.functions) {
       if (function.num_instructions() <= 20 || function.num_labels() <= 5) {
         to_inline.insert(name);
