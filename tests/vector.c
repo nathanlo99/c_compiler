@@ -21,17 +21,34 @@ int print(int *str) {
 }
 
 int print_num(int num) {
-  int *stdout = 0xffff000c;
+  int* buffer = NULL;
+  int length = 0;
+  int i = 0;
   int digit = 0;
+  buffer = new int[10];
+
+  if (num < 0) {
+    *(buffer + length) = 45; // Minus
+    length = length + 1;
+    num = 0 - num;
+  }
+
   if (num == 0) {
-    print_char(48);
+    *(buffer + length) = 48;
+    length = length + 1;
   } else {
     while (num != 0) {
       digit = num % 10;
-      print_char(digit + 48);
+      *(buffer + length) = digit + 48;
+      length = length + 1;
       num = num / 10;
     }
   }
+
+  for (i = length - 1; i >= 0; i = i - 1) {
+    print_char(*(buffer + i));
+  }
+  delete[] buffer;
   return 0;
 }
 
@@ -97,7 +114,6 @@ int wain(int n, int unused) {
       print_char(32);
     }
     print_num(*vector_at(vec, i));
-    print_char(32);
   }
   print_char(10);
 
