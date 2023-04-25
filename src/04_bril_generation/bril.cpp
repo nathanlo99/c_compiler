@@ -320,7 +320,6 @@ void ControlFlowGraph::rename_label(const std::string &old_label,
 
 // Dominators
 void ControlFlowGraph::compute_dominators() {
-  raw_dominators.clear();
   dominators.clear();
   immediate_dominators.clear();
   dominance_frontiers.clear();
@@ -362,14 +361,6 @@ void ControlFlowGraph::compute_dominators() {
     }
     if (!changed)
       break;
-  }
-
-  for (size_t i = 0; i < num_labels; ++i) {
-    const std::string label = block_labels[i];
-    for (size_t j = 0; j < num_labels; ++j) {
-      const std::string other_label = block_labels[j];
-      raw_dominators[label][other_label] = dominator_matrix[i][j];
-    }
   }
 
   // Set up memoized versions of the dominator queries
