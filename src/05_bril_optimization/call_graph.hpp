@@ -88,7 +88,46 @@ struct CallGraph {
     }
   }
 
-  void compute_topological_order() {}
+  void compute_topological_order() {
+    std::vector<size_t> in_degree(component_graph.size(), 0);
+    std::vector<size_t> topological_order;
+    topological_order.reserve(component_graph.size());
+
+    // Initialize a queue of nodes with in-degree 0
+    std::queue<size_t> queue;
+    for (const auto &neighbours : component_graph)
+      for (const auto &neighbour : neighbours)
+        ++in_degree[neighbour];
+    for (size_t i = 0; i < in_degree.size(); ++i)
+      if (in_degree[i] == 0)
+        queue.push(i);
+
+    // While the stack is not empty, pop a node and add it to the topological
+    // order; decrement the in-degree of its neighbours and update the stack
+    while (!queue.empty()) {
+      const size_t node = queue.front();
+      queue.pop();
+      topological_order.push_back(node);
+      for (const auto &neighbour : component_graph[node]) {
+        --in_degree[neighbour];
+        if (in_degree[neighbour] == 0)
+          queue.push(neighbour);
+      }
+    }
+
+    // Since we performed a SCC decomposition, the component graph is acyclic
+    // and thus the topological sort should produce an ordering of the SCCs
+    debug_assert(topological_order.size() == component_graph.size(),
+                 "The strongly-connected component graph is not acyclic");
+
+    // Reverse the order so that the functions which call no other functions are
+    // first
+    std::reverse(topological_order.begin(), topological_order.end());
+    std::vector<StronglyConnectedComponent> ordered_components;
+    for (const auto &node : topological_order)
+      ordered_components.push_back(components[node]);
+    components = ordered_components;
+  }
 
   friend std::ostream &operator<<(std::ostream &os, const CallGraph &graph) {
     using util::operator<<;
@@ -98,8 +137,10 @@ struct CallGraph {
     }
     os << "Strongly connected components: " << graph.components << std::endl;
     os << "Component graph: " << std::endl;
-    for (size_t i = 0; i < graph.component_graph.size(); ++i)
-      os << "  " << i << ": " << graph.component_graph[i] << std::endl;
+    for (size_t i = 0; i < graph.component_graph.size(); ++i) {
+      os << "  " << i << ": " << graph.components[i] << std::endl;
+      os << "  - edges: " << graph.component_graph[i] << std::endl;
+    }
     return os;
   }
 };
