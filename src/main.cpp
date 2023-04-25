@@ -12,7 +12,7 @@
 #include "fold_constants.hpp"
 #include "global_value_numbering.hpp"
 #include "lexer.hpp"
-#include "live_analysis.hpp"
+#include "liveness_analysis.hpp"
 #include "local_value_numbering.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"

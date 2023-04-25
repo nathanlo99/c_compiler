@@ -135,7 +135,6 @@ struct CallGraph {
     for (const auto &[function, called_functions] : graph.graph) {
       os << "  " << function << ": " << called_functions << std::endl;
     }
-    os << "Strongly connected components: " << graph.components << std::endl;
     os << "Component graph: " << std::endl;
     for (size_t i = 0; i < graph.component_graph.size(); ++i) {
       os << "  " << i << ": " << graph.components[i] << std::endl;

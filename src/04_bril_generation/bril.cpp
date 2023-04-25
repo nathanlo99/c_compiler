@@ -145,7 +145,7 @@ void ControlFlowGraph::add_block(const Block &block) {
 }
 
 void ControlFlowGraph::remove_block(const std::string &block_label) {
-  std::cerr << "Removing block " << block_label << std::endl;
+  // std::cerr << "Removing block " << block_label << std::endl;
   debug_assert(blocks.count(block_label) > 0, "No block with label {}",
                block_label);
 

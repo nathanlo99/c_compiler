@@ -36,7 +36,7 @@ struct BRILValue {
   static BRILValue address(const size_t stack_depth, const std::string &name) {
     return BRILValue(Type::Address, stack_depth, name);
   }
-  static BRILValue heap_pointer(const size_t idx, const size_t offset) {
+  static BRILValue heap_pointer(const size_t idx, const int offset) {
     return BRILValue(idx, offset);
   }
 
@@ -240,13 +240,14 @@ struct BRILContext {
     return BRILValue::heap_pointer(idx, old_offset + offset);
   }
 
-  BRILValue pointer_sub(const BRILValue pointer, const int offset) {
+  BRILValue pointer_sub(const BRILValue pointer, const int amount) {
     debug_assert(pointer.type == BRILValue::Type::HeapPointer,
                  "Subtracting from non-heap pointer");
     const size_t idx = pointer.heap_idx;
     const size_t old_offset = pointer.heap_offset;
-    debug_assert(idx < heap_memory.size(), "Invalid heap index");
-    return BRILValue::heap_pointer(idx, old_offset - offset);
+    debug_assert(idx < heap_memory.size(), "Invalid heap index: {} >= {}", idx,
+                 heap_memory.size());
+    return BRILValue::heap_pointer(idx, old_offset - amount);
   }
 
   int pointer_diff(const BRILValue p1, const BRILValue p2) {
