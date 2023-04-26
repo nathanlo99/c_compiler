@@ -25,7 +25,7 @@ int print_num(int num) {
   int length = 0;
   int i = 0;
   int digit = 0;
-  buffer = new int[10];
+  buffer = new int[11];
 
   if (num < 0) {
     *(buffer + length) = 45; // Minus

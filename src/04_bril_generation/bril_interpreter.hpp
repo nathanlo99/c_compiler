@@ -231,10 +231,8 @@ struct BRILContext {
   void store(const BRILValue pointer, const BRILValue value) {
     if (pointer.type == BRILValue::Type::RawPointer) {
       if (pointer == BRILValue::stdout()) {
-        const int ch = value.int_value;
-        debug_assert(0 <= ch && ch < 128,
-                     "Writing invalid ASCII value to stdout: {}", ch);
-        out << static_cast<char>(ch);
+        const char ch = value.int_value & 0xFF;
+        out << ch;
         return;
       }
       debug_assert(
