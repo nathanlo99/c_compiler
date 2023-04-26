@@ -4,6 +4,11 @@
 int throw_error() { return *NULL; }
 
 // ------------ IO ------------
+int get_char() {
+  int *stdin = 0xffff0004;
+  return *stdin;
+}
+
 int print_char(int c) {
   int *stdout = 0xffff000c;
   return *stdout = c;

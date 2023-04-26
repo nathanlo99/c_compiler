@@ -83,7 +83,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     Block new_block;
     block_labels.insert(block_labels.begin(), new_entry_label);
     new_block.entry_label = new_entry_label;
-    new_block.instructions.push_back(Instruction::label(new_entry_label));
+    // new_block.instructions.push_back(Instruction::label(new_entry_label));
     new_block.instructions.push_back(Instruction::jmp(old_entry_label));
     blocks.emplace(new_entry_label, new_block);
 

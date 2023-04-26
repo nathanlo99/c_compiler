@@ -1,58 +1,31 @@
-
-int merge(int *arr, int left) {
-  int i = 0;
-  int j = 0;
-  int k = 0;
-  int n1 = 0;
-  int n2 = 0;
-  int *L = NULL;
-  int *R = NULL;
-  int cont = 1;
-  n1 = 4 - left;
-  n2 = 1;
-  L = new int[n1];
-  R = new int[1];
-  j = 0;
-  while (j < n2) {
-    *(R + j) = *(arr + 3 + j);
-    j = j + 1;
-  }
-  i = 0;
-  j = 0;
-  k = left;
-  while (cont == 1) {
-    println(k);
-    cont = 0;
-    if (*(L + i) <= *(R + j)) {
-      *(arr + k) = *(L + i);
-      i = i + 1;
+int toupper(int *a) {
+  while (*a != 0) {
+    if (*a > 96) {
+      if (*a < 123) {
+        *a = *a - 32;
+      } else {
+      }
     } else {
-      *(arr + k) = *(R + j);
-      j = j + 1;
     }
+    a = a + 1;
   }
   return 0;
 }
 
-int printArray(int *arr, int size) {
-  int i = 0;
-  println(10000);
-  while (i < size) {
-    println(*(arr + i));
-    i = i + 1;
-  }
-  println(10001);
-  return 0;
-}
-
-int wain(int unused, int b) {
-  int* a = NULL;
-  a = new int[4];
-  *(a + 0) = 1;
-  *(a + 1) = 4;
-  *(a + 2) = 2;
-  *(a + 3) = 3;
-  unused = merge(a, 2);
-  unused = printArray(a, 4); // 1 4 2 3
+int wain(int a, int b) {
+  int *c = NULL;
+  c = new int[10];
+  *c = 97;
+  *(c + 1) = 98;
+  *(c + 2) = 99;
+  *(c + 3) = 100;
+  *(c + 4) = 101;
+  *(c + 5) = 102;
+  *(c + 6) = 103;
+  *(c + 7) = 104;
+  *(c + 8) = 105;
+  *(c + 9) = 0;
+  toupper(c);
+  delete[] (c);
   return 0;
 }
