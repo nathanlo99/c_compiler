@@ -10,73 +10,43 @@
 
 namespace bril {
 
-struct LivenessData {
-  using InResult = std::unordered_set<std::string>;
-  using OutResult = std::unordered_set<std::string>;
+struct LivenessAnalysis
+    : BackwardDataFlowPass<std::unordered_set<std::string>> {
+  using Result = std::unordered_set<std::string>;
 
-  InResult in;
-  OutResult out;
-
-  // Stores the set of live instructions **before** every instruction
-  std::vector<std::unordered_set<std::string>> live_variables;
-
-  LivenessData(const Block &block)
-      : in(), out(), live_variables(block.instructions.size() + 1) {}
-};
-
-struct LivenessAnalysis : BackwardDataFlowPass<LivenessData> {
   LivenessAnalysis(const ControlFlowGraph &graph)
       : BackwardDataFlowPass(graph) {}
-  ~LivenessAnalysis() = default;
 
-  // By default, no variables are live at the end of the function
-  OutResult init() override { return {}; }
-
-  // The live variables at the end of a block are the union of the live
-  // variables at the beginning of its successors
-  OutResult merge(const std::vector<InResult> &args) override {
-    OutResult result;
-    for (const InResult &arg : args) {
+  Result init() override { return {}; }
+  Result merge(const std::vector<Result> &args) override {
+    Result result;
+    for (const Result &arg : args) {
       result.insert(arg.begin(), arg.end());
     }
     return result;
   }
-
-  InResult transfer(const OutResult &out, const std::string &label,
-                    LivenessData &data) override {
-    const Block &block = graph.get_block(label);
-    const size_t num_instructions = block.instructions.size();
-
-    data.live_variables[num_instructions] = out;
-    for (int idx = num_instructions - 1; idx >= 0; --idx) {
-      const auto &instruction = block.instructions[idx];
-      data.live_variables[idx] = data.live_variables[idx + 1];
-
-      // NOTE: It's important to remove the destination first, since
-      // the destination may also be an argument, and in this case, the variable
-      // is live before the instruction
-      if (instruction.destination != "") {
-        data.live_variables[idx].erase(instruction.destination);
-      }
-      data.live_variables[idx].insert(instruction.arguments.begin(),
-                                      instruction.arguments.end());
+  Result transfer(const Result &out, const Instruction &instruction) override {
+    Result result = out;
+    // Remove the destination first
+    if (instruction.destination != "") {
+      result.erase(instruction.destination);
     }
-
-    return data.live_variables[0];
+    // Add arguments
+    result.insert(instruction.arguments.begin(), instruction.arguments.end());
+    return result;
   }
 };
 
 struct RegisterInterferenceGraph {
-  std::unordered_map<std::string, LivenessData> liveness_data;
+  typename LivenessAnalysis::DataFlowResult liveness_data;
 
   std::unordered_map<std::string, size_t> variable_to_index;
   std::vector<std::string> index_to_variable;
 
   std::vector<std::unordered_set<size_t>> edges;
 
-  RegisterInterferenceGraph(const ControlFlowGraph &graph) {
-    LivenessAnalysis analysis(graph);
-    liveness_data = analysis.run();
+  RegisterInterferenceGraph(const ControlFlowGraph &graph)
+      : liveness_data(LivenessAnalysis(graph).run()) {
     // TODO: Skip adding edges if the variable is never used
     for (const auto &arg1 : graph.arguments) {
       for (const auto &arg2 : graph.arguments) {
@@ -85,12 +55,13 @@ struct RegisterInterferenceGraph {
     }
 
     graph.for_each_block([&](const Block &block) {
-      const auto &live_variables =
-          liveness_data.at(block.entry_label).live_variables;
-      for (const auto &live_set : live_variables)
-        for (const auto &var1 : live_set)
-          for (const auto &var2 : live_set)
+      for (size_t i = 0; i <= block.instructions.size(); ++i) {
+        const auto &live_variables =
+            liveness_data.data.at(block.entry_label)[i];
+        for (const auto &var1 : live_variables)
+          for (const auto &var2 : live_variables)
             add_edge(var1, var2);
+      }
     });
   }
 
@@ -175,7 +146,7 @@ struct VariableLocation {
 struct RegisterAllocation {
   std::unordered_map<std::string, Reg> register_allocation;
   std::unordered_map<std::string, int> spilled_variables;
-  std::unordered_map<std::string, LivenessData> liveness_data;
+  typename LivenessAnalysis::DataFlowResult liveness_data;
 
   int next_offset = 0;
 

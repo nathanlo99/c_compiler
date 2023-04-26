@@ -23,7 +23,7 @@ struct BRILToMIPSGenerator : MIPSGenerator {
   bool uses_heap = false;
   bool uses_print = false;
   std::unordered_map<std::string, RegisterAllocation> allocations;
-  std::unordered_map<std::string, std::unordered_map<std::string, LivenessData>>
+  std::unordered_map<std::string, LivenessAnalysis::DataFlowResult>
       liveness_data;
 
   BRILToMIPSGenerator(const Program &program) : program(program) {
@@ -262,12 +262,13 @@ private:
     label(create_label(function.name, function.entry_label));
     for (const auto &label : function.block_labels) {
       const auto block = function.get_block(label);
-      const auto &live_variables =
-          allocation.liveness_data.at(label).live_variables;
+      const auto &liveness_data = allocation.liveness_data;
       for (size_t i = 0; i < block.instructions.size(); ++i) {
         const auto &instruction = block.instructions[i];
-        generate_instruction(function.name, instruction, live_variables[i],
-                             live_variables[i + 1], allocation);
+        const auto &live_in = liveness_data.get_data_in(label, i);
+        const auto &live_out = liveness_data.get_data_out(label, i);
+        generate_instruction(function.name, instruction, live_in, live_out,
+                             allocation);
       }
     }
     comment("Done with function " + function.name);

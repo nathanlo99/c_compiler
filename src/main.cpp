@@ -217,18 +217,23 @@ void compute_liveness(const std::string &filename) {
     LivenessAnalysis analysis(function);
     const auto result = analysis.run();
     for (const auto &label : function.block_labels) {
-      const auto &data = result.at(label);
       const auto &block = function.get_block(label);
       std::cout << separator << std::endl;
       std::cout << label << std::endl;
 
       for (size_t i = 0; i < block.instructions.size(); ++i) {
-        std::cout << padding << "live variables: " << data.live_variables[i]
+        const auto &live_in = result.get_data_in(label, i);
+        const std::set<std::string> sorted_live_in(live_in.begin(),
+                                                   live_in.end());
+        std::cout << padding << "live variables: " << sorted_live_in
                   << std::endl;
         std::cout << block.instructions[i] << std::endl;
       }
-      std::cout << padding << "live variables: "
-                << data.live_variables[block.instructions.size()] << std::endl;
+      const auto &live_out = result.get_block_out(label);
+      const std::set<std::string> sorted_live_out(live_out.begin(),
+                                                  live_out.end());
+      std::cout << padding << "live variables: " << sorted_live_out
+                << std::endl;
     }
     std::cout << separator << std::endl;
   });
