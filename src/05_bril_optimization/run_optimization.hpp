@@ -4,6 +4,7 @@
 #include "dead_code_elimination.hpp"
 #include "global_value_numbering.hpp"
 #include "local_value_numbering.hpp"
+#include "mem_to_reg.hpp"
 
 inline size_t run_optimization_passes(bril::Program &program) {
   using namespace bril;
@@ -11,6 +12,7 @@ inline size_t run_optimization_passes(bril::Program &program) {
   while (true) {
     const size_t old_num_removed_lines = num_removed_lines;
     num_removed_lines += program.apply_pass(remove_unused_functions);
+    num_removed_lines += program.apply_global_pass(promote_memory_to_registers);
     num_removed_lines +=
         program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=
