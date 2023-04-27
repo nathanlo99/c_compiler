@@ -16,6 +16,7 @@
 #include "global_value_numbering.hpp"
 #include "lexer.hpp"
 #include "local_value_numbering.hpp"
+#include "mem_to_reg.hpp"
 #include "naive_mips_generator.hpp"
 #include "parser.hpp"
 #include "populate_symbol_table.hpp"
@@ -448,6 +449,13 @@ void compute_aliases(const std::string &filename) {
       }
     }
   }
+  std::cout << std::string(100, '-') << std::endl;
+
+  program.apply_global_pass(promote_memory_to_registers);
+  std::cout << program << std::endl;
+
+  run_optimization_passes(program);
+  std::cout << program << std::endl;
 }
 
 int main(int argc, char **argv) {
