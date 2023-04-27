@@ -5,6 +5,13 @@
 
 namespace bril {
 
+struct InstructionLocation {
+  std::string label;
+  size_t instruction_idx;
+  InstructionLocation(const std::string &label, const size_t instruction_idx)
+      : label(label), instruction_idx(instruction_idx) {}
+};
+
 // Stores data-flow results which change per-instruction
 template <typename Result> struct InstructionDataFlowResult {
   std::unordered_map<std::string, std::vector<Result>> data;
@@ -64,7 +71,8 @@ template <typename Result> struct ForwardDataFlowPass {
 
   virtual Result init() = 0;
   virtual Result merge(const std::vector<Result> &outs) = 0;
-  virtual Result transfer(const Result &in, const Instruction &instruction) = 0;
+  virtual Result transfer(const Result &in, const InstructionLocation &location,
+                          const Instruction &instruction) = 0;
 
   DataFlowResult run() {
     DataFlowResult result;
@@ -94,7 +102,8 @@ template <typename Result> struct ForwardDataFlowPass {
       for (size_t i = 0; i < block.instructions.size(); ++i) {
         const Instruction &instruction = block.instructions[i];
         const Result &in = result.get_data_in(label, i);
-        changed |= result.set_data_out(label, i, transfer(in, instruction));
+        changed |= result.set_data_out(
+            label, i, transfer(in, InstructionLocation(label, i), instruction));
       }
 
       // 3. If out[b] changed, add all successors of b to the worklist
@@ -119,6 +128,7 @@ template <typename Result> struct BackwardDataFlowPass {
   virtual Result init() = 0;
   virtual Result merge(const std::vector<Result> &outs) = 0;
   virtual Result transfer(const Result &out,
+                          const InstructionLocation &location,
                           const Instruction &instruction) = 0;
 
   DataFlowResult run() {
@@ -151,7 +161,9 @@ template <typename Result> struct BackwardDataFlowPass {
       for (int i = block.instructions.size() - 1; i >= 0; --i) {
         const Instruction &instruction = block.instructions[i];
         const Result &out = result.get_data_out(label, i);
-        changed |= result.set_data_in(label, i, transfer(out, instruction));
+        changed |= result.set_data_in(
+            label, i,
+            transfer(out, InstructionLocation(label, i), instruction));
       }
 
       // 3. If in[b] changed, add all predecessors of b to the worklist

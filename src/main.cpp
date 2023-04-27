@@ -7,6 +7,7 @@
 #include "call_graph_walk.hpp"
 #include "canonicalize_conditions.hpp"
 #include "canonicalize_names.hpp"
+#include "data_flow/alias_analysis.hpp"
 #include "data_flow/data_flow.hpp"
 #include "data_flow/liveness_analysis.hpp"
 #include "dead_code_elimination.hpp"
@@ -426,6 +427,29 @@ void inline_functions(const std::string &filename) {
   generator.print(std::cout);
 }
 
+void compute_aliases(const std::string &filename) {
+  using namespace bril;
+  using util::operator<<;
+  auto program = get_optimized_bril_from_file(filename);
+  for (const auto &[name, function] : program.functions) {
+    const auto alias_results = MayAliasAnalysis(function).run();
+    for (const auto &label : function.block_labels) {
+      const auto &block = function.get_block(label);
+      std::cerr << "Block " << label << std::endl;
+      for (size_t i = 0; i < block.instructions.size(); ++i) {
+        const auto &instruction = block.instructions[i];
+        std::cerr << "  " << instruction << std::endl;
+        if (instruction.destination != "") {
+          const auto &locations =
+              alias_results.get_data_out(label, i).at(instruction.destination);
+          if (!locations.empty())
+            std::cerr << "  - " << locations << std::endl;
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   try {
     debug_assert(argc >= 2, "Expected a filename");
@@ -456,6 +480,7 @@ int main(int argc, char **argv) {
 
             // Experimental options
             {"--augmented-cfg", test_augmented_cfg},
+            {"--compute-aliases", compute_aliases},
         };
 
     if (options.count(argument) == 0) {

@@ -34,16 +34,18 @@ template <typename T, typename U>
 static std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &pair);
 template <typename T>
 static std::ostream &operator<<(std::ostream &os, const std::vector<T> &list);
-template <typename T>
-static std::ostream &operator<<(std::ostream &os, const std::set<T> &list);
-template <typename T, typename U>
-static std::ostream &operator<<(std::ostream &os, const std::map<T, U> &dict);
-template <typename T>
+template <typename T, typename Hash>
 static std::ostream &operator<<(std::ostream &os,
-                                const std::unordered_set<T> &list);
-template <typename T, typename U>
+                                const std::set<T, Hash> &list);
+template <typename T, typename U, typename Hash>
 static std::ostream &operator<<(std::ostream &os,
-                                const std::unordered_map<T, U> &dict);
+                                const std::map<T, U, Hash> &dict);
+template <typename T, typename Hash>
+static std::ostream &operator<<(std::ostream &os,
+                                const std::unordered_set<T, Hash> &list);
+template <typename T, typename U, typename Hash>
+static std::ostream &operator<<(std::ostream &os,
+                                const std::unordered_map<T, U, Hash> &dict);
 
 template <typename T, typename U>
 static inline std::ostream &operator<<(std::ostream &os,
@@ -64,9 +66,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-template <typename T>
+template <typename T, typename Hash>
 static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::set<T> &list) {
+                                       const std::set<T, Hash> &list) {
   os << "{";
   size_t i = 0;
   for (const auto &item : list) {
@@ -79,9 +81,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-template <typename T, typename U>
+template <typename T, typename U, typename Hash>
 static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::map<T, U> &dict) {
+                                       const std::map<T, U, Hash> &dict) {
   bool first = true;
   os << "{";
   for (const auto &[key, value] : dict) {
@@ -95,9 +97,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-template <typename T>
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::unordered_set<T> &list) {
+template <typename T, typename Hash>
+static inline std::ostream &
+operator<<(std::ostream &os, const std::unordered_set<T, Hash> &list) {
   os << "{";
   size_t i = 0;
   for (const auto &item : list) {
@@ -110,9 +112,9 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-template <typename T, typename U>
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const std::unordered_map<T, U> &dict) {
+template <typename T, typename U, typename Hash>
+static inline std::ostream &
+operator<<(std::ostream &os, const std::unordered_map<T, U, Hash> &dict) {
   bool first = true;
   os << "{";
   for (const auto &[key, value] : dict) {

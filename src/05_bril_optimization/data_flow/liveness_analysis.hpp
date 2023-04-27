@@ -25,7 +25,8 @@ struct LivenessAnalysis
     }
     return result;
   }
-  Result transfer(const Result &out, const Instruction &instruction) override {
+  Result transfer(const Result &out, const InstructionLocation &,
+                  const Instruction &instruction) override {
     Result result = out;
     // Remove the destination first
     if (instruction.destination != "") {
