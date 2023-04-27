@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 set(CMAKE_CXX_FLAGS "-Ofast -g -fsanitize=address,undefined -Werror -Wall -Wextra")
 set(CMAKE_EXE_LINKER_FLAGS "-Ofast -g -fsanitize=address,undefined -flto -ffast-math")
 
-file(GLOB src_cpp src/*.cpp src/00_scanner/*.cpp src/01_parser/*.cpp src/02_ast_generation/*.cpp src/03_ast_optimization/*.cpp src/04_bril_generation/*.cpp src/05_bril_optimization/*.cpp src/06_mips_generation/*.cpp)
+file(GLOB src_cpp src/*.cpp src/00_scanner/*.cpp src/01_parser/*.cpp src/02_ast_generation/*.cpp src/03_ast_optimization/*.cpp src/04_bril_generation/*.cpp src/05_bril_optimization/*.cpp src/05_bril_optimization/data_flow/*.cpp src/06_mips_generation/*.cpp)
 list(APPEND SOURCES ${src_cpp})
 
 add_executable(compile ${SOURCES})

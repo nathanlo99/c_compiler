@@ -2,7 +2,7 @@
 #pragma once
 
 #include "bril.hpp"
-#include "liveness_analysis.hpp"
+#include "data_flow/liveness_analysis.hpp"
 #include "mips_generator.hpp"
 #include "mips_instruction.hpp"
 #include "timer.hpp"
