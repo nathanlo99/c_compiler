@@ -53,13 +53,13 @@ void SimpleBRILGenerator::visit(AssignmentExpr &expr) {
   if (const auto &lhs =
           std::dynamic_pointer_cast<VariableLValueExpr>(expr.lhs)) {
     id(lhs->variable.name, rhs_variable, type);
-    // id(result_variable, lhs->variable.name, type);
+    id(result_variable, lhs->variable.name, type);
   } else if (const auto &lhs =
                  std::dynamic_pointer_cast<DereferenceLValueExpr>(expr.lhs)) {
     lhs->argument->accept_simple(*this);
     const std::string lhs_variable = last_result();
     store(lhs_variable, rhs_variable);
-    // id(result_variable, rhs_variable, type);
+    id(result_variable, rhs_variable, type);
   } else {
     debug_assert(false, "Assigning to unknown kind of lvalue: was neither "
                         "variable nor dereference");

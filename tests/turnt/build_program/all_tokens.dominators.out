@@ -4,17 +4,11 @@ Function: collatz
   - Dominance frontier: {}
   Block: ifTrue4
   - Immediate dominator: collatzEntry
-  - Dominance frontier: {ifEndif5}
+  - Dominance frontier: {ifEndif4}
   Block: ifFalse4
   - Immediate dominator: collatzEntry
-  - Dominance frontier: {ifEndif5}
-  Block: ifTrue5
-  - Immediate dominator: ifFalse4
-  - Dominance frontier: {ifEndif5}
-  Block: ifFalse5
-  - Immediate dominator: ifFalse4
-  - Dominance frontier: {ifEndif5}
-  Block: ifEndif5
+  - Dominance frontier: {ifEndif4}
+  Block: ifEndif4
   - Immediate dominator: collatzEntry
   - Dominance frontier: {}
 Function: isPrime

@@ -57,16 +57,28 @@ public:
     function().instructions.push_back(instruction);
   }
   inline std::string last_result() const {
-    debug_assert(function().instructions.size() > 0,
-                 "Cannot grab last result: no instructions in {}",
+    const auto &instructions = function().instructions;
+    for (int idx = instructions.size() - 1; idx >= 0; --idx) {
+      const auto &instruction = instructions[idx];
+      if (instruction.destination != "") {
+        return instruction.destination;
+      }
+    }
+    debug_assert(false, "Cannot grab last result: no instructions in {}",
                  current_function);
-    return function().instructions.back().destination;
+    return "??";
   }
   inline Type last_type() const {
-    debug_assert(function().instructions.size() > 0,
-                 "Cannot grab last result: no instructions in {}",
+    const auto &instructions = function().instructions;
+    for (int idx = instructions.size() - 1; idx >= 0; --idx) {
+      const auto &instruction = instructions[idx];
+      if (instruction.destination != "") {
+        return instruction.type;
+      }
+    }
+    debug_assert(false, "Cannot grab last type: no instructions in {}",
                  current_function);
-    return function().instructions.back().type;
+    return Type::Unknown;
   }
 
   inline void add(const std::string &dest, const std::string &lhs,

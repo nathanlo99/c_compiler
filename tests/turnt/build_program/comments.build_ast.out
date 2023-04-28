@@ -5,14 +5,20 @@ Procedure {
     a: int (used)
     b: int (used)
   declarations: 
+    sum: int = 0 (used)
   statements: 
   return_expr: 
-    BinaryExpr {
+    AssignmentExpr {
       lhs: 
-        VariableExpr(a) : int
-      operation: Add
+        VariableLValueExpr(sum) : int
       rhs: 
-        VariableExpr(b) : int
+        BinaryExpr {
+          lhs: 
+            VariableExpr(a) : int
+          operation: Add
+          rhs: 
+            VariableExpr(b) : int
+        } : int
     } : int
 }
 

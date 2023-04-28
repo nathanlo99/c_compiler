@@ -1,0 +1,16 @@
+@wain(a: int, b: int) : int {
+  _t0: int = const 3;
+  a: int = id _t0;
+  _t1: int = id a;
+  _t2: int = id a;
+  print _t2;
+  _t3: int = const 4;
+  a: int = id _t3;
+  _t4: int = id a;
+  _t5: int = const 5;
+  a: int = id _t5;
+  _t6: int = id a;
+  _t7: int = id a;
+  ret _t7;
+}
+

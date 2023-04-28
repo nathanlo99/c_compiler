@@ -1,0 +1,29 @@
+@wain(a: int, b: int) : int {
+  addr_a: ptr<int> = const 0x1;
+  _t0: ptr<int> = addressof a;
+  addr_a: ptr<int> = id _t0;
+  _t1: ptr<int> = id addr_a;
+  _t2: int = const 0;
+  b: int = id _t2;
+  _t3: int = id b;
+  _t4: int = const 69;
+  a: int = id _t4;
+  _t5: int = id a;
+  _t6: int = id b;
+  _t7: int = id a;
+  _t8: int = add _t6 _t7;
+  b: int = id _t8;
+  _t9: int = id b;
+  _t10: int = const 420;
+  _t12: ptr<int> = id addr_a;
+  store _t12 _t10;
+  _t11: int = id _t10;
+  _t13: int = id b;
+  _t14: int = id a;
+  _t15: int = add _t13 _t14;
+  b: int = id _t15;
+  _t16: int = id b;
+  _t17: int = id b;
+  ret _t17;
+}
+

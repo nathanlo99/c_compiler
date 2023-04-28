@@ -1,3 +1,8 @@
+[envs.bril]
+command = "../../../../build/compile {filename} --bril 2> /dev/null"
+return_code = 0
+output."bril.out" = "-"
+
 [envs.zero_zero]
 command = "echo '0 0' | ../../../../build/compile {filename} --interpret 2> /dev/null"
 return_code = 0

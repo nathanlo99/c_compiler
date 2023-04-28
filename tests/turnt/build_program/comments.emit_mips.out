@@ -1,6 +1,7 @@
                                 ; // Simplified C code:
                                 ; int wain(int a, int b) {
-                                ;   return (a + b);
+                                ;   int sum = 0;
+                                ;   return sum = (a + b);
                                 ; }
                                 ; 
 lis $4
@@ -15,8 +16,11 @@ sub $30, $30, $4                ;   ^
 sw $2, -4($30)                  ;   push $2
 sub $30, $30, $4                ;   ^
 sub $29, $30, $4
+sw $0, -4($30)                  ;   push $0
+sub $30, $30, $4                ; Declaration sum
                                 ; Code for statements:
                                 ; Code for return value:
+                                ; sum = (a + b);
 lw $3, 8($29)                   ; Loading a
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -24,5 +28,6 @@ lw $3, 4($29)                   ; Loading b
 add $30, $30, $4                ;   pop $5
 lw $5, -4($30)                  ;   ^
 add $3, $5, $3
+sw $3, 0($29)
 jr $31                          ; Done generating code for wain
-                                ; Number of assembly instructions: 17
+                                ; Number of assembly instructions: 20

@@ -131,6 +131,11 @@ void emit_naive_mips(const std::string &filename) {
   generator.print(std::cout);
 }
 
+void emit_bril(const std::string &filename) {
+  const auto program = get_bril_from_file(filename);
+  program.print_flattened(std::cout);
+}
+
 void to_ssa(const std::string &filename) {
   auto bril_program = get_bril_from_file(filename);
   std::cout << "Before optimizations: " << std::endl;
@@ -431,31 +436,34 @@ void inline_functions(const std::string &filename) {
 void compute_aliases(const std::string &filename) {
   using namespace bril;
   using util::operator<<;
-  auto program = get_optimized_bril_from_file(filename);
+  auto program = get_bril_from_file(filename);
   for (const auto &[name, function] : program.functions) {
+    std::cerr << "Function: " << name << std::endl;
     const auto alias_results = MayAliasAnalysis(function).run();
     for (const auto &label : function.block_labels) {
       const auto &block = function.get_block(label);
-      std::cerr << "Block " << label << std::endl;
+      std::cerr << "  Block: " << label << std::endl;
       for (size_t i = 0; i < block.instructions.size(); ++i) {
         const auto &instruction = block.instructions[i];
-        std::cerr << "  " << instruction << std::endl;
+        std::cerr << "    " << instruction << std::endl;
         if (instruction.destination != "") {
           const auto &locations =
               alias_results.get_data_out(label, i).at(instruction.destination);
           if (!locations.empty())
-            std::cerr << "  - " << locations << std::endl;
+            std::cerr << "      -> " << locations << std::endl;
         }
       }
+      std::cerr << std::string(100, '-') << std::endl;
     }
+    std::cerr << std::endl;
   }
   std::cout << std::string(100, '-') << std::endl;
 
-  program.apply_global_pass(promote_memory_to_registers);
-  std::cout << program << std::endl;
+  // program.apply_global_pass(promote_memory_to_registers);
+  // std::cout << program << std::endl;
 
-  run_optimization_passes(program);
-  std::cout << program << std::endl;
+  // run_optimization_passes(program);
+  // std::cout << program << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -470,6 +478,7 @@ int main(int argc, char **argv) {
             {"--lex", lex},
             {"--parse", parse},
             {"--build-ast", build_ast},
+            {"--bril", emit_bril},
             {"--compute-dominators", compute_dominators},
             {"--bare-interpret", bare_interpret},
             {"--interpret", interpret},

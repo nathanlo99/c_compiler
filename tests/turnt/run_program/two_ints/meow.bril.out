@@ -1,0 +1,15 @@
+@wain(a: int, b: int) : int {
+  meow: int = const 241;
+  list: ptr<int> = const 0x1;
+  var: int = const 142;
+  ptr: ptr<int> = const 0x1;
+  null: ptr<int> = const 0x1;
+  _t0: int = id var;
+  _t1: int = id var;
+  _t2: int = add _t0 _t1;
+  var: int = id _t2;
+  _t3: int = id var;
+  _t4: int = id meow;
+  ret _t4;
+}
+

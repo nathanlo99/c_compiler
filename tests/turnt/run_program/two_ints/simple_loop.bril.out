@@ -1,0 +1,19 @@
+@wain(a: int, b: int) : int {
+  jmp wainEntry;
+wainEntry:                                         preds = {wainEntry0, whileBody0}, dominators = {wainEntry, wainEntry0}
+  _t0: int = id a;
+  _t1: int = id b;
+  _t2: int = lt _t0 _t1;
+  br _t2 whileBody0 whileEnd0;
+whileBody0:                                        preds = {wainEntry}, dominators = {whileBody0, wainEntry, wainEntry0}
+  _t3: int = id a;
+  _t4: int = const 1;
+  _t5: int = add _t3 _t4;
+  a: int = id _t5;
+  _t6: int = id a;
+  jmp wainEntry;
+whileEnd0:                                         preds = {wainEntry}, dominators = {whileEnd0, wainEntry, wainEntry0}
+  _t7: int = id a;
+  ret _t7;
+}
+

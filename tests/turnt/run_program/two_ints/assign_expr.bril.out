@@ -1,0 +1,10 @@
+@wain(a: int, b: int) : int {
+  sum: int = const 0;
+  _t0: int = id a;
+  _t1: int = id b;
+  _t2: int = add _t0 _t1;
+  sum: int = id _t2;
+  _t3: int = id sum;
+  ret _t3;
+}
+

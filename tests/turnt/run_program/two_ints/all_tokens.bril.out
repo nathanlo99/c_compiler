@@ -1,0 +1,209 @@
+@collatz(num: ptr<int>) : int {
+  value: int = const 0;
+  _t32: ptr<int> = id num;
+  _t33: int = load _t32;
+  value: int = id _t33;
+  _t34: int = id value;
+  _t35: int = id value;
+  _t36: int = const 2;
+  _t37: int = lt _t35 _t36;
+  br _t37 ifTrue4 ifFalse4;
+ifTrue4:                                           preds = {collatzEntry}, dominators = {ifTrue4, collatzEntry}
+  _t38: int = const 1;
+  _t40: ptr<int> = id num;
+  store _t40 _t38;
+  _t39: int = id _t38;
+  jmp ifEndif5;
+ifFalse4:                                          preds = {collatzEntry}, dominators = {ifFalse4, collatzEntry}
+  _t41: int = id value;
+  _t42: int = const 2;
+  _t43: int = mod _t41 _t42;
+  _t44: int = const 0;
+  _t45: int = eq _t43 _t44;
+  br _t45 ifTrue5 ifFalse5;
+ifTrue5:                                           preds = {ifFalse4}, dominators = {ifFalse4, ifTrue5, collatzEntry}
+  _t46: int = id value;
+  _t47: int = const 2;
+  _t48: int = div _t46 _t47;
+  _t50: ptr<int> = id num;
+  store _t50 _t48;
+  _t49: int = id _t48;
+  jmp ifEndif5;
+ifFalse5:                                          preds = {ifFalse4}, dominators = {ifFalse5, ifFalse4, collatzEntry}
+  _t51: int = const 3;
+  _t52: int = id value;
+  _t53: int = mul _t51 _t52;
+  _t54: int = const 2;
+  _t55: int = add _t53 _t54;
+  _t56: int = const 1;
+  _t57: int = sub _t55 _t56;
+  _t59: ptr<int> = id num;
+  store _t59 _t57;
+  _t58: int = id _t57;
+  jmp ifEndif5;
+ifEndif5:                                          preds = {ifFalse5, ifTrue5, ifTrue4}, dominators = {ifEndif5, collatzEntry}
+  _t60: int = const 0;
+  ret _t60;
+}
+
+@is_prime(n: int) : int {
+  i: int = const 2;
+  answer: int = const 1;
+  continueLooping: int = const 1;
+  _t0: int = const 3;
+  _t1: int = id n;
+  _t2: int = lt _t0 _t1;
+  br _t2 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {is_primeEntry}, dominators = {ifTrue0, is_primeEntry}
+  jmp ifEndif0;
+ifFalse0:                                          preds = {is_primeEntry}, dominators = {ifFalse0, is_primeEntry}
+  _t3: int = const 0;
+  continueLooping: int = id _t3;
+  _t4: int = id continueLooping;
+  jmp ifEndif0;
+ifEndif0:                                          preds = {ifFalse3, ifFalse0, ifTrue0}, dominators = {ifEndif0, is_primeEntry}
+  _t5: int = id continueLooping;
+  _t6: int = const 0;
+  _t7: int = ne _t5 _t6;
+  br _t7 whileBody0 whileEnd0;
+whileBody0:                                        preds = {ifEndif0}, dominators = {whileBody0, ifEndif0, is_primeEntry}
+  _t8: int = id n;
+  _t9: int = id i;
+  _t10: int = mod _t8 _t9;
+  _t11: int = const 0;
+  _t12: int = eq _t10 _t11;
+  br _t12 ifTrue1 ifFalse1;
+ifTrue1:                                           preds = {whileBody0}, dominators = {ifTrue1, whileBody0, ifEndif0, is_primeEntry}
+  _t13: int = const 0;
+  answer: int = id _t13;
+  _t14: int = id answer;
+  jmp ifFalse1;
+ifFalse1:                                          preds = {ifTrue1, whileBody0}, dominators = {whileBody0, ifEndif0, ifFalse1, is_primeEntry}
+  _t15: int = id i;
+  _t16: int = const 1;
+  _t17: int = add _t15 _t16;
+  i: int = id _t17;
+  _t18: int = id i;
+  _t19: int = id n;
+  _t20: int = id i;
+  _t21: int = id i;
+  _t22: int = mul _t20 _t21;
+  _t23: int = lt _t19 _t22;
+  br _t23 ifTrue2 ifFalse2;
+ifTrue2:                                           preds = {ifFalse1}, dominators = {ifTrue2, whileBody0, ifEndif0, ifFalse1, is_primeEntry}
+  _t24: int = const 0;
+  continueLooping: int = id _t24;
+  _t25: int = id continueLooping;
+  jmp ifFalse3;
+ifFalse2:                                          preds = {ifFalse1}, dominators = {ifFalse2, whileBody0, ifEndif0, ifFalse1, is_primeEntry}
+  _t26: int = id answer;
+  _t27: int = const 0;
+  _t28: int = eq _t26 _t27;
+  br _t28 ifTrue3 ifFalse3;
+ifTrue3:                                           preds = {ifFalse2}, dominators = {ifTrue3, ifFalse2, whileBody0, ifEndif0, ifFalse1, is_primeEntry}
+  _t29: int = const 0;
+  continueLooping: int = id _t29;
+  _t30: int = id continueLooping;
+  jmp ifFalse3;
+ifFalse3:                                          preds = {ifTrue3, ifFalse2, ifTrue2}, dominators = {ifFalse3, whileBody0, ifEndif0, ifFalse1, is_primeEntry}
+  jmp ifEndif0;
+whileEnd0:                                         preds = {ifEndif0}, dominators = {whileEnd0, ifEndif0, is_primeEntry}
+  _t31: int = id answer;
+  ret _t31;
+}
+
+@wain(startNumber: int, numPrimes: int) : int {
+  result: ptr<int> = const 0x1;
+  idx: int = const 0;
+  nextNumber: int = const 0;
+  _t61: int = id numPrimes;
+  _t62: ptr<int> = alloc _t61;
+  result: ptr<int> = id _t62;
+  _t63: ptr<int> = id result;
+  _t64: int = id startNumber;
+  nextNumber: int = id _t64;
+  _t65: int = id nextNumber;
+  jmp whileLoop1;
+whileLoop1:                                        preds = {whileEnd2, wainEntry}, dominators = {whileLoop1, wainEntry}
+  _t66: int = id idx;
+  _t67: int = id numPrimes;
+  _t68: int = lt _t66 _t67;
+  br _t68 whileBody1 whileEnd1;
+whileBody1:                                        preds = {whileBody2, whileLoop1}, dominators = {whileBody1, whileLoop1, wainEntry}
+  _t69: int = id nextNumber;
+  _t70: int = call @is_prime _t69;
+  _t71: int = const 0;
+  _t72: int = eq _t70 _t71;
+  br _t72 whileBody2 whileEnd2;
+whileBody2:                                        preds = {whileBody1}, dominators = {whileBody2, whileBody1, whileLoop1, wainEntry}
+  _t73: int = id nextNumber;
+  _t74: int = const 1;
+  _t75: int = add _t73 _t74;
+  nextNumber: int = id _t75;
+  _t76: int = id nextNumber;
+  jmp whileBody1;
+whileEnd2:                                         preds = {whileBody1}, dominators = {whileBody1, whileLoop1, whileEnd2, wainEntry}
+  _t77: int = id nextNumber;
+  _t79: ptr<int> = id result;
+  _t80: int = id idx;
+  _t81: ptr<int> = ptradd _t79 _t80;
+  store _t81 _t77;
+  _t78: int = id _t77;
+  _t82: int = id nextNumber;
+  _t83: int = const 1;
+  _t84: int = add _t82 _t83;
+  nextNumber: int = id _t84;
+  _t85: int = id nextNumber;
+  _t86: int = id idx;
+  _t87: int = const 1;
+  _t88: int = add _t86 _t87;
+  idx: int = id _t88;
+  _t89: int = id idx;
+  jmp whileLoop1;
+whileEnd1:                                         preds = {whileLoop1}, dominators = {whileEnd1, whileLoop1, wainEntry}
+  _t90: int = const 0;
+  idx: int = id _t90;
+  _t91: int = id idx;
+  jmp whileLoop3;
+whileLoop3:                                        preds = {whileBody3, whileEnd1}, dominators = {whileEnd1, whileLoop1, whileLoop3, wainEntry}
+  _t92: int = id idx;
+  _t93: int = id numPrimes;
+  _t94: int = lt _t92 _t93;
+  br _t94 whileBody3 whileEnd3;
+whileBody3:                                        preds = {whileLoop3}, dominators = {whileEnd1, whileLoop1, whileBody3, whileLoop3, wainEntry}
+  _t95: ptr<int> = id result;
+  _t96: int = id idx;
+  _t97: ptr<int> = ptradd _t95 _t96;
+  _t98: int = load _t97;
+  print _t98;
+  _t99: int = id idx;
+  _t100: int = const 1;
+  _t101: int = add _t99 _t100;
+  idx: int = id _t101;
+  _t102: int = id idx;
+  jmp whileLoop3;
+whileEnd3:                                         preds = {whileLoop3}, dominators = {whileEnd3, whileEnd1, whileLoop1, whileLoop3, wainEntry}
+  _t103: int = const 40;
+  nextNumber: int = id _t103;
+  _t104: int = id nextNumber;
+  jmp whileLoop4;
+whileLoop4:                                        preds = {whileBody4, whileEnd3}, dominators = {whileLoop4, whileEnd3, whileEnd1, whileLoop1, whileLoop3, wainEntry}
+  _t105: int = id nextNumber;
+  _t106: int = const 1;
+  _t107: int = ne _t105 _t106;
+  br _t107 whileBody4 whileEnd4;
+whileBody4:                                        preds = {whileLoop4}, dominators = {whileBody4, whileLoop4, whileEnd3, whileEnd1, whileLoop1, whileLoop3, wainEntry}
+  _t108: int = id nextNumber;
+  print _t108;
+  _t109: ptr<int> = addressof nextNumber;
+  _t110: int = call @collatz _t109;
+  idx: int = id _t110;
+  _t111: int = id idx;
+  jmp whileLoop4;
+whileEnd4:                                         preds = {whileLoop4}, dominators = {whileLoop4, whileEnd3, whileEnd1, whileLoop1, whileEnd4, whileLoop3, wainEntry}
+  _t112: ptr<int> = id result;
+  free _t112;
+  _t113: int = const 0;
+  ret _t113;
+}
+

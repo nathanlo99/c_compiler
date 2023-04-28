@@ -1,0 +1,28 @@
+@wain(a: int, b: int) : int {
+  _t0: int = id b;
+  _t1: int = const 2;
+  _t2: int = mod _t0 _t1;
+  _t3: int = const 0;
+  _t4: int = eq _t2 _t3;
+  br _t4 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {wainEntry}, dominators = {ifTrue0, wainEntry}
+  _t5: int = id a;
+  _t6: int = id a;
+  _t7: int = mul _t5 _t6;
+  a: int = id _t7;
+  _t8: int = id a;
+  jmp ifEndif0;
+ifFalse0:                                          preds = {wainEntry}, dominators = {ifFalse0, wainEntry}
+  _t9: int = id a;
+  _t10: int = id a;
+  _t11: int = add _t9 _t10;
+  a: int = id _t11;
+  _t12: int = id a;
+  jmp ifEndif0;
+ifEndif0:                                          preds = {ifFalse0, ifTrue0}, dominators = {ifEndif0, wainEntry}
+  _t13: int = id a;
+  print _t13;
+  _t14: int = id a;
+  ret _t14;
+}
+

@@ -1,0 +1,20 @@
+@wain(arg1: int, arg2: int) : int {
+  a: int = const 4;
+  b: int = const 2;
+  c: int = const 1;
+  d: int = const 0;
+  e: int = const 0;
+  _t0: int = id a;
+  _t1: int = id b;
+  _t2: int = add _t0 _t1;
+  d: int = id _t2;
+  _t3: int = id d;
+  _t4: int = id c;
+  _t5: int = id d;
+  _t6: int = add _t4 _t5;
+  e: int = id _t6;
+  _t7: int = id e;
+  _t8: int = id d;
+  ret _t8;
+}
+

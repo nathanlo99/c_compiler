@@ -2,6 +2,7 @@
 #pragma once
 
 #include "data_flow/data_flow.hpp"
+#include "util.hpp"
 
 namespace bril {
 
@@ -13,7 +14,7 @@ struct MemoryLocation {
     }
   };
   using Set = std::unordered_set<MemoryLocation, MemoryLocationHasher>;
-  enum class Type { Address, Allocation };
+  enum class Type { Address, Allocation, Parameter };
 
   Type type;
   std::string name;
@@ -23,6 +24,9 @@ struct MemoryLocation {
       : type(Type::Address), name(name), instruction_idx(0) {}
   MemoryLocation(const std::string &label, const size_t instruction_idx)
       : type(Type::Allocation), name(label), instruction_idx(instruction_idx) {}
+  MemoryLocation(const size_t parameter_idx)
+      : type(Type::Parameter), name("__param"), instruction_idx(parameter_idx) {
+  }
 
   bool operator==(const MemoryLocation &other) const {
     return type == other.type && name == other.name &&
@@ -37,6 +41,8 @@ struct MemoryLocation {
     case bril::MemoryLocation::Type::Allocation:
       return os << "Alloc @ (" << location.name << ", "
                 << location.instruction_idx << ")";
+    case bril::MemoryLocation::Type::Parameter:
+      return os << "Param @ " << location.instruction_idx;
     }
     return os;
   }
@@ -47,10 +53,17 @@ struct MayAliasAnalysis
           std::unordered_map<std::string, MemoryLocation::Set>> {
   using Result = std::unordered_map<std::string, MemoryLocation::Set>;
 
-  MayAliasAnalysis(const ControlFlowGraph &graph)
-      : ForwardDataFlowPass<Result>(graph) {}
+  Result _init;
+  MayAliasAnalysis(const ControlFlowGraph &function)
+      : ForwardDataFlowPass<Result>(function) {
+    for (size_t i = 0; i < function.arguments.size(); ++i) {
+      const auto &argument = function.arguments[i];
+      if (argument.type == Type::IntStar)
+        _init[argument.name] = {MemoryLocation(i)};
+    }
+  }
 
-  Result init() override { return {}; }
+  Result init() override { return _init; }
   Result merge(const std::vector<Result> &args) override {
     Result result;
     for (const auto &arg : args) {
@@ -102,6 +115,9 @@ struct MayAliasAnalysis
 
     case Opcode::PointerAdd:
     case Opcode::PointerSub:
+      debug_assert(in.count(instruction.arguments[0]) > 0,
+                   "Missing alias information for ptradd/ptrsub argument {}",
+                   instruction.arguments[0]);
       result[instruction.destination] = in.at(instruction.arguments[0]);
       break;
 
@@ -114,6 +130,10 @@ struct MayAliasAnalysis
     case Opcode::Phi:
       result[instruction.destination] = {};
       for (const auto &argument : instruction.arguments) {
+        debug_assert(in.count(argument) > 0,
+                     "Missing alias information for "
+                     "phi argument {}",
+                     argument);
         const auto &locations = in.at(argument);
         result[instruction.destination].insert(locations.begin(),
                                                locations.end());

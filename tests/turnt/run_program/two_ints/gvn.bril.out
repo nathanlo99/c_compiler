@@ -1,0 +1,38 @@
+@wain(a: int, b: int) : int {
+  c: int = const 5;
+  d: int = const 0;
+  _t0: int = id a;
+  _t1: int = id b;
+  _t2: int = lt _t0 _t1;
+  br _t2 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {wainEntry}, dominators = {ifTrue0, wainEntry}
+  _t3: int = id a;
+  _t4: int = id b;
+  _t5: int = lt _t3 _t4;
+  br _t5 ifTrue1 ifFalse1;
+ifTrue1:                                           preds = {ifTrue0}, dominators = {ifTrue1, ifTrue0, wainEntry}
+  _t6: int = const 0;
+  _t7: int = const 5;
+  _t8: int = sub _t6 _t7;
+  c: int = id _t8;
+  _t9: int = id c;
+  jmp ifFalse1;
+ifFalse1:                                          preds = {ifTrue1, ifTrue0}, dominators = {ifTrue0, ifFalse1, wainEntry}
+  _t10: int = id d;
+  _t11: int = id c;
+  _t12: int = sub _t10 _t11;
+  a: int = id _t12;
+  _t13: int = id a;
+  jmp ifEndif0;
+ifFalse0:                                          preds = {wainEntry}, dominators = {ifFalse0, wainEntry}
+  _t14: int = id c;
+  _t15: int = id d;
+  _t16: int = sub _t14 _t15;
+  a: int = id _t16;
+  _t17: int = id a;
+  jmp ifEndif0;
+ifEndif0:                                          preds = {ifFalse0, ifFalse1}, dominators = {ifEndif0, wainEntry}
+  _t18: int = id a;
+  ret _t18;
+}
+

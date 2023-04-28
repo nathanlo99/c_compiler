@@ -14,9 +14,21 @@ INT int
 ID b
 RPAREN )
 LBRACE {
+dcls dcls dcl BECOMES NUM SEMI
 dcls .EMPTY
+dcl type ID
+type INT
+INT int
+ID sum
+BECOMES =
+NUM 0
+SEMI ;
 statements .EMPTY
 RETURN return
+expr lvalue BECOMES expr
+lvalue ID
+ID sum
+BECOMES =
 expr test
 test sum
 sum sum PLUS term

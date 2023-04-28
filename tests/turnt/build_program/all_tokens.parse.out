@@ -33,7 +33,7 @@ SEMI ;
 dcl type ID
 type INT
 INT int
-ID continueLooping
+ID cont
 BECOMES =
 NUM 1
 SEMI ;
@@ -60,7 +60,7 @@ statements .EMPTY
 statement expr SEMI
 expr lvalue BECOMES expr
 lvalue ID
-ID continueLooping
+ID cont
 BECOMES =
 expr test
 test sum
@@ -73,16 +73,11 @@ RBRACE }
 statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test sum NE sum
+test sum
 sum term
 term factor
 factor ID
-ID continueLooping
-NE !=
-sum term
-term factor
-factor NUM
-NUM 0
+ID cont
 RPAREN )
 LBRACE {
 statements statements statement
@@ -164,7 +159,7 @@ statements .EMPTY
 statement expr SEMI
 expr lvalue BECOMES expr
 lvalue ID
-ID continueLooping
+ID cont
 BECOMES =
 expr test
 test sum
@@ -198,7 +193,7 @@ statements .EMPTY
 statement expr SEMI
 expr lvalue BECOMES expr
 lvalue ID
-ID continueLooping
+ID cont
 BECOMES =
 expr test
 test sum
@@ -260,23 +255,6 @@ STAR *
 factor ID
 ID num
 SEMI ;
-statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
-IF if
-LPAREN (
-test sum GE sum
-sum term
-term factor
-factor ID
-ID value
-GE >=
-sum term
-term factor
-factor NUM
-NUM 2
-RPAREN )
-LBRACE {
-statements statements statement
-statements .EMPTY
 statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
@@ -350,26 +328,6 @@ factor NUM
 NUM 2
 SEMI ;
 RBRACE }
-RBRACE }
-ELSE else
-LBRACE {
-statements statements statement
-statements .EMPTY
-statement expr SEMI
-expr lvalue BECOMES expr
-lvalue STAR factor
-STAR *
-factor ID
-ID num
-BECOMES =
-expr test
-test sum
-sum term
-term factor
-factor NUM
-NUM 1
-SEMI ;
-RBRACE }
 RETURN return
 expr test
 test sum
@@ -427,8 +385,6 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements statements statement
-statements statements statement
-statements statements statement
 statements .EMPTY
 statement expr SEMI
 expr lvalue BECOMES expr
@@ -463,9 +419,21 @@ term factor
 factor ID
 ID startNumber
 SEMI ;
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
-WHILE while
+statement FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
+FOR for
 LPAREN (
+expr lvalue BECOMES expr
+lvalue ID
+ID idx
+BECOMES =
+expr test
+test sum
+sum term
+term factor
+factor NUM
+NUM 0
+SEMI ;
+expr test
 test sum LT sum
 sum term
 term factor
@@ -476,9 +444,24 @@ sum term
 term factor
 factor ID
 ID numPrimes
+SEMI ;
+expr lvalue BECOMES expr
+lvalue ID
+ID idx
+BECOMES =
+expr test
+test sum
+sum sum PLUS term
+sum term
+term factor
+factor ID
+ID idx
+PLUS +
+term factor
+factor NUM
+NUM 1
 RPAREN )
 LBRACE {
-statements statements statement
 statements statements statement
 statements statements statement
 statements statements statement
@@ -570,7 +553,33 @@ term factor
 factor NUM
 NUM 1
 SEMI ;
-statement expr SEMI
+RBRACE }
+statement FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
+FOR for
+LPAREN (
+expr lvalue BECOMES expr
+lvalue ID
+ID idx
+BECOMES =
+expr test
+test sum
+sum term
+term factor
+factor NUM
+NUM 0
+SEMI ;
+expr test
+test sum LT sum
+sum term
+term factor
+factor ID
+ID idx
+LT <
+sum term
+term factor
+factor ID
+ID numPrimes
+SEMI ;
 expr lvalue BECOMES expr
 lvalue ID
 ID idx
@@ -586,36 +595,8 @@ PLUS +
 term factor
 factor NUM
 NUM 1
-SEMI ;
-RBRACE }
-statement expr SEMI
-expr lvalue BECOMES expr
-lvalue ID
-ID idx
-BECOMES =
-expr test
-test sum
-sum term
-term factor
-factor NUM
-NUM 0
-SEMI ;
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
-WHILE while
-LPAREN (
-test sum LT sum
-sum term
-term factor
-factor ID
-ID idx
-LT <
-sum term
-term factor
-factor ID
-ID numPrimes
 RPAREN )
 LBRACE {
-statements statements statement
 statements statements statement
 statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
@@ -643,25 +624,10 @@ ID idx
 RPAREN )
 RPAREN )
 SEMI ;
-statement expr SEMI
-expr lvalue BECOMES expr
-lvalue ID
-ID idx
-BECOMES =
-expr test
-test sum
-sum sum PLUS term
-sum term
-term factor
-factor ID
-ID idx
-PLUS +
-term factor
-factor NUM
-NUM 1
-SEMI ;
 RBRACE }
-statement expr SEMI
+statement FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
+FOR for
+LPAREN (
 expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
@@ -673,9 +639,7 @@ term factor
 factor NUM
 NUM 40
 SEMI ;
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
-WHILE while
-LPAREN (
+expr test
 test sum NE sum
 sum term
 term factor
@@ -686,27 +650,7 @@ sum term
 term factor
 factor NUM
 NUM 1
-RPAREN )
-LBRACE {
-statements statements statement
-statements statements statement
-statements .EMPTY
-statement PRINTLN LPAREN expr RPAREN SEMI
-PRINTLN println
-LPAREN (
-expr test
-test sum
-sum term
-term factor
-factor ID
-ID nextNumber
-RPAREN )
 SEMI ;
-statement expr SEMI
-expr lvalue BECOMES expr
-lvalue ID
-ID idx
-BECOMES =
 expr test
 test sum
 sum term
@@ -722,6 +666,20 @@ term factor
 factor AMP lvalue
 AMP &
 lvalue ID
+ID nextNumber
+RPAREN )
+RPAREN )
+LBRACE {
+statements statements statement
+statements .EMPTY
+statement PRINTLN LPAREN expr RPAREN SEMI
+PRINTLN println
+LPAREN (
+expr test
+test sum
+sum term
+term factor
+factor ID
 ID nextNumber
 RPAREN )
 SEMI ;

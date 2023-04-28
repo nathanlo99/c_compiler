@@ -2,22 +2,22 @@
 int isPrime(int n) {
   int i = 2;
   int answer = 1;
-  int continueLooping = 1;
+  int cont = 1;
 
   if (n <= 3) {
-    continueLooping = 0;
+    cont = 0;
   }
-  while (continueLooping != 0) {
+  while (cont) {
     if (n % i == 0) {
       answer = 0;
     }
     i = i + 1;
 
     if (i * i > n) {
-      continueLooping = 0;
+      cont = 0;
     } else {
       if (answer == 0) {
-        continueLooping = 0;
+        cont = 0;
       }
     }
   }
@@ -28,14 +28,10 @@ int isPrime(int n) {
 int collatz(int *num) {
   int value = 0;
   value = *num;
-  if (value >= 2) {
-    if (value % 2 != 0) {
-      *num = 3 * value + 2 - 1;
-    } else {
-      *num = value / 2;
-    }
+  if (value % 2 != 0) {
+    *num = 3 * value + 2 - 1;
   } else {
-    *num = 1;
+    *num = value / 2;
   }
   return 0;
 }
@@ -50,25 +46,20 @@ int wain(int startNumber, int numPrimes) {
   result = new int[numPrimes];
   nextNumber = startNumber;
 
-  while (idx < numPrimes) {
+  for (idx = 0; idx < numPrimes; idx = idx + 1) {
     while (isPrime(nextNumber) == 0) {
       nextNumber = nextNumber + 1;
     }
     *(result + idx) = nextNumber;
     nextNumber = nextNumber + 1;
-    idx = idx + 1;
   }
 
-  idx = 0;
-  while (idx < numPrimes) {
+  for (idx = 0; idx < numPrimes; idx = idx + 1) {
     println(*(result + idx));
-    idx = idx + 1;
   }
 
-  nextNumber = 40;
-  while (nextNumber != 1) {
+  for (nextNumber = 40; nextNumber != 1; collatz(&nextNumber)) {
     println(nextNumber);
-    idx = collatz(&nextNumber);
   }
 
   delete[] result;

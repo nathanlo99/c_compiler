@@ -1,0 +1,23 @@
+@wain(a: int, b: int) : int {
+  c: int = const 0;
+  _t0: int = id a;
+  _t1: int = const 2;
+  _t2: int = add _t0 _t1;
+  _t3: int = const 2;
+  _t4: int = id a;
+  _t5: int = add _t3 _t4;
+  _t6: int = mul _t2 _t5;
+  c: int = id _t6;
+  _t7: int = id c;
+  _t8: int = id a;
+  _t9: int = id b;
+  _t10: int = add _t8 _t9;
+  _t11: int = id b;
+  _t12: int = id a;
+  _t13: int = add _t11 _t12;
+  _t14: int = mul _t10 _t13;
+  _t15: int = id c;
+  _t16: int = add _t14 _t15;
+  ret _t16;
+}
+

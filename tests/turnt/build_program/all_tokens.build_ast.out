@@ -6,7 +6,7 @@ Procedure {
   declarations: 
     i: int = 2 (used)
     answer: int = 1 (used)
-    continueLooping: int = 1 (used)
+    cont: int = 1 (used)
   statements: 
     IfStatement {
       condition: 
@@ -22,7 +22,7 @@ Procedure {
         ExprStatement {
           AssignmentExpr {
             lhs: 
-              VariableLValueExpr(continueLooping) : int
+              VariableLValueExpr(cont) : int
             rhs: 
               0: int
           } : int
@@ -32,7 +32,7 @@ Procedure {
       condition: 
         TestExpr {
           lhs: 
-            VariableExpr(continueLooping) : int
+            VariableExpr(cont) : int
           operation: NotEqual
           rhs: 
             0: int
@@ -97,7 +97,7 @@ Procedure {
             ExprStatement {
               AssignmentExpr {
                 lhs: 
-                  VariableLValueExpr(continueLooping) : int
+                  VariableLValueExpr(cont) : int
                 rhs: 
                   0: int
               } : int
@@ -116,7 +116,7 @@ Procedure {
                 ExprStatement {
                   AssignmentExpr {
                     lhs: 
-                      VariableLValueExpr(continueLooping) : int
+                      VariableLValueExpr(cont) : int
                     rhs: 
                       0: int
                   } : int
@@ -151,10 +151,16 @@ Procedure {
       condition: 
         TestExpr {
           lhs: 
-            VariableExpr(value) : int
-          operation: LessThan
+            BinaryExpr {
+              lhs: 
+                VariableExpr(value) : int
+              operation: Mod
+              rhs: 
+                2: int
+            } : int
+          operation: Equal
           rhs: 
-            2: int
+            0: int
         }
       true_statement: 
         ExprStatement {
@@ -164,71 +170,43 @@ Procedure {
                 VariableExpr(num) : int*
               } : int
             rhs: 
-              1: int
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(value) : int
+                operation: Div
+                rhs: 
+                  2: int
+              } : int
           } : int
         }
       false_statement: 
-        IfStatement {
-          condition: 
-            TestExpr {
-              lhs: 
-                BinaryExpr {
-                  lhs: 
-                    VariableExpr(value) : int
-                  operation: Mod
-                  rhs: 
-                    2: int
-                } : int
-              operation: Equal
-              rhs: 
-                0: int
-            }
-          true_statement: 
-            ExprStatement {
-              AssignmentExpr {
-                lhs: 
-                  DereferenceLValueExpr {
-                    VariableExpr(num) : int*
-                  } : int
-                rhs: 
-                  BinaryExpr {
-                    lhs: 
-                      VariableExpr(value) : int
-                    operation: Div
-                    rhs: 
-                      2: int
-                  } : int
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                VariableExpr(num) : int*
               } : int
-            }
-          false_statement: 
-            ExprStatement {
-              AssignmentExpr {
+            rhs: 
+              BinaryExpr {
                 lhs: 
-                  DereferenceLValueExpr {
-                    VariableExpr(num) : int*
-                  } : int
-                rhs: 
                   BinaryExpr {
                     lhs: 
                       BinaryExpr {
                         lhs: 
-                          BinaryExpr {
-                            lhs: 
-                              3: int
-                            operation: Mul
-                            rhs: 
-                              VariableExpr(value) : int
-                          } : int
-                        operation: Add
+                          3: int
+                        operation: Mul
                         rhs: 
-                          2: int
+                          VariableExpr(value) : int
                       } : int
-                    operation: Sub
+                    operation: Add
                     rhs: 
-                      1: int
+                      2: int
                   } : int
+                operation: Sub
+                rhs: 
+                  1: int
               } : int
-            }
+          } : int
         }
     }
   return_expr: 
@@ -262,6 +240,14 @@ Procedure {
           VariableLValueExpr(nextNumber) : int
         rhs: 
           VariableExpr(startNumber) : int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(idx) : int
+        rhs: 
+          0: int
       } : int
     }
     WhileStatement {
@@ -415,18 +401,13 @@ Procedure {
           VariableExpr(nextNumber) : int
         }
         ExprStatement {
-          AssignmentExpr {
-            lhs: 
-              VariableLValueExpr(idx) : int
-            rhs: 
-              FunctionCall {
-                procedure_name: collatz,
-                arguments: [
-                  AddressOfExpr {
-                    VariableLValueExpr(nextNumber) : int
-                  } : int*
-                ]
-              } : int
+          FunctionCall {
+            procedure_name: collatz,
+            arguments: [
+              AddressOfExpr {
+                VariableLValueExpr(nextNumber) : int
+              } : int*
+            ]
           } : int
         }
     }

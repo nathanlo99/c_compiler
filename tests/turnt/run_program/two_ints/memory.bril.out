@@ -1,0 +1,23 @@
+@wain(a: int, value: int) : int {
+  ptr: ptr<int> = const 0x1;
+  _t0: int = const 1;
+  _t1: ptr<int> = alloc _t0;
+  ptr: ptr<int> = id _t1;
+  _t2: ptr<int> = id ptr;
+  _t3: int = id value;
+  _t4: int = const 1;
+  _t5: int = add _t3 _t4;
+  _t7: ptr<int> = id ptr;
+  store _t7 _t5;
+  _t6: int = id _t5;
+  _t8: int = id value;
+  print _t8;
+  _t9: int = const 2;
+  value: int = id _t9;
+  _t10: int = id value;
+  _t11: ptr<int> = id ptr;
+  free _t11;
+  _t12: int = id value;
+  ret _t12;
+}
+

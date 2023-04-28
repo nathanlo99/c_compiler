@@ -8,7 +8,6 @@ namespace bril {
 
 inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
   size_t result = 0;
-  // TODO: Implement this function
 
   // 1. Compute aliasing information
   const auto alias_data = MayAliasAnalysis(function).run();
@@ -21,25 +20,29 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
     auto &block = function.get_block(label);
     for (size_t i = 0; i < block.instructions.size(); ++i) {
       auto &instruction = block.instructions[i];
+      const auto destination = instruction.destination;
       const auto &locations_in = alias_data.get_data_in(label, i);
       const auto &locations_out = alias_data.get_data_out(label, i);
 
       switch (instruction.opcode) {
       case Opcode::Id: {
-        const auto &possible_locations =
-            locations_out.at(instruction.destination);
+        debug_assert(locations_out.count(destination) > 0,
+                     "Missing location of {} in id instruction", destination);
+        const auto &possible_locations = locations_out.at(destination);
         if (possible_locations.size() == 1) {
           const auto &location = *possible_locations.begin();
           if (location.type == MemoryLocation::Type::Allocation)
             continue;
           const auto &variable = location.name;
-          instruction =
-              Instruction::addressof(instruction.destination, variable);
+          instruction = Instruction::addressof(destination, variable);
           result++;
         }
       } break;
 
       case Opcode::Store: {
+        debug_assert(locations_in.count(instruction.arguments[0]) > 0,
+                     "Missing location of {} in store instruction",
+                     instruction.arguments[0]);
         const auto &possible_locations =
             locations_in.at(instruction.arguments[0]);
         if (possible_locations.size() == 1) {
@@ -54,6 +57,9 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
       } break;
 
       case Opcode::Load: {
+        debug_assert(locations_out.count(instruction.arguments[0]) > 0,
+                     "Missing location of {} in load instruction",
+                     instruction.arguments[0]);
         const auto &possible_locations =
             locations_out.at(instruction.arguments[0]);
         if (possible_locations.size() == 1) {
