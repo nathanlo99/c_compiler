@@ -64,9 +64,9 @@ template <typename Result> struct InstructionDataFlowResult {
 
 template <typename Result> struct ForwardDataFlowPass {
   using DataFlowResult = InstructionDataFlowResult<Result>;
-  const ControlFlowGraph &graph;
+  const ControlFlowGraph &function;
 
-  ForwardDataFlowPass(const ControlFlowGraph &graph) : graph(graph) {}
+  ForwardDataFlowPass(const ControlFlowGraph &function) : function(function) {}
   virtual ~ForwardDataFlowPass() {}
 
   virtual Result init() = 0;
@@ -78,24 +78,26 @@ template <typename Result> struct ForwardDataFlowPass {
     DataFlowResult result;
     std::queue<std::string> worklist;
 
-    for (const auto &label : graph.block_labels) {
-      result.init_block(label, graph.get_block(label));
+    for (const auto &label : function.block_labels) {
+      result.init_block(label, function.get_block(label));
       worklist.push(label);
     }
-    result.set_block_in(graph.entry_label, init());
+    result.set_block_in(function.entry_label, init());
 
     while (!worklist.empty()) {
       const std::string label = worklist.front();
       worklist.pop();
-      const Block &block = graph.get_block(label);
+      const Block &block = function.get_block(label);
 
       // 1. in[b] = merge(out[p] for every pred p of b)
-      std::vector<Result> arguments;
-      arguments.reserve(block.incoming_blocks.size());
-      for (const std::string &pred : block.incoming_blocks) {
-        arguments.push_back(result.get_block_out(pred));
+      if (label != function.entry_label) {
+        std::vector<Result> arguments;
+        arguments.reserve(block.incoming_blocks.size());
+        for (const std::string &pred : block.incoming_blocks) {
+          arguments.push_back(result.get_block_out(pred));
+        }
+        result.set_block_in(label, merge(arguments));
       }
-      result.set_block_in(label, merge(arguments));
 
       // 2. For every instruction I in the block, out[I] = transfer(in[I], I)
       bool changed = false;
@@ -120,9 +122,9 @@ template <typename Result> struct ForwardDataFlowPass {
 
 template <typename Result> struct BackwardDataFlowPass {
   using DataFlowResult = InstructionDataFlowResult<Result>;
-  const ControlFlowGraph &graph;
+  const ControlFlowGraph &function;
 
-  BackwardDataFlowPass(const ControlFlowGraph &graph) : graph(graph) {}
+  BackwardDataFlowPass(const ControlFlowGraph &function) : function(function) {}
   virtual ~BackwardDataFlowPass() {}
 
   virtual Result init() = 0;
@@ -135,26 +137,28 @@ template <typename Result> struct BackwardDataFlowPass {
     DataFlowResult result;
     std::queue<std::string> worklist;
 
-    for (const auto &label : graph.block_labels) {
-      result.init_block(label, graph.get_block(label));
+    for (const auto &label : function.block_labels) {
+      result.init_block(label, function.get_block(label));
       worklist.push(label);
     }
-    for (const auto &exit_label : graph.exiting_blocks) {
+    for (const auto &exit_label : function.exiting_blocks) {
       result.set_block_out(exit_label, init());
     }
 
     while (!worklist.empty()) {
       const std::string label = worklist.front();
       worklist.pop();
-      const Block &block = graph.get_block(label);
+      const Block &block = function.get_block(label);
 
       // 1. out[b] = merge(in[p] for every succ p of b)
-      std::vector<Result> arguments;
-      arguments.reserve(block.outgoing_blocks.size());
-      for (const std::string &pred : block.outgoing_blocks) {
-        arguments.push_back(result.get_block_in(pred));
+      if (function.exiting_blocks.count(label) == 0) {
+        std::vector<Result> arguments;
+        arguments.reserve(block.outgoing_blocks.size());
+        for (const std::string &pred : block.outgoing_blocks) {
+          arguments.push_back(result.get_block_in(pred));
+        }
+        result.set_block_out(label, merge(arguments));
       }
-      result.set_block_out(label, merge(arguments));
 
       // 2. For every instruction I in the block, in[I] = transfer(out[I], I)
       bool changed = false;
