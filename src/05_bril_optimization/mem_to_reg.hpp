@@ -31,7 +31,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
         const auto &possible_locations = locations_out.at(destination);
         if (possible_locations.size() == 1) {
           const auto &location = *possible_locations.begin();
-          if (location.type != MemoryLocation::Type::Address)
+          if (location.type != MemoryLocation::Type::AddressOf)
             continue;
           const auto &variable = location.name;
           instruction = Instruction::addressof(destination, variable);
@@ -47,7 +47,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
             locations_in.at(instruction.arguments[0]);
         if (possible_locations.size() == 1) {
           const auto &location = *possible_locations.begin();
-          if (location.type != MemoryLocation::Type::Address)
+          if (location.type != MemoryLocation::Type::AddressOf)
             continue;
           const auto &variable = location.name;
           instruction = Instruction::id(variable, instruction.arguments[1],
@@ -64,7 +64,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
             locations_out.at(instruction.arguments[0]);
         if (possible_locations.size() == 1) {
           const auto &location = *possible_locations.begin();
-          if (location.type != MemoryLocation::Type::Address)
+          if (location.type != MemoryLocation::Type::AddressOf)
             continue;
           const auto &variable = location.name;
           instruction = Instruction::id(instruction.destination, variable,

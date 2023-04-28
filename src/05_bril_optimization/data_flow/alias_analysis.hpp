@@ -14,18 +14,30 @@ struct MemoryLocation {
     }
   };
   using Set = std::unordered_set<MemoryLocation, MemoryLocationHasher>;
-  enum class Type { Address, Allocation, Parameter };
+  enum class Type { AddressOf, Allocation, Parameter, RawPointer };
 
   Type type;
   std::string name;
   size_t instruction_idx;
+  int64_t raw_value;
 
-  MemoryLocation(const std::string &name)
-      : type(Type::Address), name(name), instruction_idx(0) {}
-  MemoryLocation(const std::string &label, const size_t instruction_idx)
-      : type(Type::Allocation), name(label), instruction_idx(instruction_idx) {}
-  MemoryLocation(const size_t parameter_idx)
-      : type(Type::Parameter), name("__param"), instruction_idx(parameter_idx) {
+  MemoryLocation(const Type type, const std::string &name,
+                 const size_t instruction_idx, const int64_t raw_value)
+      : type(type), name(name), instruction_idx(instruction_idx),
+        raw_value(raw_value) {}
+
+  static MemoryLocation address_of(const std::string &name) {
+    return MemoryLocation(Type::AddressOf, name, 0, 0);
+  }
+  static MemoryLocation allocation(const std::string &label,
+                                   const size_t instruction_idx) {
+    return MemoryLocation(Type::Allocation, label, instruction_idx, 0);
+  }
+  static MemoryLocation parameter(const size_t parameter_idx) {
+    return MemoryLocation(Type::Parameter, "__param", parameter_idx, 0);
+  }
+  static MemoryLocation raw_pointer(int64_t value) {
+    return MemoryLocation(Type::RawPointer, "", 0, value);
   }
 
   bool operator==(const MemoryLocation &other) const {
@@ -36,13 +48,15 @@ struct MemoryLocation {
   friend std::ostream &operator<<(std::ostream &os,
                                   const bril::MemoryLocation &location) {
     switch (location.type) {
-    case bril::MemoryLocation::Type::Address:
+    case bril::MemoryLocation::Type::AddressOf:
       return os << "&" << location.name;
     case bril::MemoryLocation::Type::Allocation:
       return os << "Alloc @ (" << location.name << ", "
                 << location.instruction_idx << ")";
     case bril::MemoryLocation::Type::Parameter:
       return os << "Param @ " << location.instruction_idx;
+    case bril::MemoryLocation::Type::RawPointer:
+      return os << "0x" << std::hex << location.raw_value << std::dec;
     }
     return os;
   }
@@ -59,7 +73,7 @@ struct MayAliasAnalysis
     for (size_t i = 0; i < function.arguments.size(); ++i) {
       const auto &argument = function.arguments[i];
       if (argument.type == Type::IntStar)
-        _init[argument.name] = {MemoryLocation(i)};
+        _init[argument.name] = {MemoryLocation::parameter(i)};
     }
   }
 
@@ -95,13 +109,14 @@ struct MayAliasAnalysis
     // If we get here, the constant expression must assign to a constant (a raw
     // pointer)
     case Opcode::Const:
-      result[instruction.destination] = {};
+      result[instruction.destination] = {
+          MemoryLocation::raw_pointer(instruction.value)};
       break;
 
     // If we get here, the function call must have produced a pointer
     case Opcode::Call:
       result[instruction.destination] = {
-          MemoryLocation(label, instruction_idx)};
+          MemoryLocation::allocation(label, instruction_idx)};
       break;
 
     case Opcode::Id:
@@ -110,31 +125,24 @@ struct MayAliasAnalysis
 
     case Opcode::Alloc:
       result[instruction.destination] = {
-          MemoryLocation(label, instruction_idx)};
+          MemoryLocation::allocation(label, instruction_idx)};
       break;
 
     case Opcode::PointerAdd:
     case Opcode::PointerSub:
-      debug_assert(in.count(instruction.arguments[0]) > 0,
-                   "Missing alias information for ptradd/ptrsub argument {}",
-                   instruction.arguments[0]);
-      result[instruction.destination] = in.at(instruction.arguments[0]);
+      result[instruction.destination] = result[instruction.arguments[0]];
       break;
 
     case Opcode::AddressOf:
       result[instruction.destination] = {
-          MemoryLocation(instruction.arguments[0])};
+          MemoryLocation::address_of(instruction.arguments[0])};
       break;
 
     // The origin of a phi node is the union of all its arguments
     case Opcode::Phi:
       result[instruction.destination] = {};
       for (const auto &argument : instruction.arguments) {
-        debug_assert(in.count(argument) > 0,
-                     "Missing alias information for "
-                     "phi argument {}",
-                     argument);
-        const auto &locations = in.at(argument);
+        const auto &locations = result[argument];
         result[instruction.destination].insert(locations.begin(),
                                                locations.end());
       }
