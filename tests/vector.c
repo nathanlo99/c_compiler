@@ -26,15 +26,15 @@ int print(int *str) {
 }
 
 int print_num(int num) {
-  int* buffer = NULL;
+  int *buffer = NULL;
   int length = 0;
   int i = 0;
   int digit = 0;
-  buffer = new int[11];
+  int negative = 0;
+  buffer = new int[10];
 
   if (num < 0) {
-    *(buffer + length) = 45; // Minus
-    length = length + 1;
+    negative = 1;
     num = 0 - num;
   }
 
@@ -50,9 +50,13 @@ int print_num(int num) {
     }
   }
 
+  if (negative) {
+    print_char(45);
+  }
   for (i = length - 1; i >= 0; i = i - 1) {
     print_char(*(buffer + i));
   }
+
   delete[] buffer;
   return 0;
 }
@@ -112,7 +116,7 @@ int wain(int n, int unused) {
 
   vec = vector_new(1);
   for (i = 0; i < n; i = i + 1) {
-    vec = vector_push_back(vec, i * i);
+    vec = vector_push_back(vec, 0 - i * i);
   }
   for (i = 0; i < n; i = i + 1) {
     if (i > 0) {

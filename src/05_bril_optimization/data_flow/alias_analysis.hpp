@@ -96,6 +96,7 @@ struct MayAliasAnalysis
     // If the instruction doesn't assign to a variable, just pass the input
     if (instruction.destination == "")
       return in;
+
     // If the instruction produces an integer, the variable cannot refer to a
     // memory location
     if (instruction.type == Type::Int) {
