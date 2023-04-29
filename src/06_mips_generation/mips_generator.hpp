@@ -23,6 +23,15 @@ struct MIPSGenerator {
     constants_init = true;
   }
 
+  template <typename T> void push_registers(const T &registers) {
+    for (const auto &reg : registers)
+      push(reg);
+  }
+  template <typename T> void pop_registers(const T &registers) {
+    for (auto rit = registers.rbegin(); rit != registers.rend(); ++rit)
+      pop(*rit);
+  }
+
   void pop_and_discard(const size_t num_values = 1) {
     // Two options: one is to repeat 'add $30, $30, $4', num_values times
     // The other is lis, word, add

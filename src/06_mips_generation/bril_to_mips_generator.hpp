@@ -473,8 +473,7 @@ private:
 
       comment("Generating function call: " + instruction.to_string());
       comment("1. Save the live registers");
-      for (const Reg reg : live_registers)
-        push(reg);
+      push_registers(live_registers);
 
       // 2. Subtract 4 from $30 to obtain the new base pointer
       sub(Reg::R30, Reg::R30, Reg::R4);
@@ -512,8 +511,7 @@ private:
 
       // 6. Pop the saved registers off the stack
       comment("6. Pop the saved registers off the stack");
-      for (auto it = live_registers.rbegin(); it != live_registers.rend(); ++it)
-        pop(*it);
+      pop_registers(live_registers);
       comment("7. Done with function call");
 
       const Reg dest_reg = get_register(tmp1, dest, allocation);
