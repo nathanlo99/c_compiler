@@ -1,5 +1,6 @@
 
 #include "liveness_analysis.hpp"
+#include "util.hpp"
 
 namespace bril {
 
@@ -24,6 +25,7 @@ allocate_registers(const ControlFlowGraph &function,
       }
       edges[arg_idx].clear();
       processed_nodes.insert(arg_idx);
+      node_stack.push_back(arg_idx);
     }
   });
 

@@ -178,6 +178,8 @@ struct RegisterAllocation {
 
   VariableLocation get_location(const std::string &variable) const {
     std::stringstream ss;
+    debug_assert(in_register(variable) || is_spilled(variable),
+                 "Variable {} is not allocated", variable);
     if (in_register(variable)) {
       return VariableLocation::register_location(get_register(variable));
     } else {

@@ -311,6 +311,8 @@ private:
           &live_variables_before,
       const std::unordered_set<std::string> &live_variables_after,
       const RegisterAllocation &allocation) {
+    // std::cerr << "Generating instruction " << instruction << " in function "
+    //           << function_name << std::endl;
     const std::string &dest = instruction.destination;
 
     switch (instruction.opcode) {

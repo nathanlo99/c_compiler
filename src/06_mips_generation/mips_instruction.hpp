@@ -181,6 +181,10 @@ template <> struct fmt::formatter<Reg> : formatter<string_view> {
   }
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Reg &reg) {
+  return os << fmt::format("{}", reg);
+}
+
 struct MIPSInstruction {
   Opcode opcode;
   Reg s, t, d;
