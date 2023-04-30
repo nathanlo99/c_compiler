@@ -52,6 +52,8 @@ enum class TokenKind {
   Rbrack,
   Amp,
   Null,
+  Booland,
+  Boolor,
   Whitespace,
   Comment,
 };
@@ -128,12 +130,14 @@ static std::string token_kind_to_string(const TokenKind kind) {
     return "AMP";
   case TokenKind::Null:
     return "NULL";
+  case TokenKind::Booland:
+    return "BOOLAND";
+  case TokenKind::Boolor:
+    return "BOOLOR";
   case TokenKind::Whitespace:
     return "WHITESPACE";
   case TokenKind::Comment:
     return "COMMENT";
-  default:
-    return "??";
   }
 }
 

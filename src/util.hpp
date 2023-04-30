@@ -19,10 +19,11 @@
     throw std::runtime_error(fmt::format("{}:{} -- ", __FILE__, __LINE__) +    \
                              fmt::format(message, ##__VA_ARGS__));
 
-inline void unreachable(const std::string &message) {
-  debug_assert(false, "Should be unreachable: {}", message);
-  __builtin_unreachable();
-}
+#define unreachable(message)                                                   \
+  do {                                                                         \
+    debug_assert(false, "Should be unreachable: {}", message);                 \
+    __builtin_unreachable();                                                   \
+  } while (0)
 
 #define log(message, ...)                                                      \
   std::clog << fmt::format("LOG: {}:{} -- ", __FILE__, __NAME__)               \

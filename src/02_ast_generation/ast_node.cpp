@@ -2,6 +2,7 @@
 #include "ast_node.hpp"
 
 #include "parse_node.hpp"
+#include "parser.hpp"
 #include "util.hpp"
 #include <memory>
 
@@ -34,57 +35,138 @@ Variable parse_node_to_variable(const std::shared_ptr<ParseNode> &node) {
   return Variable(name, type);
 }
 
+void check_reduce_functions(
+    const std::unordered_map<std::string,
+                             std::function<std::shared_ptr<ASTNode>(
+                                 const std::shared_ptr<ParseNode> &)>>
+        &reduce_functions) {
+  const auto grammar = load_default_grammar();
+  std::unordered_set<std::string> present_productions;
+  std::unordered_set<std::string> grammar_productions;
+  for (const auto &[production_str, func] : reduce_functions)
+    present_productions.insert(production_str);
+  for (const auto &[product, productions] : grammar.productions_by_product) {
+    for (const auto &production : productions) {
+      const std::string production_str = production.to_string();
+      grammar_productions.insert(production_str);
+    }
+  }
+  if (present_productions != grammar_productions) {
+    std::unordered_set<std::string> missing_productions;
+    std::unordered_set<std::string> extra_productions;
+    std::set_difference(
+        grammar_productions.begin(), grammar_productions.end(),
+        present_productions.begin(), present_productions.end(),
+        std::inserter(missing_productions, missing_productions.begin()));
+    std::set_difference(
+        present_productions.begin(), present_productions.end(),
+        grammar_productions.begin(), grammar_productions.end(),
+        std::inserter(extra_productions, extra_productions.begin()));
+    std::string error_message = "Missing productions: \n";
+    for (const auto &production : missing_productions)
+      error_message += " - " + production + "\n";
+    error_message += "\n";
+    error_message += "Extra productions: \n";
+    for (const auto &production : extra_productions)
+      error_message += " - " + production + "\n";
+    throw std::runtime_error(error_message);
+  }
+}
+
 std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
   const ContextFreeGrammar::Production production = node->production;
   const std::string production_str = production.to_string();
 
-  if (production_str == "procedures -> procedure procedures") {
-    auto procedure = construct_ast<Procedure>(node->children[0]);
-    auto program = construct_ast<Program>(node->children[1]);
-    program->procedures.insert(program->procedures.begin(), *procedure);
-    return program;
-  } else if (production_str == "procedures -> main") {
-    auto program = std::make_shared<Program>();
-    auto main_procedure = construct_ast<Procedure>(node->children[0]);
-    program->procedures.push_back(*main_procedure);
-    return program;
-  } else if (production_str ==
-             "procedure -> type ID LPAREN params RPAREN LBRACE dcls statements "
-             "RETURN expr SEMI RBRACE") {
-    const auto procedure_name = node->children[1]->token.lexeme;
-    const auto return_type = parse_node_to_type(node->children[0]);
-    const auto params = construct_ast<ParameterList>(node->children[3]);
-    const auto decls = construct_ast<DeclarationList>(node->children[6]);
-    const auto statements = construct_ast<Statements>(node->children[7]);
-    const auto return_expr = construct_ast<Expr>(node->children[9]);
+  using Func = std::function<std::shared_ptr<ASTNode>(
+      const std::shared_ptr<ParseNode> &)>;
+  const std::unordered_map<std::string, Func> reduce_functions = []() {
+    std::unordered_map<std::string, Func> result;
+    const auto &register_function = [&](const std::string &production_str,
+                                        const Func &function) {
+      if (result.count(production_str) > 0)
+        throw std::runtime_error("Duplicate production: " + production_str);
+      result[production_str] = function;
+    };
 
-    return std::make_shared<Procedure>(procedure_name, params, return_type,
-                                       decls, statements, return_expr);
-  } else if (production_str ==
-             "main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls "
-             "statements RETURN expr SEMI RBRACE") {
-    const std::string procedure_name = "wain";
-    const auto return_type = Type::Int;
-    const auto first_variable = parse_node_to_variable(node->children[3]);
-    const auto second_variable = parse_node_to_variable(node->children[5]);
+    register_function(
+        "procedures -> procedure procedures",
+        [](const std::shared_ptr<ParseNode> &node) {
+          auto procedure = construct_ast<Procedure>(node->children[0]);
+          auto program = construct_ast<Program>(node->children[1]);
+          program->procedures.insert(program->procedures.begin(), *procedure);
+          return program;
+        });
 
-    const auto params = std::make_shared<ParameterList>(
-        std::vector<Variable>({first_variable, second_variable}));
+    register_function(
+        "procedures -> main", [](const std::shared_ptr<ParseNode> &node) {
+          auto program = std::make_shared<Program>();
+          auto main_procedure = construct_ast<Procedure>(node->children[0]);
+          program->procedures.push_back(*main_procedure);
+          return program;
+        });
 
-    const auto decls = construct_ast<DeclarationList>(node->children[8]);
-    const auto statements = construct_ast<Statements>(node->children[9]);
-    const auto return_expr = construct_ast<Expr>(node->children[11]);
+    register_function(
+        "procedure -> type ID LPAREN params RPAREN LBRACE dcls statements "
+        "RETURN expr SEMI RBRACE",
+        [](const std::shared_ptr<ParseNode> &node) {
+          const auto procedure_name = node->children[1]->token.lexeme;
+          const auto return_type = parse_node_to_type(node->children[0]);
+          const auto params = construct_ast<ParameterList>(node->children[3]);
+          const auto decls = construct_ast<DeclarationList>(node->children[6]);
+          const auto statements = construct_ast<Statements>(node->children[7]);
+          const auto return_expr = construct_ast<Expr>(node->children[9]);
 
-    return std::make_shared<Procedure>(procedure_name, params, return_type,
-                                       decls, statements, return_expr);
-  } else if (production_str == "params ->") {
-    return std::make_shared<ParameterList>();
-  } else if (production_str == "params -> paramlist") {
-    return construct_ast<ParameterList>(node->children[0]);
-  } else if (production_str == "paramlist -> dcl") {
-    const auto decl = parse_node_to_variable(node->children[0]);
-    return std::make_shared<ParameterList>(std::vector<Variable>{decl});
-  } else if (production_str == "paramlist -> dcl COMMA paramlist") {
+          return std::make_shared<Procedure>(procedure_name, params,
+                                             return_type, decls, statements,
+                                             return_expr);
+        });
+
+    register_function(
+        "main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls "
+        "statements RETURN expr SEMI RBRACE",
+        [](const std::shared_ptr<ParseNode> &node) {
+          const std::string procedure_name = "wain";
+          const auto return_type = Type::Int;
+          const auto first_variable = parse_node_to_variable(node->children[3]);
+          const auto second_variable =
+              parse_node_to_variable(node->children[5]);
+
+          const auto params = std::make_shared<ParameterList>(
+              std::vector<Variable>({first_variable, second_variable}));
+
+          const auto decls = construct_ast<DeclarationList>(node->children[8]);
+          const auto statements = construct_ast<Statements>(node->children[9]);
+          const auto return_expr = construct_ast<Expr>(node->children[11]);
+
+          return std::make_shared<Procedure>(procedure_name, params,
+                                             return_type, decls, statements,
+                                             return_expr);
+        });
+
+    register_function("params ->", [](const std::shared_ptr<ParseNode> &) {
+      return std::make_shared<ParameterList>();
+    });
+
+    register_function("params -> paramlist",
+                      [](const std::shared_ptr<ParseNode> &node) {
+                        return construct_ast<ParameterList>(node->children[0]);
+                      });
+
+    register_function(
+        "paramlist -> dcl", [](const std::shared_ptr<ParseNode> &node) {
+          const auto decl = parse_node_to_variable(node->children[0]);
+          return std::make_shared<ParameterList>(std::vector<Variable>{decl});
+        });
+
+    return result;
+  }();
+
+  // check_reduce_functions(reduce_functions);
+
+  if (reduce_functions.count(production_str) > 0)
+    return reduce_functions.at(production_str)(node);
+
+  if (production_str == "paramlist -> dcl COMMA paramlist") {
     const auto first = parse_node_to_variable(node->children[0]);
     auto rest = construct_ast<ParameterList>(node->children[2]);
     rest->parameters.insert(rest->parameters.begin(), first);
