@@ -51,7 +51,10 @@ NUM 69
 SEMI ;
 statements .EMPTY
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

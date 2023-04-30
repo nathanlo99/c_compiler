@@ -17,15 +17,21 @@ LBRACE {
 dcls .EMPTY
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum EQ sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest EQ test
+eqtest test
+test sum
 sum term
 term factor
 factor NUM
 NUM 1
 EQ ==
+test sum
 sum term
 term factor
 factor NUM
@@ -39,7 +45,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term term SLASH factor
@@ -52,7 +61,10 @@ NUM 0
 SEMI ;
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

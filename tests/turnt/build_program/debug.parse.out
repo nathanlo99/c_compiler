@@ -33,10 +33,15 @@ NUM 0
 SEMI ;
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum LE sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LE sum
+test sum
 sum term
 term factor
 factor ID
@@ -56,17 +61,25 @@ expr lvalue BECOMES expr
 lvalue ID
 ID cont
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor NUM
 NUM 0
 SEMI ;
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum GE sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test GE sum
+test sum
 sum term
 term factor
 factor ID
@@ -85,7 +98,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID cont
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -95,7 +111,10 @@ SEMI ;
 RBRACE }
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

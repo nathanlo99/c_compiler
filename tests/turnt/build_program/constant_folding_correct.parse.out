@@ -22,7 +22,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -33,13 +36,19 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum MINUS term
 sum term
@@ -56,20 +65,29 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
 term factor
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -89,7 +107,10 @@ RPAREN )
 RPAREN )
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

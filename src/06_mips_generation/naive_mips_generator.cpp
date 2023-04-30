@@ -288,11 +288,11 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   pop(Reg::R5);
 
   switch (test_expr->operation) {
-  case ComparisonOperation::LessThan: {
+  case BooleanOperation::LessThan: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     beq(Reg::R3, Reg::R0, else_label);
   } break;
-  case ComparisonOperation::Equal: {
+  case BooleanOperation::Equal: {
     bne(Reg::R3, Reg::R5, else_label);
   } break;
   default: {
@@ -327,26 +327,26 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   // $5 = lhs, $3 = rhs
   // Jump to end if the condition is false
   switch (test_expr->operation) {
-  case ComparisonOperation::LessThan: {
+  case BooleanOperation::LessThan: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     beq(Reg::R3, Reg::R0, end_label);
   } break;
-  case ComparisonOperation::LessEqual: {
+  case BooleanOperation::LessEqual: {
     compare(Reg::R3, Reg::R3, Reg::R5);
     bne(Reg::R3, Reg::R0, end_label);
   } break;
-  case ComparisonOperation::GreaterThan: {
+  case BooleanOperation::GreaterThan: {
     compare(Reg::R3, Reg::R3, Reg::R5);
     beq(Reg::R3, Reg::R0, end_label);
   } break;
-  case ComparisonOperation::GreaterEqual: {
+  case BooleanOperation::GreaterEqual: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     bne(Reg::R3, Reg::R0, end_label);
   } break;
-  case ComparisonOperation::Equal: {
+  case BooleanOperation::Equal: {
     bne(Reg::R3, Reg::R5, end_label);
   } break;
-  case ComparisonOperation::NotEqual: {
+  case BooleanOperation::NotEqual: {
     beq(Reg::R3, Reg::R5, end_label);
   } break;
   }

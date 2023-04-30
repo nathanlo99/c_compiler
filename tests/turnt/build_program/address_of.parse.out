@@ -36,7 +36,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID addr_a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -50,7 +53,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID b
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -62,7 +68,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -74,7 +83,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID b
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -93,7 +105,10 @@ STAR *
 factor ID
 ID addr_a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -105,7 +120,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID b
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -118,7 +136,10 @@ factor ID
 ID a
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

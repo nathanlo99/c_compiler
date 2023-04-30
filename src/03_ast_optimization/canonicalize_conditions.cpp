@@ -5,33 +5,33 @@
 void CanonicalizeConditions::post_visit(IfStatement &statement) {
   auto &cond = statement.test_expression;
   switch (cond->operation) {
-  case ComparisonOperation::LessThan: {
+  case BooleanOperation::LessThan: {
     // Do nothing, this is already canonical
   } break;
 
-  case ComparisonOperation::LessEqual: {
+  case BooleanOperation::LessEqual: {
     std::swap(cond->lhs, cond->rhs);
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = ComparisonOperation::LessThan;
+    cond->operation = BooleanOperation::LessThan;
   } break;
 
-  case ComparisonOperation::GreaterThan: {
+  case BooleanOperation::GreaterThan: {
     std::swap(cond->lhs, cond->rhs);
-    cond->operation = ComparisonOperation::LessThan;
+    cond->operation = BooleanOperation::LessThan;
   } break;
 
-  case ComparisonOperation::GreaterEqual: {
+  case BooleanOperation::GreaterEqual: {
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = ComparisonOperation::LessThan;
+    cond->operation = BooleanOperation::LessThan;
   } break;
 
-  case ComparisonOperation::Equal: {
+  case BooleanOperation::Equal: {
     // Do nothing, this is already canonical
   } break;
 
-  case ComparisonOperation::NotEqual: {
+  case BooleanOperation::NotEqual: {
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = ComparisonOperation::Equal;
+    cond->operation = BooleanOperation::Equal;
   } break;
   }
 }

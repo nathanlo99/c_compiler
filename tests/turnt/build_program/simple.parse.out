@@ -17,7 +17,10 @@ LBRACE {
 dcls .EMPTY
 statements .EMPTY
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum sum PLUS term

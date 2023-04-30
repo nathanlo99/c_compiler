@@ -26,7 +26,10 @@ STAR *
 factor ID
 ID ptr
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -35,7 +38,10 @@ factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -55,7 +61,10 @@ lvalue STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -65,7 +74,10 @@ lvalue ID
 ID value
 RPAREN )
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -73,7 +85,10 @@ factor NUM
 NUM 2
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

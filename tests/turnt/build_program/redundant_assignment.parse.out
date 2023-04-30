@@ -25,7 +25,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -35,7 +38,10 @@ SEMI ;
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -48,7 +54,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -60,7 +69,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID a
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -68,7 +80,10 @@ factor NUM
 NUM 5
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

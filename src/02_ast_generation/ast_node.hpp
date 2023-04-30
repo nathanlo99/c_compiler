@@ -215,7 +215,7 @@ struct AssignmentExpr : Expr {
   virtual std::string node_type() const override { return "AssignmentExpr"; }
 };
 
-enum class ComparisonOperation {
+enum class BooleanOperation {
   LessThan,
   LessEqual,
   GreaterThan,
@@ -225,19 +225,19 @@ enum class ComparisonOperation {
 };
 
 constexpr const char *
-comparison_operation_to_string(const ComparisonOperation op) {
+comparison_operation_to_string(const BooleanOperation op) {
   switch (op) {
-  case ComparisonOperation::LessThan:
+  case BooleanOperation::LessThan:
     return "LessThan";
-  case ComparisonOperation::LessEqual:
+  case BooleanOperation::LessEqual:
     return "LessEqual";
-  case ComparisonOperation::GreaterThan:
+  case BooleanOperation::GreaterThan:
     return "GreaterThan";
-  case ComparisonOperation::GreaterEqual:
+  case BooleanOperation::GreaterEqual:
     return "GreaterEqual";
-  case ComparisonOperation::Equal:
+  case BooleanOperation::Equal:
     return "Equal";
-  case ComparisonOperation::NotEqual:
+  case BooleanOperation::NotEqual:
     return "NotEqual";
   default:
     unreachable("");
@@ -245,21 +245,21 @@ comparison_operation_to_string(const ComparisonOperation op) {
   __builtin_unreachable();
 }
 
-constexpr ComparisonOperation
+constexpr BooleanOperation
 token_to_comparison_operation(const TokenKind operation) {
   switch (operation) {
   case TokenKind::Lt:
-    return ComparisonOperation::LessThan;
+    return BooleanOperation::LessThan;
   case TokenKind::Le:
-    return ComparisonOperation::LessEqual;
+    return BooleanOperation::LessEqual;
   case TokenKind::Gt:
-    return ComparisonOperation::GreaterThan;
+    return BooleanOperation::GreaterThan;
   case TokenKind::Ge:
-    return ComparisonOperation::GreaterEqual;
+    return BooleanOperation::GreaterEqual;
   case TokenKind::Eq:
-    return ComparisonOperation::Equal;
+    return BooleanOperation::Equal;
   case TokenKind::Ne:
-    return ComparisonOperation::NotEqual;
+    return BooleanOperation::NotEqual;
   default:
     debug_assert(false,
                  "Could not convert invalid type {} to comparison operation",
@@ -317,10 +317,10 @@ token_to_binary_operation(const TokenKind operation) {
 
 struct TestExpr : Expr {
   std::shared_ptr<Expr> lhs;
-  ComparisonOperation operation;
+  BooleanOperation operation;
   std::shared_ptr<Expr> rhs;
 
-  TestExpr(std::shared_ptr<Expr> lhs, const ComparisonOperation operation,
+  TestExpr(std::shared_ptr<Expr> lhs, const BooleanOperation operation,
            std::shared_ptr<Expr> rhs)
       : lhs(lhs), operation(operation), rhs(rhs) {}
   TestExpr(std::shared_ptr<Expr> value) {
@@ -332,7 +332,7 @@ struct TestExpr : Expr {
     } else {
       lhs = value;
       rhs = std::make_shared<LiteralExpr>(0, Type::Int);
-      operation = ComparisonOperation::NotEqual;
+      operation = BooleanOperation::NotEqual;
     }
   }
   virtual ~TestExpr() = default;

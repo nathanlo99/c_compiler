@@ -34,10 +34,15 @@ NUM 0
 SEMI ;
 statements statements statement
 statements .EMPTY
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
+statement WHILE LPAREN expr RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test sum LT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LT sum
+test sum
 sum term
 term factor
 factor ID
@@ -56,7 +61,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -64,7 +72,10 @@ factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -83,7 +94,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID sum
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -96,7 +110,10 @@ factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -114,7 +131,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -128,7 +148,10 @@ NUM 1
 SEMI ;
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

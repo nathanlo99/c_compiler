@@ -89,6 +89,14 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
         return nullptr;
       });
 
+    const auto todo_productions = {"boolor -> boolor BOOLOR booland",
+                                   "booland -> booland BOOLAND eqtest"};
+    for (const std::string &production : todo_productions)
+      register_function(production, [&](const auto &) {
+        debug_assert(false, "Production not yet implemented: {}", production);
+        return nullptr;
+      });
+
     register_function(
         "procedures -> procedure procedures", [](const auto &node) {
           auto procedure = construct_ast<Procedure>(node->children[0]);
@@ -197,7 +205,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
           return rest;
         });
 
-    register_function("statement -> IF LPAREN test RPAREN LBRACE "
+    register_function("statement -> IF LPAREN expr RPAREN LBRACE "
                       "statements RBRACE ELSE LBRACE statements RBRACE",
                       [](const auto &node) {
                         const auto test =
@@ -211,7 +219,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                       });
 
     register_function(
-        "statement -> IF LPAREN test RPAREN LBRACE "
+        "statement -> IF LPAREN expr RPAREN LBRACE "
         "statements RBRACE",
         [](const auto &node) {
           const auto test = construct_ast<Expr>(node->children[2]);
@@ -223,7 +231,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
         });
 
     register_function(
-        "statement -> WHILE LPAREN test RPAREN LBRACE statements RBRACE",
+        "statement -> WHILE LPAREN expr RPAREN LBRACE statements RBRACE",
         [](const auto &node) {
           const auto test = construct_ast<Expr>(node->children[2]);
           const auto body_statement =
@@ -250,9 +258,10 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
       return std::make_shared<TestExpr>(
           lhs, token_to_comparison_operation(op.kind), rhs);
     };
-    const auto test_productions = {"test -> sum EQ sum", "test -> sum NE sum",
-                                   "test -> sum LT sum", "test -> sum LE sum",
-                                   "test -> sum GE sum", "test -> sum GT sum"};
+    const auto test_productions = {
+        "eqtest -> eqtest EQ test", "eqtest -> eqtest NE test",
+        "test -> test LT sum",      "test -> test LE sum",
+        "test -> test GE sum",      "test -> test GT sum"};
     for (const auto &test_production : test_productions)
       register_function(test_production, make_test_expr);
 
@@ -273,8 +282,10 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     const auto return_child_expr = [](const auto &node) {
       return construct_ast<Expr>(node->children[0]);
     };
-    const auto trivial_productions = {"expr -> test", "test -> sum",
-                                      "sum -> term", "term -> factor"};
+    const auto trivial_productions = {"expr -> boolor",    "boolor -> booland",
+                                      "booland -> eqtest", "eqtest -> test",
+                                      "test -> sum",       "sum -> term",
+                                      "term -> factor"};
     for (const auto &trivial_production : trivial_productions)
       register_function(trivial_production, return_child_expr);
 

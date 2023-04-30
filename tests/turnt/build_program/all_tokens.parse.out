@@ -40,10 +40,15 @@ SEMI ;
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum LE sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LE sum
+test sum
 sum term
 term factor
 factor ID
@@ -62,7 +67,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID cont
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -70,9 +78,13 @@ factor NUM
 NUM 0
 SEMI ;
 RBRACE }
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
+statement WHILE LPAREN expr RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -84,10 +96,15 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum EQ sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest EQ test
+eqtest test
+test sum
 sum term
 term term PCT factor
 term factor
@@ -97,6 +114,7 @@ PCT %
 factor ID
 ID i
 EQ ==
+test sum
 sum term
 term factor
 factor NUM
@@ -110,7 +128,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID answer
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -123,7 +144,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID i
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -135,10 +159,15 @@ term factor
 factor NUM
 NUM 1
 SEMI ;
-statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum GT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test GT sum
+test sum
 sum term
 term term STAR factor
 term factor
@@ -161,7 +190,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID cont
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -173,15 +205,21 @@ ELSE else
 LBRACE {
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum EQ sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest EQ test
+eqtest test
+test sum
 sum term
 term factor
 factor ID
 ID answer
 EQ ==
+test sum
 sum term
 term factor
 factor NUM
@@ -195,7 +233,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID cont
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -206,7 +247,10 @@ RBRACE }
 RBRACE }
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -246,7 +290,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID value
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -255,10 +302,15 @@ STAR *
 factor ID
 ID num
 SEMI ;
-statement IF LPAREN test RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum NE sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest NE test
+eqtest test
+test sum
 sum term
 term term PCT factor
 term factor
@@ -268,6 +320,7 @@ PCT %
 factor NUM
 NUM 2
 NE !=
+test sum
 sum term
 term factor
 factor NUM
@@ -283,7 +336,10 @@ STAR *
 factor ID
 ID num
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum MINUS term
 sum sum PLUS term
@@ -316,7 +372,10 @@ STAR *
 factor ID
 ID num
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term term SLASH factor
@@ -329,7 +388,10 @@ NUM 2
 SEMI ;
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -391,7 +453,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID result
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -399,7 +464,10 @@ factor NEW INT LBRACK expr RBRACK
 NEW new
 INT int
 LBRACK [
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -412,7 +480,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -426,15 +497,22 @@ expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor NUM
 NUM 0
 SEMI ;
-expr test
-test sum LT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LT sum
+test sum
 sum term
 term factor
 factor ID
@@ -449,7 +527,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -466,17 +547,25 @@ statements statements statement
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement WHILE LPAREN test RPAREN LBRACE statements RBRACE
+statement WHILE LPAREN expr RPAREN LBRACE statements RBRACE
 WHILE while
 LPAREN (
-test sum EQ sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest EQ test
+eqtest test
+test sum
 sum term
 term factor
 factor ID LPAREN arglist RPAREN
 ID isPrime
 LPAREN (
 arglist expr
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -484,6 +573,7 @@ factor ID
 ID nextNumber
 RPAREN )
 EQ ==
+test sum
 sum term
 term factor
 factor NUM
@@ -497,7 +587,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -516,7 +609,10 @@ lvalue STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -529,7 +625,10 @@ factor ID
 ID idx
 RPAREN )
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -541,7 +640,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -561,15 +663,22 @@ expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor NUM
 NUM 0
 SEMI ;
-expr test
-test sum LT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LT sum
+test sum
 sum term
 term factor
 factor ID
@@ -584,7 +693,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID idx
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -602,7 +714,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -610,7 +725,10 @@ factor STAR factor
 STAR *
 factor LPAREN expr RPAREN
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -632,26 +750,37 @@ expr lvalue BECOMES expr
 lvalue ID
 ID nextNumber
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
 factor NUM
 NUM 40
 SEMI ;
-expr test
-test sum NE sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest eqtest NE test
+eqtest test
+test sum
 sum term
 term factor
 factor ID
 ID nextNumber
 NE !=
+test sum
 sum term
 term factor
 factor NUM
 NUM 1
 SEMI ;
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -659,7 +788,10 @@ factor ID LPAREN arglist RPAREN
 ID collatz
 LPAREN (
 arglist expr
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -675,7 +807,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -688,7 +823,10 @@ statement DELETE LBRACK RBRACK expr SEMI
 DELETE delete
 LBRACK [
 RBRACK ]
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -696,7 +834,10 @@ factor ID
 ID result
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

@@ -70,14 +70,14 @@ void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
 }
 
 void TestExpr::emit_c(std::ostream &os, const size_t) const {
-  const static std::unordered_map<ComparisonOperation, const char *>
+  const static std::unordered_map<BooleanOperation, const char *>
       operation_to_string({
-          std::make_pair(ComparisonOperation::LessThan, "<"),
-          std::make_pair(ComparisonOperation::LessEqual, "<="),
-          std::make_pair(ComparisonOperation::GreaterThan, ">"),
-          std::make_pair(ComparisonOperation::GreaterEqual, ">="),
-          std::make_pair(ComparisonOperation::Equal, "=="),
-          std::make_pair(ComparisonOperation::NotEqual, "!="),
+          std::make_pair(BooleanOperation::LessThan, "<"),
+          std::make_pair(BooleanOperation::LessEqual, "<="),
+          std::make_pair(BooleanOperation::GreaterThan, ">"),
+          std::make_pair(BooleanOperation::GreaterEqual, ">="),
+          std::make_pair(BooleanOperation::Equal, "=="),
+          std::make_pair(BooleanOperation::NotEqual, "!="),
       });
   // HACK: TestExpr's will always be surrounded by brackets since they only
   // appear in IfStatements and WhileStatements, so we don't need to surround

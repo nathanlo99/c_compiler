@@ -195,8 +195,8 @@ NFA construct_nfa() {
     result.emplace_back("[", TokenKind::Lbrack);
     result.emplace_back("]", TokenKind::Rbrack);
     result.emplace_back("&", TokenKind::Amp);
-    // result.emplace_back("&&", TokenKind::Booland);
-    // result.emplace_back("||", TokenKind::Boolor);
+    result.emplace_back("&&", TokenKind::Booland);
+    result.emplace_back("||", TokenKind::Boolor);
     return result;
   }();
 

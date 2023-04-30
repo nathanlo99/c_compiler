@@ -18,10 +18,15 @@ dcls .EMPTY
 statements statements statement
 statements statements statement
 statements .EMPTY
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum LT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test LT sum
+test sum
 sum term
 term factor
 factor ID
@@ -38,7 +43,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -47,10 +55,15 @@ ID a
 RPAREN )
 SEMI ;
 RBRACE }
-statement IF LPAREN test RPAREN LBRACE statements RBRACE
+statement IF LPAREN expr RPAREN LBRACE statements RBRACE
 IF if
 LPAREN (
-test sum GT sum
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
+test test GT sum
+test sum
 sum term
 term factor
 factor ID
@@ -67,7 +80,10 @@ statements .EMPTY
 statement PRINTLN LPAREN expr RPAREN SEMI
 PRINTLN println
 LPAREN (
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor
@@ -77,7 +93,10 @@ RPAREN )
 SEMI ;
 RBRACE }
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

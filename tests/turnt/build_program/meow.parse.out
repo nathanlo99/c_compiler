@@ -65,7 +65,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID var
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -78,7 +81,10 @@ factor ID
 ID var
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

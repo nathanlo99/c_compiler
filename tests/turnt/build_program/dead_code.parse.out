@@ -63,7 +63,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID d
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -80,7 +83,10 @@ expr lvalue BECOMES expr
 lvalue ID
 ID e
 BECOMES =
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum sum PLUS term
 sum term
@@ -93,7 +99,10 @@ factor ID
 ID d
 SEMI ;
 RETURN return
-expr test
+expr boolor
+boolor booland
+booland eqtest
+eqtest test
 test sum
 sum term
 term factor

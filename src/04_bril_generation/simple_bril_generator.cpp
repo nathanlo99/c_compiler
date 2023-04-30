@@ -73,22 +73,22 @@ void SimpleBRILGenerator::visit(TestExpr &expr) {
   const std::string rhs_variable = last_result();
   const std::string destination = temp();
   switch (expr.operation) {
-  case ComparisonOperation::LessThan:
+  case BooleanOperation::LessThan:
     lt(destination, lhs_variable, rhs_variable);
     break;
-  case ComparisonOperation::LessEqual:
+  case BooleanOperation::LessEqual:
     le(destination, lhs_variable, rhs_variable);
     break;
-  case ComparisonOperation::GreaterThan:
+  case BooleanOperation::GreaterThan:
     gt(destination, lhs_variable, rhs_variable);
     break;
-  case ComparisonOperation::GreaterEqual:
+  case BooleanOperation::GreaterEqual:
     ge(destination, lhs_variable, rhs_variable);
     break;
-  case ComparisonOperation::Equal:
+  case BooleanOperation::Equal:
     eq(destination, lhs_variable, rhs_variable);
     break;
-  case ComparisonOperation::NotEqual:
+  case BooleanOperation::NotEqual:
     ne(destination, lhs_variable, rhs_variable);
     break;
   default:
