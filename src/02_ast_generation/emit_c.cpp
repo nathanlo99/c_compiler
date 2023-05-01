@@ -91,6 +91,22 @@ void BinaryExpr::emit_c(std::ostream &os, const size_t) const {
   os << ")";
 }
 
+void BooleanOrExpr::emit_c(std::ostream &os, const size_t) const {
+  os << "(";
+  lhs->emit_c(os, 0);
+  os << " || ";
+  rhs->emit_c(os, 0);
+  os << ")";
+}
+
+void BooleanAndExpr::emit_c(std::ostream &os, const size_t) const {
+  os << "(";
+  lhs->emit_c(os, 0);
+  os << " && ";
+  rhs->emit_c(os, 0);
+  os << ")";
+}
+
 void AddressOfExpr::emit_c(std::ostream &os, const size_t) const {
   os << "&";
   argument->emit_c(os, 0);

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "ast_node.hpp"
 #include "ast_recursive_visitor.hpp"
 #include "symbol_table.hpp"
 #include "types.hpp"
@@ -29,6 +30,8 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
   void post_visit(VariableExpr &) override;
   void post_visit(LiteralExpr &) override;
   void post_visit(BinaryExpr &) override;
+  void post_visit(BooleanOrExpr &) override;
+  void post_visit(BooleanAndExpr &) override;
   void post_visit(AddressOfExpr &) override;
   void post_visit(DereferenceExpr &) override;
   void post_visit(NewExpr &) override;

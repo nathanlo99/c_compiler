@@ -33,6 +33,14 @@ void BinaryExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
 
+void BooleanOrExpr::accept_simple(ASTSimpleVisitor &visitor) {
+  visitor.visit(*this);
+}
+
+void BooleanAndExpr::accept_simple(ASTSimpleVisitor &visitor) {
+  visitor.visit(*this);
+}
+
 void AddressOfExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }

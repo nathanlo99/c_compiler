@@ -112,6 +112,30 @@ void BinaryExpr::print(const size_t depth) const {
   std::cout << std::endl;
 }
 
+void BooleanOrExpr::print(const size_t depth) const {
+  std::cout << pad(depth) << "BooleanOrExpr {" << std::endl;
+  std::cout << pad(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << pad(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << pad(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
+}
+
+void BooleanAndExpr::print(const size_t depth) const {
+  std::cout << pad(depth) << "BooleanAndExpr {" << std::endl;
+  std::cout << pad(depth + 1) << "lhs: " << std::endl;
+  lhs->print(depth + 2);
+  std::cout << pad(depth + 1) << "rhs: " << std::endl;
+  rhs->print(depth + 2);
+  std::cout << pad(depth) << "}";
+  if (type != Type::Unknown)
+    std::cout << " : " << type_to_string(type);
+  std::cout << std::endl;
+}
+
 void AddressOfExpr::print(const size_t depth) const {
   std::cout << pad(depth) << "AddressOfExpr {" << std::endl;
   argument->print(depth + 1);

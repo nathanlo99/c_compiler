@@ -16,6 +16,8 @@ struct AssignmentExpr;
 struct VariableExpr;
 struct LiteralExpr;
 struct BinaryExpr;
+struct BooleanAndExpr;
+struct BooleanOrExpr;
 struct AddressOfExpr;
 struct DereferenceExpr;
 struct NewExpr;
@@ -40,6 +42,8 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(VariableExpr &) {}
   virtual void pre_visit(LiteralExpr &) {}
   virtual void pre_visit(BinaryExpr &) {}
+  virtual void pre_visit(BooleanOrExpr &) {}
+  virtual void pre_visit(BooleanAndExpr &) {}
   virtual void pre_visit(AddressOfExpr &) {}
   virtual void pre_visit(DereferenceExpr &) {}
   virtual void pre_visit(NewExpr &) {}
@@ -60,6 +64,8 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(VariableExpr &) {}
   virtual void post_visit(LiteralExpr &) {}
   virtual void post_visit(BinaryExpr &) {}
+  virtual void post_visit(BooleanOrExpr &) {}
+  virtual void post_visit(BooleanAndExpr &) {}
   virtual void post_visit(AddressOfExpr &) {}
   virtual void post_visit(DereferenceExpr &) {}
   virtual void post_visit(NewExpr &) {}

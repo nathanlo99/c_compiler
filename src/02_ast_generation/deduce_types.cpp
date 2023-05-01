@@ -96,6 +96,22 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
   }
 }
 
+void DeduceTypesVisitor::post_visit(BooleanOrExpr &expr) {
+  debug_assert(expr.lhs->type == Type::Int,
+               "Can only take boolean OR of booleans (ints)");
+  debug_assert(expr.rhs->type == Type::Int,
+               "Can only take boolean OR of booleans (ints)");
+  expr.type = Type::Int;
+}
+
+void DeduceTypesVisitor::post_visit(BooleanAndExpr &expr) {
+  debug_assert(expr.lhs->type == Type::Int,
+               "Can only take boolean AND of booleans (ints)");
+  debug_assert(expr.rhs->type == Type::Int,
+               "Can only take boolean AND of booleans (ints)");
+  expr.type = Type::Int;
+}
+
 void DeduceTypesVisitor::post_visit(AddressOfExpr &expr) {
   debug_assert(expr.argument->type == Type::Int,
                "Can only take address of int");

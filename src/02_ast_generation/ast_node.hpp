@@ -344,6 +344,34 @@ struct BinaryExpr : Expr {
   virtual std::string node_type() const override { return "BinaryExpr"; }
 };
 
+struct BooleanOrExpr : Expr {
+  std::shared_ptr<Expr> lhs, rhs;
+  BooleanOrExpr(std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs)
+      : lhs(lhs), rhs(rhs) {}
+  virtual ~BooleanOrExpr() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "BooleanOrExpr"; }
+};
+
+struct BooleanAndExpr : Expr {
+  std::shared_ptr<Expr> lhs, rhs;
+  BooleanAndExpr(std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs)
+      : lhs(lhs), rhs(rhs) {}
+  virtual ~BooleanAndExpr() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "BooleanAndExpr"; }
+};
+
 struct AddressOfExpr : Expr {
   std::shared_ptr<VariableLValueExpr> argument;
   AddressOfExpr(std::shared_ptr<VariableLValueExpr> argument)

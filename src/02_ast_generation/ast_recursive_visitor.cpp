@@ -51,6 +51,20 @@ void BinaryExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.post_visit(*this);
 }
 
+void BooleanOrExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  lhs->accept_recursive(visitor);
+  rhs->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
+void BooleanAndExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  lhs->accept_recursive(visitor);
+  rhs->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
 void AddressOfExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   argument->accept_recursive(visitor);

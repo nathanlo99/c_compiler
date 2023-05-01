@@ -16,6 +16,8 @@ struct AssignmentExpr;
 struct VariableExpr;
 struct LiteralExpr;
 struct BinaryExpr;
+struct BooleanAndExpr;
+struct BooleanOrExpr;
 struct AddressOfExpr;
 struct DereferenceExpr;
 struct NewExpr;
@@ -40,6 +42,8 @@ struct ASTSimpleVisitor {
   virtual void visit(VariableExpr &) {}
   virtual void visit(LiteralExpr &) {}
   virtual void visit(BinaryExpr &) {}
+  virtual void visit(BooleanOrExpr &) {}
+  virtual void visit(BooleanAndExpr &) {}
   virtual void visit(AddressOfExpr &) {}
   virtual void visit(DereferenceExpr &) {}
   virtual void visit(NewExpr &) {}

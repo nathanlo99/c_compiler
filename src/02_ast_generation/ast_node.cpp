@@ -89,14 +89,6 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
         return nullptr;
       });
 
-    const auto todo_productions = {"boolor -> boolor BOOLOR booland",
-                                   "booland -> booland BOOLAND eqtest"};
-    for (const std::string &production : todo_productions)
-      register_function(production, [&](const auto &) {
-        debug_assert(false, "Production not yet implemented: {}", production);
-        return nullptr;
-      });
-
     register_function(
         "procedures -> procedure procedures", [](const auto &node) {
           auto procedure = construct_ast<Procedure>(node->children[0]);
@@ -427,6 +419,19 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
           result->statements.push_back(while_loop);
           return result;
         });
+
+    register_function("boolor -> boolor BOOLOR booland", [](const auto &node) {
+      auto lhs = construct_ast<Expr>(node->children[0]);
+      auto rhs = construct_ast<Expr>(node->children[2]);
+      return std::make_shared<BooleanOrExpr>(lhs, rhs);
+    });
+
+    register_function("booland -> booland BOOLAND eqtest",
+                      [](const auto &node) {
+                        auto lhs = construct_ast<Expr>(node->children[0]);
+                        auto rhs = construct_ast<Expr>(node->children[2]);
+                        return std::make_shared<BooleanAndExpr>(lhs, rhs);
+                      });
 
     // Begin augmented productions
     return result;
