@@ -255,8 +255,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
       const auto lhs = construct_ast<Expr>(node->children[0]);
       const auto op = node->children[1]->token;
       const auto rhs = construct_ast<Expr>(node->children[2]);
-      return std::make_shared<TestExpr>(
-          lhs, token_to_comparison_operation(op.kind), rhs);
+      return std::make_shared<BinaryExpr>(
+          lhs, token_to_binary_operation(op.kind), rhs);
     };
     const auto test_productions = {
         "eqtest -> eqtest EQ test", "eqtest -> eqtest NE test",

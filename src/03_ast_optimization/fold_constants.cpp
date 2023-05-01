@@ -47,6 +47,9 @@ evaluate_binary_expression(std::shared_ptr<LiteralExpr> &lhs,
     if (rhs_value == 0)
       return std::nullopt;
     return Literal(lhs_value % rhs_value, Type::Int);
+  default:
+    break;
+    // TODO: Implement constant folding for other binary operations
   }
   return std::nullopt;
 }
@@ -139,16 +142,7 @@ simplify_binary_expression(std::shared_ptr<BinaryExpr> expr) {
 }
 
 std::shared_ptr<Expr> fold_constants(std::shared_ptr<Expr> expr) {
-  if (auto node = std::dynamic_pointer_cast<TestExpr>(expr)) {
-    node->lhs = fold_constants(node->lhs);
-    node->rhs = fold_constants(node->rhs);
-    // if (is_literal(node->lhs) && is_literal(node->rhs)) {
-    //   const auto literal = evaluate_comparison_expression(node->lhs,
-    //   node->operation, node->rhs);
-    // return std::make_shared<LiteralExpr>(literal);
-    // }
-    return node;
-  } else if (auto node = std::dynamic_pointer_cast<BinaryExpr>(expr)) {
+  if (auto node = std::dynamic_pointer_cast<BinaryExpr>(expr)) {
     return simplify_binary_expression(node);
   } else if (auto node = std::dynamic_pointer_cast<NewExpr>(expr)) {
     node->rhs = fold_constants(node->rhs);
@@ -171,11 +165,6 @@ void ConstantFoldingVisitor::pre_visit(DereferenceLValueExpr &expr) {
 }
 
 void ConstantFoldingVisitor::pre_visit(AssignmentExpr &expr) {
-  expr.rhs = fold_constants(expr.rhs);
-}
-
-void ConstantFoldingVisitor::pre_visit(TestExpr &expr) {
-  expr.lhs = fold_constants(expr.lhs);
   expr.rhs = fold_constants(expr.rhs);
 }
 

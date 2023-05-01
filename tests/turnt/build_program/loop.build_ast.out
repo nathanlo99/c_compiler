@@ -10,23 +10,23 @@ Procedure {
   statements: 
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(i) : int
           operation: LessThan
           rhs: 
             10: int
-        }
+        } : int
       body: 
         IfStatement {
           condition: 
-            TestExpr {
+            BinaryExpr {
               lhs: 
                 VariableExpr(i) : int
               operation: LessThan
               rhs: 
                 5: int
-            }
+            } : int
           true_statement: 
             ExprStatement {
               AssignmentExpr {

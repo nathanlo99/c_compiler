@@ -10,13 +10,13 @@ Procedure {
   statements: 
     IfStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             3: int
           operation: LessThan
           rhs: 
             VariableExpr(n) : int
-        }
+        } : int
       true_statement: 
       false_statement: 
         ExprStatement {
@@ -29,13 +29,13 @@ Procedure {
         }
         IfStatement {
           condition: 
-            TestExpr {
+            BinaryExpr {
               lhs: 
                 VariableExpr(n) : int
               operation: LessThan
               rhs: 
                 4: int
-            }
+            } : int
           true_statement: 
           false_statement: 
             ExprStatement {

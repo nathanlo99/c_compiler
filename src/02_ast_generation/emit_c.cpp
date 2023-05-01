@@ -69,26 +69,6 @@ void LiteralExpr::emit_c(std::ostream &os, const size_t) const {
   os << literal.value_to_string();
 }
 
-void TestExpr::emit_c(std::ostream &os, const size_t) const {
-  const static std::unordered_map<BooleanOperation, const char *>
-      operation_to_string({
-          std::make_pair(BooleanOperation::LessThan, "<"),
-          std::make_pair(BooleanOperation::LessEqual, "<="),
-          std::make_pair(BooleanOperation::GreaterThan, ">"),
-          std::make_pair(BooleanOperation::GreaterEqual, ">="),
-          std::make_pair(BooleanOperation::Equal, "=="),
-          std::make_pair(BooleanOperation::NotEqual, "!="),
-      });
-  // HACK: TestExpr's will always be surrounded by brackets since they only
-  // appear in IfStatements and WhileStatements, so we don't need to surround
-  // them
-  // os << "(";
-  lhs->emit_c(os, 0);
-  os << " " << operation_to_string.at(operation) << " ";
-  rhs->emit_c(os, 0);
-  // os << ")";
-}
-
 void BinaryExpr::emit_c(std::ostream &os, const size_t) const {
   const static std::unordered_map<BinaryOperation, const char *>
       operation_to_string({
@@ -97,6 +77,12 @@ void BinaryExpr::emit_c(std::ostream &os, const size_t) const {
           std::make_pair(BinaryOperation::Mul, "*"),
           std::make_pair(BinaryOperation::Div, "/"),
           std::make_pair(BinaryOperation::Mod, "%"),
+          std::make_pair(BinaryOperation::Equal, "=="),
+          std::make_pair(BinaryOperation::NotEqual, "!="),
+          std::make_pair(BinaryOperation::LessThan, "<"),
+          std::make_pair(BinaryOperation::LessEqual, "<="),
+          std::make_pair(BinaryOperation::GreaterThan, ">"),
+          std::make_pair(BinaryOperation::GreaterEqual, ">="),
       });
   os << "(";
   lhs->emit_c(os, 0);
@@ -147,9 +133,9 @@ void AssignmentStatement::emit_c(std::ostream &os,
 }
 
 void IfStatement::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << pad(indent_level) << "if (";
+  os << pad(indent_level) << "if ";
   test_expression->emit_c(os, 0);
-  os << ") {" << std::endl;
+  os << " {" << std::endl;
   true_statements.emit_c(os, indent_level + 1);
   os << pad(indent_level) << "}";
   if (false_statements.statements.empty()) {
@@ -162,9 +148,9 @@ void IfStatement::emit_c(std::ostream &os, const size_t indent_level) const {
 }
 
 void WhileStatement::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << pad(indent_level) << "while (";
+  os << pad(indent_level) << "while ";
   test_expression->emit_c(os, 0);
-  os << ") {" << std::endl;
+  os << " {" << std::endl;
   body_statement->emit_c(os, indent_level + 1);
   os << pad(indent_level) << "}" << std::endl;
 }

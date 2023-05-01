@@ -10,13 +10,13 @@ Procedure {
   statements: 
     IfStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             3: int
           operation: LessThan
           rhs: 
             VariableExpr(n) : int
-        }
+        } : int
       true_statement: 
       false_statement: 
         ExprStatement {
@@ -30,17 +30,17 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(cont) : int
           operation: NotEqual
           rhs: 
             0: int
-        }
+        } : int
       body: 
         IfStatement {
           condition: 
-            TestExpr {
+            BinaryExpr {
               lhs: 
                 BinaryExpr {
                   lhs: 
@@ -52,7 +52,7 @@ Procedure {
               operation: Equal
               rhs: 
                 0: int
-            }
+            } : int
           true_statement: 
             ExprStatement {
               AssignmentExpr {
@@ -80,7 +80,7 @@ Procedure {
         }
         IfStatement {
           condition: 
-            TestExpr {
+            BinaryExpr {
               lhs: 
                 VariableExpr(n) : int
               operation: LessThan
@@ -92,7 +92,7 @@ Procedure {
                   rhs: 
                     VariableExpr(i) : int
                 } : int
-            }
+            } : int
           true_statement: 
             ExprStatement {
               AssignmentExpr {
@@ -105,13 +105,13 @@ Procedure {
           false_statement: 
             IfStatement {
               condition: 
-                TestExpr {
+                BinaryExpr {
                   lhs: 
                     VariableExpr(answer) : int
                   operation: Equal
                   rhs: 
                     0: int
-                }
+                } : int
               true_statement: 
                 ExprStatement {
                   AssignmentExpr {
@@ -149,7 +149,7 @@ Procedure {
     }
     IfStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             BinaryExpr {
               lhs: 
@@ -161,7 +161,7 @@ Procedure {
           operation: Equal
           rhs: 
             0: int
-        }
+        } : int
       true_statement: 
         ExprStatement {
           AssignmentExpr {
@@ -252,17 +252,17 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(idx) : int
           operation: LessThan
           rhs: 
             VariableExpr(numPrimes) : int
-        }
+        } : int
       body: 
         WhileStatement {
           condition: 
-            TestExpr {
+            BinaryExpr {
               lhs: 
                 FunctionCall {
                   procedure_name: isPrime,
@@ -273,7 +273,7 @@ Procedure {
               operation: Equal
               rhs: 
                 0: int
-            }
+            } : int
           body: 
             ExprStatement {
               AssignmentExpr {
@@ -345,13 +345,13 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(idx) : int
           operation: LessThan
           rhs: 
             VariableExpr(numPrimes) : int
-        }
+        } : int
       body: 
         PrintStatement {
           DereferenceExpr {
@@ -389,13 +389,13 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(nextNumber) : int
           operation: NotEqual
           rhs: 
             1: int
-        }
+        } : int
       body: 
         PrintStatement {
           VariableExpr(nextNumber) : int

@@ -27,13 +27,13 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(idx) : int
           operation: LessThan
           rhs: 
             VariableExpr(size) : int
-        }
+        } : int
       body: 
         ExprStatement {
           AssignmentExpr {
@@ -82,13 +82,13 @@ Procedure {
     }
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(idx) : int
           operation: LessThan
           rhs: 
             VariableExpr(size) : int
-        }
+        } : int
       body: 
         PrintStatement {
           DereferenceExpr {

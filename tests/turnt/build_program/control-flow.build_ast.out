@@ -9,13 +9,13 @@ Procedure {
   statements: 
     IfStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(a) : int
           operation: LessThan
           rhs: 
             VariableExpr(c) : int
-        }
+        } : int
       true_statement: 
         ExprStatement {
           AssignmentExpr {

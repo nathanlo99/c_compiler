@@ -125,11 +125,6 @@ void NaiveMIPSGenerator::visit(AssignmentExpr &expr) {
   }
 }
 
-void NaiveMIPSGenerator::visit(TestExpr &) {
-  unreachable(
-      "Test expression code is handled in if statement and while statement");
-}
-
 void NaiveMIPSGenerator::visit(VariableExpr &expr) {
   const int offset = table.get_offset(expr.variable);
   lw(Reg::R3, offset, Reg::R29);
@@ -288,11 +283,11 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   pop(Reg::R5);
 
   switch (test_expr->operation) {
-  case BooleanOperation::LessThan: {
+  case BinaryOperation::LessThan: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     beq(Reg::R3, Reg::R0, else_label);
   } break;
-  case BooleanOperation::Equal: {
+  case BinaryOperation::Equal: {
     bne(Reg::R3, Reg::R5, else_label);
   } break;
   default: {
@@ -327,27 +322,30 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   // $5 = lhs, $3 = rhs
   // Jump to end if the condition is false
   switch (test_expr->operation) {
-  case BooleanOperation::LessThan: {
+  case BinaryOperation::LessThan: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     beq(Reg::R3, Reg::R0, end_label);
   } break;
-  case BooleanOperation::LessEqual: {
+  case BinaryOperation::LessEqual: {
     compare(Reg::R3, Reg::R3, Reg::R5);
     bne(Reg::R3, Reg::R0, end_label);
   } break;
-  case BooleanOperation::GreaterThan: {
+  case BinaryOperation::GreaterThan: {
     compare(Reg::R3, Reg::R3, Reg::R5);
     beq(Reg::R3, Reg::R0, end_label);
   } break;
-  case BooleanOperation::GreaterEqual: {
+  case BinaryOperation::GreaterEqual: {
     compare(Reg::R3, Reg::R5, Reg::R3);
     bne(Reg::R3, Reg::R0, end_label);
   } break;
-  case BooleanOperation::Equal: {
+  case BinaryOperation::Equal: {
     bne(Reg::R3, Reg::R5, end_label);
   } break;
-  case BooleanOperation::NotEqual: {
+  case BinaryOperation::NotEqual: {
     beq(Reg::R3, Reg::R5, end_label);
+  } break;
+  default: {
+    unreachable("Non-canonical comparison operation");
   } break;
   }
 

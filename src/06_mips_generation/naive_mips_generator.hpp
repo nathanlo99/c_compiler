@@ -17,7 +17,6 @@ struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   void visit(VariableLValueExpr &) override;
   void visit(DereferenceLValueExpr &) override;
   void visit(AssignmentExpr &) override;
-  void visit(TestExpr &) override;
   void visit(VariableExpr &) override;
   void visit(LiteralExpr &) override;
   void visit(BinaryExpr &) override;

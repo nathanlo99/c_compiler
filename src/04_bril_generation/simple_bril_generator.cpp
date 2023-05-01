@@ -66,36 +66,6 @@ void SimpleBRILGenerator::visit(AssignmentExpr &expr) {
   }
 }
 
-void SimpleBRILGenerator::visit(TestExpr &expr) {
-  expr.lhs->accept_simple(*this);
-  const std::string lhs_variable = last_result();
-  expr.rhs->accept_simple(*this);
-  const std::string rhs_variable = last_result();
-  const std::string destination = temp();
-  switch (expr.operation) {
-  case BooleanOperation::LessThan:
-    lt(destination, lhs_variable, rhs_variable);
-    break;
-  case BooleanOperation::LessEqual:
-    le(destination, lhs_variable, rhs_variable);
-    break;
-  case BooleanOperation::GreaterThan:
-    gt(destination, lhs_variable, rhs_variable);
-    break;
-  case BooleanOperation::GreaterEqual:
-    ge(destination, lhs_variable, rhs_variable);
-    break;
-  case BooleanOperation::Equal:
-    eq(destination, lhs_variable, rhs_variable);
-    break;
-  case BooleanOperation::NotEqual:
-    ne(destination, lhs_variable, rhs_variable);
-    break;
-  default:
-    unreachable("Unknown comparison operation");
-  }
-}
-
 void SimpleBRILGenerator::visit(VariableExpr &expr) {
   const std::string destination = temp();
   id(destination, expr.variable.name, type_from_ast_type(expr.variable.type));
@@ -142,6 +112,24 @@ void SimpleBRILGenerator::visit(BinaryExpr &expr) {
     break;
   case BinaryOperation::Mod:
     mod(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::LessThan:
+    lt(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::LessEqual:
+    le(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::GreaterThan:
+    gt(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::GreaterEqual:
+    ge(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::Equal:
+    eq(destination, lhs_variable, rhs_variable);
+    break;
+  case BinaryOperation::NotEqual:
+    ne(destination, lhs_variable, rhs_variable);
     break;
   default:
     unreachable("Unknown binary operation");

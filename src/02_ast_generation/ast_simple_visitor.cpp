@@ -21,10 +21,6 @@ void AssignmentExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }
 
-void TestExpr::accept_simple(ASTSimpleVisitor &visitor) {
-  visitor.visit(*this);
-}
-
 void VariableExpr::accept_simple(ASTSimpleVisitor &visitor) {
   visitor.visit(*this);
 }

@@ -8,13 +8,13 @@ Procedure {
   statements: 
     WhileStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             VariableExpr(a) : int
           operation: LessThan
           rhs: 
             VariableExpr(b) : int
-        }
+        } : int
       body: 
         ExprStatement {
           AssignmentExpr {

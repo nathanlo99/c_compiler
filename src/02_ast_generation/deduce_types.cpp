@@ -37,12 +37,6 @@ void DeduceTypesVisitor::post_visit(AssignmentExpr &expr) {
   expr.type = expr.lhs->type;
 }
 
-void DeduceTypesVisitor::post_visit(TestExpr &expr) {
-  debug_assert(expr.lhs->type == expr.rhs->type,
-               "Cannot compare arguments of different types");
-  expr.type = Type::Int;
-}
-
 void DeduceTypesVisitor::post_visit(VariableExpr &expr) {
   expr.type = expr.variable.type = table.get_variable_type(expr.variable);
 }
@@ -86,6 +80,16 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
     debug_assert(integer_types.count(type_pair) > 0, "Invalid types to {}",
                  binary_operation_to_string(expr.operation));
     expr.type = integer_types.at(type_pair);
+  } break;
+  case BinaryOperation::Equal:
+  case BinaryOperation::NotEqual:
+  case BinaryOperation::LessThan:
+  case BinaryOperation::LessEqual:
+  case BinaryOperation::GreaterThan:
+  case BinaryOperation::GreaterEqual: {
+    debug_assert(expr.lhs->type == expr.rhs->type,
+                 "Cannot compare arguments of different types");
+    expr.type = Type::Int;
   } break;
   default:
     unreachable("");
@@ -131,6 +135,18 @@ void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
   }
 
   expr.type = table.get_return_type(procedure_name);
+}
+
+void DeduceTypesVisitor::post_visit(IfStatement &statement) {
+  debug_assert(statement.test_expression->type == Type::Int,
+               "If condition expected int, got {}",
+               type_to_string(statement.test_expression->type));
+}
+
+void DeduceTypesVisitor::post_visit(WhileStatement &statement) {
+  debug_assert(statement.test_expression->type == Type::Int,
+               "While condition expected int, got {}",
+               type_to_string(statement.test_expression->type));
 }
 
 void DeduceTypesVisitor::post_visit(AssignmentStatement &statement) {

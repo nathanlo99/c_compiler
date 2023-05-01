@@ -5,33 +5,40 @@
 void CanonicalizeConditions::post_visit(IfStatement &statement) {
   auto &cond = statement.test_expression;
   switch (cond->operation) {
-  case BooleanOperation::LessThan: {
+  case BinaryOperation::LessThan: {
     // Do nothing, this is already canonical
   } break;
 
-  case BooleanOperation::LessEqual: {
+  case BinaryOperation::LessEqual: {
     std::swap(cond->lhs, cond->rhs);
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = BooleanOperation::LessThan;
+    cond->operation = BinaryOperation::LessThan;
   } break;
 
-  case BooleanOperation::GreaterThan: {
+  case BinaryOperation::GreaterThan: {
     std::swap(cond->lhs, cond->rhs);
-    cond->operation = BooleanOperation::LessThan;
+    cond->operation = BinaryOperation::LessThan;
   } break;
 
-  case BooleanOperation::GreaterEqual: {
+  case BinaryOperation::GreaterEqual: {
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = BooleanOperation::LessThan;
+    cond->operation = BinaryOperation::LessThan;
   } break;
 
-  case BooleanOperation::Equal: {
+  case BinaryOperation::Equal: {
     // Do nothing, this is already canonical
   } break;
 
-  case BooleanOperation::NotEqual: {
+  case BinaryOperation::NotEqual: {
     std::swap(statement.true_statements, statement.false_statements);
-    cond->operation = BooleanOperation::Equal;
+    cond->operation = BinaryOperation::Equal;
+  } break;
+
+  default: {
+    debug_assert(false,
+                 "If statement contained unexpected binary operation: expected "
+                 "boolean operation but got {}",
+                 binary_operation_to_string(cond->operation));
   } break;
   }
 }

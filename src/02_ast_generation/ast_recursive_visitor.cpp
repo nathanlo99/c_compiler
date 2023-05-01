@@ -34,13 +34,6 @@ void AssignmentExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.post_visit(*this);
 }
 
-void TestExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
-  visitor.pre_visit(*this);
-  lhs->accept_recursive(visitor);
-  rhs->accept_recursive(visitor);
-  visitor.post_visit(*this);
-}
-
 void VariableExpr::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   visitor.post_visit(*this);

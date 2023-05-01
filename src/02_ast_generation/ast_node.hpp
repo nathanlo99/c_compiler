@@ -215,60 +215,15 @@ struct AssignmentExpr : Expr {
   virtual std::string node_type() const override { return "AssignmentExpr"; }
 };
 
-enum class BooleanOperation {
+enum class BinaryOperation {
+  // Comparison operations
   LessThan,
   LessEqual,
   GreaterThan,
   GreaterEqual,
   Equal,
   NotEqual,
-};
-
-constexpr const char *
-comparison_operation_to_string(const BooleanOperation op) {
-  switch (op) {
-  case BooleanOperation::LessThan:
-    return "LessThan";
-  case BooleanOperation::LessEqual:
-    return "LessEqual";
-  case BooleanOperation::GreaterThan:
-    return "GreaterThan";
-  case BooleanOperation::GreaterEqual:
-    return "GreaterEqual";
-  case BooleanOperation::Equal:
-    return "Equal";
-  case BooleanOperation::NotEqual:
-    return "NotEqual";
-  default:
-    unreachable("");
-  }
-  __builtin_unreachable();
-}
-
-constexpr BooleanOperation
-token_to_comparison_operation(const TokenKind operation) {
-  switch (operation) {
-  case TokenKind::Lt:
-    return BooleanOperation::LessThan;
-  case TokenKind::Le:
-    return BooleanOperation::LessEqual;
-  case TokenKind::Gt:
-    return BooleanOperation::GreaterThan;
-  case TokenKind::Ge:
-    return BooleanOperation::GreaterEqual;
-  case TokenKind::Eq:
-    return BooleanOperation::Equal;
-  case TokenKind::Ne:
-    return BooleanOperation::NotEqual;
-  default:
-    debug_assert(false,
-                 "Could not convert invalid type {} to comparison operation",
-                 token_kind_to_string(operation));
-  }
-  __builtin_unreachable();
-}
-
-enum class BinaryOperation {
+  // Arithmetic operations
   Add,
   Sub,
   Mul,
@@ -276,9 +231,42 @@ enum class BinaryOperation {
   Mod,
 };
 
+constexpr bool binary_operation_is_comparison(const BinaryOperation op) {
+  switch (op) {
+  case BinaryOperation::LessThan:
+  case BinaryOperation::LessEqual:
+  case BinaryOperation::GreaterThan:
+  case BinaryOperation::GreaterEqual:
+  case BinaryOperation::Equal:
+  case BinaryOperation::NotEqual:
+    return true;
+  case BinaryOperation::Add:
+  case BinaryOperation::Sub:
+  case BinaryOperation::Mul:
+  case BinaryOperation::Div:
+  case BinaryOperation::Mod:
+    return false;
+  default:
+    unreachable("");
+  }
+  __builtin_unreachable();
+}
+
 constexpr inline const char *
 binary_operation_to_string(const BinaryOperation op) {
   switch (op) {
+  case BinaryOperation::LessThan:
+    return "LessThan";
+  case BinaryOperation::LessEqual:
+    return "LessEqual";
+  case BinaryOperation::GreaterThan:
+    return "GreaterThan";
+  case BinaryOperation::GreaterEqual:
+    return "GreaterEqual";
+  case BinaryOperation::Equal:
+    return "Equal";
+  case BinaryOperation::NotEqual:
+    return "NotEqual";
   case BinaryOperation::Add:
     return "Add";
   case BinaryOperation::Sub:
@@ -298,6 +286,18 @@ binary_operation_to_string(const BinaryOperation op) {
 constexpr inline BinaryOperation
 token_to_binary_operation(const TokenKind operation) {
   switch (operation) {
+  case TokenKind::Lt:
+    return BinaryOperation::LessThan;
+  case TokenKind::Le:
+    return BinaryOperation::LessEqual;
+  case TokenKind::Gt:
+    return BinaryOperation::GreaterThan;
+  case TokenKind::Ge:
+    return BinaryOperation::GreaterEqual;
+  case TokenKind::Eq:
+    return BinaryOperation::Equal;
+  case TokenKind::Ne:
+    return BinaryOperation::NotEqual;
   case TokenKind::Plus:
     return BinaryOperation::Add;
   case TokenKind::Minus:
@@ -315,36 +315,6 @@ token_to_binary_operation(const TokenKind operation) {
   __builtin_unreachable();
 }
 
-struct TestExpr : Expr {
-  std::shared_ptr<Expr> lhs;
-  BooleanOperation operation;
-  std::shared_ptr<Expr> rhs;
-
-  TestExpr(std::shared_ptr<Expr> lhs, const BooleanOperation operation,
-           std::shared_ptr<Expr> rhs)
-      : lhs(lhs), operation(operation), rhs(rhs) {}
-  TestExpr(std::shared_ptr<Expr> value) {
-    if (const auto &test_expr = std::dynamic_pointer_cast<TestExpr>(value);
-        test_expr) {
-      lhs = test_expr->lhs;
-      operation = test_expr->operation;
-      rhs = test_expr->rhs;
-    } else {
-      lhs = value;
-      rhs = std::make_shared<LiteralExpr>(0, Type::Int);
-      operation = BooleanOperation::NotEqual;
-    }
-  }
-  virtual ~TestExpr() = default;
-
-  virtual void print(const size_t depth = 0) const override;
-  virtual void emit_c(std::ostream &os,
-                      const size_t indent_level) const override;
-  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
-  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
-  virtual std::string node_type() const override { return "TestExpr"; }
-};
-
 struct BinaryExpr : Expr {
   std::shared_ptr<Expr> lhs;
   BinaryOperation operation;
@@ -354,6 +324,17 @@ struct BinaryExpr : Expr {
              std::shared_ptr<Expr> rhs)
       : lhs(lhs), operation(operation), rhs(rhs) {}
   virtual ~BinaryExpr() = default;
+
+  static std::shared_ptr<BinaryExpr> as_bool(std::shared_ptr<Expr> value) {
+    if (const auto &test_expr = std::dynamic_pointer_cast<BinaryExpr>(value);
+        test_expr && binary_operation_is_comparison(test_expr->operation)) {
+      return test_expr;
+    } else {
+      const auto zero = std::make_shared<LiteralExpr>(0, Type::Int);
+      return std::make_shared<BinaryExpr>(value, BinaryOperation::NotEqual,
+                                          zero);
+    }
+  }
 
   virtual void print(const size_t depth = 0) const override;
   virtual void emit_c(std::ostream &os,
@@ -455,13 +436,13 @@ struct AssignmentStatement : Statement {
 };
 
 struct IfStatement : Statement {
-  std::shared_ptr<TestExpr> test_expression;
+  std::shared_ptr<BinaryExpr> test_expression;
   Statements true_statements;
   Statements false_statements;
 
   IfStatement(std::shared_ptr<Expr> cond, const Statements &true_statements,
               const Statements &false_statements)
-      : test_expression(std::make_shared<TestExpr>(cond)),
+      : test_expression(BinaryExpr::as_bool(cond)),
         true_statements(true_statements), false_statements(false_statements) {}
   virtual ~IfStatement() = default;
 
@@ -474,12 +455,12 @@ struct IfStatement : Statement {
 };
 
 struct WhileStatement : Statement {
-  std::shared_ptr<TestExpr> test_expression;
+  std::shared_ptr<BinaryExpr> test_expression;
   std::shared_ptr<Statement> body_statement;
 
   WhileStatement(std::shared_ptr<Expr> test_expression,
                  std::shared_ptr<Statement> body_statement)
-      : test_expression(std::make_shared<TestExpr>(test_expression)),
+      : test_expression(BinaryExpr::as_bool(test_expression)),
         body_statement(body_statement) {}
   virtual ~WhileStatement() = default;
 

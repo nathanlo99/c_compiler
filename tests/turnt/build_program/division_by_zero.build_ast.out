@@ -8,13 +8,13 @@ Procedure {
   statements: 
     IfStatement {
       condition: 
-        TestExpr {
+        BinaryExpr {
           lhs: 
             1: int
           operation: Equal
           rhs: 
             0: int
-        }
+        } : int
       true_statement: 
         ExprStatement {
           AssignmentExpr {

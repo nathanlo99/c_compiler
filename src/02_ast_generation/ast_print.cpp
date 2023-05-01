@@ -85,18 +85,6 @@ void DereferenceLValueExpr::print(const size_t depth) const {
   std::cout << std::endl;
 }
 
-void TestExpr::print(const size_t depth) const {
-  std::cout << pad(depth) << "TestExpr {" << std::endl;
-  std::cout << pad(depth + 1) << "lhs: " << std::endl;
-  lhs->print(depth + 2);
-  std::cout << pad(depth + 1)
-            << "operation: " << comparison_operation_to_string(operation)
-            << std::endl;
-  std::cout << pad(depth + 1) << "rhs: " << std::endl;
-  rhs->print(depth + 2);
-  std::cout << pad(depth) << "}" << std::endl;
-}
-
 void VariableExpr::print(const size_t depth) const {
   std::cout << pad(depth) << "VariableExpr(" << variable.name << ")";
   if (type != Type::Unknown)

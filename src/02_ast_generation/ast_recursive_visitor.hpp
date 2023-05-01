@@ -13,7 +13,6 @@ struct Procedure;
 struct VariableLValueExpr;
 struct DereferenceLValueExpr;
 struct AssignmentExpr;
-struct TestExpr;
 struct VariableExpr;
 struct LiteralExpr;
 struct BinaryExpr;
@@ -38,7 +37,6 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(VariableLValueExpr &) {}
   virtual void pre_visit(DereferenceLValueExpr &) {}
   virtual void pre_visit(AssignmentExpr &) {}
-  virtual void pre_visit(TestExpr &) {}
   virtual void pre_visit(VariableExpr &) {}
   virtual void pre_visit(LiteralExpr &) {}
   virtual void pre_visit(BinaryExpr &) {}
@@ -59,7 +57,6 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(VariableLValueExpr &) {}
   virtual void post_visit(DereferenceLValueExpr &) {}
   virtual void post_visit(AssignmentExpr &) {}
-  virtual void post_visit(TestExpr &) {}
   virtual void post_visit(VariableExpr &) {}
   virtual void post_visit(LiteralExpr &) {}
   virtual void post_visit(BinaryExpr &) {}
