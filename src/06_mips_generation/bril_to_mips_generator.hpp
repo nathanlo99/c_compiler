@@ -169,13 +169,13 @@ private:
     }
 
     if (uses_heap) {
-      import("init");
-      import("new");
-      import("delete");
+      import_module("init");
+      import_module("new");
+      import_module("delete");
     }
 
     if (uses_print) {
-      import("print");
+      import_module("print");
     }
 
     // Initialize constants and set the base pointer

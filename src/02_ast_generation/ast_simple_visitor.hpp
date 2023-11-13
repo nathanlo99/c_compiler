@@ -36,25 +36,49 @@ struct DeleteStatement;
 struct ASTSimpleVisitor {
   virtual ~ASTSimpleVisitor() = default;
 
-  virtual void visit(Program &);
-  virtual void visit(Procedure &);
-  virtual void visit(VariableLValueExpr &);
-  virtual void visit(DereferenceLValueExpr &);
-  virtual void visit(AssignmentExpr &);
-  virtual void visit(VariableExpr &);
-  virtual void visit(LiteralExpr &);
-  virtual void visit(BinaryExpr &);
-  virtual void visit(BooleanOrExpr &);
-  virtual void visit(BooleanAndExpr &);
-  virtual void visit(AddressOfExpr &);
-  virtual void visit(DereferenceExpr &);
-  virtual void visit(NewExpr &);
-  virtual void visit(FunctionCallExpr &);
-  virtual void visit(Statements &);
-  virtual void visit(ExprStatement &);
-  virtual void visit(AssignmentStatement &);
-  virtual void visit(IfStatement &);
-  virtual void visit(WhileStatement &);
-  virtual void visit(PrintStatement &);
-  virtual void visit(DeleteStatement &);
+  virtual void visit(Program &) = 0;
+  virtual void visit(Procedure &) = 0;
+  virtual void visit(VariableLValueExpr &) = 0;
+  virtual void visit(DereferenceLValueExpr &) = 0;
+  virtual void visit(AssignmentExpr &) = 0;
+  virtual void visit(VariableExpr &) = 0;
+  virtual void visit(LiteralExpr &) = 0;
+  virtual void visit(BinaryExpr &) = 0;
+  virtual void visit(BooleanOrExpr &) = 0;
+  virtual void visit(BooleanAndExpr &) = 0;
+  virtual void visit(AddressOfExpr &) = 0;
+  virtual void visit(DereferenceExpr &) = 0;
+  virtual void visit(NewExpr &) = 0;
+  virtual void visit(FunctionCallExpr &) = 0;
+  virtual void visit(Statements &) = 0;
+  virtual void visit(ExprStatement &) = 0;
+  virtual void visit(AssignmentStatement &) = 0;
+  virtual void visit(IfStatement &) = 0;
+  virtual void visit(WhileStatement &) = 0;
+  virtual void visit(PrintStatement &) = 0;
+  virtual void visit(DeleteStatement &) = 0;
 };
+
+/* Template:
+  void visit(Program &) override {}
+  void visit(Procedure &) override {}
+  void visit(VariableLValueExpr &) override {}
+  void visit(DereferenceLValueExpr &) override {}
+  void visit(AssignmentExpr &) override {}
+  void visit(VariableExpr &) override {}
+  void visit(LiteralExpr &) override {}
+  void visit(BinaryExpr &) override {}
+  void visit(BooleanOrExpr &) override {}
+  void visit(BooleanAndExpr &) override {}
+  void visit(AddressOfExpr &) override {}
+  void visit(DereferenceExpr &) override {}
+  void visit(NewExpr &) override {}
+  void visit(FunctionCallExpr &) override {}
+  void visit(Statements &) override {}
+  void visit(ExprStatement &) override {}
+  void visit(AssignmentStatement &) override {}
+  void visit(IfStatement &) override {}
+  void visit(WhileStatement &) override {}
+  void visit(PrintStatement &) override {}
+  void visit(DeleteStatement &) override {}
+*/

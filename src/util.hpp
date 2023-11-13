@@ -19,9 +19,9 @@
     throw std::runtime_error(fmt::format("{}:{} -- ", __FILE__, __LINE__) +    \
                              fmt::format(message, ##__VA_ARGS__));
 
-#define unreachable(message)                                                   \
+#define unreachable(message, ...)                                              \
   do {                                                                         \
-    debug_assert(false, "Should be unreachable: {}", message);                 \
+    debug_assert(false, "Should be unreachable: {}", message, ##__VA_ARGS__);  \
     __builtin_unreachable();                                                   \
   } while (0)
 

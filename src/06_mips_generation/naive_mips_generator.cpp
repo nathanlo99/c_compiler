@@ -19,13 +19,13 @@ void NaiveMIPSGenerator::visit(Program &program) {
   }
 
   if (table.use_memory) {
-    import("init");
-    import("new");
-    import("delete");
+    import_module("init");
+    import_module("new");
+    import_module("delete");
   }
 
   if (table.use_print) {
-    import("print");
+    import_module("print");
     load_const(Reg::R10, "print");
   }
 
@@ -176,9 +176,24 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
   case BinaryOperation::Mod:
     mod(Reg::R3, Reg::R5, Reg::R3);
     break;
-  default:
-    debug_assert(false, "Unknown binary operation");
+  case BinaryOperation::Equal:
+  case BinaryOperation::NotEqual:
+  case BinaryOperation::LessThan:
+  case BinaryOperation::LessEqual:
+  case BinaryOperation::GreaterThan:
+  case BinaryOperation::GreaterEqual:
+    debug_assert(false, "Comparison operators should be handled in if/while");
   }
+}
+
+void NaiveMIPSGenerator::visit(BooleanAndExpr &) {
+  // TODO(nathanlo):
+  debug_assert(false, "TODO: Unimplemented");
+}
+
+void NaiveMIPSGenerator::visit(BooleanOrExpr &) {
+  // TODO(nathanlo):
+  debug_assert(false, "TODO: Unimplemented");
 }
 
 void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {

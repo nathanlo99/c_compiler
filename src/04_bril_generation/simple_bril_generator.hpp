@@ -26,6 +26,8 @@ struct SimpleBRILGenerator : BRILGenerator, ASTSimpleVisitor {
   void visit(VariableExpr &) override;
   void visit(LiteralExpr &) override;
   void visit(BinaryExpr &) override;
+  void visit(BooleanAndExpr &) override;
+  void visit(BooleanOrExpr &) override;
   void visit(AddressOfExpr &) override;
   void visit(DereferenceExpr &) override;
   void visit(NewExpr &) override;

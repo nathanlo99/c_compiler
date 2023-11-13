@@ -466,41 +466,45 @@ void compute_aliases(const std::string &filename) {
   // std::cout << program << std::endl;
 }
 
-int main(int argc, char **argv) {
+const static std::vector<
+    std::pair<std::string, std::function<void(const std::string &)>>>
+    options = {
+        {"--default", generate_mips},
+        {"--debug", inline_functions},
+        {"--lex", lex},
+        {"--parse", parse},
+        {"--build-ast", build_ast},
+        {"--bril", emit_bril},
+        {"--compute-dominators", compute_dominators},
+        {"--bare-interpret", bare_interpret},
+        {"--interpret", interpret},
+        {"--round-trip-interpret", round_trip_interpret},
+        {"--emit-c", emit_c},
+        {"--ssa", to_ssa},
+        {"--ssa-round-trip", ssa_round_trip},
+        {"--liveness", compute_liveness},
+        {"--compute-rig", compute_rig},
+        {"--allocate-registers", allocate_registers},
+        {"--compute-call-graph", compute_call_graph},
+        {"--emit-naive-mips", emit_naive_mips},
+        {"--emit-mips", generate_mips},
+        {"--inline-functions", inline_functions},
+        {"--benchmark", benchmark},
+
+        // Experimental options
+        {"--augmented-cfg", test_augmented_cfg},
+        {"--compute-aliases", compute_aliases},
+};
+const static std::map<std::string, std::function<void(const std::string &)>>
+    options_map(options.begin(), options.end());
+
+int main(int argc, char *argv[]) {
   try {
     debug_assert(argc >= 2, "Expected a filename");
-    const std::string argument = argc > 2 ? argv[2] : "--debug",
+    const std::string argument = argc > 2 ? argv[2] : "--default",
                       filename = argv[1];
 
-    const std::map<std::string, std::function<void(const std::string &)>>
-        options = {
-            {"--debug", inline_functions},
-            {"--lex", lex},
-            {"--parse", parse},
-            {"--build-ast", build_ast},
-            {"--bril", emit_bril},
-            {"--compute-dominators", compute_dominators},
-            {"--bare-interpret", bare_interpret},
-            {"--interpret", interpret},
-            {"--round-trip-interpret", round_trip_interpret},
-            {"--emit-c", emit_c},
-            {"--ssa", to_ssa},
-            {"--ssa-round-trip", ssa_round_trip},
-            {"--liveness", compute_liveness},
-            {"--compute-rig", compute_rig},
-            {"--allocate-registers", allocate_registers},
-            {"--compute-call-graph", compute_call_graph},
-            {"--emit-naive-mips", emit_naive_mips},
-            {"--emit-mips", generate_mips},
-            {"--inline-functions", inline_functions},
-            {"--benchmark", benchmark},
-
-            // Experimental options
-            {"--augmented-cfg", test_augmented_cfg},
-            {"--compute-aliases", compute_aliases},
-        };
-
-    if (options.count(argument) == 0) {
+    if (options_map.count(argument) == 0) {
       fmt::print(stderr, "Unknown option: {}\n", argument);
       fmt::print(stderr, "Options are:\n");
       for (const auto &[option, _] : options) {
@@ -510,7 +514,7 @@ int main(int argc, char **argv) {
     }
 
     Timer::start("Total");
-    options.at(argument)(filename);
+    options_map.at(argument)(filename);
     Timer::stop("Total");
 
     Timer::print(std::cerr, 5.0);

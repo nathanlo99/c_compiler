@@ -333,7 +333,7 @@ public:
   static MIPSInstruction label(const std::string &name) {
     return MIPSInstruction(name);
   }
-  static MIPSInstruction import(const std::string &value) {
+  static MIPSInstruction import_module(const std::string &value) {
     return MIPSInstruction(Opcode::Import, Reg::R0, Reg::R0, Reg::R0, 0, true,
                            value);
   }

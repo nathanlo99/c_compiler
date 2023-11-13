@@ -38,8 +38,8 @@ Opcode GVNTable::get_opcode(const size_t idx) const {
 
 std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
                                                   const Opcode opcode,
-                                                  const size_t lhs,
-                                                  const size_t rhs) const {
+                                                  const size_t lhs_idx,
+                                                  const size_t rhs_idx) const {
   // Assume the operands are already simplified, and their order is
   // canonicalized so the rhs is always the less complex one
 
@@ -77,8 +77,8 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
   if (foldable_ops.count(opcode) == 0)
     return std::nullopt;
 
-  const GVNValue &lhs_value = expressions[lhs];
-  const GVNValue &rhs_value = expressions[rhs];
+  const GVNValue &lhs_value = expressions[lhs_idx];
+  const GVNValue &rhs_value = expressions[rhs_idx];
   const bool lhs_is_const = lhs_value.opcode == Opcode::Const;
   const bool rhs_is_const = rhs_value.opcode == Opcode::Const;
   const int lhs_integer = lhs_value.value;
@@ -88,7 +88,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
 
   if (!all_constants) {
     // If the two arguments are the same, we might be able to simplify
-    if (cancellable_ops.count(opcode) > 0 && lhs == rhs) {
+    if (cancellable_ops.count(opcode) > 0 && lhs_idx == rhs_idx) {
       const int result = cancellable_ops.at(opcode);
       return GVNValue(result, type);
     }
@@ -104,14 +104,15 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
     const auto reverse_it = reverse_operation.find(opcode);
     if (reverse_it != reverse_operation.end()) {
       const Opcode reverse_opcode = reverse_it->second;
-      if (lhs_value.opcode == reverse_opcode && lhs_value.arguments[1] == rhs) {
+      if (lhs_value.opcode == reverse_opcode &&
+          lhs_value.arguments[1] == rhs_idx) {
         return expressions[lhs_value.arguments[0]];
       }
     }
 
     // (a * b) % b == 0
     if (opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul &&
-        lhs_value.arguments[1] == rhs) {
+        lhs_value.arguments[1] == rhs_idx) {
       return GVNValue(0, type);
     }
 
@@ -132,9 +133,9 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
         return GVNValue(0, type);
       if (rhs_integer == 1 && opcode == Opcode::Mul)
         return lhs_value;
-      if (rhs == 1 && opcode == Opcode::Div)
+      if (rhs_integer == 1 && opcode == Opcode::Div)
         return lhs_value;
-      if (rhs == 1 && opcode == Opcode::Mod)
+      if (rhs_integer == 1 && opcode == Opcode::Mod)
         return GVNValue(0, type);
     }
     return std::nullopt;

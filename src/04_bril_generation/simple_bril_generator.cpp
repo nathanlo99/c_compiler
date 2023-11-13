@@ -136,6 +136,16 @@ void SimpleBRILGenerator::visit(BinaryExpr &expr) {
   }
 }
 
+void SimpleBRILGenerator::visit(BooleanAndExpr &) {
+  // TODO: Implement this
+  unreachable("Unimplemented");
+}
+
+void SimpleBRILGenerator::visit(BooleanOrExpr &) {
+  // TODO: Implement this
+  unreachable("Unimplemented");
+}
+
 void SimpleBRILGenerator::visit(AddressOfExpr &expr) {
   const std::string argument = expr.argument->variable.name;
   const std::string destination = temp();

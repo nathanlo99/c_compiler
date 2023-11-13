@@ -248,8 +248,8 @@ struct MIPSGenerator {
   void label(const std::string &name) {
     instructions.push_back(MIPSInstruction::label(name));
   }
-  void import(const std::string &value) {
-    instructions.push_back(MIPSInstruction::import(value));
+  void import_module(const std::string &value) {
+    instructions.push_back(MIPSInstruction::import_module(value));
   }
   void comment(const std::string &value) {
     instructions.push_back(MIPSInstruction::comment(value));
