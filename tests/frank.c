@@ -8,6 +8,4 @@ int f(int a) {
   return result;
 }
 
-int wain(int a, int b) {
-  return f(f(f(100000)));
-}
+int wain(int a, int b) { return f(f(f(100000))); }

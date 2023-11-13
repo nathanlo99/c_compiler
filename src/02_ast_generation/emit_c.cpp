@@ -18,7 +18,8 @@ void Statements::emit_c(std::ostream &os, const size_t indent_level) const {
 }
 
 void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
-  os << pad(indent_level) << "int " << name << "(";
+  debug_assert(indent_level == 0, "Indent level for procedure should be 0");
+  os << pad(indent_level) << return_type << " " << name << "(";
   for (size_t i = 0; i < params.size(); ++i) {
     const auto &variable = params[i];
     os << type_to_string(variable.type) << " " << variable.name;
