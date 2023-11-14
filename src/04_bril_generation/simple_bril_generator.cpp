@@ -136,14 +136,40 @@ void SimpleBRILGenerator::visit(BinaryExpr &expr) {
   }
 }
 
-void SimpleBRILGenerator::visit(BooleanAndExpr &) {
-  // TODO: Implement this
-  unreachable("Unimplemented");
+void SimpleBRILGenerator::visit(BooleanAndExpr &expr) {
+  const std::string destination = temp();
+  const std::string continue_computing_label = generate_label("andContinue");
+  const std::string done_label = generate_label("andDone");
+
+  constant(destination, Literal(0, ::Type::Int));
+  expr.lhs->accept_simple(*this);
+  const std::string lhs_variable = last_result();
+  br(lhs_variable, continue_computing_label, done_label);
+
+  label(continue_computing_label);
+  expr.rhs->accept_simple(*this);
+  const std::string rhs_variable = last_result();
+  id(destination, rhs_variable, Type::Int);
+
+  label(done_label);
 }
 
-void SimpleBRILGenerator::visit(BooleanOrExpr &) {
-  // TODO: Implement this
-  unreachable("Unimplemented");
+void SimpleBRILGenerator::visit(BooleanOrExpr &expr) {
+  const std::string destination = temp();
+  const std::string continue_computing_label = generate_label("orContinue");
+  const std::string done_label = generate_label("orDone");
+
+  constant(destination, Literal(1, ::Type::Int));
+  expr.lhs->accept_simple(*this);
+  const std::string lhs_variable = last_result();
+  br(lhs_variable, done_label, continue_computing_label);
+
+  label(continue_computing_label);
+  expr.rhs->accept_simple(*this);
+  const std::string rhs_variable = last_result();
+  id(destination, rhs_variable, Type::Int);
+
+  label(done_label);
 }
 
 void SimpleBRILGenerator::visit(AddressOfExpr &expr) {

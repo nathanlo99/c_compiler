@@ -176,24 +176,62 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
   case BinaryOperation::Mod:
     mod(Reg::R3, Reg::R5, Reg::R3);
     break;
-  case BinaryOperation::Equal:
-  case BinaryOperation::NotEqual:
+  case BinaryOperation::Equal: {
+    const std::string equal_label = generate_label("equalEqual");
+    const std::string done_label = generate_label("equalEnd");
+
+    beq(Reg::R5, Reg::R3, equal_label);
+    add(Reg::R3, Reg::R0, Reg::R0);
+    beq(Reg::R0, Reg::R0, done_label);
+
+    label(equal_label);
+    add(Reg::R3, Reg::R0, Reg::R11);
+
+    label(done_label);
+  } break;
+  case BinaryOperation::NotEqual: {
+    const std::string equal_label = generate_label("equalEqual");
+    const std::string done_label = generate_label("equalEnd");
+
+    beq(Reg::R5, Reg::R3, equal_label);
+    add(Reg::R3, Reg::R0, Reg::R11);
+    beq(Reg::R0, Reg::R0, done_label);
+
+    label(equal_label);
+    add(Reg::R3, Reg::R0, Reg::R0);
+
+    label(done_label);
+  } break;
   case BinaryOperation::LessThan:
+    slt(Reg::R3, Reg::R5, Reg::R3);
+    break;
   case BinaryOperation::LessEqual:
+    slt(Reg::R3, Reg::R3, Reg::R5);  // $3 =   $3 < $5   = (rhs < lhs)
+    sub(Reg::R3, Reg::R11, Reg::R3); // $3 =    not $3   = (rhs >= lhs)
+    break;
   case BinaryOperation::GreaterThan:
+    slt(Reg::R3, Reg::R3, Reg::R5);
+    break;
   case BinaryOperation::GreaterEqual:
-    debug_assert(false, "Comparison operators should be handled in if/while");
+    slt(Reg::R3, Reg::R5, Reg::R3);  // $3 =   $5 < $3   = (lhs < rhs)
+    sub(Reg::R3, Reg::R11, Reg::R3); // $3 =    not $3   = (lhs >= rhs)
   }
 }
 
-void NaiveMIPSGenerator::visit(BooleanAndExpr &) {
-  // TODO(nathanlo):
-  debug_assert(false, "TODO: Unimplemented");
+void NaiveMIPSGenerator::visit(BooleanAndExpr &expr) {
+  const auto stop_label = generate_label("andStop");
+  expr.lhs->accept_simple(*this);
+  beq(Reg::R3, Reg::R0, stop_label);
+  expr.rhs->accept_simple(*this);
+  label(stop_label);
 }
 
-void NaiveMIPSGenerator::visit(BooleanOrExpr &) {
-  // TODO(nathanlo):
-  debug_assert(false, "TODO: Unimplemented");
+void NaiveMIPSGenerator::visit(BooleanOrExpr &expr) {
+  const auto stop_label = generate_label("orStop");
+  expr.lhs->accept_simple(*this);
+  bne(Reg::R3, Reg::R0, stop_label);
+  expr.rhs->accept_simple(*this);
+  label(stop_label);
 }
 
 void NaiveMIPSGenerator::visit(AddressOfExpr &expr) {
