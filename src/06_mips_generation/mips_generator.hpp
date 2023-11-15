@@ -233,6 +233,9 @@ struct MIPSGenerator {
   void beq(Reg s, Reg t, const std::string &label) {
     instructions.push_back(MIPSInstruction::beq(s, t, label));
   }
+  void jmp(int32_t i) { beq(Reg::R0, Reg::R0, i); }
+  void jmp(const std::string &label) { beq(Reg::R0, Reg::R0, label); }
+
   void bne(Reg s, Reg t, int32_t i) {
     instructions.push_back(MIPSInstruction::bne(s, t, i));
   }

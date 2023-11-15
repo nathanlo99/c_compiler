@@ -30,7 +30,7 @@ void NaiveMIPSGenerator::visit(Program &program) {
   }
 
   init_constants();
-  beq(Reg::R0, Reg::R0, "wain");
+  jmp("wain");
   annotate("Done prologue, jumping to wain");
 
   for (auto &procedure : program.procedures) {
@@ -182,7 +182,7 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
 
     beq(Reg::R5, Reg::R3, equal_label);
     add(Reg::R3, Reg::R0, Reg::R0);
-    beq(Reg::R0, Reg::R0, done_label);
+    jmp(done_label);
 
     label(equal_label);
     add(Reg::R3, Reg::R0, Reg::R11);
@@ -195,7 +195,7 @@ void NaiveMIPSGenerator::visit(BinaryExpr &expr) {
 
     beq(Reg::R5, Reg::R3, equal_label);
     add(Reg::R3, Reg::R0, Reg::R11);
-    beq(Reg::R0, Reg::R0, done_label);
+    jmp(done_label);
 
     label(equal_label);
     add(Reg::R3, Reg::R0, Reg::R0);
@@ -349,7 +349,7 @@ void NaiveMIPSGenerator::visit(IfStatement &statement) {
   }
 
   statement.true_statements.accept_simple(*this);
-  beq(Reg::R0, Reg::R0, endif_label);
+  jmp(endif_label);
   label(else_label);
   statement.false_statements.accept_simple(*this);
   label(endif_label);
@@ -398,12 +398,12 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
     beq(Reg::R3, Reg::R5, end_label);
   } break;
   default: {
-    unreachable("Non-canonical comparison operation");
+    unreachable("Binary operation in while statement was not boolean");
   } break;
   }
 
   statement.body_statement->accept_simple(*this);
-  beq(Reg::R0, Reg::R0, loop_label);
+  jmp(loop_label);
   label(end_label);
 }
 
