@@ -190,7 +190,7 @@ void EarleyTable::report_error(const size_t i) const {
       expected_symbols.insert(expected);
   }
 
-  std::stringstream ss;
+  std::ostringstream ss;
   ss << "Parse error at " << i << " (" << token_stream[i - 1] << "): expected ";
   if (expected_symbols.empty()) {
     ss << "end of file";

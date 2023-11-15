@@ -167,7 +167,7 @@ NFA construct_nfa() {
   const std::string digits = "0" + non_zero_digits;
   const std::string alphanumeric = letters + digits;
   const std::string not_new_line = []() {
-    std::stringstream result("\t\r");
+    std::ostringstream result("\t\r");
     for (char k = 32; k > 0; ++k)
       result << k;
     return result.str();

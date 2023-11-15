@@ -431,9 +431,9 @@ public:
     case Opcode::Lis:
     case Opcode::Slt:
     case Opcode::Sltu:
-      return {d};
+      return d;
     case Opcode::Lw:
-      return {t};
+      return t;
     case Opcode::Mult:
     case Opcode::Multu:
     case Opcode::Div:
@@ -447,17 +447,17 @@ public:
     case Opcode::Label:
     case Opcode::Import:
     case Opcode::Comment:
-      return {};
+      return std::nullopt;
     default:
       unreachable("Unknown opcode");
     }
-    return {};
+    return std::nullopt;
   }
 
   std::string to_string() const {
-    std::stringstream ss;
+    std::ostringstream ss;
     const std::string name = opcode_to_string(opcode);
-    const int instruction_width = 32;
+    constexpr int instruction_width = 32;
     switch (opcode) {
     case Opcode::Add:
     case Opcode::Sub:

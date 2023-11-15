@@ -130,7 +130,7 @@ operator<<(std::ostream &os, const std::unordered_map<T, U, Hash> &dict) {
 }
 
 inline std::vector<std::string> split(const std::string &str) {
-  std::stringstream ss(str);
+  std::istringstream ss(str);
   std::string token;
   std::vector<std::string> result;
   while (ss >> token)

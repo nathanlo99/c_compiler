@@ -10,6 +10,17 @@ int max(int a, int b) {
 }
 
 int min(int a, int b) { return a + b - max(a, b); }
-int pythagoras(int a, int b) { return square(min(a, b)) + square(max(a, b)); }
 
-int wain(int a, int b) { return pythagoras(3, 4); }
+int sqrt(int n) {
+  int ans = 0;
+  while (ans * ans < n) {
+    ans = ans + 1;
+  }
+  return ans;
+}
+
+int pythagoras(int a, int b) {
+  return sqrt(square(min(a, b)) + square(max(a, b)));
+}
+
+int wain(int a, int b) { return cube(pythagoras(3, 4)); }

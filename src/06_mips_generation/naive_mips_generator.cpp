@@ -296,7 +296,7 @@ void NaiveMIPSGenerator::visit(ExprStatement &statement) {
 }
 
 void NaiveMIPSGenerator::visit(AssignmentStatement &statement) {
-  std::stringstream ss;
+  std::ostringstream ss;
   statement.emit_c(ss, 0);
   comment(ss.str());
   if (const auto lvalue =

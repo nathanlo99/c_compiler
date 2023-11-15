@@ -337,7 +337,7 @@ struct Instruction {
   }
 
   inline std::string to_string() const {
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << *this;
     return ss.str();
   }

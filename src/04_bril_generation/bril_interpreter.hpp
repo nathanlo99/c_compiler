@@ -323,7 +323,7 @@ struct fmt::formatter<bril::interpreter::BRILValue>
   template <typename FormatContext>
   auto format(const bril::interpreter::BRILValue &value,
               FormatContext &ctx) const {
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << value;
     fmt::formatter<std::string>::format(ss.str(), ctx);
   }

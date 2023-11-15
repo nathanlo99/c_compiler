@@ -29,17 +29,20 @@
 #include "parse_node.hpp"
 #include <memory>
 
-std::string read_file(const std::string &filename) {
-  std::ifstream ifs(filename);
-  debug_assert(ifs.good(), "Cannot open file {}", filename);
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
+std::string consume_stdin() {
+  std::ostringstream buffer;
+  buffer << std::cin.rdbuf();
   return buffer.str();
 }
 
-std::string consume_stdin() {
-  std::stringstream buffer;
-  buffer << std::cin.rdbuf();
+std::string read_file(const std::string &filename) {
+  if (filename == "-")
+    return consume_stdin();
+
+  std::ifstream ifs(filename);
+  debug_assert(ifs.good(), "Cannot open file {}", filename);
+  std::ostringstream buffer;
+  buffer << ifs.rdbuf();
   return buffer.str();
 }
 
@@ -467,7 +470,7 @@ void compute_aliases(const std::string &filename) {
 }
 
 const static std::vector<
-    std::pair<std::string, std::function<void(const std::string &)>>>
+    std::pair<std::string, std::function<void(const std::string &filename)>>>
     options = {
         {"--default", generate_mips},
         {"--debug", inline_functions},
