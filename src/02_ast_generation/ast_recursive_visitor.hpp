@@ -31,6 +31,8 @@ struct IfStatement;
 struct WhileStatement;
 struct PrintStatement;
 struct DeleteStatement;
+struct BreakStatement;
+struct ContinueStatement;
 
 struct ASTRecursiveVisitor {
   virtual ~ASTRecursiveVisitor() = default;
@@ -54,8 +56,11 @@ struct ASTRecursiveVisitor {
   virtual void pre_visit(AssignmentStatement &) = 0;
   virtual void pre_visit(IfStatement &) = 0;
   virtual void pre_visit(WhileStatement &) = 0;
+  virtual void pre_visit(ForStatement &) = 0;
   virtual void pre_visit(PrintStatement &) = 0;
   virtual void pre_visit(DeleteStatement &) = 0;
+  virtual void pre_visit(BreakStatement &) = 0;
+  virtual void pre_visit(ContinueStatement &) = 0;
 
   virtual void post_visit(Program &) = 0;
   virtual void post_visit(Procedure &) = 0;
@@ -76,8 +81,11 @@ struct ASTRecursiveVisitor {
   virtual void post_visit(AssignmentStatement &) = 0;
   virtual void post_visit(IfStatement &) = 0;
   virtual void post_visit(WhileStatement &) = 0;
+  virtual void post_visit(ForStatement &) = 0;
   virtual void post_visit(PrintStatement &) = 0;
   virtual void post_visit(DeleteStatement &) = 0;
+  virtual void post_visit(BreakStatement &) = 0;
+  virtual void post_visit(ContinueStatement &) = 0;
 };
 
 /*

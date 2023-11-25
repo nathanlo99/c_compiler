@@ -1,6 +1,7 @@
 
 #include "naive_mips_generator.hpp"
 #include "ast_node.hpp"
+#include "ast_simple_visitor.hpp"
 #include "mips_instruction.hpp"
 #include "util.hpp"
 #include <memory>
@@ -359,6 +360,8 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   const auto loop_label = generate_label("whileloop");
   const auto end_label = generate_label("whileend");
 
+  push_loop(loop_label, end_label);
+
   const auto &test_expr = statement.test_expression;
   const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
                              test_expr->rhs->type == Type::IntStar;
@@ -405,6 +408,69 @@ void NaiveMIPSGenerator::visit(WhileStatement &statement) {
   statement.body_statement->accept_simple(*this);
   jmp(loop_label);
   label(end_label);
+
+  pop_loop();
+}
+
+void NaiveMIPSGenerator::visit(ForStatement &statement) {
+  const auto loop_label = generate_label("whileloop");
+  const auto update_label = generate_label("whileupdate");
+  const auto end_label = generate_label("whileend");
+
+  const auto &test_expr = statement.test_expression;
+  const bool uses_pointers = test_expr->lhs->type == Type::IntStar ||
+                             test_expr->rhs->type == Type::IntStar;
+  const auto &compare = [&](const Reg d, const Reg s, const Reg t) {
+    uses_pointers ? sltu(d, s, t) : slt(d, s, t);
+  };
+
+  statement.init_expression->accept_simple(*this);
+
+  push_loop(update_label, end_label);
+
+  label(loop_label);
+  test_expr->lhs->accept_simple(*this);
+  push(Reg::R3);
+  test_expr->rhs->accept_simple(*this);
+  pop(Reg::R5);
+
+  // $5 = lhs, $3 = rhs
+  // Jump to end if the condition is false
+  switch (test_expr->operation) {
+  case BinaryOperation::LessThan: {
+    compare(Reg::R3, Reg::R5, Reg::R3);
+    beq(Reg::R3, Reg::R0, end_label);
+  } break;
+  case BinaryOperation::LessEqual: {
+    compare(Reg::R3, Reg::R3, Reg::R5);
+    bne(Reg::R3, Reg::R0, end_label);
+  } break;
+  case BinaryOperation::GreaterThan: {
+    compare(Reg::R3, Reg::R3, Reg::R5);
+    beq(Reg::R3, Reg::R0, end_label);
+  } break;
+  case BinaryOperation::GreaterEqual: {
+    compare(Reg::R3, Reg::R5, Reg::R3);
+    bne(Reg::R3, Reg::R0, end_label);
+  } break;
+  case BinaryOperation::Equal: {
+    bne(Reg::R3, Reg::R5, end_label);
+  } break;
+  case BinaryOperation::NotEqual: {
+    beq(Reg::R3, Reg::R5, end_label);
+  } break;
+  default: {
+    unreachable("Binary operation in while statement was not boolean");
+  } break;
+  }
+
+  statement.body_statement->accept_simple(*this);
+  label(update_label);
+  statement.update_expression->accept_simple(*this);
+  jmp(loop_label);
+  label(end_label);
+
+  pop_loop();
 }
 
 void NaiveMIPSGenerator::visit(PrintStatement &statement) {
@@ -424,4 +490,10 @@ void NaiveMIPSGenerator::visit(DeleteStatement &statement) {
   load_and_jalr(Reg::R5, "delete");
   pop(Reg::R31);
   label(skip_label);
+}
+
+void NaiveMIPSGenerator::visit(BreakStatement &) { jmp(get_break_label()); }
+
+void NaiveMIPSGenerator::visit(ContinueStatement &) {
+  jmp(get_continue_label());
 }

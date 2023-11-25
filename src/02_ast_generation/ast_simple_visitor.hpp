@@ -30,8 +30,11 @@ struct ExprStatement;
 struct AssignmentStatement;
 struct IfStatement;
 struct WhileStatement;
+struct ForStatement;
 struct PrintStatement;
 struct DeleteStatement;
+struct BreakStatement;
+struct ContinueStatement;
 
 struct ASTSimpleVisitor {
   virtual ~ASTSimpleVisitor() = default;
@@ -55,8 +58,11 @@ struct ASTSimpleVisitor {
   virtual void visit(AssignmentStatement &) = 0;
   virtual void visit(IfStatement &) = 0;
   virtual void visit(WhileStatement &) = 0;
+  virtual void visit(ForStatement &) = 0;
   virtual void visit(PrintStatement &) = 0;
   virtual void visit(DeleteStatement &) = 0;
+  virtual void visit(BreakStatement &) = 0;
+  virtual void visit(ContinueStatement &) = 0;
 };
 
 /* Template:
@@ -79,6 +85,9 @@ struct ASTSimpleVisitor {
   void visit(AssignmentStatement &) override {}
   void visit(IfStatement &) override {}
   void visit(WhileStatement &) override {}
+  void visit(ForStatement &) override {}
   void visit(PrintStatement &) override {}
   void visit(DeleteStatement &) override {}
+  void visit(BreakStatement &) override {}
+  void visit(ContinueStatement &) override {}
 */

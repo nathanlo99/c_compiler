@@ -273,6 +273,8 @@ std::unordered_map<std::string, TokenKind> get_keywords() {
     result["new"] = TokenKind::New;
     result["delete"] = TokenKind::Delete;
     result["NULL"] = TokenKind::Null;
+    result["break"] = TokenKind::Break;
+    result["continue"] = TokenKind::Continue;
     return result;
   }();
   return keywords;

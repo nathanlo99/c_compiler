@@ -172,6 +172,18 @@ void WhileStatement::emit_c(std::ostream &os, const size_t indent_level) const {
   os << pad(indent_level) << "}" << std::endl;
 }
 
+void ForStatement::emit_c(std::ostream &os, const size_t indent_level) const {
+  os << pad(indent_level) << "for (";
+  init_expression->emit_c(os, 0);
+  os << "; ";
+  test_expression->emit_c(os, 0);
+  os << "; ";
+  update_expression->emit_c(os, 0);
+  os << ") {" << std::endl;
+  body_statement->emit_c(os, indent_level + 1);
+  os << pad(indent_level) << "}" << std::endl;
+}
+
 void PrintStatement::emit_c(std::ostream &os, const size_t indent_level) const {
   os << pad(indent_level) << "println(";
   expression->emit_c(os, 0);
@@ -183,4 +195,13 @@ void DeleteStatement::emit_c(std::ostream &os,
   os << pad(indent_level) << "delete[] ";
   expression->emit_c(os, 0);
   os << ";" << std::endl;
+}
+
+void BreakStatement::emit_c(std::ostream &os, const size_t indent_level) const {
+  os << pad(indent_level) << "break;" << std::endl;
+}
+
+void ContinueStatement::emit_c(std::ostream &os,
+                               const size_t indent_level) const {
+  os << pad(indent_level) << "continue;" << std::endl;
 }

@@ -255,6 +255,8 @@ void SimpleBRILGenerator::visit(WhileStatement &statement) {
   const std::string end_label = generate_label("whileEnd");
   const std::string body_label = generate_label("whileBody");
 
+  push_loop(loop_label, end_label);
+
   label(loop_label);
   statement.test_expression->accept_simple(*this);
   const std::string cond = last_result();
@@ -263,6 +265,32 @@ void SimpleBRILGenerator::visit(WhileStatement &statement) {
   statement.body_statement->accept_simple(*this);
   jmp(loop_label);
   label(end_label);
+
+  pop_loop();
+}
+
+void SimpleBRILGenerator::visit(ForStatement &statement) {
+  const std::string loop_label = generate_label("forLoop");
+  const std::string end_label = generate_label("forEnd");
+  const std::string update_label = generate_label("forUpdate");
+  const std::string body_label = generate_label("forBody");
+
+  statement.init_expression->accept_simple(*this);
+
+  push_loop(update_label, end_label);
+
+  label(loop_label);
+  statement.test_expression->accept_simple(*this);
+  const std::string cond = last_result();
+  br(cond, body_label, end_label);
+  label(body_label);
+  statement.body_statement->accept_simple(*this);
+  label(update_label);
+  statement.update_expression->accept_simple(*this);
+  jmp(loop_label);
+  label(end_label);
+
+  pop_loop();
 }
 
 void SimpleBRILGenerator::visit(PrintStatement &statement) {
@@ -277,4 +305,18 @@ void SimpleBRILGenerator::visit(DeleteStatement &statement) {
   free(result);
 }
 
+void SimpleBRILGenerator::visit(BreakStatement &) {
+  jmp(get_break_label());
+  const std::string break_label = generate_label("postBreak");
+  label(break_label);
+}
+
+void SimpleBRILGenerator::visit(ContinueStatement &) {
+  jmp(get_continue_label());
+  const std::string continue_label = generate_label("postContinue");
+  label(continue_label);
+}
+
 } // namespace bril
+
+// namespace bril

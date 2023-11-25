@@ -213,6 +213,19 @@ void WhileStatement::print(const size_t depth) const {
   std::cout << pad(depth) << "}" << std::endl;
 }
 
+void ForStatement::print(const size_t depth) const {
+  std::cout << pad(depth) << "ForStatement {" << std::endl;
+  std::cout << pad(depth + 1) << "initialization: " << std::endl;
+  init_expression->print(depth + 2);
+  std::cout << pad(depth + 1) << "condition: " << std::endl;
+  test_expression->print(depth + 2);
+  std::cout << pad(depth + 1) << "increment: " << std::endl;
+  update_expression->print(depth + 2);
+  std::cout << pad(depth + 1) << "body: " << std::endl;
+  body_statement->print(depth + 2);
+  std::cout << pad(depth) << "}" << std::endl;
+}
+
 void PrintStatement::print(const size_t depth) const {
   std::cout << pad(depth) << "PrintStatement {" << std::endl;
   expression->print(depth + 1);
@@ -223,4 +236,12 @@ void DeleteStatement::print(const size_t depth) const {
   std::cout << pad(depth) << "DeleteStatement {" << std::endl;
   expression->print(depth + 1);
   std::cout << pad(depth) << "}" << std::endl;
+}
+
+void BreakStatement::print(const size_t depth) const {
+  std::cout << pad(depth) << "BreakStatement" << std::endl;
+}
+
+void ContinueStatement::print(const size_t depth) const {
+  std::cout << pad(depth) << "ContinueStatement" << std::endl;
 }

@@ -126,6 +126,15 @@ void WhileStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.post_visit(*this);
 }
 
+void ForStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  init_expression->accept_recursive(visitor);
+  test_expression->accept_recursive(visitor);
+  update_expression->accept_recursive(visitor);
+  body_statement->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
 void PrintStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   expression->accept_recursive(visitor);
@@ -135,5 +144,15 @@ void PrintStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
 void DeleteStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   expression->accept_recursive(visitor);
+  visitor.post_visit(*this);
+}
+
+void BreakStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  visitor.post_visit(*this);
+}
+
+void ContinueStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
   visitor.post_visit(*this);
 }

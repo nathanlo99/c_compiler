@@ -40,6 +40,7 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
 
   void post_visit(IfStatement &) override;
   void post_visit(WhileStatement &) override;
+  void post_visit(ForStatement &) override;
   void post_visit(AssignmentStatement &) override;
   void post_visit(PrintStatement &) override;
   void post_visit(DeleteStatement &) override;
@@ -62,10 +63,15 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
   void pre_visit(AssignmentStatement &) override {}
   void pre_visit(IfStatement &) override {}
   void pre_visit(WhileStatement &) override {}
+  void pre_visit(ForStatement &) override {}
   void pre_visit(PrintStatement &) override {}
   void pre_visit(DeleteStatement &) override {}
+  void pre_visit(BreakStatement &) override {}
+  void pre_visit(ContinueStatement &) override {}
 
   void post_visit(Program &) override {}
   void post_visit(Statements &) override {}
   void post_visit(ExprStatement &) override {}
+  void post_visit(BreakStatement &) override {}
+  void post_visit(ContinueStatement &) override {}
 };

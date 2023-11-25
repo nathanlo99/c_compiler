@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ast_recursive_visitor.hpp"
+#include "ast_simple_visitor.hpp"
 #include "types.hpp"
 
 #include <map>
@@ -47,6 +48,9 @@ struct PopulateSymbolTableVisitor : ASTRecursiveVisitor {
   void pre_visit(AssignmentStatement &) override {}
   void pre_visit(IfStatement &) override {}
   void pre_visit(WhileStatement &) override {}
+  void pre_visit(ForStatement &) override {}
+  void pre_visit(BreakStatement &) override {}
+  void pre_visit(ContinueStatement &) override {}
 
   void post_visit(VariableLValueExpr &) override {}
   void post_visit(DereferenceLValueExpr &) override {}
@@ -65,6 +69,9 @@ struct PopulateSymbolTableVisitor : ASTRecursiveVisitor {
   void post_visit(AssignmentStatement &) override {}
   void post_visit(IfStatement &) override {}
   void post_visit(WhileStatement &) override {}
+  void post_visit(ForStatement &) override {}
   void post_visit(PrintStatement &) override {}
   void post_visit(DeleteStatement &) override {}
+  void post_visit(BreakStatement &) override {}
+  void post_visit(ContinueStatement &) override {}
 };

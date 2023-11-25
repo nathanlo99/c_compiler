@@ -165,6 +165,12 @@ void DeduceTypesVisitor::post_visit(WhileStatement &statement) {
                type_to_string(statement.test_expression->type));
 }
 
+void DeduceTypesVisitor::post_visit(ForStatement &statement) {
+  debug_assert(statement.test_expression->type == Type::Int,
+               "For condition expected int, got {}",
+               type_to_string(statement.test_expression->type));
+}
+
 void DeduceTypesVisitor::post_visit(AssignmentStatement &statement) {
   debug_assert(statement.lhs->type == statement.rhs->type,
                "Assignment rhs had the wrong type");

@@ -54,6 +54,8 @@ enum class TokenKind {
   Null,
   Booland,
   Boolor,
+  Break,
+  Continue,
   Whitespace,
   Comment,
 };
@@ -134,6 +136,10 @@ static std::string token_kind_to_string(const TokenKind kind) {
     return "BOOLAND";
   case TokenKind::Boolor:
     return "BOOLOR";
+  case TokenKind::Break:
+    return "BREAK";
+  case TokenKind::Continue:
+    return "CONTINUE";
   case TokenKind::Whitespace:
     return "WHITESPACE";
   case TokenKind::Comment:
@@ -238,7 +244,7 @@ struct Lexer {
   }
 
   Token next();
-  bool done() { return next_idx >= input.size(); }
+  bool done() const { return next_idx >= input.size(); }
 
   std::vector<Token> token_stream() {
     std::vector<Token> result;

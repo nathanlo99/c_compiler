@@ -27,6 +27,8 @@ statement -> FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
 statement -> WHILE LPAREN expr RPAREN LBRACE statements RBRACE
 statement -> PRINTLN LPAREN expr RPAREN SEMI
 statement -> DELETE LBRACK RBRACK expr SEMI
+statement -> BREAK SEMI
+statement -> CONTINUE SEMI
 # Exprs
 # Precedence: 16 (right to left)
 expr -> lvalue BECOMES expr

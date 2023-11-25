@@ -38,8 +38,7 @@ public:
                     const std::vector<Variable> &arguments,
                     const Type return_type) {
     debug_assert(functions.count(name) == 0, "Duplicate function {}", name);
-    functions.insert(
-        std::make_pair(name, Function(name, arguments, return_type)));
+    functions.emplace(name, Function(name, arguments, return_type));
   }
 
   void enter_function(const std::string &function) {

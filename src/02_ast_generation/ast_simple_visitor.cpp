@@ -23,6 +23,9 @@ void ExprStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 void AssignmentStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 void IfStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 void WhileStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
+void ForStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 void PrintStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 void DeleteStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
+void BreakStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
+void ContinueStatement::accept_simple(ASTSimpleVisitor &visitor) { BODY; }
 #undef BODY

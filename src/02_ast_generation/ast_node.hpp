@@ -500,6 +500,29 @@ struct WhileStatement : Statement {
   virtual std::string node_type() const override { return "WhileStatement"; }
 };
 
+struct ForStatement : Statement {
+  std::shared_ptr<Expr> init_expression;
+  std::shared_ptr<BinaryExpr> test_expression;
+  std::shared_ptr<Expr> update_expression;
+  std::shared_ptr<Statement> body_statement;
+
+  ForStatement(std::shared_ptr<Expr> init_expression,
+               std::shared_ptr<Expr> test_expression,
+               std::shared_ptr<Expr> update_expression,
+               std::shared_ptr<Statement> body_statement)
+      : init_expression(init_expression),
+        test_expression(BinaryExpr::as_bool(test_expression)),
+        update_expression(update_expression), body_statement(body_statement) {}
+  virtual ~ForStatement() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "ForStatement"; }
+};
+
 struct PrintStatement : Statement {
   std::shared_ptr<Expr> expression;
   PrintStatement(std::shared_ptr<Expr> expression) : expression(expression) {}
@@ -524,6 +547,30 @@ struct DeleteStatement : Statement {
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
   virtual std::string node_type() const override { return "DeleteStatement"; }
+};
+
+struct BreakStatement : Statement {
+  BreakStatement() {}
+  virtual ~BreakStatement() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "BreakStatement"; }
+};
+
+struct ContinueStatement : Statement {
+  ContinueStatement() {}
+  virtual ~ContinueStatement() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "ContinueStatement"; }
 };
 
 std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node);

@@ -243,6 +243,14 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
           return std::make_shared<DeleteStatement>(expr);
         });
 
+    register_function("statement -> BREAK SEMI", [](const auto &) {
+      return std::make_shared<BreakStatement>();
+    });
+
+    register_function("statement -> CONTINUE SEMI", [](const auto &) {
+      return std::make_shared<ContinueStatement>();
+    });
+
     const auto make_test_expr = [](const auto &node) {
       const auto lhs = construct_ast<Expr>(node->children[0]);
       const auto op = node->children[1]->token;
@@ -407,17 +415,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
           const auto update = construct_ast<Expr>(node->children[6]);
           auto body = construct_ast<Statements>(node->children[9]);
 
-          // for (init; cond; update) { body; }
-          //   BECOMES
-          // init; while (cond) { body; update; }
-          auto result = std::make_shared<Statements>();
-          result->statements.push_back(std::make_shared<ExprStatement>(init));
-
-          body->statements.push_back(std::make_shared<ExprStatement>(update));
-          auto while_loop = std::make_shared<WhileStatement>(cond, body);
-
-          result->statements.push_back(while_loop);
-          return result;
+          return std::make_shared<ForStatement>(init, cond, update, body);
         });
 
     register_function("boolor -> boolor BOOLOR booland", [](const auto &node) {
@@ -433,7 +431,6 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                         return std::make_shared<BooleanAndExpr>(lhs, rhs);
                       });
 
-    // Begin augmented productions
     return result;
   }();
 
