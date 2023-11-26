@@ -101,15 +101,6 @@ void lex(const std::string &filename) {
   }
 }
 
-void parse(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const std::vector<Token> token_stream = Lexer(input).token_stream();
-  const ContextFreeGrammar grammar = load_default_grammar();
-  const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
-  const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-  parse_tree->print_preorder();
-}
-
 void build_ast(const std::string &filename) {
   const std::string input = read_file(filename);
   const std::shared_ptr<Program> program = get_program(input);
@@ -475,7 +466,6 @@ const static std::vector<
         {"--default", generate_mips},
         {"--debug", inline_functions},
         {"--lex", lex},
-        {"--parse", parse},
         {"--build-ast", build_ast},
         {"--bril", emit_bril},
         {"--compute-dominators", compute_dominators},

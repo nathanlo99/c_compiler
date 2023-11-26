@@ -17,7 +17,4 @@ struct ParseNode {
 
   void grab_tokens(std::vector<Token> &result) const;
   std::vector<Token> tokens() const;
-
-  // Exists solely to debug against existing tests
-  void print_preorder() const;
 };

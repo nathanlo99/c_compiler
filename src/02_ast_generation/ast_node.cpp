@@ -42,26 +42,27 @@ void check_reduce_functions(
         &reduce_functions) {
   const auto grammar = load_default_grammar();
   std::unordered_set<std::string> present_productions;
+  present_productions.reserve(reduce_functions.size());
+
   std::unordered_set<std::string> grammar_productions;
   for (const auto &[production_str, func] : reduce_functions)
     present_productions.insert(production_str);
-  for (const auto &[product, productions] : grammar.productions_by_product) {
-    for (const auto &production : productions) {
-      const std::string production_str = production.to_string();
-      grammar_productions.insert(production_str);
-    }
-  }
-  if (present_productions != grammar_productions) {
-    std::string error_message = "Missing productions: \n";
+  for (const auto &[product, productions] : grammar.productions_by_product)
+    for (const auto &production : productions)
+      grammar_productions.insert(production.to_string());
+
+  if (present_productions != grammar_productions) [[unlikely]] {
+    std::stringstream error_message;
+    error_message << "Missing productions: \n";
     for (const auto &production : grammar_productions)
       if (present_productions.count(production) == 0)
-        error_message += " - " + production + "\n";
-    error_message += "\n";
-    error_message += "Extra productions: \n";
+        error_message << " - " << production << "\n";
+    error_message << "\n";
+    error_message << "Extra productions: \n";
     for (const auto &production : present_productions)
       if (grammar_productions.count(production) == 0)
-        error_message += " - " + production + "\n";
-    throw std::runtime_error(error_message);
+        error_message << " - " << production << "\n";
+    throw std::runtime_error(error_message.str());
   }
 }
 
@@ -71,7 +72,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
 
   using Func = std::function<std::shared_ptr<ASTNode>(
       const std::shared_ptr<ParseNode> &)>;
-  const std::unordered_map<std::string, Func> reduce_functions = []() {
+  const static std::unordered_map<std::string, Func> reduce_functions = []() {
     std::unordered_map<std::string, Func> result;
     const auto &register_function = [&](const std::string &production_str,
                                         const Func &function) {
@@ -431,12 +432,12 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                         return std::make_shared<BooleanAndExpr>(lhs, rhs);
                       });
 
+    check_reduce_functions(result);
+
     return result;
   }();
 
-  check_reduce_functions(reduce_functions);
-
-  if (reduce_functions.count(production_str) > 0)
+  if (reduce_functions.count(production_str) > 0) [[likely]]
     return reduce_functions.at(production_str)(node);
 
   unreachable("WARN: Production '" + production_str + "' not yet handled");

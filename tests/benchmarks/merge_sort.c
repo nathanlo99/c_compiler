@@ -70,16 +70,12 @@ int mergeSort(int *arr, int left, int right) {
 
 int wain(int *a, int b) {
   int i = 0;
-  int unused = 0;
-  while (i < b) {
+  for (i = 0; i < b; i = i + 1) {
     println(*(a + i));
-    i = i + 1;
   }
-  unused = mergeSort(a, 0, b - 1);
-  i = 0;
-  while (i < b) {
+  mergeSort(a, 0, b - 1);
+  for (i = 0; i < b; i = i + 1) {
     println(*(a + i));
-    i = i + 1;
   }
   return 0;
 }

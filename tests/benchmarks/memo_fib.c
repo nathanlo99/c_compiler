@@ -5,13 +5,10 @@ int fib(int n) {
   int res = 0;
 
   memo = new int[n + 1];
-  while (i <= n) {
-    if (i <= 2) {
-      *(memo + i) = 1;
-    } else {
-      *(memo + i) = *(memo + (i - 1)) + *(memo + (i - 2));
-    }
-    i = i + 1;
+  *memo = 1;
+  *(memo + 1) = 1;
+  for (i = 2; i <= n; i = i + 1) {
+    *(memo + i) = *(memo + (i - 1)) + *(memo + (i - 2));
   }
   res = *(memo + n);
   delete[] memo;

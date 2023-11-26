@@ -29,23 +29,3 @@ std::vector<Token> ParseNode::tokens() const {
   grab_tokens(result);
   return result;
 }
-
-void ParseNode::print_preorder() const {
-  if (token.kind == TokenKind::None) {
-    std::cout << production.product;
-    if (production.ingredients.empty()) {
-      std::cout << " .EMPTY" << std::endl;
-    } else {
-      for (const auto &ingredient : production.ingredients) {
-        std::cout << " " << ingredient;
-      }
-      std::cout << std::endl;
-    }
-  } else {
-    std::cout << token_kind_to_string(token.kind) << " " << token.lexeme
-              << std::endl;
-  }
-  for (const auto &child : children) {
-    child->print_preorder();
-  }
-}
