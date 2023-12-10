@@ -9,7 +9,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     : name(function.name), arguments(function.arguments),
       return_type(function.return_type) {
 
-  Timer::start("    5b. CFG: " + function.name);
+  ScopedTimer timer("CFG: " + function.name);
   std::unordered_map<std::string, std::string> canonical_label_name;
 
   // Loop over the instructions and create blocks:
@@ -90,11 +90,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     add_edge(new_entry_label, old_entry_label);
   }
 
-  Timer::start("      5b.1. CFG: " + function.name + " - Compute dominators");
   compute_dominators();
-  Timer::stop("      5b.1. CFG: " + function.name + " - Compute dominators");
-
-  Timer::stop("    5b. CFG: " + function.name);
 }
 
 void ControlFlowGraph::compute_edges() {

@@ -40,11 +40,10 @@ private:
 
   void compute_allocations() {
     program.for_each_function([&](const ControlFlowGraph &function) {
-      Timer::start("    - Allocating registers -- " + function.name);
+      ScopedTimer timer("- Allocating registers -- " + function.name);
       allocations[function.name] =
           allocate_registers(function, available_registers);
       liveness_data[function.name] = allocations[function.name].liveness_data;
-      Timer::stop("    - Allocating registers -- " + function.name);
     });
   }
 
@@ -153,9 +152,7 @@ private:
   }
 
   void generate() {
-    Timer::start("  10a. Computing register allocations");
     compute_allocations();
-    Timer::stop("  10a. Computing register allocations");
 
     // Load the arguments to wain into the correct registers
     const auto &wain = program.wain();

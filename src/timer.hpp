@@ -6,13 +6,27 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 class Timer {
-  static inline std::unordered_map<std::string, size_t> start_times;
-  static inline std::unordered_map<std::string, size_t> end_times;
-  static inline std::vector<std::string> names;
+  struct TimerResult {
+    std::string name;
+    size_t elapsed_time;
+    size_t depth;
+    TimerResult(const std::string &name, const size_t depth)
+        : name(name), elapsed_time(-1), depth(depth) {}
+  };
+  struct RunningTimer {
+    std::string name;
+    size_t start_time;
+    size_t idx;
+    RunningTimer(const std::string &name, const size_t idx)
+        : name(name), start_time(get_time_ns()), idx(idx) {}
+  };
 
-public:
+  static inline std::vector<RunningTimer> running_timers;
+  static inline std::vector<TimerResult> results;
+
   static size_t get_time_ms() {
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
@@ -24,34 +38,53 @@ public:
         .count();
   }
 
-  static inline bool is_running(const std::string &name) {
-    return start_times.count(name) > 0 && end_times.count(name) == 0;
+  static void push(const std::string &name) {
+    running_timers.emplace_back(name, results.size());
+    results.emplace_back(name, running_timers.size() - 1);
   }
-  static void start(const std::string &name) {
-    debug_assert(start_times.count(name) == 0, "Timer '{}' already started",
-                 name);
-    start_times[name] = get_time_ns();
-    names.push_back(name);
+  static void pop(const std::string &name) {
+    debug_assert(running_timers.size() > 0, "No running timers");
+    const auto &timer = running_timers.back();
+    debug_assert(timer.name == name, "Timer name mismatch");
+    debug_assert(results[timer.idx].elapsed_time == static_cast<size_t>(-1),
+                 "Timer already stopped");
+    debug_assert(results[timer.idx].name == name, "Timer name mismatch");
+    results[timer.idx].elapsed_time = get_time_ns() - timer.start_time;
+    running_timers.pop_back();
   }
-  static void stop(const std::string &name) {
-    debug_assert(start_times.count(name) > 0, "Timer '{}' not started", name);
-    debug_assert(end_times.count(name) == 0, "Timer '{}' not started", name);
-    end_times[name] = get_time_ns();
-  }
+  friend class ScopedTimer;
 
+public:
   static void print(std::ostream &os, const double threshold_ms = 0.0) {
     os << "Timer data:" << std::endl;
-    for (const auto &name : names) {
-      const auto &start_time = start_times[name];
-      auto it = end_times.find(name);
-      if (it == end_times.end()) {
-        os << "  " << name << ": (still running)" << std::endl;
-      } else {
-        const auto &end_time = it->second;
-        const double running_time_ms = (end_time - start_time) / 1'000'000.0;
-        if (running_time_ms >= threshold_ms)
-          os << "  " << name << ": " << running_time_ms << "ms" << std::endl;
+    for (const auto &result : results) {
+      const std::string padding(2 * result.depth, ' ');
+      if (result.elapsed_time == static_cast<size_t>(-1)) {
+        os << padding << result.name << ": (still running)" << std::endl;
+        continue;
       }
+      const double running_time_ms = result.elapsed_time / 1'000'000.0;
+      if (running_time_ms >= threshold_ms)
+        os << padding << result.name << ": " << running_time_ms << "ms"
+           << std::endl;
     }
   }
+};
+
+class ScopedTimer {
+  const std::string name;
+  mutable bool stopped;
+
+public:
+  [[nodiscard]] ScopedTimer(const std::string &name)
+      : name(name), stopped(false) {
+    Timer::push(name);
+  }
+  void stop() const {
+    if (!stopped) {
+      Timer::pop(name);
+      stopped = true;
+    }
+  }
+  ~ScopedTimer() { stop(); }
 };

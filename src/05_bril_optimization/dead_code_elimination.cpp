@@ -109,6 +109,7 @@ size_t remove_unused_blocks(ControlFlowGraph &graph) {
 }
 
 size_t remove_unused_functions(Program &program) {
+  size_t removed_lines = 0;
   std::unordered_set<std::string> reachable_functions;
   std::vector<std::string> worklist = {"wain"};
   while (!worklist.empty()) {
@@ -127,15 +128,16 @@ size_t remove_unused_functions(Program &program) {
 
   std::unordered_set<std::string> unused_functions;
   program.for_each_function([&](const ControlFlowGraph &function) {
-    if (reachable_functions.count(function.name) == 0)
+    if (reachable_functions.count(function.name) == 0) {
+      removed_lines += function.num_instructions();
       unused_functions.insert(function.name);
+    }
   });
 
   for (const auto &name : unused_functions) {
-    std::cerr << "Removing unused function " << name << std::endl;
     program.functions.erase(name);
   }
-  return unused_functions.size();
+  return removed_lines;
 }
 
 size_t remove_trivial_phi_instructions(ControlFlowGraph &, Block &block) {
@@ -205,28 +207,26 @@ size_t remove_unused_parameters(Program &program) {
     if (function.name == wain_name)
       continue;
 
-    std::unordered_map<std::string, size_t> unused_parameters;
-    for (size_t idx = 0; idx < function.arguments.size(); ++idx) {
-      const auto &param = function.arguments[idx];
-      unused_parameters[param.name] = idx;
-    }
+    std::unordered_set<std::string> used_parameters;
 
+    // If the variable is used anywhere as an argument, it becomes used
     function.for_each_instruction([&](const Instruction &instruction) {
       for (const auto &argument : instruction.arguments)
-        unused_parameters.erase(argument);
-      unused_parameters.erase(instruction.destination);
+        used_parameters.insert(argument);
+      // TODO: If the parameter is written to, should we still consider it used?
+      // used_parameters.insert(instruction.destination);
     });
 
     auto &indices = unused_parameter_indices[function_name];
-    for (const auto &[param_name, param_idx] : unused_parameters) {
-      indices.push_back(param_idx);
+    for (size_t idx = 0; idx < function.arguments.size(); ++idx) {
+      if (used_parameters.count(function.arguments[idx].name) == 0)
+        indices.push_back(idx);
     }
-    std::sort(indices.begin(), indices.end());
   }
 
   // Now, remove the unused parameters
-  for (auto &[function_name, function] : program.functions) {
-    auto &indices = unused_parameter_indices[function_name];
+  for (auto &[function_name, indices] : unused_parameter_indices) {
+    auto &function = program.functions.at(function_name);
     for (auto rit = indices.rbegin(); rit != indices.rend(); ++rit) {
       const auto idx = *rit;
       function.arguments.erase(function.arguments.begin() + idx);

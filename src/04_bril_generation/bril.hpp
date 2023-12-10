@@ -39,10 +39,23 @@ struct Block {
     instructions.insert(it, instruction);
   }
 
-  template <typename Pred> bool all_of(const Pred &pred) const {
+  void for_each_instruction(
+      const std::function<void(const Instruction &)> &func) const {
+    for (const auto &instruction : instructions) {
+      func(instruction);
+    }
+  }
+
+  void for_each_instruction(const std::function<void(Instruction &)> &func) {
+    for (auto &instruction : instructions) {
+      func(instruction);
+    }
+  }
+
+  bool all_of(const std::function<bool(const Instruction &)> &pred) const {
     return std::all_of(instructions.begin(), instructions.end(), pred);
   }
-  template <typename Pred> bool any_of(const Pred &pred) const {
+  bool any_of(const std::function<bool(const Instruction &)> &pred) const {
     return std::any_of(instructions.begin(), instructions.end(), pred);
   }
 
@@ -210,7 +223,7 @@ struct ControlFlowGraph {
     return num_removed_lines;
   }
 
-  template <typename Func> void for_each_block(const Func &func) const {
+  void for_each_block(const std::function<void(const Block &)> &func) const {
     for (const auto &label : block_labels) {
       const auto &block = get_block(label);
       func(block);
@@ -326,10 +339,11 @@ struct Program {
   }
 
   bool has_phi_instructions() const {
-    return std::any_of(
-        functions.begin(), functions.end(),
-        [](const auto &pair) { return pair.second.has_phi_instructions(); });
+    return any_of_functions([](const ControlFlowGraph &function) {
+      return function.has_phi_instructions();
+    });
   }
+
   bool uses_heap() const {
     return std::any_of(
         functions.begin(), functions.end(),
@@ -399,38 +413,63 @@ struct Program {
     return num_removed_lines;
   }
 
-  template <typename Func> void for_each_function(const Func &func) const {
+  // Convenient wrappers for applying a function to each
+  // function/block/instruction
+  void for_each_function(
+      const std::function<void(const ControlFlowGraph &)> &func) const {
     for (auto &[name, function] : functions)
       func(function);
   }
 
-  template <typename Func> void for_each_block(const Func &func) const {
+  void for_each_block(const std::function<void(const Block &)> &func) const {
     for_each_function([&](const ControlFlowGraph &function) {
       function.for_each_block(func);
     });
   }
 
-  template <typename Func> void for_each_instruction(const Func &func) const {
-    for_each_block([&](const Block &block) {
-      for (const auto &instruction : block.instructions)
-        func(instruction);
-    });
+  void for_each_instruction(
+      const std::function<void(const Instruction &)> &func) const {
+    for_each_block(
+        [&](const Block &block) { block.for_each_instruction(func); });
   }
 
-  template <typename Func> void for_each_function(const Func &func) {
+  void for_each_function(const std::function<void(ControlFlowGraph &)> &func) {
     for (auto &[name, function] : functions)
       func(function);
   }
 
-  template <typename Func> void for_each_block(const Func &func) {
+  void for_each_block(const std::function<void(Block &)> &func) {
     for_each_function(
         [&](ControlFlowGraph &function) { function.for_each_block(func); });
   }
 
-  template <typename Func> void for_each_instruction(const Func &func) {
-    for_each_block([&](Block &block) {
-      for (auto &instruction : block.instructions)
-        func(instruction);
+  void for_each_instruction(const std::function<void(Instruction &)> &func) {
+    for_each_block([&](Block &block) { block.for_each_instruction(func); });
+  }
+
+  bool all_of_functions(
+      const std::function<bool(const ControlFlowGraph &)> &pred) const {
+    return std::all_of(functions.begin(), functions.end(),
+                       [&pred](const auto &pair) { return pred(pair.second); });
+  }
+
+  bool any_of_functions(
+      const std::function<bool(const ControlFlowGraph &)> &pred) const {
+    return std::any_of(functions.begin(), functions.end(),
+                       [&pred](const auto &pair) { return pred(pair.second); });
+  }
+
+  size_t total_of_functions(
+      const std::function<size_t(const ControlFlowGraph &)> &func) const {
+    size_t result = 0;
+    for (const auto &[name, function] : functions)
+      result += func(function);
+    return result;
+  }
+
+  size_t num_instructions() const {
+    return total_of_functions([](const ControlFlowGraph &function) {
+      return function.num_instructions();
     });
   }
 };

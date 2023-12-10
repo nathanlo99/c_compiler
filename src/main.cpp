@@ -12,7 +12,6 @@
 #include "data_flow/liveness_analysis.hpp"
 #include "dead_code_elimination.hpp"
 #include "deduce_types.hpp"
-#include "fold_constants.hpp"
 #include "global_value_numbering.hpp"
 #include "lexer.hpp"
 #include "local_value_numbering.hpp"
@@ -116,9 +115,6 @@ void emit_c(const std::string &filename) {
 void emit_naive_mips(const std::string &filename) {
   const std::string input = read_file(filename);
   const auto program = get_program(input);
-
-  ConstantFoldingVisitor fold_constants;
-  program->accept_recursive(fold_constants);
 
   NaiveMIPSGenerator generator;
   program->accept_simple(generator);
@@ -292,78 +288,65 @@ void generate_mips(const std::string &filename) {
 void benchmark(const std::string &filename) {
   const std::string &input = read_file(filename);
   // 1. Lex the input
-  Timer::start("1. Lexing");
+  const auto lexing_timer = ScopedTimer("1. Lexing");
   const std::vector<Token> token_stream = Lexer(input).token_stream();
-  Timer::stop("1. Lexing");
+  lexing_timer.stop();
 
   // 2. Parse
-  Timer::start("2. Parsing");
-  Timer::start("  2a. Load grammar");
+  const auto parsing_timer = ScopedTimer("2. Parsing");
   const ContextFreeGrammar grammar = load_default_grammar();
   const EarleyParser parser(grammar);
-  Timer::stop("  2a. Load grammar");
-
-  Timer::start("  2b. Construct Earley Table");
   const EarleyTable table = parser.construct_table(token_stream);
-  Timer::stop("  2b. Construct Earley Table");
-  Timer::start("  2c. Convert EarleyTable to parse tree");
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
-  Timer::stop("  2c. Convert EarleyTable to parse tree");
-  Timer::stop("2. Parsing");
+  parsing_timer.stop();
 
   // 3. Convert to AST
-  Timer::start("3. AST construction");
+  const auto ast_construction_timer = ScopedTimer("3. AST construction");
   std::shared_ptr<Program> program = construct_ast<Program>(parse_tree);
-  Timer::stop("3. AST construction");
-
-  // 4. Optimize AST (constant folding)
-  Timer::start("4. AST optimization");
-  CanonicalizeConditions canonicalize_conditions;
-  program->accept_recursive(canonicalize_conditions);
   PopulateSymbolTableVisitor symbol_table_visitor;
   program->accept_recursive(symbol_table_visitor);
   DeduceTypesVisitor deduce_types_visitor;
   program->accept_recursive(deduce_types_visitor);
-  ConstantFoldingVisitor constant_folding_visitor;
-  program->accept_recursive(constant_folding_visitor);
-  Timer::stop("4. AST optimization");
+  CanonicalizeConditions canonicalize_conditions;
+  program->accept_recursive(canonicalize_conditions);
+  ast_construction_timer.stop();
 
-  // 5. Convert to BRIL
-  Timer::start("5. BRIL generation");
+  // 4. Convert to BRIL
+  const auto bril_generation_timer = ScopedTimer("4. BRIL generation");
   bril::SimpleBRILGenerator bril_generator;
-  Timer::start("  5a. Generate BRIL functions");
   program->accept_simple(bril_generator);
-  Timer::stop("  5a. Generate BRIL functions");
-  Timer::start("  5b. Generate BRIL program");
   bril::Program bril_program = bril_generator.program();
-  Timer::stop("  5b. Generate BRIL program");
-  Timer::stop("5. BRIL generation");
+  bril_generation_timer.stop();
 
-  // 6. Pre-SSA optimization
-  Timer::start("6. Pre-SSA optimization");
+  // 5. Pre-SSA optimization
+  const auto pre_ssa_optimization_timer =
+      ScopedTimer("5. Pre-SSA optimization");
   run_optimization_passes(bril_program);
-  Timer::stop("6. Pre-SSA optimization");
+  pre_ssa_optimization_timer.stop();
 
-  // 7. Convert to SSA
-  Timer::start("7. Conversion to SSA");
+  // 6. Convert to SSA
+  const auto ssa_conversion_timer = ScopedTimer("6. Conversion to SSA");
   bril_program.convert_to_ssa();
-  Timer::stop("7. Conversion to SSA");
+  ssa_conversion_timer.stop();
 
-  // 8. Post-SSA optimization
-  Timer::start("8. Post-SSA optimization");
+  // 7. Post-SSA optimization
+  const auto post_ssa_optimization_timer =
+      ScopedTimer("7. Post-SSA optimization");
   run_optimization_passes(bril_program);
-  Timer::stop("8. Post-SSA optimization");
+  post_ssa_optimization_timer.stop();
 
-  // 9. Convert from SSA
-  Timer::start("9. Conversion from SSA");
+  // 8. Convert from SSA
+  const auto convert_from_ssa_timer = ScopedTimer("8. Conversion from SSA");
   bril_program.convert_from_ssa();
   run_optimization_passes(bril_program);
-  Timer::stop("9. Conversion from SSA");
+  convert_from_ssa_timer.stop();
 
-  // 10. Generate MIPS
-  Timer::start("10. MIPS generation");
+  // 9. Generate MIPS
+  const auto mips_generation_timer = ScopedTimer("9. MIPS generation");
   bril::BRILToMIPSGenerator bril_to_mips_generator(bril_program);
-  Timer::stop("10. MIPS generation");
+  mips_generation_timer.stop();
+
+  bril_to_mips_generator.print(std::cout);
 }
 
 void test_augmented_cfg(const std::string &filename) {
@@ -508,9 +491,10 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    Timer::start("Total");
-    options_map.at(argument)(filename);
-    Timer::stop("Total");
+    {
+      const auto total_timer = ScopedTimer("Total");
+      options_map.at(argument)(filename);
+    }
 
     Timer::print(std::cerr, 5.0);
   } catch (const std::exception &e) {

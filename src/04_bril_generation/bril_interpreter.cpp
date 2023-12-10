@@ -35,9 +35,7 @@ void BRILInterpreter::run(const Program &program) {
     arguments[1] = BRILValue::integer(second_arg);
   }
 
-  Timer::start("Interpret");
   const BRILValue result = interpret(program.wain(), arguments);
-  Timer::stop("Interpret");
   std::cout << "wain returned " << result.int_value << std::endl;
   std::cerr << "Number of dynamic instructions: " << num_dynamic_instructions
             << std::endl;
@@ -58,6 +56,7 @@ void BRILInterpreter::run(const Program &program) {
 
 BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
                                      const std::vector<BRILValue> &arguments) {
+  ScopedTimer timer("Interpret");
   using util::operator<<;
   // std::cerr << "Calling " << graph.name << " with arguments: " << arguments
   //           << std::endl;

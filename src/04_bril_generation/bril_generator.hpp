@@ -26,7 +26,7 @@ public:
   inline std::string temp() const {
     static int next_idx = 0;
     const size_t idx = next_idx++;
-    return "_t" + std::to_string(idx);
+    return "t" + std::to_string(idx);
   }
   inline std::string generate_label(const std::string label_type) {
     static std::unordered_map<std::string, int> next_indices;
