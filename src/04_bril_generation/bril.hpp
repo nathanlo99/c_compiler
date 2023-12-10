@@ -141,13 +141,18 @@ struct ControlFlowGraph {
 
   void rename_label(const std::string &old_label, const std::string &new_label);
 
-  template <typename Pred> bool all_of_blocks(const Pred &pred) const {
+  bool all_of_blocks(const std::function<bool(const Block &)> &pred) const {
     return std::all_of(blocks.begin(), blocks.end(),
                        [&pred](const auto &pair) { return pred(pair.second); });
   }
-  template <typename Pred> bool any_of_blocks(const Pred &pred) const {
+  bool any_of_blocks(const std::function<bool(const Block &)> &pred) const {
     return std::any_of(blocks.begin(), blocks.end(),
                        [&pred](const auto &pair) { return pred(pair.second); });
+  }
+  bool any_of_instructions(
+      const std::function<bool(const Instruction &)> &pred) const {
+    return any_of_blocks(
+        [&pred](const Block &block) { return block.any_of(pred); });
   }
 
   bool uses_pointers() const {
@@ -156,27 +161,21 @@ struct ControlFlowGraph {
   }
 
   bool uses_print() const {
-    return any_of_blocks([](const auto &block) {
-      return block.any_of([](const Instruction &instruction) {
-        return instruction.opcode == Opcode::Print;
-      });
+    return any_of_instructions([](const Instruction &instruction) {
+      return instruction.opcode == Opcode::Print;
     });
   }
 
   bool uses_heap() const {
-    return any_of_blocks([](const Block &block) {
-      return block.any_of([](const Instruction &instruction) {
-        return instruction.opcode == Opcode::Alloc ||
-               instruction.opcode == Opcode::Free;
-      });
+    return any_of_instructions([](const Instruction &instruction) {
+      return instruction.opcode == Opcode::Alloc ||
+             instruction.opcode == Opcode::Free;
     });
   }
 
   bool has_phi_instructions() const {
-    return any_of_blocks([](const Block &block) {
-      return block.any_of([](const Instruction &instruction) {
-        return instruction.opcode == Opcode::Phi;
-      });
+    return any_of_instructions([](const Instruction &instruction) {
+      return instruction.opcode == Opcode::Phi;
     });
   }
 

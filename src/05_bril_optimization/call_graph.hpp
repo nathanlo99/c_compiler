@@ -10,7 +10,10 @@ struct CallGraph {
   const Program &program;
   std::unordered_map<std::string, std::unordered_set<std::string>> graph;
 
-  using StronglyConnectedComponent = std::unordered_set<std::string>;
+  struct StronglyConnectedComponent {
+    std::unordered_set<std::string> functions;
+    bool has_self_loop = false;
+  };
   std::unordered_map<std::string, size_t> function_to_component;
   std::vector<StronglyConnectedComponent> components;
   std::vector<std::unordered_set<size_t>> component_graph;
@@ -65,7 +68,7 @@ struct CallGraph {
               top = stack.back();
               stack.pop_back();
               stack_set.erase(top);
-              component.insert(top);
+              component.functions.insert(top);
               function_to_component[top] = components.size();
             } while (top != node);
             components.push_back(component);
@@ -133,7 +136,7 @@ struct CallGraph {
 
     // Recompute the function to component mapping
     for (size_t i = 0; i < components.size(); ++i) {
-      for (const auto &function : components[i]) {
+      for (const auto &function : components[i].functions) {
         function_to_component[function] = i;
       }
     }
@@ -159,7 +162,7 @@ struct CallGraph {
     }
     os << "Component graph: " << std::endl;
     for (size_t i = 0; i < graph.component_graph.size(); ++i) {
-      os << "  " << i << ": " << graph.components[i] << std::endl;
+      os << "  " << i << ": " << graph.components[i].functions << std::endl;
       os << "  - edges: " << graph.component_graph[i] << std::endl;
     }
     return os;

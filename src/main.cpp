@@ -138,6 +138,7 @@ void to_ssa(const std::string &filename) {
   run_optimization_passes(bril_program);
   bril_program.convert_to_ssa();
   run_optimization_passes(bril_program);
+  bril_program.for_each_function(bril::canonicalize_names);
 
   std::cout << bril_program << std::endl;
 
@@ -274,17 +275,18 @@ void allocate_registers(const std::string &filename) {
   std::cout << separator << std::endl;
 }
 
-void generate_mips(const std::string &filename) {
-  const auto program = get_optimized_bril_from_file(filename);
-  bril::BRILToMIPSGenerator generator(program);
-  generator.print(std::cout);
-}
-
 void compute_call_graph(const std::string &filename) {
   using util::operator<<;
+  auto program = get_bril_from_file(filename);
+  const auto call_graph = bril::CallGraph(program);
+  std::cout << call_graph << std::endl;
+}
+
+void generate_mips(const std::string &filename) {
   auto program = get_optimized_bril_from_file(filename);
   bril::optimize_call_graph(program);
-  std::cout << program << std::endl;
+  bril::BRILToMIPSGenerator generator(program);
+  generator.print(std::cout);
 }
 
 void benchmark(const std::string &filename) {
@@ -415,8 +417,8 @@ void inline_functions(const std::string &filename) {
       const bool this_changed = program.inline_function("wain", func);
       changed |= this_changed;
     }
-    run_optimization_passes(program);
-    if (!changed)
+    const size_t optimized = run_optimization_passes(program);
+    if (!changed && optimized == 0)
       break;
   }
 

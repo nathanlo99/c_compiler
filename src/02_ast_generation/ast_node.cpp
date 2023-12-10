@@ -420,15 +420,15 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
         });
 
     register_function("boolor -> boolor BOOLOR booland", [](const auto &node) {
-      auto lhs = construct_ast<Expr>(node->children[0]);
-      auto rhs = construct_ast<Expr>(node->children[2]);
+      const auto lhs = construct_ast<Expr>(node->children[0]);
+      const auto rhs = construct_ast<Expr>(node->children[2]);
       return std::make_shared<BooleanOrExpr>(lhs, rhs);
     });
 
     register_function("booland -> booland BOOLAND eqtest",
                       [](const auto &node) {
-                        auto lhs = construct_ast<Expr>(node->children[0]);
-                        auto rhs = construct_ast<Expr>(node->children[2]);
+                        const auto lhs = construct_ast<Expr>(node->children[0]);
+                        const auto rhs = construct_ast<Expr>(node->children[2]);
                         return std::make_shared<BooleanAndExpr>(lhs, rhs);
                       });
 
@@ -437,10 +437,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     return result;
   }();
 
-  if (reduce_functions.count(production_str) > 0) [[likely]]
-    return reduce_functions.at(production_str)(node);
+  debug_assert(reduce_functions.count(production_str) > 0,
+               "Production '{}' not yet handled", production_str);
 
-  unreachable("WARN: Production '" + production_str + "' not yet handled");
-
-  return nullptr;
+  return reduce_functions.at(production_str)(node);
 }
