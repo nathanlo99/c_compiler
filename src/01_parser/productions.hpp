@@ -2,11 +2,12 @@
 #pragma once
 
 constexpr const char *const context_free_grammar =
-    R"(procedures -> procedure procedures
+    R"(#
+procedures -> procedure procedures
 procedures -> main
 # Allow procedures to return any type
-procedure -> type ID LPAREN params RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
-main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RETURN expr SEMI RBRACE
+procedure -> type ID LPAREN params RPAREN LBRACE dcls statements RBRACE
+main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements RBRACE
 params ->
 params -> paramlist
 paramlist -> dcl
@@ -20,8 +21,8 @@ dcl -> type ID
 # Statements
 statements ->
 statements -> statements statement
-statement -> IF LPAREN expr RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 statement -> expr SEMI
+statement -> IF LPAREN expr RPAREN LBRACE statements RBRACE ELSE LBRACE statements RBRACE
 statement -> IF LPAREN expr RPAREN LBRACE statements RBRACE
 statement -> FOR LPAREN expr SEMI expr SEMI expr RPAREN LBRACE statements RBRACE
 statement -> WHILE LPAREN expr RPAREN LBRACE statements RBRACE
@@ -29,6 +30,7 @@ statement -> PRINTLN LPAREN expr RPAREN SEMI
 statement -> DELETE LBRACK RBRACK expr SEMI
 statement -> BREAK SEMI
 statement -> CONTINUE SEMI
+statement -> RETURN expr SEMI
 # Exprs
 # Precedence: 16 (right to left)
 expr -> lvalue BECOMES expr
@@ -72,4 +74,5 @@ arglist -> expr
 arglist -> expr COMMA arglist
 lvalue -> ID
 lvalue -> STAR factor
-lvalue -> LPAREN lvalue RPAREN)";
+lvalue -> LPAREN lvalue RPAREN
+#)";

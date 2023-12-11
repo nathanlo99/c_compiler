@@ -28,9 +28,6 @@ void SimpleBRILGenerator::visit(Procedure &procedure) {
   for (const auto &statement : procedure.statements) {
     statement->accept_simple(*this);
   }
-  procedure.return_expr->accept_simple(*this);
-  ret(last_result());
-
   leave_function();
 }
 

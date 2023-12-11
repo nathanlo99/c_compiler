@@ -81,8 +81,6 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   for (const auto &statement : procedure.statements) {
     statement->accept_simple(*this);
   }
-  comment("Code for return value:");
-  procedure.return_expr->accept_simple(*this);
 
   // We only have to do clean-up if we aren't wain
   if (procedure_name != "wain") {

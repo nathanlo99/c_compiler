@@ -69,8 +69,8 @@ struct ProcedureTable {
     return raw_offset + 4 * num_params;
   }
 
-  bool is_variable_used(const std::string &variable) const {
-    return used_variables.count(variable) > 0;
+  bool is_variable_used(const std::string &variable_name) const {
+    return used_variables.contains(variable_name);
   }
 
   friend std::ostream &operator<<(std::ostream &os,

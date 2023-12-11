@@ -104,17 +104,15 @@ struct Procedure : ASTNode {
 
   std::vector<Variable> decls;
   std::vector<std::shared_ptr<Statement>> statements;
-  std::shared_ptr<Expr> return_expr;
 
   ProcedureTable table;
 
   Procedure(const std::string &name, std::shared_ptr<ParameterList> params,
             const Type type, std::shared_ptr<DeclarationList> decls,
-            std::shared_ptr<Statements> statements,
-            std::shared_ptr<Expr> return_expr)
+            std::shared_ptr<Statements> statements)
       : name(name), params(params->parameters), return_type(type),
         decls(decls->declarations), statements(statements->statements),
-        return_expr(return_expr), table(name) {}
+        table(name) {}
   virtual ~Procedure() = default;
 
   virtual void print(const size_t depth = 0) const override;
@@ -571,6 +569,19 @@ struct ContinueStatement : Statement {
   virtual void accept_simple(ASTSimpleVisitor &visitor) override;
   virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
   virtual std::string node_type() const override { return "ContinueStatement"; }
+};
+
+struct ReturnStatement : Statement {
+  std::shared_ptr<Expr> expr;
+  ReturnStatement(const std::shared_ptr<Expr> &expr) : expr(expr) {}
+  virtual ~ReturnStatement() = default;
+
+  virtual void print(const size_t depth = 0) const override;
+  virtual void emit_c(std::ostream &os,
+                      const size_t indent_level) const override;
+  virtual void accept_simple(ASTSimpleVisitor &visitor) override;
+  virtual void accept_recursive(ASTRecursiveVisitor &visitor) override;
+  virtual std::string node_type() const override { return "ReturnStatement"; }
 };
 
 std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node);

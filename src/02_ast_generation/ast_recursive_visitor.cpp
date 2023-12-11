@@ -12,7 +12,6 @@ void Procedure::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
   for (const auto &statement : statements)
     statement->accept_recursive(visitor);
-  return_expr->accept_recursive(visitor);
   visitor.post_visit(*this);
 }
 
@@ -154,5 +153,11 @@ void BreakStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
 
 void ContinueStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
   visitor.pre_visit(*this);
+  visitor.post_visit(*this);
+}
+
+void ReturnStatement::accept_recursive(ASTRecursiveVisitor &visitor) {
+  visitor.pre_visit(*this);
+  expr->accept_recursive(visitor);
   visitor.post_visit(*this);
 }

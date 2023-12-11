@@ -107,23 +107,21 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
 
     register_function(
         "procedure -> type ID LPAREN params RPAREN LBRACE dcls statements "
-        "RETURN expr SEMI RBRACE",
+        "RBRACE",
         [](const auto &node) {
           const auto procedure_name = node->children[1]->token.lexeme;
           const auto return_type = parse_node_to_type(node->children[0]);
           const auto params = construct_ast<ParameterList>(node->children[3]);
           const auto decls = construct_ast<DeclarationList>(node->children[6]);
           const auto statements = construct_ast<Statements>(node->children[7]);
-          const auto return_expr = construct_ast<Expr>(node->children[9]);
 
           return std::make_shared<Procedure>(procedure_name, params,
-                                             return_type, decls, statements,
-                                             return_expr);
+                                             return_type, decls, statements);
         });
 
     register_function(
-        "main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls "
-        "statements RETURN expr SEMI RBRACE",
+        "main -> INT WAIN LPAREN dcl COMMA dcl RPAREN LBRACE dcls statements "
+        "RBRACE",
         [](const auto &node) {
           const std::string procedure_name = "wain";
           const auto return_type = Type::Int;
@@ -136,11 +134,9 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
 
           const auto decls = construct_ast<DeclarationList>(node->children[8]);
           const auto statements = construct_ast<Statements>(node->children[9]);
-          const auto return_expr = construct_ast<Expr>(node->children[11]);
 
           return std::make_shared<Procedure>(procedure_name, params,
-                                             return_type, decls, statements,
-                                             return_expr);
+                                             return_type, decls, statements);
         });
 
     register_function("params ->", [](const std::shared_ptr<ParseNode> &) {
@@ -252,6 +248,11 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
       return std::make_shared<ContinueStatement>();
     });
 
+    register_function("statement -> RETURN expr SEMI", [](const auto &node) {
+      const auto expr = construct_ast<Expr>(node->children[1]);
+      return std::make_shared<ReturnStatement>(expr);
+    });
+
     const auto make_test_expr = [](const auto &node) {
       const auto lhs = construct_ast<Expr>(node->children[0]);
       const auto op = node->children[1]->token;
@@ -280,15 +281,15 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     for (const auto &binary_production : binary_productions)
       register_function(binary_production, make_binary_expr);
 
-    const auto return_child_expr = [](const auto &node) {
-      return construct_ast<Expr>(node->children[0]);
-    };
     const auto trivial_productions = {"expr -> boolor",    "boolor -> booland",
                                       "booland -> eqtest", "eqtest -> test",
                                       "test -> sum",       "sum -> term",
                                       "term -> factor"};
-    for (const auto &trivial_production : trivial_productions)
-      register_function(trivial_production, return_child_expr);
+    for (const auto &trivial_production : trivial_productions) {
+      register_function(trivial_production, [](const auto &node) {
+        return construct_ast<Expr>(node->children[0]);
+      });
+    }
 
     register_function("factor -> ID", [](const auto &node) {
       const auto variable_name = node->children[0]->token.lexeme;

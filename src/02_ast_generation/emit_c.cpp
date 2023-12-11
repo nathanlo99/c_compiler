@@ -34,9 +34,6 @@ void Procedure::emit_c(std::ostream &os, const size_t indent_level) const {
   for (const auto &statement : statements) {
     statement->emit_c(os, indent_level + 1);
   }
-  os << pad(indent_level + 1) << "return ";
-  return_expr->emit_c(os, 0);
-  os << ";" << std::endl;
   os << pad(indent_level) << "}" << std::endl;
 }
 
@@ -204,4 +201,11 @@ void BreakStatement::emit_c(std::ostream &os, const size_t indent_level) const {
 void ContinueStatement::emit_c(std::ostream &os,
                                const size_t indent_level) const {
   os << pad(indent_level) << "continue;" << std::endl;
+}
+
+void ReturnStatement::emit_c(std::ostream &os,
+                             const size_t indent_level) const {
+  os << pad(indent_level) << "return ";
+  expr->emit_c(os, 0);
+  os << ";" << std::endl;
 }

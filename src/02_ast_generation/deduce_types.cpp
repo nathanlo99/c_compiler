@@ -13,12 +13,7 @@ void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
   table.enter_procedure(procedure.name);
 }
 
-void DeduceTypesVisitor::post_visit(Procedure &procedure) {
-  debug_assert(procedure.return_expr->type == procedure.return_type,
-               "Unexpected return type for procedure {}: expected int, got {}",
-               procedure.name, type_to_string(procedure.return_expr->type));
-  table.leave_procedure();
-}
+void DeduceTypesVisitor::post_visit(Procedure &) { table.leave_procedure(); }
 
 void DeduceTypesVisitor::post_visit(VariableLValueExpr &expr) {
   expr.type = expr.variable.type = table.get_variable_type(expr.variable);
@@ -97,18 +92,18 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
 }
 
 void DeduceTypesVisitor::post_visit(BooleanOrExpr &expr) {
-  debug_assert(expr.lhs->type == Type::Int,
-               "Can only take boolean OR of booleans (ints)");
-  debug_assert(expr.rhs->type == Type::Int,
-               "Can only take boolean OR of booleans (ints)");
+  debug_assert(expr.lhs->type == Type::Int, "LHS of || must be int, got {}",
+               type_to_string(expr.lhs->type));
+  debug_assert(expr.rhs->type == Type::Int, "RHS of || must be int, got {}",
+               type_to_string(expr.rhs->type));
   expr.type = Type::Int;
 }
 
 void DeduceTypesVisitor::post_visit(BooleanAndExpr &expr) {
-  debug_assert(expr.lhs->type == Type::Int,
-               "Can only take boolean AND of booleans (ints)");
-  debug_assert(expr.rhs->type == Type::Int,
-               "Can only take boolean AND of booleans (ints)");
+  debug_assert(expr.lhs->type == Type::Int, "LHS of && must be int, got {}",
+               type_to_string(expr.lhs->type));
+  debug_assert(expr.rhs->type == Type::Int, "RHS of && must be int, got {}",
+               type_to_string(expr.rhs->type));
   expr.type = Type::Int;
 }
 
@@ -126,7 +121,7 @@ void DeduceTypesVisitor::post_visit(DereferenceExpr &expr) {
 }
 
 void DeduceTypesVisitor::post_visit(NewExpr &expr) {
-  debug_assert(expr.rhs->type == Type::Int, "Argument to new must be int");
+  debug_assert(expr.rhs->type == Type::Int, "Argument to new[] must be int");
   expr.type = Type::IntStar;
 }
 
@@ -137,15 +132,14 @@ void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
 
   std::vector<Type> argument_types;
   debug_assert(expr.arguments.size() == expected_arguments.size(),
-               "Wrong number of arguments to function call to {}: expected {} "
-               "but got {}",
+               "Wrong number of arguments to call to {}: expected {}, got {}",
                procedure_name, expected_arguments.size(),
                expr.arguments.size());
 
   for (size_t i = 0; i < expected_arguments.size(); ++i) {
     debug_assert(
         expr.arguments[i]->type == expected_arguments[i].type,
-        "The {}th argument to {} had the wrong type: expected {}, got {}", i,
+        "The {}-th argument to {} had the wrong type: expected {}, got {}", i,
         procedure_name, type_to_string(expected_arguments[i].type),
         type_to_string(expr.arguments[i]->type));
   }
@@ -186,4 +180,13 @@ void DeduceTypesVisitor::post_visit(DeleteStatement &statement) {
   debug_assert(statement.expression->type == Type::IntStar,
                "delete expected int*, got {}",
                type_to_string(statement.expression->type));
+}
+
+void DeduceTypesVisitor::post_visit(ReturnStatement &statement) {
+  const auto expected_return_type =
+      table.get_return_type(table.current_procedure);
+  debug_assert(statement.expr->type == expected_return_type,
+               "Return type mismatch: expected {}, got {}",
+               type_to_string(expected_return_type),
+               type_to_string(statement.expr->type));
 }

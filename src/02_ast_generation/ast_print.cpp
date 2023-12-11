@@ -45,8 +45,6 @@ void Procedure::print(const size_t depth) const {
   for (const auto &statement : statements) {
     statement->print(depth + 2);
   }
-  std::cout << pad(depth + 1) << "return_expr: " << std::endl;
-  return_expr->print(depth + 2);
   std::cout << pad(depth) << "}" << std::endl;
 }
 
@@ -244,4 +242,10 @@ void BreakStatement::print(const size_t depth) const {
 
 void ContinueStatement::print(const size_t depth) const {
   std::cout << pad(depth) << "ContinueStatement" << std::endl;
+}
+
+void ReturnStatement::print(const size_t depth) const {
+  std::cout << pad(depth) << "ReturnStatement {" << std::endl;
+  expr->print(depth + 1);
+  std::cout << pad(depth) << "}" << std::endl;
 }
