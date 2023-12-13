@@ -38,9 +38,19 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
     } else if (instruction.is_jump()) {
       current_block.instructions.push_back(instruction);
       current_block.exit_labels = instruction.labels;
-      if (instruction.opcode == Opcode::Ret)
+      if (instruction.opcode == Opcode::Ret) {
         exiting_blocks.insert(current_block.entry_label);
-      add_block(current_block);
+      }
+      // If we see a jump, but the block has no entry label, then there's no way
+      // of entering this block: it's dead anyway, so throw it away
+      //
+      // This happens, for example, when we return out at the end of an if
+      // block: the jump corresponding to the return statement immediately
+      // precedes the jump out of the if block, so the second jump is never
+      // executed
+      if (current_block.entry_label != "") {
+        add_block(current_block);
+      }
       current_block = Block();
     } else {
       current_block.instructions.push_back(instruction);

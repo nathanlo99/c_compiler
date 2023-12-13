@@ -9,6 +9,7 @@ struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   using ASTSimpleVisitor::visit;
 
   SymbolTable table;
+  std::string current_return_label;
   std::vector<std::pair<std::string, std::string>> loop_label_stack;
 
   void push_loop(const std::string &start_label, const std::string &end_label) {
@@ -53,4 +54,5 @@ struct NaiveMIPSGenerator : ASTSimpleVisitor, MIPSGenerator {
   void visit(DeleteStatement &) override;
   void visit(BreakStatement &) override;
   void visit(ContinueStatement &) override;
+  void visit(ReturnStatement &) override;
 };

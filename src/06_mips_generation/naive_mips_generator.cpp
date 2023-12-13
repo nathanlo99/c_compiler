@@ -46,9 +46,11 @@ void NaiveMIPSGenerator::visit(Program &program) {
 
 void NaiveMIPSGenerator::visit(Procedure &procedure) {
   const std::string procedure_name = procedure.name;
+  const std::string return_label = generate_label("return");
   const bool is_wain = procedure_name == "wain";
 
   table.enter_procedure(procedure_name);
+  current_return_label = return_label;
 
   comment("");
   comment("Generating code for " + procedure_name);
@@ -82,6 +84,8 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
     statement->accept_simple(*this);
   }
 
+  label(return_label);
+
   // We only have to do clean-up if we aren't wain
   if (procedure_name != "wain") {
     comment("Done evaluating result, popping decls and saved registers");
@@ -91,6 +95,7 @@ void NaiveMIPSGenerator::visit(Procedure &procedure) {
   jr(Reg::R31);
   annotate("Done generating code for " + procedure_name);
 
+  current_return_label.clear();
   table.leave_procedure();
 }
 
@@ -494,4 +499,9 @@ void NaiveMIPSGenerator::visit(BreakStatement &) { jmp(get_break_label()); }
 
 void NaiveMIPSGenerator::visit(ContinueStatement &) {
   jmp(get_continue_label());
+}
+
+void NaiveMIPSGenerator::visit(ReturnStatement &statement) {
+  statement.expr->accept_simple(*this);
+  jmp(current_return_label);
 }

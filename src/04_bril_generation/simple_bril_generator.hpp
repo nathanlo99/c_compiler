@@ -11,10 +11,17 @@ struct SimpleBRILGenerator : BRILGenerator, ASTSimpleVisitor {
 
   SymbolTable table;
   std::vector<std::pair<std::string, std::string>> loop_label_stack;
+  std::string return_label;
 
-  void enter_function(const std::string &function) {
+  void enter_function(const std::string &function,
+                      const std::string &new_return_label) {
     BRILGenerator::enter_function(function);
-    table.enter_procedure(function);
+    return_label = new_return_label;
+  }
+
+  void leave_function() {
+    BRILGenerator::leave_function();
+    return_label.clear();
   }
 
   void push_loop(const std::string &start_label, const std::string &end_label) {
@@ -59,6 +66,7 @@ struct SimpleBRILGenerator : BRILGenerator, ASTSimpleVisitor {
   void visit(DeleteStatement &) override;
   void visit(BreakStatement &) override;
   void visit(ContinueStatement &) override;
+  void visit(ReturnStatement &) override;
 };
 
 } // namespace bril

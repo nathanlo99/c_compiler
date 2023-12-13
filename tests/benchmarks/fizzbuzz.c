@@ -6,13 +6,13 @@ int wain(int start, int end) {
   while (idx <= end) {
     if (idx % 3 == 0) {
       if (idx % 5 == 0) {
-        println(0 - 3);
+        println(0 - 15);
       } else {
-        println(0 - 2);
+        println(0 - 3);
       }
     } else {
       if (idx % 5 == 0) {
-        println(0 - 1);
+        println(0 - 5);
       } else {
         println(idx);
       }
