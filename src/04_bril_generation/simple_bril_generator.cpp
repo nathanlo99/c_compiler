@@ -21,17 +21,13 @@ void SimpleBRILGenerator::visit(Procedure &procedure) {
   }
   add_function(name, params, type_from_ast_type(procedure.return_type));
 
-  const std::string return_label = name + "_return";
-
-  enter_function(name, return_label);
+  enter_function(name);
   for (const auto &decl : procedure.decls) {
     constant(decl.name, decl.initial_value);
   }
   for (const auto &statement : procedure.statements) {
     statement->accept_simple(*this);
   }
-  label(return_label);
-  ret("result");
   leave_function();
 }
 
@@ -320,9 +316,7 @@ void SimpleBRILGenerator::visit(ContinueStatement &) {
 
 void SimpleBRILGenerator::visit(ReturnStatement &statement) {
   statement.expr->accept_simple(*this);
-  const std::string result = last_result();
-  id("result", result, type_from_ast_type(statement.expr->type));
-  jmp(return_label);
+  ret(last_result());
 }
 
 } // namespace bril

@@ -44,6 +44,12 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
   return os;
 }
 
+inline std::string type_to_string(const Type type) {
+  std::ostringstream ss;
+  ss << type;
+  return ss.str();
+}
+
 struct Variable {
   std::string name;
   Type type;

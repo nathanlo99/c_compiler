@@ -11,27 +11,27 @@ namespace bril {
 void Program::inline_function_call(const std::string &function_name,
                                    const std::string &block_label,
                                    const size_t instruction_idx) {
+
   auto &function = get_function(function_name);
   auto &block = function.get_block(block_label);
   debug_assert(instruction_idx < block.instructions.size(),
                "Instruction index out of bounds");
-  const auto instruction = block.instructions[instruction_idx];
-  debug_assert(instruction.opcode == Opcode::Call, "Instruction is not a call");
-  const std::string called_function_name = instruction.funcs[0];
+  const auto call_instruction = block.instructions[instruction_idx];
+  debug_assert(call_instruction.opcode == Opcode::Call,
+               "Instruction is not a call");
+  const std::string called_function_name = call_instruction.funcs[0];
+  std::cerr << "Attempting to inline call to " << called_function_name << " in "
+            << function_name << std::endl;
+
   debug_assert(called_function_name != function_name,
                "Cannot inline a function into itself");
 
-  // Make sure the called function has an expected form: its entry block should
-  // appear first, and it should have a single exit block, which appears last in
-  // the list of block labels
+  // Make sure the called function's entry block appears first
   const auto &called_function = get_function(called_function_name);
   debug_assert(called_function.block_labels[0] == called_function.entry_label,
                "Called function does not start with its entry block");
-  debug_assert(
-      called_function.exiting_blocks ==
-          std::unordered_set<std::string>{called_function.block_labels.back()},
-      "Called function does not end with its unique exit block");
-  debug_assert(instruction.arguments.size() == called_function.arguments.size(),
+  debug_assert(call_instruction.arguments.size() ==
+                   called_function.arguments.size(),
                "Called function has different number of arguments than call "
                "instruction");
 
@@ -75,7 +75,7 @@ void Program::inline_function_call(const std::string &function_name,
       return renamed_variables.at(name);
     size_t idx = 0;
     while (true) {
-      std::string fresh_name = name + "." + std::to_string(idx);
+      const std::string fresh_name = name + "." + std::to_string(idx);
       if (current_variables.count(fresh_name) == 0) {
         current_variables.insert(fresh_name);
         renamed_variables[name] = fresh_name;
@@ -128,21 +128,11 @@ void Program::inline_function_call(const std::string &function_name,
   block.instructions.pop_back(); // Pop the old jump to the split label
   for (size_t i = 0; i < called_function.arguments.size(); ++i) {
     const auto &parameter = called_function.arguments[i];
-    const auto &argument = instruction.arguments[i];
+    const auto &argument = call_instruction.arguments[i];
     block.instructions.push_back(Instruction::id(
         get_renamed_variable(parameter.name), argument, parameter.type));
   }
   block.instructions.push_back(Instruction::jmp(inline_entry_label));
-
-  // Determine the return variable
-  std::string return_variable = "(unknown)";
-  called_function.for_each_instruction([&](const Instruction &instruction) {
-    if (instruction.opcode == Opcode::Ret) {
-      debug_assert(return_variable == "(unknown)",
-                   "Called function has multiple return instructions");
-      return_variable = instruction.arguments[0];
-    }
-  });
 
   // Add the called function's blocks to the current function
   size_t block_idx = std::find(function.block_labels.begin(),
@@ -163,9 +153,16 @@ void Program::inline_function_call(const std::string &function_name,
         instruction.destination = get_renamed_variable(instruction.destination);
     }
 
-    // Remove the return instruction
-    if (called_block.instructions.back().opcode == Opcode::Ret)
-      called_block.instructions.back() = Instruction::jmp(inline_exit_label);
+    // Replace the return instruction with an assignment to the return variable,
+    // then jump to the exit label
+    auto &last_instruction = called_block.instructions.back();
+    if (last_instruction.opcode == Opcode::Ret) {
+      const std::string returned_value = last_instruction.arguments[0];
+      last_instruction =
+          Instruction::id(call_instruction.destination, returned_value,
+                          called_function.return_type);
+      called_block.instructions.push_back(Instruction::jmp(inline_exit_label));
+    }
 
     function.blocks.emplace(new_label, called_block);
     function.block_labels.insert(function.block_labels.begin() + block_idx,
@@ -174,16 +171,12 @@ void Program::inline_function_call(const std::string &function_name,
     block_idx++;
   }
 
-  debug_assert(return_variable != "(unknown)",
-               "Called function does not have a return instruction");
   auto &exit_block = function.get_block(inline_exit_label);
   auto &calling_instruction = exit_block.instructions[1];
   debug_assert(calling_instruction.opcode == Opcode::Call &&
                    calling_instruction.funcs[0] == called_function_name,
                "Expected exit block to start with the inlining call");
-  calling_instruction = Instruction::id(calling_instruction.destination,
-                                        renamed_variables.at(return_variable),
-                                        called_function.return_type);
+  exit_block.instructions.erase(exit_block.instructions.begin() + 1);
   function.recompute_graph(true);
 }
 

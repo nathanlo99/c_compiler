@@ -232,8 +232,10 @@ size_t remove_unused_parameters(Program &program) {
       function.arguments.erase(function.arguments.begin() + idx);
       result++;
     }
+  }
 
-    // Now remove the unused parameters from function calls
+  // Now remove the unused parameters from function calls
+  for (auto &[function_name, function] : program.functions) {
     function.for_each_instruction([&](Instruction &instruction) {
       if (instruction.opcode != Opcode::Call)
         return;

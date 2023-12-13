@@ -216,7 +216,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
 
     case Opcode::Print: {
       const int value = context.get_int(instruction.arguments[0]);
-      stdout << value << std::flush << std::endl;
+      stdout << value << std::endl;
     } break;
 
     case Opcode::Nop: {
@@ -280,7 +280,6 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     } break;
 
     case Opcode::Phi: {
-      // std::cerr << "Last block: " << last_block << std::endl;
       debug_assert(last_block != "",
                    "Reached phi instruction before any jumps or branches");
       bool done = false;
