@@ -437,12 +437,6 @@ void compute_aliases(const std::string &filename) {
     std::cerr << std::endl;
   }
   std::cout << std::string(100, '-') << std::endl;
-
-  // program.apply_global_pass(promote_memory_to_registers);
-  // std::cout << program << std::endl;
-
-  // run_optimization_passes(program);
-  // std::cout << program << std::endl;
 }
 
 const static std::vector<

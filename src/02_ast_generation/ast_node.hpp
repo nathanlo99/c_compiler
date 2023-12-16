@@ -307,8 +307,8 @@ token_to_binary_operation(const TokenKind operation) {
   case TokenKind::Pct:
     return BinaryOperation::Mod;
   default:
-    debug_assert(false, "Could not convert invalid type {} to binary operation",
-                 token_kind_to_string(operation));
+    unreachable("Could not convert invalid type {} to binary operation",
+                token_kind_to_string(operation));
   }
   __builtin_unreachable();
 }

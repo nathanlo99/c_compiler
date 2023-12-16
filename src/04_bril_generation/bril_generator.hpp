@@ -30,7 +30,7 @@ public:
     const size_t idx = next_idx++;
     return "_t" + std::to_string(idx);
   }
-  inline std::string generate_label(const std::string label_type) {
+  inline std::string generate_label(const std::string &label_type) {
     static std::unordered_map<std::string, int> next_indices;
     const int next_idx = next_indices[label_type]++;
     return label_type + std::to_string(next_idx);
@@ -65,8 +65,8 @@ public:
         return instruction.destination;
       }
     }
-    debug_assert(false, "Cannot grab last result: no instructions in {}",
-                 current_function);
+    unreachable("Cannot grab last result: no instructions in {}",
+                current_function);
     return "??";
   }
   inline Type last_type() const {
@@ -77,8 +77,8 @@ public:
         return instruction.type;
       }
     }
-    debug_assert(false, "Cannot grab last type: no instructions in {}",
-                 current_function);
+    unreachable("Cannot grab last type: no instructions in {}",
+                current_function);
     return Type::Unknown;
   }
 

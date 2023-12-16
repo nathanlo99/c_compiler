@@ -175,8 +175,8 @@ void EarleyTable::scan(const size_t i, const size_t j,
 void EarleyTable::report_error(const size_t i) const {
 
   if (i == 0) {
-    debug_assert(false, "Unexpected token of type {}",
-                 token_kind_to_string(token_stream[i].kind));
+    unreachable("Unexpected token of type {}",
+                token_kind_to_string(token_stream[i].kind));
     return;
   }
 
@@ -210,7 +210,7 @@ void EarleyTable::report_error(const size_t i) const {
   }
   ss << "     ";
 
-  debug_assert(false, "{}", ss.str());
+  unreachable("{}", ss.str());
 }
 
 EarleyTable

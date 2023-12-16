@@ -207,9 +207,7 @@ struct GVNPhiValue {
     }
   }
 
-  bool operator==(const GVNPhiValue &other) const {
-    return arguments == other.arguments && labels == other.labels;
-  }
+  bool operator==(const GVNPhiValue &other) const = default;
 };
 
 void GlobalValueNumberingPass::process_block(const std::string &label) {

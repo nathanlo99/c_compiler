@@ -211,8 +211,7 @@ struct BRILContext {
           return BRILValue::integer(-1);
         return BRILValue::integer(ch);
       }
-      debug_assert(false, "Loading from invalid raw pointer 0x{:x}",
-                   pointer.int_value);
+      unreachable("Loading from invalid raw pointer 0x{:x}", pointer.int_value);
     }
     if (pointer.type == BRILValue::Type::Address) {
       const size_t stack_depth = pointer.int_value;

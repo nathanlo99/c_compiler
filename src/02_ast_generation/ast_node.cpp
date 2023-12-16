@@ -85,8 +85,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                                       "dcl -> type ID"};
     for (const std::string &ignored_production : ignored_productions)
       register_function(ignored_production, [&](const auto &) {
-        debug_assert(false, "Production handled elsewhere: {}",
-                     ignored_production);
+        unreachable("Production handled elsewhere: {}", ignored_production);
         return nullptr;
       });
 
@@ -322,8 +321,8 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
                          std::dynamic_pointer_cast<VariableLValueExpr>(rhs)) {
             return std::make_shared<AddressOfExpr>(variable_node);
           } else {
-            debug_assert(false, "lvalue argument to address-of operator was "
-                                "neither dereference nor variable");
+            unreachable("lvalue argument to address-of operator was "
+                        "neither dereference nor variable");
           }
         });
 

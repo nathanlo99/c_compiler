@@ -213,8 +213,9 @@ size_t remove_unused_parameters(Program &program) {
     function.for_each_instruction([&](const Instruction &instruction) {
       for (const auto &argument : instruction.arguments)
         used_parameters.insert(argument);
-      // TODO: If the parameter is written to, should we still consider it used?
-      // used_parameters.insert(instruction.destination);
+      // NOTE: If the parameter is written to and never read, we consider it
+      // unused: we don't have to worry about writing to undefined variables
+      // because every assignment operation is a definition in BRIL
     });
 
     auto &indices = unused_parameter_indices[function_name];

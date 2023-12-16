@@ -11,14 +11,10 @@ struct DeduceTypesVisitor : ASTRecursiveVisitor {
   using ASTRecursiveVisitor::post_visit;
   using ASTRecursiveVisitor::pre_visit;
 
-  SymbolTable table;
-  bool has_table;
+  std::optional<SymbolTable> table;
 
-  DeduceTypesVisitor() : table(), has_table(false) {}
-  DeduceTypesVisitor(const SymbolTable &table)
-      : table(table), has_table(true) {}
-
-  ~DeduceTypesVisitor() = default;
+  DeduceTypesVisitor() = default;
+  DeduceTypesVisitor(const SymbolTable &table) : table(table) {}
 
   void pre_visit(Program &program) override;
   void pre_visit(Procedure &procedure) override;

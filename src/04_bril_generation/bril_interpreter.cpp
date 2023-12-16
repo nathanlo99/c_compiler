@@ -205,7 +205,7 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
         context.write_raw_pointer(destination, instruction.value);
       } break;
       default:
-        debug_assert(false, "Invalid type for const instruction");
+        unreachable("Invalid type for const instruction");
       }
     } break;
 

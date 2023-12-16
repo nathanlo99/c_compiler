@@ -16,10 +16,7 @@ struct LocalValueNumber {
                    const Type type);
   LocalValueNumber(const int value, const Type type);
 
-  bool operator==(const LocalValueNumber &other) const {
-    return opcode == other.opcode && arguments == other.arguments &&
-           value == other.value && type == other.type;
-  }
+  bool operator==(const LocalValueNumber &other) const = default;
 };
 
 struct LocalValueTable {
