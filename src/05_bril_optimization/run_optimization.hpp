@@ -8,6 +8,8 @@
 
 inline size_t run_optimization_passes(bril::Program &program) {
   using namespace bril;
+  fmt::println("Started optimization passes with {} lines",
+               program.num_instructions());
   size_t num_removed_lines = 0;
   while (true) {
     const size_t old_num_removed_lines = num_removed_lines;
@@ -26,6 +28,9 @@ inline size_t run_optimization_passes(bril::Program &program) {
     num_removed_lines += program.apply_global_pass(remove_unused_blocks);
     if (num_removed_lines == old_num_removed_lines)
       break;
+    fmt::println("Removed {} lines", num_removed_lines - old_num_removed_lines);
   }
+  fmt::println("Finished optimization passes with {} lines",
+               program.num_instructions());
   return num_removed_lines;
 }
