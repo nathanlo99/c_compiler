@@ -108,8 +108,6 @@ struct ControlFlowGraph {
   std::unordered_set<std::string> exiting_blocks;
 
   // Dominator data structures
-  // std::unordered_map<std::string, std::unordered_map<std::string, bool>>
-  //     raw_dominators;
   std::unordered_map<std::string, std::unordered_set<std::string>> dominators;
   std::unordered_map<std::string, std::string> immediate_dominators;
   std::unordered_map<std::string, std::unordered_set<std::string>>

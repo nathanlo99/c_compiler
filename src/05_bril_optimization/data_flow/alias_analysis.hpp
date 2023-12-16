@@ -40,10 +40,7 @@ struct MemoryLocation {
     return MemoryLocation(Type::RawPointer, "", 0, value);
   }
 
-  bool operator==(const MemoryLocation &other) const {
-    return type == other.type && name == other.name &&
-           instruction_idx == other.instruction_idx;
-  }
+  bool operator==(const MemoryLocation &other) const = default;
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const bril::MemoryLocation &location) {

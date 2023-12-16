@@ -58,8 +58,8 @@ void SimpleBRILGenerator::visit(AssignmentExpr &expr) {
     store(lhs_variable, rhs_variable);
     id(result_variable, rhs_variable, type);
   } else {
-    debug_assert(false, "Assigning to unknown kind of lvalue: was neither "
-                        "variable nor dereference");
+    unreachable("Assigning to unknown kind of lvalue: was neither "
+                "variable nor dereference");
   }
 }
 
@@ -226,8 +226,8 @@ void SimpleBRILGenerator::visit(AssignmentStatement &statement) {
     const std::string lhs_variable = last_result();
     store(lhs_variable, rhs_variable);
   } else {
-    debug_assert(false, "Assigning to unknown kind of lvalue: was neither "
-                        "variable nor dereference");
+    unreachable("Assigning to unknown kind of lvalue: was neither "
+                "variable nor dereference");
   }
 }
 

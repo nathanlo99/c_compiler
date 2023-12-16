@@ -5,7 +5,8 @@
 #include <bit>
 #include <cassert>
 
-std::vector<int> get_bits(uint64_t value) {
+// Given a bitmask, return a vector of the indices of the set bits
+static inline std::vector<int> get_bits(uint64_t value) {
   std::vector<int> result;
   while (value != 0) {
     result.push_back(std::countr_zero(value));
@@ -15,7 +16,7 @@ std::vector<int> get_bits(uint64_t value) {
 }
 
 void DFA::add_state(const TokenKind kind,
-                    const std::array<uint64_t, 128> &state_transitions) {
+                    const TransitionMap &state_transitions) {
   num_states++;
   accepting_states.push_back(kind);
   transitions.push_back(state_transitions);
@@ -308,10 +309,10 @@ Token Lexer::next() {
   }
   if (last_accepting_kind == TokenKind::None) {
     if (next_idx < input.size()) {
-      debug_assert(false, "Lex: Unexpected character {} at index {}",
-                   input[next_idx], next_idx);
+      unreachable("Lex: Unexpected character {} at index {}", input[next_idx],
+                  next_idx);
     } else {
-      debug_assert(false, "Lex: Unexpected end of file");
+      unreachable("Lex: Unexpected end of file");
     }
   }
 

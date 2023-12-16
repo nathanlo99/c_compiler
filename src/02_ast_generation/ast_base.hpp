@@ -26,9 +26,7 @@ struct Literal {
 
   static constexpr inline Literal null() { return Literal(1, Type::IntStar); }
 
-  bool operator==(const Literal &other) const {
-    return value == other.value && type == other.type;
-  }
+  bool operator==(const Literal &other) const = default;
 };
 
 struct Variable {
@@ -41,8 +39,5 @@ struct Variable {
 
   void print(const size_t depth) const;
 
-  bool operator==(const Variable &other) const {
-    return type == other.type && name == other.name &&
-           initial_value == other.initial_value;
-  }
+  bool operator==(const Variable &other) const = default;
 };

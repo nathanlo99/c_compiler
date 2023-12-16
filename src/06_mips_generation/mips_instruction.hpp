@@ -302,16 +302,16 @@ public:
     return MIPSInstruction(Opcode::Sltu, s, t, d, 0);
   }
   static MIPSInstruction beq(Reg s, Reg t, int64_t i) {
-    debug_assert(false, "WARN: Using beq with an immediate value impedes "
-                        "peephole optimizations");
+    unreachable("WARN: Using beq with an immediate value impedes "
+                "peephole optimizations");
     return MIPSInstruction(Opcode::Beq, s, t, Reg::R0, i);
   }
   static MIPSInstruction beq(Reg s, Reg t, const std::string &label) {
     return MIPSInstruction(Opcode::Beq, s, t, Reg::R0, 0, true, label);
   }
   static MIPSInstruction bne(Reg s, Reg t, int64_t i) {
-    debug_assert(false, "WARN: Using bne with an immediate value impedes "
-                        "peephole optimizations");
+    unreachable("WARN: Using bne with an immediate value impedes "
+                "peephole optimizations");
     return MIPSInstruction(Opcode::Bne, s, t, Reg::R0, i);
   }
   static MIPSInstruction bne(Reg s, Reg t, const std::string &label) {
@@ -508,7 +508,7 @@ public:
     case Opcode::Comment:
       break;
     default:
-      debug_assert(false, "Invalid opcode");
+      unreachable("Invalid opcode");
     }
 
     const int padding =
@@ -519,8 +519,5 @@ public:
     return ss.str();
   }
 
-  bool operator==(const MIPSInstruction &other) const {
-    return opcode == other.opcode && s == other.s && t == other.t &&
-           d == other.d && i == other.i;
-  }
+  bool operator==(const MIPSInstruction &other) const = default;
 };

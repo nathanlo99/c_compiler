@@ -148,13 +148,13 @@ static std::string token_kind_to_string(const TokenKind kind) {
 }
 
 struct DFA {
+  using TransitionMap = std::array<uint64_t, 128>;
   size_t num_states = 0;
   std::vector<TokenKind> accepting_states;
-  std::vector<std::array<uint64_t, 128>> transitions;
+  std::vector<TransitionMap> transitions;
   const static inline uint64_t ERROR_STATE = -1;
 
-  void add_state(const TokenKind kind,
-                 const std::array<uint64_t, 128> &state_transitions);
+  void add_state(const TokenKind kind, const TransitionMap &state_transitions);
 
   friend std::ostream &operator<<(std::ostream &os, const DFA &dfa);
 };
@@ -184,11 +184,11 @@ std::unordered_map<std::string, TokenKind> get_keywords();
 
 struct Token {
   std::string lexeme;
-  TokenKind kind;
+  TokenKind kind = TokenKind::None;
   size_t start_line = 0, start_column = 0;
   size_t end_line = 0, end_column = 0;
 
-  Token() : Token("", TokenKind::None, 0, 0, 0, 0) {}
+  Token() = default;
   Token(const std::string &lexeme, const TokenKind &kind,
         const size_t start_line, const size_t start_column,
         const size_t end_line, const size_t end_column)
@@ -196,12 +196,7 @@ struct Token {
         start_column(start_column), end_line(end_line), end_column(end_column) {
   }
 
-  bool operator==(const Token &other) const {
-    return lexeme == other.lexeme && kind == other.kind &&
-           start_line == other.start_line &&
-           start_column == other.start_column && end_line == other.end_line &&
-           end_column == other.end_column;
-  }
+  bool operator==(const Token &other) const = default;
 
   friend std::ostream &operator<<(std::ostream &os, const Token &token) {
     return os << token_kind_to_string(token.kind) << " (" << token.lexeme

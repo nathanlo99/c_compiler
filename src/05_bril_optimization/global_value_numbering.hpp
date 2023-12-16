@@ -64,11 +64,7 @@ struct GVNValue {
   GVNValue(const int value, const Type type)
       : opcode(Opcode::Const), value(value), type(type) {}
 
-  bool operator==(const GVNValue &other) const {
-    return opcode == other.opcode && value == other.value &&
-           arguments == other.arguments && labels == other.labels &&
-           type == other.type;
-  }
+  bool operator==(const GVNValue &other) const = default;
 
   friend std::ostream &operator<<(std::ostream &os, const GVNValue &value) {
     using util::operator<<;

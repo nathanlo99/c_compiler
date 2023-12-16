@@ -2,21 +2,16 @@
 #include "deduce_types.hpp"
 #include "ast_node.hpp"
 
-void DeduceTypesVisitor::pre_visit(Program &program) {
-  if (!has_table) {
-    table = program.table;
-    has_table = true;
-  }
-}
+void DeduceTypesVisitor::pre_visit(Program &program) { table = program.table; }
 
 void DeduceTypesVisitor::pre_visit(Procedure &procedure) {
-  table.enter_procedure(procedure.name);
+  table->enter_procedure(procedure.name);
 }
 
-void DeduceTypesVisitor::post_visit(Procedure &) { table.leave_procedure(); }
+void DeduceTypesVisitor::post_visit(Procedure &) { table->leave_procedure(); }
 
 void DeduceTypesVisitor::post_visit(VariableLValueExpr &expr) {
-  expr.type = expr.variable.type = table.get_variable_type(expr.variable);
+  expr.type = expr.variable.type = table->get_variable_type(expr.variable);
 }
 
 void DeduceTypesVisitor::post_visit(DereferenceLValueExpr &expr) {
@@ -33,7 +28,7 @@ void DeduceTypesVisitor::post_visit(AssignmentExpr &expr) {
 }
 
 void DeduceTypesVisitor::post_visit(VariableExpr &expr) {
-  expr.type = expr.variable.type = table.get_variable_type(expr.variable);
+  expr.type = expr.variable.type = table->get_variable_type(expr.variable);
 }
 
 void DeduceTypesVisitor::post_visit(LiteralExpr &expr) {
@@ -128,7 +123,7 @@ void DeduceTypesVisitor::post_visit(NewExpr &expr) {
 void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
   const auto procedure_name = expr.procedure_name;
   const std::vector<Variable> expected_arguments =
-      table.get_arguments(procedure_name);
+      table->get_arguments(procedure_name);
 
   std::vector<Type> argument_types;
   debug_assert(expr.arguments.size() == expected_arguments.size(),
@@ -144,7 +139,7 @@ void DeduceTypesVisitor::post_visit(FunctionCallExpr &expr) {
         type_to_string(expr.arguments[i]->type));
   }
 
-  expr.type = table.get_return_type(procedure_name);
+  expr.type = table->get_return_type(procedure_name);
 }
 
 void DeduceTypesVisitor::post_visit(IfStatement &statement) {
@@ -184,7 +179,7 @@ void DeduceTypesVisitor::post_visit(DeleteStatement &statement) {
 
 void DeduceTypesVisitor::post_visit(ReturnStatement &statement) {
   const auto expected_return_type =
-      table.get_return_type(table.current_procedure);
+      table->get_return_type(table->current_procedure);
   debug_assert(statement.expr->type == expected_return_type,
                "Return type mismatch: expected {}, got {}",
                type_to_string(expected_return_type),

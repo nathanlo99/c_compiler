@@ -39,7 +39,7 @@ inline std::ostream &operator<<(std::ostream &os, const Type type) {
     os << "?";
     break;
   default:
-    debug_assert(false, "Unknown type in operator<<");
+    unreachable("Unknown type in operator<<");
   }
   return os;
 }
@@ -161,7 +161,7 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
   case Opcode::Phi:
     return os << "phi";
   default:
-    debug_assert(false, "Unknown opcode type in operator<<");
+    unreachable("Unknown opcode type in operator<<");
   }
   return os;
 }
