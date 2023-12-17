@@ -32,8 +32,9 @@ void SimpleBRILGenerator::visit(Procedure &procedure) {
 }
 
 void SimpleBRILGenerator::visit(VariableLValueExpr &expr) {
-  unreachable("BRIL generation for variable lvalue (" + expr.variable.name +
-              ") should be handled in assignment");
+  unreachable("BRIL generation for variable lvalue ({}) should be handled in "
+              "assignment",
+              expr.variable.name);
 }
 
 void SimpleBRILGenerator::visit(DereferenceLValueExpr &) {

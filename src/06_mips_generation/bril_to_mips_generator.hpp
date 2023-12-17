@@ -664,7 +664,7 @@ private:
     } break;
 
     default: {
-      unreachable("Unsupported instruction " + instruction.to_string());
+      unreachable("Unsupported instruction {}", instruction.to_string());
     } break;
     }
   }

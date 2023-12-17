@@ -148,8 +148,8 @@ struct MayAliasAnalysis
 
     default:
       std::cerr << "Instruction: " << instruction << std::endl;
-      unreachable(fmt::format("Opcode {} not handled in alias analysis",
-                              static_cast<int>(instruction.opcode)));
+      unreachable("Opcode {} not handled in alias analysis",
+                  static_cast<int>(instruction.opcode));
     }
     return result;
   }

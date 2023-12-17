@@ -21,13 +21,17 @@
 
 #define unreachable(message, ...)                                              \
   do {                                                                         \
-    debug_assert(false, "Should be unreachable: {}", message, ##__VA_ARGS__);  \
+    debug_assert(false, "Should be unreachable: " message, ##__VA_ARGS__);     \
     __builtin_unreachable();                                                   \
   } while (0)
 
 #define log(message, ...)                                                      \
   std::clog << fmt::format("LOG: {}:{} -- ", __FILE__, __NAME__)               \
             << fmt::format(message, ##__VA_ARGS__) << std::endl;
+
+struct CompileError : public std::runtime_error {
+  CompileError(const std::string &message) : std::runtime_error(message) {}
+};
 
 namespace util {
 

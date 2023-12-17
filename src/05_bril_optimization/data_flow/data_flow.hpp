@@ -34,31 +34,31 @@ template <typename Result> struct InstructionDataFlowResult {
   const Result &get_data_out(const std::string &label, const size_t idx) const {
     return data.at(label)[idx + 1];
   }
-  bool set_data_in(const std::string &label, const size_t idx,
-                   const Result &result) {
+  bool set_data(const std::string &label, const size_t idx,
+                const Result &result) {
+    debug_assert(data.count(label) > 0, "Block not initialized");
+    debug_assert(idx < data.at(label).size(),
+                 "Invalid instruction index {} >= {}", idx,
+                 data.at(label).size());
     auto &entry = data.at(label)[idx];
     if (entry == result)
       return false;
     entry = result;
     return true;
   }
+  bool set_data_in(const std::string &label, const size_t idx,
+                   const Result &result) {
+    return set_data(label, idx, result);
+  }
   bool set_data_out(const std::string &label, const size_t idx,
                     const Result &result) {
-    debug_assert(data.count(label) > 0, "Block not initialized");
-    debug_assert(idx < data.at(label).size() - 1,
-                 "Invalid instruction index {} >= {}", idx,
-                 data.at(label).size() - 1);
-    auto &entry = data.at(label)[idx + 1];
-    if (entry == result)
-      return false;
-    entry = result;
-    return true;
+    return set_data(label, idx + 1, result);
   }
   bool set_block_in(const std::string &label, const Result &result) {
-    return set_data_in(label, 0, result);
+    return set_data(label, 0, result);
   }
   bool set_block_out(const std::string &label, const Result &result) {
-    return set_data_in(label, data.at(label).size() - 1, result);
+    return set_data(label, data.at(label).size() - 1, result);
   }
 };
 

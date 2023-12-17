@@ -3,6 +3,7 @@
 
 #include <array>
 #include <bit>
+#include <cstddef>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -16,218 +17,86 @@
 #include <unordered_set>
 #include <vector>
 
-enum class TokenKind {
-  None,
-  Id,
-  Num,
-  Lparen,
-  Rparen,
-  Lbrace,
-  Rbrace,
-  Return,
-  If,
-  Else,
-  For,
-  While,
-  Println,
-  Wain,
-  Becomes,
-  Int,
-  Eq,
-  Ne,
-  Lt,
-  Gt,
-  Le,
-  Ge,
-  Plus,
-  Minus,
-  Star,
-  Slash,
-  Pct,
-  Comma,
-  Semi,
-  New,
-  Delete,
-  Lbrack,
-  Rbrack,
-  Amp,
-  Null,
-  Booland,
-  Boolor,
-  Break,
-  Continue,
-  Whitespace,
-  Comment,
+#include "finite_automata.hpp"
+#include "token_kind.hpp"
+#include "util.hpp"
+
+struct InputLocation {
+  const std::string filename;
+  const size_t line;
+  const size_t column;
+
+  InputLocation(const std::string &filename = "[invalid]", size_t line = 0,
+                size_t column = 0)
+      : filename(filename), line(line), column(column) {}
+
+  bool operator==(const InputLocation &other) const = default;
 };
 
-static std::string token_kind_to_string(const TokenKind kind) {
-  switch (kind) {
-  case TokenKind::None:
-    return "NONE";
-  case TokenKind::Id:
-    return "ID";
-  case TokenKind::Num:
-    return "NUM";
-  case TokenKind::Lparen:
-    return "LPAREN";
-  case TokenKind::Rparen:
-    return "RPAREN";
-  case TokenKind::Lbrace:
-    return "LBRACE";
-  case TokenKind::Rbrace:
-    return "RBRACE";
-  case TokenKind::Return:
-    return "RETURN";
-  case TokenKind::If:
-    return "IF";
-  case TokenKind::Else:
-    return "ELSE";
-  case TokenKind::For:
-    return "FOR";
-  case TokenKind::While:
-    return "WHILE";
-  case TokenKind::Println:
-    return "PRINTLN";
-  case TokenKind::Wain:
-    return "WAIN";
-  case TokenKind::Becomes:
-    return "BECOMES";
-  case TokenKind::Int:
-    return "INT";
-  case TokenKind::Eq:
-    return "EQ";
-  case TokenKind::Ne:
-    return "NE";
-  case TokenKind::Lt:
-    return "LT";
-  case TokenKind::Gt:
-    return "GT";
-  case TokenKind::Le:
-    return "LE";
-  case TokenKind::Ge:
-    return "GE";
-  case TokenKind::Plus:
-    return "PLUS";
-  case TokenKind::Minus:
-    return "MINUS";
-  case TokenKind::Star:
-    return "STAR";
-  case TokenKind::Slash:
-    return "SLASH";
-  case TokenKind::Pct:
-    return "PCT";
-  case TokenKind::Comma:
-    return "COMMA";
-  case TokenKind::Semi:
-    return "SEMI";
-  case TokenKind::New:
-    return "NEW";
-  case TokenKind::Delete:
-    return "DELETE";
-  case TokenKind::Lbrack:
-    return "LBRACK";
-  case TokenKind::Rbrack:
-    return "RBRACK";
-  case TokenKind::Amp:
-    return "AMP";
-  case TokenKind::Null:
-    return "NULL";
-  case TokenKind::Booland:
-    return "BOOLAND";
-  case TokenKind::Boolor:
-    return "BOOLOR";
-  case TokenKind::Break:
-    return "BREAK";
-  case TokenKind::Continue:
-    return "CONTINUE";
-  case TokenKind::Whitespace:
-    return "WHITESPACE";
-  case TokenKind::Comment:
-    return "COMMENT";
+template <> struct fmt::formatter<InputLocation> : fmt::formatter<std::string> {
+  auto format(const InputLocation &location, format_context &ctx) const {
+    return fmt::format_to(ctx.out(), "{}:{}:{}", location.filename,
+                          location.line, location.column);
   }
-}
-
-struct DFA {
-  using TransitionMap = std::array<uint64_t, 128>;
-  size_t num_states = 0;
-  std::vector<TokenKind> accepting_states;
-  std::vector<TransitionMap> transitions;
-  const static inline uint64_t ERROR_STATE = -1;
-
-  void add_state(const TokenKind kind, const TransitionMap &state_transitions);
-
-  friend std::ostream &operator<<(std::ostream &os, const DFA &dfa);
 };
-
-struct NFA {
-  using NFAEntry = std::unordered_map<char, std::unordered_set<int>>;
-  std::unordered_map<int, TokenKind> accepting_states;
-  std::vector<NFAEntry> entries;
-
-  NFA(const int num_states) : entries(num_states) {}
-
-  void add_accepting_state(const int state, const TokenKind kind);
-  void add_transitions(const int source, const int target,
-                       const std::string &transitions);
-  void add_transitions(const int source, const int target,
-                       const std::function<bool(char)> &pred);
-  void add_string(const std::string &lexeme, const TokenKind state);
-
-  DFA to_dfa() const;
-
-  friend std::ostream &operator<<(std::ostream &os, const NFA &nfa);
-};
-
-NFA construct_nfa();
-DFA construct_dfa();
-std::unordered_map<std::string, TokenKind> get_keywords();
 
 struct Token {
-  std::string lexeme;
-  TokenKind kind = TokenKind::None;
-  size_t start_line = 0, start_column = 0;
-  size_t end_line = 0, end_column = 0;
+  const std::string lexeme;
+  const TokenKind kind = TokenKind::None;
+  const InputLocation start_location;
+  const InputLocation end_location;
 
   Token() = default;
   Token(const std::string &lexeme, const TokenKind &kind,
-        const size_t start_line, const size_t start_column,
-        const size_t end_line, const size_t end_column)
-      : lexeme(lexeme), kind(kind), start_line(start_line),
-        start_column(start_column), end_line(end_line), end_column(end_column) {
-  }
+        const InputLocation &start_location, const InputLocation &end_location)
+      : lexeme(lexeme), kind(kind), start_location(start_location),
+        end_location(end_location) {}
 
   bool operator==(const Token &other) const = default;
+};
 
-  friend std::ostream &operator<<(std::ostream &os, const Token &token) {
-    return os << token_kind_to_string(token.kind) << " (" << token.lexeme
-              << ") at [" << token.start_line << ":" << token.start_column
-              << " - " << token.end_line << ":" << token.end_column << "]";
+template <> struct fmt::formatter<Token> : fmt::formatter<std::string> {
+  auto format(const Token &value, format_context &ctx) const {
+    return fmt::format_to(ctx.out(), "{} ({}) at {} - {}", value.kind,
+                          value.lexeme, value.start_location,
+                          value.end_location);
   }
 };
 
+static std::string read_file(const std::string &filename) {
+  if (filename == "-") {
+    std::ostringstream buffer;
+    buffer << std::cin.rdbuf();
+    return buffer.str();
+  }
+
+  std::ifstream ifs(filename);
+  if (!ifs.good())
+    throw CompileError(fmt::format("{}: Cannot open file", filename));
+  std::ostringstream buffer;
+  buffer << ifs.rdbuf();
+  return buffer.str();
+}
+
 struct Lexer {
-  struct InputLocation {
-    size_t line;
-    size_t column;
-  };
-
+  const std::string filename;
   const std::string input;
-  const std::vector<InputLocation> input_chars;
-  size_t next_idx;
-  const DFA dfa;
-  const std::unordered_map<std::string, TokenKind> keywords;
+  const std::vector<InputLocation> char_locations;
+  size_t next_idx = 0;
+  const static inline DFA dfa = construct_dfa();
+  const static inline std::unordered_map<std::string, TokenKind> keywords =
+      get_keywords();
 
-  Lexer(const std::string &input)
-      : input(input), input_chars(index_input_string(input)), next_idx(0),
-        dfa(construct_dfa()), keywords(get_keywords()) {}
+  Lexer(const std::string &filename)
+      : filename(filename), input(read_file(filename)),
+        char_locations(get_input_locations()) {}
 
-  static std::vector<InputLocation>
-  index_input_string(const std::string &input) {
+  std::vector<InputLocation> get_input_locations() {
     std::vector<InputLocation> result;
     result.reserve(input.size());
     size_t line = 1, column = 1;
     for (char ch : input) {
-      result.push_back({line, column});
+      result.emplace_back(filename, line, column);
       if (ch == '\n') {
         line++;
         column = 1;
@@ -238,13 +107,13 @@ struct Lexer {
     return result;
   }
 
-  Token next();
-  bool done() const { return next_idx >= input.size(); }
+  Token get_next_token();
+  bool is_done() const { return next_idx >= input.size(); }
 
   std::vector<Token> token_stream() {
     std::vector<Token> result;
-    while (!done()) {
-      const Token next_token = next();
+    while (!is_done()) {
+      const Token next_token = get_next_token();
       if (next_token.kind != TokenKind::Whitespace &&
           next_token.kind != TokenKind::Comment)
         result.push_back(next_token);

@@ -28,25 +28,8 @@
 #include "parse_node.hpp"
 #include <memory>
 
-std::string consume_stdin() {
-  std::ostringstream buffer;
-  buffer << std::cin.rdbuf();
-  return buffer.str();
-}
-
-std::string read_file(const std::string &filename) {
-  if (filename == "-")
-    return consume_stdin();
-
-  std::ifstream ifs(filename);
-  debug_assert(ifs.good(), "Cannot open file {}", filename);
-  std::ostringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
-}
-
-std::shared_ptr<Program> get_program(const std::string &input) {
-  const std::vector<Token> token_stream = Lexer(input).token_stream();
+std::shared_ptr<Program> get_program(const std::string &filename) {
+  const std::vector<Token> token_stream = Lexer(filename).token_stream();
   const ContextFreeGrammar grammar = load_default_grammar();
   const EarleyTable table = EarleyParser(grammar).construct_table(token_stream);
   const std::shared_ptr<ParseNode> parse_tree = table.to_parse_tree();
@@ -74,8 +57,7 @@ bril::Program get_bril(const std::shared_ptr<Program> &program) {
 }
 
 bril::Program get_bril_from_file(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const std::shared_ptr<Program> program = get_program(input);
+  const std::shared_ptr<Program> program = get_program(filename);
   return get_bril(program);
 }
 
@@ -93,28 +75,24 @@ bril::Program get_optimized_bril_from_file(const std::string &filename) {
 }
 
 void lex(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  const std::vector<Token> token_stream = Lexer(filename).token_stream();
   for (const auto &token : token_stream) {
-    std::cout << token << std::endl;
+    fmt::println("{}", token);
   }
 }
 
 void build_ast(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const std::shared_ptr<Program> program = get_program(input);
+  const std::shared_ptr<Program> program = get_program(filename);
   program->print();
 }
 
 void emit_c(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const auto program = get_program(input);
+  const auto program = get_program(filename);
   program->emit_c(std::cout, 0);
 }
 
 void emit_naive_mips(const std::string &filename) {
-  const std::string input = read_file(filename);
-  const auto program = get_program(input);
+  const auto program = get_program(filename);
 
   NaiveMIPSGenerator generator;
   program->accept_simple(generator);
@@ -204,6 +182,12 @@ void compute_dominators(const std::string &filename) {
   });
 }
 
+void run_optimization(const std::string &filename) {
+  auto program = get_optimized_bril_from_file(filename);
+  bril::optimize_call_graph(program);
+  program.print_flattened(std::cout);
+}
+
 void compute_liveness(const std::string &filename) {
   using namespace bril;
   using util::operator<<;
@@ -280,16 +264,14 @@ void compute_call_graph(const std::string &filename) {
 
 void generate_mips(const std::string &filename) {
   auto program = get_optimized_bril_from_file(filename);
-  bril::optimize_call_graph(program);
   bril::BRILToMIPSGenerator generator(program);
   generator.print(std::cout);
 }
 
 void benchmark(const std::string &filename) {
-  const std::string &input = read_file(filename);
   // 1. Lex the input
   const auto lexing_timer = ScopedTimer("1. Lexing");
-  const std::vector<Token> token_stream = Lexer(input).token_stream();
+  const std::vector<Token> token_stream = Lexer(filename).token_stream();
   lexing_timer.stop();
 
   // 2. Parse
@@ -454,6 +436,8 @@ const static std::vector<
         {"--emit-c", emit_c},
         {"--ssa", to_ssa},
         {"--ssa-round-trip", ssa_round_trip},
+        {"--run-optimization", run_optimization},
+        {"--run-optimizations", run_optimization},
         {"--liveness", compute_liveness},
         {"--compute-rig", compute_rig},
         {"--allocate-registers", allocate_registers},
@@ -470,29 +454,27 @@ const static std::vector<
 const static std::map<std::string, std::function<void(const std::string &)>>
     options_map(options.begin(), options.end());
 
-int main(int argc, char *argv[]) {
-  try {
-    debug_assert(argc >= 2, "Expected a filename");
-    const std::string argument = argc > 2 ? argv[2] : "--default",
-                      filename = argv[1];
+int main(int argc, char *argv[]) try {
+  debug_assert(argc >= 2, "Expected a filename");
+  const std::string argument = argc > 2 ? argv[2] : "--default",
+                    filename = argv[1];
 
-    if (options_map.count(argument) == 0) {
-      fmt::print(stderr, "Unknown option: {}\n", argument);
-      fmt::print(stderr, "Options are:\n");
-      for (const auto &[option, _] : options) {
-        fmt::print(stderr, "  {}\n", option);
-      }
-      return 1;
+  if (options_map.count(argument) == 0) {
+    fmt::print(stderr, "Unknown option: {}\n", argument);
+    fmt::print(stderr, "Options are:\n");
+    for (const auto &[option, _] : options) {
+      fmt::print(stderr, "  {}\n", option);
     }
-
-    {
-      const auto total_timer = ScopedTimer("Total");
-      options_map.at(argument)(filename);
-    }
-
-    Timer::print(std::cerr, 5.0);
-  } catch (const std::exception &e) {
-    fmt::print(stderr, "ERROR: {}\n", e.what());
     return 1;
   }
+
+  {
+    const auto total_timer = ScopedTimer("Total");
+    options_map.at(argument)(filename);
+  }
+
+  Timer::print(std::cerr, 5.0);
+} catch (const CompileError &e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

@@ -173,11 +173,9 @@ void EarleyTable::scan(const size_t i, const size_t j,
 }
 
 void EarleyTable::report_error(const size_t i) const {
-
   if (i == 0) {
-    unreachable("Unexpected token of type {}",
-                token_kind_to_string(token_stream[i].kind));
-    return;
+    throw CompileError(fmt::format("Unexpected token of type {}",
+                                   token_kind_to_string(token_stream[i].kind)));
   }
 
   // Compute the set of symbols we expected instead of token_stream[i - 1]
@@ -191,7 +189,8 @@ void EarleyTable::report_error(const size_t i) const {
   }
 
   std::ostringstream ss;
-  ss << "Parse error at " << i << " (" << token_stream[i - 1] << "): expected ";
+  ss << fmt::format("Parse error at {} ({}): expected ", i,
+                    token_stream[i - 1]);
   if (expected_symbols.empty()) {
     ss << "end of file";
   } else {
