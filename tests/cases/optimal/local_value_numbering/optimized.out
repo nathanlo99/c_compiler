@@ -1,0 +1,8 @@
+@wain(a: int, b: int) : int {
+  %0: int = const 2;
+  %1: int = add a %0;
+  %2: int = const 200;
+  %3: int = add %1 %2;
+  ret %3;
+}
+

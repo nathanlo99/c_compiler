@@ -1,0 +1,22 @@
+@factorial(a: int) : int {
+  %0: int = const 1;
+  %1: int = lt %0 a;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %2: int = sub a %0;
+  %3: int = call @factorial %2;
+  %4: int = mul %3 a;
+  %5: int = id %4;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+  %5: int = id %0;
+  jmp .L3;
+.L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+  ret %5;
+}
+
+@wain(a: int, result: int) : int {
+  %0: int = call @factorial a;
+  ret %0;
+}
+

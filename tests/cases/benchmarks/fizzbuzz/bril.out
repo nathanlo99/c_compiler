@@ -1,0 +1,68 @@
+@wain(start: int, end: int) : int {
+  idx: int = const 0;
+  _t0: int = id start;
+  idx: int = id _t0;
+  _t1: int = id idx;
+  jmp whileLoop0;
+whileLoop0:                                        preds = {ifEndif2, wainEntry}, dominators = {whileLoop0, wainEntry}
+  _t2: int = id idx;
+  _t3: int = id end;
+  _t4: int = le _t2 _t3;
+  br _t4 whileBody0 whileEnd0;
+whileBody0:                                        preds = {whileLoop0}, dominators = {whileBody0, whileLoop0, wainEntry}
+  _t5: int = id idx;
+  _t6: int = const 3;
+  _t7: int = mod _t5 _t6;
+  _t8: int = const 0;
+  _t9: int = eq _t7 _t8;
+  br _t9 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {whileBody0}, dominators = {whileBody0, ifTrue0, whileLoop0, wainEntry}
+  _t10: int = id idx;
+  _t11: int = const 5;
+  _t12: int = mod _t10 _t11;
+  _t13: int = const 0;
+  _t14: int = eq _t12 _t13;
+  br _t14 ifTrue1 ifFalse1;
+ifTrue1:                                           preds = {ifTrue0}, dominators = {ifTrue1, whileBody0, ifTrue0, whileLoop0, wainEntry}
+  _t15: int = const 0;
+  _t16: int = const 15;
+  _t17: int = sub _t15 _t16;
+  print _t17;
+  jmp ifEndif1;
+ifFalse1:                                          preds = {ifTrue0}, dominators = {whileBody0, ifTrue0, whileLoop0, ifFalse1, wainEntry}
+  _t18: int = const 0;
+  _t19: int = const 3;
+  _t20: int = sub _t18 _t19;
+  print _t20;
+  jmp ifEndif1;
+ifEndif1:                                          preds = {ifFalse1, ifTrue1}, dominators = {ifEndif1, whileBody0, ifTrue0, whileLoop0, wainEntry}
+  jmp ifEndif2;
+ifFalse0:                                          preds = {whileBody0}, dominators = {whileBody0, whileLoop0, ifFalse0, wainEntry}
+  _t21: int = id idx;
+  _t22: int = const 5;
+  _t23: int = mod _t21 _t22;
+  _t24: int = const 0;
+  _t25: int = eq _t23 _t24;
+  br _t25 ifTrue2 ifFalse2;
+ifTrue2:                                           preds = {ifFalse0}, dominators = {ifTrue2, whileBody0, whileLoop0, ifFalse0, wainEntry}
+  _t26: int = const 0;
+  _t27: int = const 5;
+  _t28: int = sub _t26 _t27;
+  print _t28;
+  jmp ifEndif2;
+ifFalse2:                                          preds = {ifFalse0}, dominators = {ifFalse2, whileBody0, whileLoop0, ifFalse0, wainEntry}
+  _t29: int = id idx;
+  print _t29;
+  jmp ifEndif2;
+ifEndif2:                                          preds = {ifFalse2, ifTrue2, ifEndif1}, dominators = {ifEndif2, whileBody0, whileLoop0, wainEntry}
+  _t30: int = id idx;
+  _t31: int = const 1;
+  _t32: int = add _t30 _t31;
+  idx: int = id _t32;
+  _t33: int = id idx;
+  jmp whileLoop0;
+whileEnd0:                                         preds = {whileLoop0}, dominators = {whileEnd0, whileLoop0, wainEntry}
+  _t34: int = id idx;
+  ret _t34;
+}
+

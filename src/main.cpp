@@ -424,7 +424,7 @@ void compute_aliases(const std::string &filename) {
 const static std::vector<
     std::pair<std::string, std::function<void(const std::string &filename)>>>
     options = {
-        {"--default", generate_mips},
+        {"--default", run_optimization},
         {"--debug", inline_functions},
         {"--lex", lex},
         {"--build-ast", build_ast},

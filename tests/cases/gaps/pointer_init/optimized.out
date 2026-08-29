@@ -1,0 +1,7 @@
+@wain(a: int, b: int) : int {
+  %0: ptr<int> = const 0xffff0004;
+  %1: ptr<int> = id %0;
+  %2: int = load %1;
+  ret %2;
+}
+

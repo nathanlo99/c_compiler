@@ -1,0 +1,40 @@
+@isEven(n: int) : int {
+  %0: int = const 0;
+  %1: int = eq n %0;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %2: int = const 1;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+  %3: int = const 1;
+  %4: int = sub n %3;
+  %5: int = call @isOdd %4;
+  %2: int = id %5;
+  jmp .L3;
+.L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+  ret %2;
+}
+
+@isOdd(n: int) : int {
+  %0: int = const 0;
+  %1: int = eq n %0;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %2: int = id %0;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+  %3: int = const 1;
+  %4: int = sub n %3;
+  %5: int = call @isEven %4;
+  %2: int = id %5;
+  jmp .L3;
+.L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+  ret %2;
+}
+
+@wain(a: int, b: int) : int {
+  %0: int = const 500;
+  %1: int = call @isOdd %0;
+  ret %1;
+}
+

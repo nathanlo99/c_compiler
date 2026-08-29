@@ -1,0 +1,220 @@
+Procedure {
+  name: square
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      BinaryExpr {
+        lhs: 
+          VariableExpr(n) : int
+        operation: Mul
+        rhs: 
+          VariableExpr(n) : int
+      } : int
+    }
+}
+
+Procedure {
+  name: cube
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      BinaryExpr {
+        lhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(n) : int
+            operation: Mul
+            rhs: 
+              VariableExpr(n) : int
+          } : int
+        operation: Mul
+        rhs: 
+          VariableExpr(n) : int
+      } : int
+    }
+}
+
+Procedure {
+  name: max
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(a) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(b) : int
+        } : int
+      true_statement: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              VariableExpr(b) : int
+          } : int
+        }
+      false_statement: 
+    }
+    ReturnStatement {
+      VariableExpr(a) : int
+    }
+}
+
+Procedure {
+  name: min
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      BinaryExpr {
+        lhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(a) : int
+            operation: Add
+            rhs: 
+              VariableExpr(b) : int
+          } : int
+        operation: Sub
+        rhs: 
+          FunctionCall {
+            procedure_name: max,
+            arguments: [
+              VariableExpr(a) : int
+              VariableExpr(b) : int
+            ]
+          } : int
+      } : int
+    }
+}
+
+Procedure {
+  name: sqrt
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+    ans: int = 0 (used)
+  statements: 
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(ans) : int
+              operation: Mul
+              rhs: 
+                VariableExpr(ans) : int
+            } : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n) : int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(ans) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(ans) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ReturnStatement {
+      VariableExpr(ans) : int
+    }
+}
+
+Procedure {
+  name: pythagoras
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (used)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      FunctionCall {
+        procedure_name: sqrt,
+        arguments: [
+          BinaryExpr {
+            lhs: 
+              FunctionCall {
+                procedure_name: square,
+                arguments: [
+                  FunctionCall {
+                    procedure_name: min,
+                    arguments: [
+                      VariableExpr(a) : int
+                      VariableExpr(b) : int
+                    ]
+                  } : int
+                ]
+              } : int
+            operation: Add
+            rhs: 
+              FunctionCall {
+                procedure_name: square,
+                arguments: [
+                  FunctionCall {
+                    procedure_name: max,
+                    arguments: [
+                      VariableExpr(a) : int
+                      VariableExpr(b) : int
+                    ]
+                  } : int
+                ]
+              } : int
+          } : int
+        ]
+      } : int
+    }
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (unused)
+    b: int (unused)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      FunctionCall {
+        procedure_name: cube,
+        arguments: [
+          FunctionCall {
+            procedure_name: pythagoras,
+            arguments: [
+              3: int
+              4: int
+            ]
+          } : int
+        ]
+      } : int
+    }
+}
+

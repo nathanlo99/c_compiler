@@ -1,0 +1,10 @@
+@wain(a: ptr<int>, b: int) : int {
+  _t0: ptr<int> = id a;
+  _t1: int = id b;
+  _t2: int = const 1;
+  _t3: int = sub _t1 _t2;
+  _t4: ptr<int> = ptradd _t0 _t3;
+  _t5: int = load _t4;
+  ret _t5;
+}
+

@@ -1,0 +1,61 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 2;
+                                ;   %1: int = mod b %0;
+                                ;   %2: int = const 0;
+                                ;   %3: int = eq %1 %2;
+                                ;   br %3 .L1 .L2;
+                                ; .L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+                                ;   %4: int = mul a a;
+                                ;   %5: int = id %4;
+                                ;   jmp .L3;
+                                ; .L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+                                ;   %6: int = add a a;
+                                ;   %5: int = id %6;
+                                ;   jmp .L3;
+                                ; .L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+                                ;   print %5;
+                                ;   ret %5;
+                                ; }
+                                ; 
+.import print
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+add $8, $1, $0                  ; Loading argument 1 into register
+                                ; Removing locally unused write to $5
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $3, $11, $11                ; %0: int = const 2;
+div $2, $3                      ;  (replaced $5 with $2)
+mfhi $5                         ; %1: int = mod b %0;
+                                ; Removing locally unused write to $3
+slt $6, $5, $0                  ;  (replaced $3 with $0)
+slt $7, $0, $5                  ;  (replaced $3 with $0)
+add $3, $6, $7
+sub $3, $11, $3                 ; %3: int = eq %1 %2;
+beq $3, $0, wainL2              ; br %3 .L1 .L2;
+                                ; jmp wainL1; (fallthrough)
+                                ; Removed unused label wainL1
+mult $8, $8
+mflo $3                         ; %4: int = mul a a;
+                                ; %5: int = id %4;
+beq $0, $0, wainL3              ; jmp .L3;
+wainL2:
+add $3, $8, $8                  ; %6: int = add a a;
+                                ; %5: int = id %6;
+                                ; jmp wainL3; (fallthrough)
+wainL3:
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %5;
+                                ; ret %5;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 26

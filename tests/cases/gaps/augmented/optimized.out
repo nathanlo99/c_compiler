@@ -1,0 +1,123 @@
+@is_prime(n: int) : int {
+  %0: int = const 1;
+  %1: int = const 2;
+  %2: int = lt n %1;
+  %3: int = const 1;
+  br %2 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %3: int = const 0;
+  jmp .L2;
+.L2:                                               preds = {.L1, .L0}, dominators = {.L2, .L0}
+  %4: int = id %3;
+  %5: int = id %1;
+  jmp .L3;
+.L3:                                               preds = {.L6, .L2}, dominators = {.L3, .L2, .L0}
+  %6: int = id %4;
+  %7: int = id %5;
+  %8: int = mul %5 %5;
+  %9: int = le %8 n;
+  br %9 .L4 .L7;
+.L4:                                               preds = {.L3}, dominators = {.L4, .L3, .L2, .L0}
+  %10: int = mod n %7;
+  %11: int = const 0;
+  %12: int = eq %10 %11;
+  %13: int = id %6;
+  br %12 .L5 .L6;
+.L5:                                               preds = {.L4}, dominators = {.L4, .L3, .L2, .L5, .L0}
+  %13: int = id %11;
+  jmp .L6;
+.L6:                                               preds = {.L5, .L4}, dominators = {.L6, .L4, .L3, .L2, .L0}
+  %14: int = add %7 %0;
+  %4: int = id %13;
+  %5: int = id %14;
+  jmp .L3;
+.L7:                                               preds = {.L3}, dominators = {.L7, .L3, .L2, .L0}
+  ret %6;
+}
+
+@wain(num_primes: int, start_number: int) : int {
+  %0: ptr<int> = alloc num_primes;
+  %1: ptr<int> = id %0;
+  %2: int = id start_number;
+  %3: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L4}, dominators = {.L1, .L0}
+  %4: int = lt %3 num_primes;
+  br %4 .L2 .L5;
+.L2:                                               preds = {.L1, .L3}, dominators = {.L2, .L1, .L0}
+  %5: int = call @is_prime %2;
+  %6: int = const 0;
+  %7: int = eq %5 %6;
+  br %7 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L3, .L2, .L1, .L0}
+  %8: int = const 1;
+  %9: int = add %2 %8;
+  %2: int = id %9;
+  jmp .L2;
+.L4:                                               preds = {.L2}, dominators = {.L4, .L2, .L1, .L0}
+  %10: int = id %2;
+  %11: ptr<int> = id %1;
+  %12: int = id %3;
+  %13: ptr<int> = ptradd %11 %12;
+  store %13 %10;
+  %14: int = id %2;
+  %15: int = const 1;
+  %16: int = add %14 %15;
+  %2: int = id %16;
+  %17: int = const 1;
+  %18: int = add %3 %17;
+  %3: int = id %18;
+  jmp .L1;
+.L5:                                               preds = {.L1}, dominators = {.L5, .L1, .L0}
+  %3: int = const 0;
+  jmp .L6;
+.L6:                                               preds = {.L7, .L5}, dominators = {.L6, .L5, .L1, .L0}
+  %19: int = lt %3 num_primes;
+  br %19 .L7 .L8;
+.L7:                                               preds = {.L6}, dominators = {.L7, .L6, .L5, .L1, .L0}
+  %20: ptr<int> = id %1;
+  %21: int = id %3;
+  %22: ptr<int> = ptradd %20 %21;
+  %23: int = load %22;
+  print %23;
+  %24: int = const 1;
+  %25: int = add %3 %24;
+  %3: int = id %25;
+  jmp .L6;
+.L8:                                               preds = {.L6}, dominators = {.L8, .L6, .L5, .L1, .L0}
+  %2: int = const 40;
+  jmp .L9;
+.L9:                                               preds = {.L8, .L13}, dominators = {.L9, .L8, .L6, .L5, .L1, .L0}
+  %26: int = const 1;
+  %27: int = sub %2 %26;
+  %28: int = const 0;
+  %29: int = ne %27 %28;
+  br %29 .L10 .L14;
+.L10:                                              preds = {.L9}, dominators = {.L9, .L8, .L6, .L5, .L1, .L10, .L0}
+  print %2;
+  %30: int = id %2;
+  %31: int = const 2;
+  %32: int = mod %2 %31;
+  %33: int = const 0;
+  %34: int = eq %32 %33;
+  br %34 .L11 .L12;
+.L11:                                              preds = {.L10}, dominators = {.L11, .L9, .L8, .L6, .L5, .L1, .L10, .L0}
+  %35: int = const 2;
+  %36: int = div %30 %35;
+  %2: void = id %36;
+  jmp .L13;
+.L12:                                              preds = {.L10}, dominators = {.L12, .L9, .L8, .L6, .L5, .L1, .L10, .L0}
+  %37: int = const 3;
+  %38: int = mul %37 %30;
+  %39: int = const 1;
+  %40: int = add %38 %39;
+  %2: void = id %40;
+  jmp .L13;
+.L13:                                              preds = {.L12, .L11}, dominators = {.L13, .L9, .L8, .L6, .L5, .L1, .L10, .L0}
+  jmp .L9;
+.L14:                                              preds = {.L9}, dominators = {.L14, .L9, .L8, .L6, .L5, .L1, .L0}
+  free %1;
+  %41: int = const 0;
+  ret %41;
+}
+

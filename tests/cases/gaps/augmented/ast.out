@@ -1,0 +1,384 @@
+Procedure {
+  name: is_prime
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+    i: int = 0 (used)
+    answer: int = 1 (used)
+  statements: 
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(n) : int
+          operation: LessThan
+          rhs: 
+            2: int
+        } : int
+      true_statement: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(answer) : int
+            rhs: 
+              0: int
+          } : int
+        }
+      false_statement: 
+    }
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            2: int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(i) : int
+              operation: Mul
+              rhs: 
+                VariableExpr(i) : int
+            } : int
+          operation: LessEqual
+          rhs: 
+            VariableExpr(n) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(i) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        IfStatement {
+          condition: 
+            BinaryExpr {
+              lhs: 
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(n) : int
+                  operation: Mod
+                  rhs: 
+                    VariableExpr(i) : int
+                } : int
+              operation: Equal
+              rhs: 
+                0: int
+            } : int
+          true_statement: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(answer) : int
+                rhs: 
+                  0: int
+              } : int
+            }
+          false_statement: 
+        }
+    }
+    ReturnStatement {
+      VariableExpr(answer) : int
+    }
+}
+
+Procedure {
+  name: collatz
+  return_type: int
+  parameters: 
+    num: int* (used)
+  declarations: 
+    value: int = 0 (used)
+  statements: 
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(value) : int
+        rhs: 
+          DereferenceExpr {
+            VariableExpr(num) : int*
+          } : int
+      } : int
+    }
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(value) : int
+              operation: Mod
+              rhs: 
+                2: int
+            } : int
+          operation: Equal
+          rhs: 
+            0: int
+        } : int
+      true_statement: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                VariableExpr(num) : int*
+              } : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(value) : int
+                operation: Div
+                rhs: 
+                  2: int
+              } : int
+          } : int
+        }
+      false_statement: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                VariableExpr(num) : int*
+              } : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  BinaryExpr {
+                    lhs: 
+                      3: int
+                    operation: Mul
+                    rhs: 
+                      VariableExpr(value) : int
+                  } : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ReturnStatement {
+      0: int
+    }
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    num_primes: int (used)
+    start_number: int (used)
+  declarations: 
+    result: int* = 1 (used)
+    idx: int = 0 (used)
+    next_number: int = 0 (used)
+  statements: 
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(result) : int*
+        rhs: 
+          NewExpr {
+            VariableExpr(num_primes) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(next_number) : int
+        rhs: 
+          VariableExpr(start_number) : int
+      } : int
+    }
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            0: int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(idx) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(num_primes) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        WhileStatement {
+          condition: 
+            BinaryExpr {
+              lhs: 
+                FunctionCall {
+                  procedure_name: is_prime,
+                  arguments: [
+                    VariableExpr(next_number) : int
+                  ]
+                } : int
+              operation: Equal
+              rhs: 
+                0: int
+            } : int
+          body: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(next_number) : int
+                rhs: 
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(next_number) : int
+                    operation: Add
+                    rhs: 
+                      1: int
+                  } : int
+              } : int
+            }
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(result) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(idx) : int
+                } : int*
+              } : int
+            rhs: 
+              VariableExpr(next_number) : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(next_number) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(next_number) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            0: int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(idx) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(num_primes) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        PrintStatement {
+          DereferenceExpr {
+            BinaryExpr {
+              lhs: 
+                VariableExpr(result) : int*
+              operation: Add
+              rhs: 
+                VariableExpr(idx) : int
+            } : int*
+          } : int
+        }
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(next_number) : int
+        rhs: 
+          40: int
+      } : int
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(next_number) : int
+              operation: Sub
+              rhs: 
+                1: int
+            } : int
+          operation: NotEqual
+          rhs: 
+            0: int
+        } : int
+      body: 
+        PrintStatement {
+          VariableExpr(next_number) : int
+        }
+        ExprStatement {
+          FunctionCall {
+            procedure_name: collatz,
+            arguments: [
+              AddressOfExpr {
+                VariableLValueExpr(next_number) : int
+              } : int*
+            ]
+          } : int
+        }
+    }
+    DeleteStatement {
+      VariableExpr(result) : int*
+    }
+    ReturnStatement {
+      0: int
+    }
+}
+

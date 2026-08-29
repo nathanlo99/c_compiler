@@ -1,0 +1,38 @@
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (unused)
+  declarations: 
+  statements: 
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(a) : int
+          operation: LessThan
+          rhs: 
+            10: int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(a) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(a) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ReturnStatement {
+      VariableExpr(a) : int
+    }
+}
+

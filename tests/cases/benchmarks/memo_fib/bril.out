@@ -1,0 +1,80 @@
+@fib(n: int) : int {
+  memo: ptr<int> = const 0x1;
+  i: int = const 0;
+  res: int = const 0;
+  _t0: int = id n;
+  _t1: int = const 1;
+  _t2: int = add _t0 _t1;
+  _t3: ptr<int> = alloc _t2;
+  memo: ptr<int> = id _t3;
+  _t4: ptr<int> = id memo;
+  _t5: int = const 1;
+  _t7: ptr<int> = id memo;
+  store _t7 _t5;
+  _t6: int = id _t5;
+  _t8: int = const 1;
+  _t10: ptr<int> = id memo;
+  _t11: int = const 1;
+  _t12: ptr<int> = ptradd _t10 _t11;
+  store _t12 _t8;
+  _t9: int = id _t8;
+  _t13: int = const 2;
+  i: int = id _t13;
+  _t14: int = id i;
+  jmp forLoop0;
+forLoop0:                                          preds = {forUpdate0, fibEntry}, dominators = {forLoop0, fibEntry}
+  _t15: int = id i;
+  _t16: int = id n;
+  _t17: int = le _t15 _t16;
+  br _t17 forBody0 forEnd0;
+forBody0:                                          preds = {forLoop0}, dominators = {forBody0, forLoop0, fibEntry}
+  _t18: ptr<int> = id memo;
+  _t19: int = id i;
+  _t20: int = const 1;
+  _t21: int = sub _t19 _t20;
+  _t22: ptr<int> = ptradd _t18 _t21;
+  _t23: int = load _t22;
+  _t24: ptr<int> = id memo;
+  _t25: int = id i;
+  _t26: int = const 2;
+  _t27: int = sub _t25 _t26;
+  _t28: ptr<int> = ptradd _t24 _t27;
+  _t29: int = load _t28;
+  _t30: int = add _t23 _t29;
+  _t32: ptr<int> = id memo;
+  _t33: int = id i;
+  _t34: ptr<int> = ptradd _t32 _t33;
+  store _t34 _t30;
+  _t31: int = id _t30;
+  jmp forUpdate0;
+forUpdate0:                                        preds = {forBody0}, dominators = {forUpdate0, forBody0, forLoop0, fibEntry}
+  _t35: int = id i;
+  _t36: int = const 1;
+  _t37: int = add _t35 _t36;
+  i: int = id _t37;
+  _t38: int = id i;
+  jmp forLoop0;
+forEnd0:                                           preds = {forLoop0}, dominators = {forEnd0, forLoop0, fibEntry}
+  _t39: ptr<int> = id memo;
+  _t40: int = id n;
+  _t41: ptr<int> = ptradd _t39 _t40;
+  _t42: int = load _t41;
+  res: int = id _t42;
+  _t43: int = id res;
+  _t44: ptr<int> = id memo;
+  free _t44;
+  _t45: int = id res;
+  ret _t45;
+}
+
+@wain(n: int, res: int) : int {
+  _t46: int = id n;
+  _t47: int = call @fib _t46;
+  res: int = id _t47;
+  _t48: int = id res;
+  _t49: int = id res;
+  print _t49;
+  _t50: int = id res;
+  ret _t50;
+}
+

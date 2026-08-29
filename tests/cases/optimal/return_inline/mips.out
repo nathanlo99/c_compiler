@@ -1,0 +1,46 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = id a;
+                                ;   %1: int = const 0;
+                                ;   %2: int = eq a %1;
+                                ;   br %2 .L1 .L2;
+                                ; .L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+                                ;   %3: int = id %1;
+                                ;   jmp .L3;
+                                ; .L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+                                ;   %3: int = id %0;
+                                ;   jmp .L3;
+                                ; .L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+                                ;   ret %3;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+                                ; Removing locally unused write to $3
+                                ; Removing locally unused write to $5
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $8, $1, $0                  ;  (replaced $3 with $1)
+                                ; %0: int = id a;
+add $5, $0, $0                  ; %1: int = const 0;
+slt $6, $1, $0                  ;  (replaced $3 with $1) (replaced $5 with $0)
+slt $7, $0, $1                  ;  (replaced $3 with $1) (replaced $5 with $0)
+add $3, $6, $7
+sub $3, $11, $3                 ; %2: int = eq a %1;
+beq $3, $0, wainL2              ; br %2 .L1 .L2;
+                                ; jmp wainL1; (fallthrough)
+                                ; Removed unused label wainL1
+add $3, $5, $0
+                                ; %3: int = id %1;
+beq $0, $0, wainL3              ; jmp .L3;
+wainL2:
+add $3, $8, $0
+                                ; %3: int = id %0;
+                                ; jmp wainL3; (fallthrough)
+wainL3:
+                                ; ret %3;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 14

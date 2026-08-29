@@ -1,0 +1,44 @@
+@wain(arr: ptr<int>, size: int) : int {
+  %0: ptr<int> = alloc size;
+  arr: ptr<int> = id %0;
+  %1: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+  %2: int = lt %1 size;
+  br %2 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+  %3: int = id %1;
+  %4: int = id %1;
+  %5: int = mul %3 %4;
+  %6: ptr<int> = id arr;
+  %7: int = id %1;
+  %8: ptr<int> = ptradd %6 %7;
+  store %8 %5;
+  %9: int = id %1;
+  %10: int = const 1;
+  %11: int = add %9 %10;
+  %1: int = id %11;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+  %1: int = const 0;
+  jmp .L4;
+.L4:                                               preds = {.L5, .L3}, dominators = {.L4, .L3, .L1, .L0}
+  %12: int = lt %1 size;
+  br %12 .L5 .L6;
+.L5:                                               preds = {.L4}, dominators = {.L4, .L3, .L5, .L1, .L0}
+  %13: ptr<int> = id arr;
+  %14: int = id %1;
+  %15: ptr<int> = ptradd %13 %14;
+  %16: int = load %15;
+  print %16;
+  %17: int = id %1;
+  %18: int = const 1;
+  %19: int = add %17 %18;
+  %1: int = id %19;
+  jmp .L4;
+.L6:                                               preds = {.L4}, dominators = {.L6, .L4, .L3, .L1, .L0}
+  free arr;
+  %20: int = const 0;
+  ret %20;
+}
+

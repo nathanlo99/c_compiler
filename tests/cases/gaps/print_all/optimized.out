@@ -1,0 +1,29 @@
+@wain(arr: ptr<int>, length: int) : int {
+  %0: int = const 0;
+  %1: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+  %2: int = lt %0 length;
+  br %2 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+  %3: ptr<int> = id arr;
+  %4: int = id %0;
+  %5: ptr<int> = ptradd %3 %4;
+  %6: int = load %5;
+  print %6;
+  %7: int = id %1;
+  %8: ptr<int> = id arr;
+  %9: int = id %0;
+  %10: ptr<int> = ptradd %8 %9;
+  %11: int = load %10;
+  %12: int = add %7 %11;
+  %1: int = id %12;
+  %13: int = id %0;
+  %14: int = const 1;
+  %15: int = add %13 %14;
+  %0: int = id %15;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+  ret %1;
+}
+

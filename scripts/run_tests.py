@@ -1,13 +1,25 @@
+#!/usr/bin/env python3
+"""Convenience wrapper: build, then run the golden-file regression suite.
 
-import os
+Superseded turnt (tests/turnt/) as of the tests/cases/ + tests/runner/
+reorganization -- see tests/runner/README.md.
+"""
+import subprocess
+import sys
 
-# What are bash scripts anyway?
-commands = [
-    "cmake --build build -j",  # Replace this with your compilation command
-    "turnt tests/turnt/build_program/*.c --diff --parallel",
-    "turnt tests/turnt/run_program/two_ints/*.c --diff --parallel",
-    "turnt tests/turnt/run_program/array/*.c --diff --parallel",
+COMMANDS = [
+    ["cmake", "--build", "build", "-j"],
+    [sys.executable, "tests/runner/run_tests.py"],
 ]
 
-for command in commands:
-    os.system(command)
+
+def main() -> int:
+    """Runs each command in COMMANDS in turn, stopping at the first failure."""
+    for command in COMMANDS:
+        if subprocess.run(command, check=False).returncode != 0:
+            return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

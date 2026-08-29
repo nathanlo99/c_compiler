@@ -1,0 +1,16 @@
+@wain(a: int, b: int) : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = lt b a;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %0: ptr<int> = addressof a;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+  %0: ptr<int> = addressof b;
+  jmp .L3;
+.L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+  %2: ptr<int> = id %0;
+  %3: int = load %2;
+  ret %3;
+}
+

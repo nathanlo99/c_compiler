@@ -1,0 +1,60 @@
+@wain(n: int, res: int) : int {
+  %0: int = id n;
+  %1: ptr<int> = const 0x1;
+  %2: int = const 0;
+  %3: int = const 0;
+  %4: int = id %0;
+  %5: int = const 1;
+  %6: int = add %4 %5;
+  %7: ptr<int> = alloc %6;
+  %1: ptr<int> = id %7;
+  %8: int = const 1;
+  %9: ptr<int> = id %1;
+  store %9 %8;
+  %10: int = const 1;
+  %11: ptr<int> = id %1;
+  %12: int = const 1;
+  %13: ptr<int> = ptradd %11 %12;
+  store %13 %10;
+  %14: int = const 2;
+  %2: int = id %14;
+  jmp .L1;
+.L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+  %15: int = le %2 %0;
+  br %15 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+  %16: ptr<int> = id %1;
+  %17: int = id %2;
+  %18: int = const 1;
+  %19: int = sub %17 %18;
+  %20: ptr<int> = ptradd %16 %19;
+  %21: int = load %20;
+  %22: ptr<int> = id %1;
+  %23: int = id %2;
+  %24: int = const 2;
+  %25: int = sub %23 %24;
+  %26: ptr<int> = ptradd %22 %25;
+  %27: int = load %26;
+  %28: int = add %21 %27;
+  %29: ptr<int> = id %1;
+  %30: int = id %2;
+  %31: ptr<int> = ptradd %29 %30;
+  store %31 %28;
+  %32: int = const 1;
+  %33: int = add %2 %32;
+  %2: int = id %33;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+  %34: ptr<int> = id %1;
+  %35: int = id %0;
+  %36: ptr<int> = ptradd %34 %35;
+  %37: int = load %36;
+  %3: int = id %37;
+  %38: ptr<int> = id %1;
+  free %38;
+  %39: int = id %3;
+  %40: int = id %39;
+  print %40;
+  ret %40;
+}
+

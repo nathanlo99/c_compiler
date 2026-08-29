@@ -1,0 +1,754 @@
+Procedure {
+  name: merge
+  return_type: int
+  parameters: 
+    arr: int* (used)
+    left: int (used)
+    mid: int (used)
+    right: int (used)
+  declarations: 
+    i: int = 0 (used)
+    j: int = 0 (used)
+    k: int = 0 (used)
+    n1: int = 0 (used)
+    n2: int = 0 (used)
+    L: int* = 1 (used)
+    R: int* = 1 (used)
+    cont: int = 1 (used)
+  statements: 
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(n1) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(mid) : int
+                operation: Sub
+                rhs: 
+                  VariableExpr(left) : int
+              } : int
+            operation: Add
+            rhs: 
+              1: int
+          } : int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(n2) : int
+        rhs: 
+          BinaryExpr {
+            lhs: 
+              VariableExpr(right) : int
+            operation: Sub
+            rhs: 
+              VariableExpr(mid) : int
+          } : int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(L) : int*
+        rhs: 
+          NewExpr {
+            VariableExpr(n1) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(R) : int*
+        rhs: 
+          NewExpr {
+            VariableExpr(n2) : int
+          } : int*
+      } : int*
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(i) : int
+        rhs: 
+          0: int
+      } : int
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(i) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n1) : int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(L) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(i) : int
+                } : int*
+              } : int
+            rhs: 
+              DereferenceExpr {
+                BinaryExpr {
+                  lhs: 
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(arr) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(left) : int
+                    } : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(i) : int
+                } : int*
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(i) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(i) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(j) : int
+        rhs: 
+          0: int
+      } : int
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(j) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n2) : int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(R) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(j) : int
+                } : int*
+              } : int
+            rhs: 
+              DereferenceExpr {
+                BinaryExpr {
+                  lhs: 
+                    BinaryExpr {
+                      lhs: 
+                        BinaryExpr {
+                          lhs: 
+                            VariableExpr(arr) : int*
+                          operation: Add
+                          rhs: 
+                            VariableExpr(mid) : int
+                        } : int*
+                      operation: Add
+                      rhs: 
+                        1: int
+                    } : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(j) : int
+                } : int*
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(j) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(j) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(i) : int
+        rhs: 
+          0: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(j) : int
+        rhs: 
+          0: int
+      } : int
+    }
+    ExprStatement {
+      AssignmentExpr {
+        lhs: 
+          VariableLValueExpr(k) : int
+        rhs: 
+          VariableExpr(left) : int
+      } : int
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(cont) : int
+          operation: Equal
+          rhs: 
+            1: int
+        } : int
+      body: 
+        IfStatement {
+          condition: 
+            BinaryExpr {
+              lhs: 
+                DereferenceExpr {
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(R) : int*
+                    operation: Add
+                    rhs: 
+                      VariableExpr(j) : int
+                  } : int*
+                } : int
+              operation: LessThan
+              rhs: 
+                DereferenceExpr {
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(L) : int*
+                    operation: Add
+                    rhs: 
+                      VariableExpr(i) : int
+                  } : int*
+                } : int
+            } : int
+          true_statement: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  DereferenceLValueExpr {
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(arr) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(k) : int
+                    } : int*
+                  } : int
+                rhs: 
+                  DereferenceExpr {
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(R) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(j) : int
+                    } : int*
+                  } : int
+              } : int
+            }
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(j) : int
+                rhs: 
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(j) : int
+                    operation: Add
+                    rhs: 
+                      1: int
+                  } : int
+              } : int
+            }
+          false_statement: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  DereferenceLValueExpr {
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(arr) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(k) : int
+                    } : int*
+                  } : int
+                rhs: 
+                  DereferenceExpr {
+                    BinaryExpr {
+                      lhs: 
+                        VariableExpr(L) : int*
+                      operation: Add
+                      rhs: 
+                        VariableExpr(i) : int
+                    } : int*
+                  } : int
+              } : int
+            }
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(i) : int
+                rhs: 
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(i) : int
+                    operation: Add
+                    rhs: 
+                      1: int
+                  } : int
+              } : int
+            }
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(k) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(k) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+        IfStatement {
+          condition: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(i) : int
+              operation: LessThan
+              rhs: 
+                VariableExpr(n1) : int
+            } : int
+          true_statement: 
+          false_statement: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(cont) : int
+                rhs: 
+                  0: int
+              } : int
+            }
+        }
+        IfStatement {
+          condition: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(j) : int
+              operation: LessThan
+              rhs: 
+                VariableExpr(n2) : int
+            } : int
+          true_statement: 
+          false_statement: 
+            ExprStatement {
+              AssignmentExpr {
+                lhs: 
+                  VariableLValueExpr(cont) : int
+                rhs: 
+                  0: int
+              } : int
+            }
+        }
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(i) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n1) : int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(arr) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(k) : int
+                } : int*
+              } : int
+            rhs: 
+              DereferenceExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(L) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(i) : int
+                } : int*
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(i) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(i) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(k) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(k) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    WhileStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(j) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(n2) : int
+        } : int
+      body: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              DereferenceLValueExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(arr) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(k) : int
+                } : int*
+              } : int
+            rhs: 
+              DereferenceExpr {
+                BinaryExpr {
+                  lhs: 
+                    VariableExpr(R) : int*
+                  operation: Add
+                  rhs: 
+                    VariableExpr(j) : int
+                } : int*
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(j) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(j) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(k) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(k) : int
+                operation: Add
+                rhs: 
+                  1: int
+              } : int
+          } : int
+        }
+    }
+    DeleteStatement {
+      VariableExpr(L) : int*
+    }
+    DeleteStatement {
+      VariableExpr(R) : int*
+    }
+    ReturnStatement {
+      0: int
+    }
+}
+
+Procedure {
+  name: mergeSort
+  return_type: int
+  parameters: 
+    arr: int* (used)
+    left: int (used)
+    right: int (used)
+  declarations: 
+    mid: int = 0 (used)
+    unused: int = 0 (used)
+  statements: 
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(left) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(right) : int
+        } : int
+      true_statement: 
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(mid) : int
+            rhs: 
+              BinaryExpr {
+                lhs: 
+                  VariableExpr(left) : int
+                operation: Add
+                rhs: 
+                  BinaryExpr {
+                    lhs: 
+                      BinaryExpr {
+                        lhs: 
+                          VariableExpr(right) : int
+                        operation: Sub
+                        rhs: 
+                          VariableExpr(left) : int
+                      } : int
+                    operation: Div
+                    rhs: 
+                      2: int
+                  } : int
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(unused) : int
+            rhs: 
+              FunctionCall {
+                procedure_name: mergeSort,
+                arguments: [
+                  VariableExpr(arr) : int*
+                  VariableExpr(left) : int
+                  VariableExpr(mid) : int
+                ]
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(unused) : int
+            rhs: 
+              FunctionCall {
+                procedure_name: mergeSort,
+                arguments: [
+                  VariableExpr(arr) : int*
+                  BinaryExpr {
+                    lhs: 
+                      VariableExpr(mid) : int
+                    operation: Add
+                    rhs: 
+                      1: int
+                  } : int
+                  VariableExpr(right) : int
+                ]
+              } : int
+          } : int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(unused) : int
+            rhs: 
+              FunctionCall {
+                procedure_name: merge,
+                arguments: [
+                  VariableExpr(arr) : int*
+                  VariableExpr(left) : int
+                  VariableExpr(mid) : int
+                  VariableExpr(right) : int
+                ]
+              } : int
+          } : int
+        }
+      false_statement: 
+    }
+    ReturnStatement {
+      0: int
+    }
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int* (used)
+    b: int (used)
+  declarations: 
+    i: int = 0 (used)
+  statements: 
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            0: int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(i) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(b) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(i) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        PrintStatement {
+          DereferenceExpr {
+            BinaryExpr {
+              lhs: 
+                VariableExpr(a) : int*
+              operation: Add
+              rhs: 
+                VariableExpr(i) : int
+            } : int*
+          } : int
+        }
+    }
+    ExprStatement {
+      FunctionCall {
+        procedure_name: mergeSort,
+        arguments: [
+          VariableExpr(a) : int*
+          0: int
+          BinaryExpr {
+            lhs: 
+              VariableExpr(b) : int
+            operation: Sub
+            rhs: 
+              1: int
+          } : int
+        ]
+      } : int
+    }
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            0: int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(i) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(b) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(i) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(i) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        PrintStatement {
+          DereferenceExpr {
+            BinaryExpr {
+              lhs: 
+                VariableExpr(a) : int*
+              operation: Add
+              rhs: 
+                VariableExpr(i) : int
+            } : int*
+          } : int
+        }
+    }
+    ReturnStatement {
+      0: int
+    }
+}
+

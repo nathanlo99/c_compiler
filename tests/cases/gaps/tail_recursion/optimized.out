@@ -1,0 +1,21 @@
+@odd_part(n: int) : int {
+  %0: int = const 2;
+  %1: int = mod n %0;
+  %2: int = const 0;
+  %3: int = eq %1 %2;
+  %4: int = id n;
+  br %3 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+  %5: int = div n %0;
+  %6: int = call @odd_part %5;
+  %4: int = id %6;
+  jmp .L2;
+.L2:                                               preds = {.L0, .L1}, dominators = {.L2, .L0}
+  ret %4;
+}
+
+@wain(n: int, unused: int) : int {
+  %0: int = call @odd_part n;
+  ret %0;
+}
+

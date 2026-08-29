@@ -1,0 +1,176 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 0;
+                                ;   print a;
+                                ;   print a;
+                                ;   print a;
+                                ;   print %0;
+                                ;   %1: int = const 1;
+                                ;   print a;
+                                ;   print %0;
+                                ;   %2: int = const 2;
+                                ;   %3: int = mul a %2;
+                                ;   print %3;
+                                ;   print a;
+                                ;   print %0;
+                                ;   print %3;
+                                ;   print %0;
+                                ;   print %1;
+                                ;   print %0;
+                                ;   print %0;
+                                ;   print %0;
+                                ;   %4: int = add b a;
+                                ;   %5: int = sub %4 b;
+                                ;   print %5;
+                                ;   ret a;
+                                ; }
+                                ; 
+.import print
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+add $10, $1, $0                 ; Loading argument 1 into register
+add $9, $2, $0                  ; Loading argument 2 into register
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $8, $0, $0                  ; %0: int = const 0;
+                                ; Removing move to self
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print a;
+add $1, $10, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print a;
+add $1, $10, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print a;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $5, $11, $0                 ; %1: int = const 1;
+add $1, $10, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print a;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $3, $11, $11                ; %2: int = const 2;
+mult $10, $3
+mflo $3                         ; %3: int = mul a %2;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %3;
+add $1, $10, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print a;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %3;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $1, $5, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %1;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $1, $8, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+add $3, $9, $10                 ; %4: int = add b a;
+sub $3, $3, $9                  ; %5: int = sub %4 b;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %5;
+add $3, $10, $0
+                                ; ret a;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 142

@@ -1,0 +1,341 @@
+@merge(arr: ptr<int>, left: int, mid: int, right: int) : int {
+  i: int = const 0;
+  j: int = const 0;
+  k: int = const 0;
+  n1: int = const 0;
+  n2: int = const 0;
+  L: ptr<int> = const 0x1;
+  R: ptr<int> = const 0x1;
+  cont: int = const 1;
+  _t0: int = id mid;
+  _t1: int = id left;
+  _t2: int = sub _t0 _t1;
+  _t3: int = const 1;
+  _t4: int = add _t2 _t3;
+  n1: int = id _t4;
+  _t5: int = id n1;
+  _t6: int = id right;
+  _t7: int = id mid;
+  _t8: int = sub _t6 _t7;
+  n2: int = id _t8;
+  _t9: int = id n2;
+  _t10: int = id n1;
+  _t11: ptr<int> = alloc _t10;
+  L: ptr<int> = id _t11;
+  _t12: ptr<int> = id L;
+  _t13: int = id n2;
+  _t14: ptr<int> = alloc _t13;
+  R: ptr<int> = id _t14;
+  _t15: ptr<int> = id R;
+  _t16: int = const 0;
+  i: int = id _t16;
+  _t17: int = id i;
+  jmp whileLoop0;
+whileLoop0:                                        preds = {whileBody0, mergeEntry}, dominators = {whileLoop0, mergeEntry}
+  _t18: int = id i;
+  _t19: int = id n1;
+  _t20: int = lt _t18 _t19;
+  br _t20 whileBody0 whileEnd0;
+whileBody0:                                        preds = {whileLoop0}, dominators = {whileBody0, whileLoop0, mergeEntry}
+  _t21: ptr<int> = id arr;
+  _t22: int = id left;
+  _t23: ptr<int> = ptradd _t21 _t22;
+  _t24: int = id i;
+  _t25: ptr<int> = ptradd _t23 _t24;
+  _t26: int = load _t25;
+  _t28: ptr<int> = id L;
+  _t29: int = id i;
+  _t30: ptr<int> = ptradd _t28 _t29;
+  store _t30 _t26;
+  _t27: int = id _t26;
+  _t31: int = id i;
+  _t32: int = const 1;
+  _t33: int = add _t31 _t32;
+  i: int = id _t33;
+  _t34: int = id i;
+  jmp whileLoop0;
+whileEnd0:                                         preds = {whileLoop0}, dominators = {whileEnd0, whileLoop0, mergeEntry}
+  _t35: int = const 0;
+  j: int = id _t35;
+  _t36: int = id j;
+  jmp whileLoop1;
+whileLoop1:                                        preds = {whileBody1, whileEnd0}, dominators = {whileLoop1, whileEnd0, whileLoop0, mergeEntry}
+  _t37: int = id j;
+  _t38: int = id n2;
+  _t39: int = lt _t37 _t38;
+  br _t39 whileBody1 whileEnd1;
+whileBody1:                                        preds = {whileLoop1}, dominators = {whileLoop1, whileEnd0, whileBody1, whileLoop0, mergeEntry}
+  _t40: ptr<int> = id arr;
+  _t41: int = id mid;
+  _t42: ptr<int> = ptradd _t40 _t41;
+  _t43: int = const 1;
+  _t44: ptr<int> = ptradd _t42 _t43;
+  _t45: int = id j;
+  _t46: ptr<int> = ptradd _t44 _t45;
+  _t47: int = load _t46;
+  _t49: ptr<int> = id R;
+  _t50: int = id j;
+  _t51: ptr<int> = ptradd _t49 _t50;
+  store _t51 _t47;
+  _t48: int = id _t47;
+  _t52: int = id j;
+  _t53: int = const 1;
+  _t54: int = add _t52 _t53;
+  j: int = id _t54;
+  _t55: int = id j;
+  jmp whileLoop1;
+whileEnd1:                                         preds = {whileLoop1}, dominators = {whileLoop1, whileEnd1, whileEnd0, whileLoop0, mergeEntry}
+  _t56: int = const 0;
+  i: int = id _t56;
+  _t57: int = id i;
+  _t58: int = const 0;
+  j: int = id _t58;
+  _t59: int = id j;
+  _t60: int = id left;
+  k: int = id _t60;
+  _t61: int = id k;
+  jmp whileLoop2;
+whileLoop2:                                        preds = {ifEndif2, whileEnd1}, dominators = {whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t62: int = id cont;
+  _t63: int = const 1;
+  _t64: int = eq _t62 _t63;
+  br _t64 whileBody2 whileEnd2;
+whileBody2:                                        preds = {whileLoop2}, dominators = {whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t65: ptr<int> = id R;
+  _t66: int = id j;
+  _t67: ptr<int> = ptradd _t65 _t66;
+  _t68: int = load _t67;
+  _t69: ptr<int> = id L;
+  _t70: int = id i;
+  _t71: ptr<int> = ptradd _t69 _t70;
+  _t72: int = load _t71;
+  _t73: int = lt _t68 _t72;
+  br _t73 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {whileBody2}, dominators = {ifTrue0, whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t74: ptr<int> = id R;
+  _t75: int = id j;
+  _t76: ptr<int> = ptradd _t74 _t75;
+  _t77: int = load _t76;
+  _t79: ptr<int> = id arr;
+  _t80: int = id k;
+  _t81: ptr<int> = ptradd _t79 _t80;
+  store _t81 _t77;
+  _t78: int = id _t77;
+  _t82: int = id j;
+  _t83: int = const 1;
+  _t84: int = add _t82 _t83;
+  j: int = id _t84;
+  _t85: int = id j;
+  jmp ifEndif0;
+ifFalse0:                                          preds = {whileBody2}, dominators = {ifFalse0, whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t86: ptr<int> = id L;
+  _t87: int = id i;
+  _t88: ptr<int> = ptradd _t86 _t87;
+  _t89: int = load _t88;
+  _t91: ptr<int> = id arr;
+  _t92: int = id k;
+  _t93: ptr<int> = ptradd _t91 _t92;
+  store _t93 _t89;
+  _t90: int = id _t89;
+  _t94: int = id i;
+  _t95: int = const 1;
+  _t96: int = add _t94 _t95;
+  i: int = id _t96;
+  _t97: int = id i;
+  jmp ifEndif0;
+ifEndif0:                                          preds = {ifFalse0, ifTrue0}, dominators = {ifEndif0, whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t98: int = id k;
+  _t99: int = const 1;
+  _t100: int = add _t98 _t99;
+  k: int = id _t100;
+  _t101: int = id k;
+  _t102: int = id i;
+  _t103: int = id n1;
+  _t104: int = lt _t102 _t103;
+  br _t104 ifTrue1 ifFalse1;
+ifTrue1:                                           preds = {ifEndif0}, dominators = {ifEndif0, ifTrue1, whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  jmp ifEndif1;
+ifFalse1:                                          preds = {ifEndif0}, dominators = {ifEndif0, whileBody2, whileLoop1, whileEnd1, whileEnd0, whileLoop0, ifFalse1, whileLoop2, mergeEntry}
+  _t105: int = const 0;
+  cont: int = id _t105;
+  _t106: int = id cont;
+  jmp ifEndif1;
+ifEndif1:                                          preds = {ifFalse1, ifTrue1}, dominators = {ifEndif0, whileBody2, ifEndif1, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t107: int = id j;
+  _t108: int = id n2;
+  _t109: int = lt _t107 _t108;
+  br _t109 ifTrue2 ifFalse2;
+ifTrue2:                                           preds = {ifEndif1}, dominators = {ifTrue2, ifEndif0, whileBody2, ifEndif1, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  jmp ifEndif2;
+ifFalse2:                                          preds = {ifEndif1}, dominators = {ifFalse2, ifEndif0, whileBody2, ifEndif1, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  _t110: int = const 0;
+  cont: int = id _t110;
+  _t111: int = id cont;
+  jmp ifEndif2;
+ifEndif2:                                          preds = {ifFalse2, ifTrue2}, dominators = {ifEndif2, ifEndif0, whileBody2, ifEndif1, whileLoop1, whileEnd1, whileEnd0, whileLoop0, whileLoop2, mergeEntry}
+  jmp whileLoop2;
+whileEnd2:                                         preds = {whileBody3, whileLoop2}, dominators = {whileLoop1, whileEnd1, whileEnd0, whileEnd2, whileLoop0, whileLoop2, mergeEntry}
+  _t112: int = id i;
+  _t113: int = id n1;
+  _t114: int = lt _t112 _t113;
+  br _t114 whileBody3 whileEnd3;
+whileBody3:                                        preds = {whileEnd2}, dominators = {whileLoop1, whileEnd1, whileBody3, whileEnd0, whileEnd2, whileLoop0, whileLoop2, mergeEntry}
+  _t115: ptr<int> = id L;
+  _t116: int = id i;
+  _t117: ptr<int> = ptradd _t115 _t116;
+  _t118: int = load _t117;
+  _t120: ptr<int> = id arr;
+  _t121: int = id k;
+  _t122: ptr<int> = ptradd _t120 _t121;
+  store _t122 _t118;
+  _t119: int = id _t118;
+  _t123: int = id i;
+  _t124: int = const 1;
+  _t125: int = add _t123 _t124;
+  i: int = id _t125;
+  _t126: int = id i;
+  _t127: int = id k;
+  _t128: int = const 1;
+  _t129: int = add _t127 _t128;
+  k: int = id _t129;
+  _t130: int = id k;
+  jmp whileEnd2;
+whileEnd3:                                         preds = {whileBody4, whileEnd2}, dominators = {whileEnd3, whileLoop1, whileEnd1, whileEnd0, whileEnd2, whileLoop0, whileLoop2, mergeEntry}
+  _t131: int = id j;
+  _t132: int = id n2;
+  _t133: int = lt _t131 _t132;
+  br _t133 whileBody4 whileEnd4;
+whileBody4:                                        preds = {whileEnd3}, dominators = {whileEnd3, whileLoop1, whileEnd1, whileEnd0, whileBody4, whileEnd2, whileLoop0, whileLoop2, mergeEntry}
+  _t134: ptr<int> = id R;
+  _t135: int = id j;
+  _t136: ptr<int> = ptradd _t134 _t135;
+  _t137: int = load _t136;
+  _t139: ptr<int> = id arr;
+  _t140: int = id k;
+  _t141: ptr<int> = ptradd _t139 _t140;
+  store _t141 _t137;
+  _t138: int = id _t137;
+  _t142: int = id j;
+  _t143: int = const 1;
+  _t144: int = add _t142 _t143;
+  j: int = id _t144;
+  _t145: int = id j;
+  _t146: int = id k;
+  _t147: int = const 1;
+  _t148: int = add _t146 _t147;
+  k: int = id _t148;
+  _t149: int = id k;
+  jmp whileEnd3;
+whileEnd4:                                         preds = {whileEnd3}, dominators = {whileEnd3, whileLoop1, whileEnd1, whileEnd4, whileEnd0, whileEnd2, whileLoop0, whileLoop2, mergeEntry}
+  _t150: ptr<int> = id L;
+  free _t150;
+  _t151: ptr<int> = id R;
+  free _t151;
+  _t152: int = const 0;
+  ret _t152;
+}
+
+@mergeSort(arr: ptr<int>, left: int, right: int) : int {
+  mid: int = const 0;
+  unused: int = const 0;
+  _t153: int = id left;
+  _t154: int = id right;
+  _t155: int = lt _t153 _t154;
+  br _t155 ifTrue3 ifFalse3;
+ifTrue3:                                           preds = {mergeSortEntry}, dominators = {ifTrue3, mergeSortEntry}
+  _t156: int = id left;
+  _t157: int = id right;
+  _t158: int = id left;
+  _t159: int = sub _t157 _t158;
+  _t160: int = const 2;
+  _t161: int = div _t159 _t160;
+  _t162: int = add _t156 _t161;
+  mid: int = id _t162;
+  _t163: int = id mid;
+  _t164: ptr<int> = id arr;
+  _t165: int = id left;
+  _t166: int = id mid;
+  _t167: int = call @mergeSort _t164 _t165 _t166;
+  unused: int = id _t167;
+  _t168: int = id unused;
+  _t169: ptr<int> = id arr;
+  _t170: int = id mid;
+  _t171: int = const 1;
+  _t172: int = add _t170 _t171;
+  _t173: int = id right;
+  _t174: int = call @mergeSort _t169 _t172 _t173;
+  unused: int = id _t174;
+  _t175: int = id unused;
+  _t176: ptr<int> = id arr;
+  _t177: int = id left;
+  _t178: int = id mid;
+  _t179: int = id right;
+  _t180: int = call @merge _t176 _t177 _t178 _t179;
+  unused: int = id _t180;
+  _t181: int = id unused;
+  jmp ifFalse3;
+ifFalse3:                                          preds = {ifTrue3, mergeSortEntry}, dominators = {ifFalse3, mergeSortEntry}
+  _t182: int = const 0;
+  ret _t182;
+}
+
+@wain(a: ptr<int>, b: int) : int {
+  i: int = const 0;
+  _t183: int = const 0;
+  i: int = id _t183;
+  _t184: int = id i;
+  jmp forLoop0;
+forLoop0:                                          preds = {forUpdate0, wainEntry}, dominators = {forLoop0, wainEntry}
+  _t185: int = id i;
+  _t186: int = id b;
+  _t187: int = lt _t185 _t186;
+  br _t187 forBody0 forEnd0;
+forBody0:                                          preds = {forLoop0}, dominators = {forBody0, forLoop0, wainEntry}
+  _t188: ptr<int> = id a;
+  _t189: int = id i;
+  _t190: ptr<int> = ptradd _t188 _t189;
+  _t191: int = load _t190;
+  print _t191;
+  jmp forUpdate0;
+forUpdate0:                                        preds = {forBody0}, dominators = {forUpdate0, forBody0, forLoop0, wainEntry}
+  _t192: int = id i;
+  _t193: int = const 1;
+  _t194: int = add _t192 _t193;
+  i: int = id _t194;
+  _t195: int = id i;
+  jmp forLoop0;
+forEnd0:                                           preds = {forLoop0}, dominators = {forEnd0, forLoop0, wainEntry}
+  _t196: ptr<int> = id a;
+  _t197: int = const 0;
+  _t198: int = id b;
+  _t199: int = const 1;
+  _t200: int = sub _t198 _t199;
+  _t201: int = call @mergeSort _t196 _t197 _t200;
+  _t202: int = const 0;
+  i: int = id _t202;
+  _t203: int = id i;
+  jmp forLoop1;
+forLoop1:                                          preds = {forUpdate1, forEnd0}, dominators = {forEnd0, forLoop0, forLoop1, wainEntry}
+  _t204: int = id i;
+  _t205: int = id b;
+  _t206: int = lt _t204 _t205;
+  br _t206 forBody1 forEnd1;
+forBody1:                                          preds = {forLoop1}, dominators = {forEnd0, forLoop0, forBody1, forLoop1, wainEntry}
+  _t207: ptr<int> = id a;
+  _t208: int = id i;
+  _t209: ptr<int> = ptradd _t207 _t208;
+  _t210: int = load _t209;
+  print _t210;
+  jmp forUpdate1;
+forUpdate1:                                        preds = {forBody1}, dominators = {forUpdate1, forLoop1, forEnd0, forLoop0, forBody1, wainEntry}
+  _t211: int = id i;
+  _t212: int = const 1;
+  _t213: int = add _t211 _t212;
+  i: int = id _t213;
+  _t214: int = id i;
+  jmp forLoop1;
+forEnd1:                                           preds = {forLoop1}, dominators = {forEnd0, forEnd1, forLoop0, forLoop1, wainEntry}
+  _t215: int = const 0;
+  ret _t215;
+}
+

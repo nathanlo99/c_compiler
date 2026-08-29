@@ -1,0 +1,8 @@
+@wain(a: int, b: int) : int {
+  stdin: ptr<int> = const 0xffff0004;
+  stdout: ptr<int> = const 0xffff000c;
+  _t0: ptr<int> = id stdin;
+  _t1: int = load _t0;
+  ret _t1;
+}
+

@@ -1,0 +1,33 @@
+                                ; @wain(a: ptr<int>, b: int) : int {
+                                ;   %0: ptr<int> = id a;
+                                ;   %1: int = id b;
+                                ;   %2: int = const 1;
+                                ;   %3: int = sub %1 %2;
+                                ;   %4: ptr<int> = ptradd %0 %3;
+                                ;   %5: int = load %4;
+                                ;   ret %5;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+                                ; Removing globally unused write to $5
+                                ; Removing locally unused write to $3
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+                                ; Removing globally unused write to $8
+                                ; %0: ptr<int> = id a;
+                                ; Removing globally unused write to $5
+                                ; %1: int = id b;
+                                ; Removing locally unused write to $3
+sub $3, $2, $11                 ; %3: int = sub %1 %2; (replaced $5 with $2) (replaced $3 with $11)
+mult $3, $4
+mflo $6
+add $3, $1, $6                  ;  (replaced $8 with $1)
+lw $3, 0($3)                    ; %5: int = load %4;
+                                ; ret %5;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 9

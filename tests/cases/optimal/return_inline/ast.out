@@ -1,0 +1,53 @@
+Procedure {
+  name: foo
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+  statements: 
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(n) : int
+          operation: Equal
+          rhs: 
+            0: int
+        } : int
+      true_statement: 
+        ReturnStatement {
+          0: int
+        }
+        ExprStatement {
+          AssignmentExpr {
+            lhs: 
+              VariableLValueExpr(n) : int
+            rhs: 
+              2: int
+          } : int
+        }
+      false_statement: 
+    }
+    ReturnStatement {
+      VariableExpr(n) : int
+    }
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    a: int (used)
+    b: int (unused)
+  declarations: 
+  statements: 
+    ReturnStatement {
+      FunctionCall {
+        procedure_name: foo,
+        arguments: [
+          VariableExpr(a) : int
+        ]
+      } : int
+    }
+}
+

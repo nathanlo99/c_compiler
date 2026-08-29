@@ -1,0 +1,5 @@
+@wain(a: ptr<int>, b: int) : int {
+  %0: int = const 241;
+  ret %0;
+}
+

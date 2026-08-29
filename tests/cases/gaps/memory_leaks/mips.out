@@ -1,0 +1,71 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 0;
+                                ;   jmp .L1;
+                                ; .L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+                                ;   %1: int = lt %0 a;
+                                ;   br %1 .L2 .L3;
+                                ; .L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+                                ;   %2: ptr<int> = alloc b;
+                                ;   %3: int = const 1;
+                                ;   %4: int = add %0 %3;
+                                ;   %0: int = id %4;
+                                ;   jmp .L1;
+                                ; .L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+                                ;   %5: int = const 0;
+                                ;   ret %5;
+                                ; }
+                                ; 
+.import init
+.import new
+.import delete
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+add $9, $1, $0                  ; Loading argument 1 into register
+add $8, $2, $0                  ; Loading argument 2 into register
+                                ; Calling init
+add $2, $0, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $1
+.word init
+jalr $1
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+                                ; Done calling init
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $5, $0, $0                  ; %0: int = const 0;
+                                ; jmp wainL1; (fallthrough)
+wainL1:
+slt $3, $5, $9                  ; %1: int = lt %0 a;
+beq $3, $0, wainL3              ; br %1 .L2 .L3;
+                                ; jmp wainL2; (fallthrough)
+                                ; Removed unused label wainL2
+add $1, $8, $0
+sw $3, -4($30)                  ;   push $3
+sub $30, $30, $4                ;   ^
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word new
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+bne $3, $0, allocSuccess0
+add $3, $11, $0
+allocSuccess0:
+add $30, $30, $4
+                                ; Removing locally unused write to $3
+add $3, $5, $11                 ; %4: int = add %0 %3; (replaced $3 with $11)
+add $5, $3, $0
+                                ; %0: int = id %4;
+beq $0, $0, wainL1              ; jmp .L1;
+wainL3:
+add $3, $0, $0                  ; %5: int = const 0;
+                                ; ret %5;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 37

@@ -1,0 +1,226 @@
+@fastSort(array: ptr<int>, left: int, right: int) : int {
+  skip: int = const 0;
+  pivot: int = const 0;
+  _t68: int = const 0;
+  _t69: int = const 0;
+  _t70: int = id left;
+  _t71: int = const 0;
+  _t72: int = ge _t70 _t71;
+  br _t72 andContinue1 andDone1;
+andContinue1:                                      preds = {fastSortEntry}, dominators = {andContinue1, fastSortEntry}
+  _t73: int = id right;
+  _t74: int = const 0;
+  _t75: int = ge _t73 _t74;
+  _t69: int = id _t75;
+  jmp andDone1;
+andDone1:                                          preds = {andContinue1, fastSortEntry}, dominators = {andDone1, fastSortEntry}
+  br _t69 andContinue0 andDone0;
+andContinue0:                                      preds = {andDone1}, dominators = {andContinue0, andDone1, fastSortEntry}
+  _t76: int = id left;
+  _t77: int = id right;
+  _t78: int = lt _t76 _t77;
+  _t68: int = id _t78;
+  jmp andDone0;
+andDone0:                                          preds = {andContinue0, andDone1}, dominators = {andDone0, andDone1, fastSortEntry}
+  _t79: int = const 0;
+  _t80: int = eq _t68 _t79;
+  br _t80 ifTrue1 ifFalse1;
+ifTrue1:                                           preds = {andDone0}, dominators = {ifTrue1, andDone0, andDone1, fastSortEntry}
+  jmp ifEndif1;
+ifFalse1:                                          preds = {andDone0}, dominators = {andDone0, ifFalse1, andDone1, fastSortEntry}
+  _t81: ptr<int> = id array;
+  _t82: int = id left;
+  _t83: int = id right;
+  _t84: int = call @partition _t81 _t82 _t83;
+  pivot: int = id _t84;
+  _t85: int = id pivot;
+  _t86: ptr<int> = id array;
+  _t87: int = id left;
+  _t88: int = id pivot;
+  _t89: int = call @fastSort _t86 _t87 _t88;
+  skip: int = id _t89;
+  _t90: int = id skip;
+  _t91: ptr<int> = id array;
+  _t92: int = id pivot;
+  _t93: int = const 1;
+  _t94: int = add _t92 _t93;
+  _t95: int = id right;
+  _t96: int = call @fastSort _t91 _t94 _t95;
+  skip: int = id _t96;
+  _t97: int = id skip;
+  jmp ifEndif1;
+ifEndif1:                                          preds = {ifFalse1, ifTrue1}, dominators = {ifEndif1, andDone0, andDone1, fastSortEntry}
+  _t98: int = const 0;
+  ret _t98;
+}
+
+@partition(array: ptr<int>, left: int, right: int) : int {
+  pivot: int = const 0;
+  i: int = const 0;
+  j: int = const 0;
+  temp: int = const 0;
+  ret: int = const 0;
+  _t0: ptr<int> = id array;
+  _t1: int = id left;
+  _t2: ptr<int> = ptradd _t0 _t1;
+  _t3: int = load _t2;
+  pivot: int = id _t3;
+  _t4: int = id pivot;
+  _t5: int = id left;
+  _t6: int = const 1;
+  _t7: int = sub _t5 _t6;
+  i: int = id _t7;
+  _t8: int = id i;
+  _t9: int = id right;
+  _t10: int = const 1;
+  _t11: int = add _t9 _t10;
+  j: int = id _t11;
+  _t12: int = id j;
+  jmp whileLoop0;
+whileLoop0:                                        preds = {ifFalse0, partitionEntry}, dominators = {whileLoop0, partitionEntry}
+  _t13: int = id i;
+  _t14: int = id j;
+  _t15: int = lt _t13 _t14;
+  br _t15 whileBody0 whileEnd0;
+whileBody0:                                        preds = {whileLoop0}, dominators = {whileBody0, whileLoop0, partitionEntry}
+  _t16: int = id i;
+  _t17: int = const 1;
+  _t18: int = add _t16 _t17;
+  i: int = id _t18;
+  _t19: int = id i;
+  jmp whileLoop1;
+whileLoop1:                                        preds = {whileBody1, whileBody0}, dominators = {whileLoop1, whileBody0, whileLoop0, partitionEntry}
+  _t20: ptr<int> = id array;
+  _t21: int = id i;
+  _t22: ptr<int> = ptradd _t20 _t21;
+  _t23: int = load _t22;
+  _t24: int = id pivot;
+  _t25: int = lt _t23 _t24;
+  br _t25 whileBody1 whileEnd1;
+whileBody1:                                        preds = {whileLoop1}, dominators = {whileLoop1, whileBody0, whileBody1, whileLoop0, partitionEntry}
+  _t26: int = id i;
+  _t27: int = const 1;
+  _t28: int = add _t26 _t27;
+  i: int = id _t28;
+  _t29: int = id i;
+  jmp whileLoop1;
+whileEnd1:                                         preds = {whileLoop1}, dominators = {whileEnd1, whileLoop1, whileBody0, whileLoop0, partitionEntry}
+  _t30: int = id j;
+  _t31: int = const 1;
+  _t32: int = sub _t30 _t31;
+  j: int = id _t32;
+  _t33: int = id j;
+  jmp whileLoop2;
+whileLoop2:                                        preds = {whileBody2, whileEnd1}, dominators = {whileLoop2, whileEnd1, whileLoop1, whileBody0, whileLoop0, partitionEntry}
+  _t34: ptr<int> = id array;
+  _t35: int = id j;
+  _t36: ptr<int> = ptradd _t34 _t35;
+  _t37: int = load _t36;
+  _t38: int = id pivot;
+  _t39: int = gt _t37 _t38;
+  br _t39 whileBody2 whileEnd2;
+whileBody2:                                        preds = {whileLoop2}, dominators = {whileBody2, whileLoop2, whileEnd1, whileLoop1, whileBody0, whileLoop0, partitionEntry}
+  _t40: int = id j;
+  _t41: int = const 1;
+  _t42: int = sub _t40 _t41;
+  j: int = id _t42;
+  _t43: int = id j;
+  jmp whileLoop2;
+whileEnd2:                                         preds = {whileLoop2}, dominators = {whileLoop2, whileEnd1, whileLoop1, whileBody0, whileEnd2, whileLoop0, partitionEntry}
+  _t44: int = id i;
+  _t45: int = id j;
+  _t46: int = lt _t44 _t45;
+  br _t46 ifTrue0 ifFalse0;
+ifTrue0:                                           preds = {whileEnd2}, dominators = {whileLoop2, whileEnd1, whileLoop1, ifTrue0, whileBody0, whileEnd2, whileLoop0, partitionEntry}
+  _t47: ptr<int> = id array;
+  _t48: int = id i;
+  _t49: ptr<int> = ptradd _t47 _t48;
+  _t50: int = load _t49;
+  temp: int = id _t50;
+  _t51: int = id temp;
+  _t52: ptr<int> = id array;
+  _t53: int = id j;
+  _t54: ptr<int> = ptradd _t52 _t53;
+  _t55: int = load _t54;
+  _t57: ptr<int> = id array;
+  _t58: int = id i;
+  _t59: ptr<int> = ptradd _t57 _t58;
+  store _t59 _t55;
+  _t56: int = id _t55;
+  _t60: int = id temp;
+  _t62: ptr<int> = id array;
+  _t63: int = id j;
+  _t64: ptr<int> = ptradd _t62 _t63;
+  store _t64 _t60;
+  _t61: int = id _t60;
+  jmp ifFalse0;
+ifFalse0:                                          preds = {ifTrue0, whileEnd2}, dominators = {whileLoop2, whileEnd1, whileLoop1, ifFalse0, whileBody0, whileEnd2, whileLoop0, partitionEntry}
+  jmp whileLoop0;
+whileEnd0:                                         preds = {whileLoop0}, dominators = {whileEnd0, whileLoop0, partitionEntry}
+  _t65: int = id j;
+  ret: int = id _t65;
+  _t66: int = id ret;
+  _t67: int = id ret;
+  ret _t67;
+}
+
+@wain(a: ptr<int>, b: int) : int {
+  i: int = const 0;
+  _t99: int = const 0;
+  i: int = id _t99;
+  _t100: int = id i;
+  jmp forLoop0;
+forLoop0:                                          preds = {forUpdate0, wainEntry}, dominators = {forLoop0, wainEntry}
+  _t101: int = id i;
+  _t102: int = id b;
+  _t103: int = lt _t101 _t102;
+  br _t103 forBody0 forEnd0;
+forBody0:                                          preds = {forLoop0}, dominators = {forBody0, forLoop0, wainEntry}
+  _t104: ptr<int> = id a;
+  _t105: int = id i;
+  _t106: ptr<int> = ptradd _t104 _t105;
+  _t107: int = load _t106;
+  print _t107;
+  jmp forUpdate0;
+forUpdate0:                                        preds = {forBody0}, dominators = {forUpdate0, forBody0, forLoop0, wainEntry}
+  _t108: int = id i;
+  _t109: int = const 1;
+  _t110: int = add _t108 _t109;
+  i: int = id _t110;
+  _t111: int = id i;
+  jmp forLoop0;
+forEnd0:                                           preds = {forLoop0}, dominators = {forEnd0, forLoop0, wainEntry}
+  _t112: ptr<int> = id a;
+  _t113: int = const 0;
+  _t114: int = id b;
+  _t115: int = const 1;
+  _t116: int = sub _t114 _t115;
+  _t117: int = call @fastSort _t112 _t113 _t116;
+  _t118: int = const 0;
+  i: int = id _t118;
+  _t119: int = id i;
+  jmp forLoop1;
+forLoop1:                                          preds = {forUpdate1, forEnd0}, dominators = {forEnd0, forLoop0, forLoop1, wainEntry}
+  _t120: int = id i;
+  _t121: int = id b;
+  _t122: int = lt _t120 _t121;
+  br _t122 forBody1 forEnd1;
+forBody1:                                          preds = {forLoop1}, dominators = {forEnd0, forLoop0, forBody1, forLoop1, wainEntry}
+  _t123: ptr<int> = id a;
+  _t124: int = id i;
+  _t125: ptr<int> = ptradd _t123 _t124;
+  _t126: int = load _t125;
+  print _t126;
+  jmp forUpdate1;
+forUpdate1:                                        preds = {forBody1}, dominators = {forUpdate1, forLoop1, forEnd0, forLoop0, forBody1, wainEntry}
+  _t127: int = id i;
+  _t128: int = const 1;
+  _t129: int = add _t127 _t128;
+  i: int = id _t129;
+  _t130: int = id i;
+  jmp forLoop1;
+forEnd1:                                           preds = {forLoop1}, dominators = {forEnd0, forEnd1, forLoop0, forLoop1, wainEntry}
+  _t131: int = const 0;
+  ret _t131;
+}
+

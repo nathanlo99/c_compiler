@@ -1,0 +1,154 @@
+                                ; @f(a: int) : int {
+                                ;   %0: int = const 0;
+                                ;   %1: int = eq a %0;
+                                ;   br %1 .L1 .L2;
+                                ; .L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+                                ;   %2: int = id %0;
+                                ;   jmp .L3;
+                                ; .L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+                                ;   %3: int = const 1;
+                                ;   %4: int = sub a %3;
+                                ;   %5: int = call @f %4;
+                                ;   %2: int = id %5;
+                                ;   jmp .L3;
+                                ; .L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+                                ;   ret %2;
+                                ; }
+                                ; 
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 100000;
+                                ;   %1: int = call @f %0;
+                                ;   %2: int = call @f %1;
+                                ;   %3: int = call @f %2;
+                                ;   ret %3;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+sub $29, $30, $4                ; Initializing base pointer
+add $5, $1, $0                  ; Loading argument 1 into register
+                                ; Removing locally unused write to $3
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+lis $3
+.word 100000                    ; %0: int = const 100000;
+                                ; Generating function call: %1: int = call @f %0;
+                                ; 1. Save the live registers
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                ; Copying arguments
+add $8, $3, $0                  ; Copying argument from register $8 to register $3
+add $29, $30, $0
+add $30, $30, $4
+                                ; 3. Done copying arguments to f
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word fL0
+jalr $2                         ; 4. Jump to f
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+                                ; 5. Restore the stack pointer
+                                ; 6. Pop the saved registers off the stack
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; 7. Done with function call
+                                ; 8. Copy return value to %1
+                                ; Generating function call: %2: int = call @f %1;
+                                ; 1. Save the live registers
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                ; Copying arguments
+add $8, $3, $0                  ; Copying argument from register $8 to register $3
+add $29, $30, $0
+add $30, $30, $4
+                                ; 3. Done copying arguments to f
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word fL0
+jalr $2                         ; 4. Jump to f
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+                                ; 5. Restore the stack pointer
+                                ; 6. Pop the saved registers off the stack
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; 7. Done with function call
+                                ; 8. Copy return value to %2
+                                ; Generating function call: %3: int = call @f %2;
+                                ; 1. Save the live registers
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                ; Copying arguments
+add $8, $3, $0                  ; Copying argument from register $8 to register $3
+add $29, $30, $0
+add $30, $30, $4
+                                ; 3. Done copying arguments to f
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word fL0
+jalr $2                         ; 4. Jump to f
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+                                ; 5. Restore the stack pointer
+                                ; 6. Pop the saved registers off the stack
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; 7. Done with function call
+                                ; 8. Copy return value to %3
+                                ; ret %3;
+jr $31
+                                ; Done with function wain
+                                ; Code for function f
+fL0:
+add $5, $0, $0                  ; %0: int = const 0;
+slt $6, $8, $0                  ;  (replaced $5 with $0)
+slt $7, $0, $8                  ;  (replaced $5 with $0)
+add $3, $6, $7
+sub $3, $11, $3                 ; %1: int = eq a %0;
+beq $3, $0, fL2                 ; br %1 .L1 .L2;
+                                ; jmp fL1; (fallthrough)
+                                ; Removed unused label fL1
+add $3, $5, $0
+                                ; %2: int = id %0;
+beq $0, $0, fL3                 ; jmp .L3;
+fL2:
+                                ; Removing locally unused write to $3
+sub $3, $8, $11                 ; %4: int = sub a %3; (replaced $3 with $11)
+                                ; Generating function call: %5: int = call @f %4;
+                                ; 1. Save the live registers
+sw $29, -4($30)                 ;   push $29
+sub $30, $30, $4                ;   ^
+sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                ; Copying arguments
+add $8, $3, $0                  ; Copying argument from register $8 to register $3
+add $29, $30, $0
+add $30, $30, $4
+                                ; 3. Done copying arguments to f
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word fL0
+jalr $2                         ; 4. Jump to f
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ;   ^
+                                ; 5. Restore the stack pointer
+                                ; 6. Pop the saved registers off the stack
+add $30, $30, $4                ;   pop $29
+lw $29, -4($30)                 ;   ^
+                                ; 7. Done with function call
+                                ; 8. Copy return value to %5
+                                ; %2: int = id %5;
+                                ; jmp fL3; (fallthrough)
+fL3:
+                                ; ret %2;
+jr $31
+                                ; Done with function f
+                                ; Number of instructions: 78

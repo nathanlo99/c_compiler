@@ -1,0 +1,146 @@
+Procedure {
+  name: fizzbuzz
+  return_type: int
+  parameters: 
+    n: int (used)
+  declarations: 
+  statements: 
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(n) : int
+              operation: Mod
+              rhs: 
+                15: int
+            } : int
+          operation: Equal
+          rhs: 
+            0: int
+        } : int
+      true_statement: 
+        ReturnStatement {
+          BinaryExpr {
+            lhs: 
+              0: int
+            operation: Sub
+            rhs: 
+              15: int
+          } : int
+        }
+      false_statement: 
+    }
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(n) : int
+              operation: Mod
+              rhs: 
+                3: int
+            } : int
+          operation: Equal
+          rhs: 
+            0: int
+        } : int
+      true_statement: 
+        ReturnStatement {
+          BinaryExpr {
+            lhs: 
+              0: int
+            operation: Sub
+            rhs: 
+              3: int
+          } : int
+        }
+      false_statement: 
+    }
+    IfStatement {
+      condition: 
+        BinaryExpr {
+          lhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(n) : int
+              operation: Mod
+              rhs: 
+                5: int
+            } : int
+          operation: Equal
+          rhs: 
+            0: int
+        } : int
+      true_statement: 
+        ReturnStatement {
+          BinaryExpr {
+            lhs: 
+              0: int
+            operation: Sub
+            rhs: 
+              5: int
+          } : int
+        }
+      false_statement: 
+    }
+    ReturnStatement {
+      VariableExpr(n) : int
+    }
+}
+
+Procedure {
+  name: wain
+  return_type: int
+  parameters: 
+    start: int (used)
+    end: int (used)
+  declarations: 
+    idx: int = 0 (used)
+  statements: 
+    ForStatement {
+      initialization: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            VariableExpr(start) : int
+        } : int
+      condition: 
+        BinaryExpr {
+          lhs: 
+            VariableExpr(idx) : int
+          operation: LessThan
+          rhs: 
+            VariableExpr(end) : int
+        } : int
+      increment: 
+        AssignmentExpr {
+          lhs: 
+            VariableLValueExpr(idx) : int
+          rhs: 
+            BinaryExpr {
+              lhs: 
+                VariableExpr(idx) : int
+              operation: Add
+              rhs: 
+                1: int
+            } : int
+        } : int
+      body: 
+        PrintStatement {
+          FunctionCall {
+            procedure_name: fizzbuzz,
+            arguments: [
+              VariableExpr(idx) : int
+            ]
+          } : int
+        }
+    }
+    ReturnStatement {
+      VariableExpr(idx) : int
+    }
+}
+

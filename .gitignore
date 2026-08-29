@@ -1,6 +1,8 @@
 .DS_Store
 build/
 .cache/
-a.out
-tmp.cpp
 output/
+__pycache__/
+*.pyc
+.venv/
+tests/debug.c

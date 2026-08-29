@@ -1,0 +1,58 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 241;
+                                ;   print %0;
+                                ;   %1: int = sub b a;
+                                ;   print %1;
+                                ;   %2: int = add b a;
+                                ;   %3: int = const 2;
+                                ;   %4: int = add %2 %3;
+                                ;   print %4;
+                                ;   %5: int = const 1;
+                                ;   ret %5;
+                                ; }
+                                ; 
+.import print
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+add $8, $1, $0                  ; Loading argument 1 into register
+add $5, $2, $0                  ; Loading argument 2 into register
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+lis $3
+.word 241                       ; %0: int = const 241;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %0;
+sub $3, $5, $8                  ; %1: int = sub b a;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %1;
+add $5, $5, $8                  ; %2: int = add b a;
+add $3, $11, $11                ; %3: int = const 2;
+add $3, $5, $3                  ; %4: int = add %2 %3;
+add $1, $3, $0
+sw $31, -4($30)                 ;   push $31
+sub $30, $30, $4                ;   ^
+lis $2
+.word print
+jalr $2
+add $30, $30, $4                ;   pop $31
+lw $31, -4($30)                 ; print %4;
+add $3, $11, $0                 ; %5: int = const 1;
+                                ; ret %5;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 38

@@ -1,0 +1,49 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = id a;
+                                ;   jmp .L1;
+                                ; .L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+                                ;   %1: int = id %0;
+                                ;   %2: int = const 10;
+                                ;   %3: int = lt %0 %2;
+                                ;   br %3 .L2 .L3;
+                                ; .L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+                                ;   %4: int = const 1;
+                                ;   %5: int = add %1 %4;
+                                ;   %0: int = id %5;
+                                ;   jmp .L1;
+                                ; .L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+                                ;   ret %1;
+                                ; }
+                                ; 
+lis $4
+.word 4
+slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                ; Removing globally unused write to $29
+add $5, $1, $0                  ; Loading argument 1 into register
+add $3, $2, $0                  ; Loading argument 2 into register
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $8, $1, $0                  ;  (replaced $5 with $1)
+                                ; %0: int = id a;
+                                ; jmp wainL1; (fallthrough)
+wainL1:
+add $5, $8, $0
+                                ; %1: int = id %0;
+lis $3
+.word 10                        ; %2: int = const 10;
+slt $3, $8, $3                  ; %3: int = lt %0 %2;
+beq $3, $0, wainL3              ; br %3 .L2 .L3;
+                                ; jmp wainL2; (fallthrough)
+                                ; Removed unused label wainL2
+                                ; Removing locally unused write to $3
+add $3, $5, $11                 ; %5: int = add %1 %4; (replaced $3 with $11)
+add $8, $3, $0
+                                ; %0: int = id %5;
+beq $0, $0, wainL1              ; jmp .L1;
+wainL3:
+add $3, $5, $0
+                                ; ret %1;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 16
