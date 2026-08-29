@@ -1,0 +1,18 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   ret a;
+                                ; }
+                                ; 
+                                ; Removing globally unused write to $4
+                                ;   (removed lis)
+                                ; Removing globally unused write to $11
+                                ; Removing globally unused write to $29
+                                ; Removing globally unused write to $5
+                                ; Removing locally unused write to $3
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+add $3, $1, $0                  ;  (replaced $5 with $1)
+                                ; ret a;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 2

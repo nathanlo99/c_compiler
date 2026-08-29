@@ -1,0 +1,20 @@
+                                ; @wain(a: int, b: int) : int {
+                                ;   %0: int = const 241;
+                                ;   ret %0;
+                                ; }
+                                ; 
+                                ; Removing globally unused write to $4
+                                ;   (removed lis)
+                                ; Removing globally unused write to $11
+                                ; Removing globally unused write to $29
+                                ; Removing globally unused write to $5
+                                ; Removing locally unused write to $3
+                                ; jmp wainL0; (fallthrough)
+                                ; Code for function wain
+                                ; Removed unused label wainL0
+lis $3
+.word 241                       ; %0: int = const 241;
+                                ; ret %0;
+jr $31
+                                ; Done with function wain
+                                ; Number of instructions: 3

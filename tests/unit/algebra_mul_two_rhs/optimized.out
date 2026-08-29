@@ -1,0 +1,6 @@
+@wain(a: int, b: int) : int {
+  %0: int = const 2;
+  %1: int = mul a %0;
+  ret %1;
+}
+

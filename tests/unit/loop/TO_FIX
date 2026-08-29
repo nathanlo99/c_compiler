@@ -1,0 +1,2 @@
+TODO.md item 6: LVN skips blocks touching memory (loop-carried copies)
+TODO.md item 11: no loop unrolling / compile-time loop evaluation
