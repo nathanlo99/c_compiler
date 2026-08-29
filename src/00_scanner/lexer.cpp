@@ -54,5 +54,7 @@ Token Lexer::get_next_token() {
     throw CompileError(fmt::format("{}: numeric literal out of range ({})",
                                    start_location, lexeme));
 
-  return Token(lexeme, last_accepting_kind, start_location, end_location);
+  InputRange location(filename, start_location.line, start_location.column,
+                      end_location.column + 1);
+  return Token(lexeme, last_accepting_kind, location);
 }

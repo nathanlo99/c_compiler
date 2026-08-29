@@ -40,26 +40,44 @@ template <> struct fmt::formatter<InputLocation> : fmt::formatter<std::string> {
   }
 };
 
+struct InputRange {
+  const std::string filename;
+  const size_t line;
+  const size_t start_column;
+  const size_t end_column;
+
+  InputRange(const std::string &filename = "[invalid]", size_t line = 0,
+             size_t start_column = 0, size_t end_column = 0)
+      : filename(filename), line(line), start_column(start_column),
+        end_column(end_column) {}
+
+  bool operator==(const InputRange &) const = default;
+};
+
+template <> struct fmt::formatter<InputRange> : fmt::formatter<std::string> {
+  auto format(const InputRange &range, format_context &ctx) const {
+    return fmt::format_to(ctx.out(), "{}:{}:{}-{}", range.filename, range.line,
+                          range.start_column, range.end_column);
+  }
+};
+
 struct Token {
   const std::string lexeme;
   const TokenKind kind = TokenKind::None;
-  const InputLocation start_location;
-  const InputLocation end_location;
+  const InputRange location;
 
   Token() = default;
   Token(const std::string &lexeme, const TokenKind &kind,
-        const InputLocation &start_location, const InputLocation &end_location)
-      : lexeme(lexeme), kind(kind), start_location(start_location),
-        end_location(end_location) {}
+        const InputRange &location)
+      : lexeme(lexeme), kind(kind), location(location) {}
 
   bool operator==(const Token &other) const = default;
 };
 
 template <> struct fmt::formatter<Token> : fmt::formatter<std::string> {
   auto format(const Token &value, format_context &ctx) const {
-    return fmt::format_to(ctx.out(), "{} ({}) at {} - {}", value.kind,
-                          value.lexeme, value.start_location,
-                          value.end_location);
+    return fmt::format_to(ctx.out(), "{} ({}) at {}", value.kind, value.lexeme,
+                          value.location);
   }
 };
 

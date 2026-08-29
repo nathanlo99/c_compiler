@@ -2,17 +2,19 @@
 #pragma once
 
 #include <algorithm>
-#include <fmt/core.h>
+#include <cstddef>
 #include <iostream>
 #include <map>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
-// #include "assert.hpp"
+#include <fmt/core.h>
 
 #define debug_assert(expr, message, ...)                                       \
   if (!(expr)) [[unlikely]]                                                    \

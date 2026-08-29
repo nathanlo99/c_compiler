@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ast_base.hpp"
+#include "02_ast_generation/ast_base.hpp"
 #include "types.hpp"
 #include "util.hpp"
 
