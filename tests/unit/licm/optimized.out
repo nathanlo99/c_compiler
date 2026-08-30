@@ -1,0 +1,22 @@
+@wain(a: int, b: int) : int {
+  %0: int = const 0;
+  %1: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+  %2: int = id %0;
+  %3: int = id %1;
+  %4: int = const 10;
+  %5: int = lt %1 %4;
+  br %5 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+  %6: int = mul b a;
+  %7: int = add %6 %2;
+  %8: int = const 1;
+  %9: int = add %3 %8;
+  %0: int = id %7;
+  %1: int = id %9;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+  ret %2;
+}
+

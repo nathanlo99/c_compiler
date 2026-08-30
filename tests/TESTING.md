@@ -27,10 +27,21 @@ tests/<category>/<name>/
 ```
 
 `<category>` is one of `unit`, `benchmarks`, `broken`. `<stage>` is one of
-`optimized`, `mips`, `interpret` (see `harness.py`'s `STAGES`), run in that
-order. `ast`/`bril` (the pre-optimization stages) aren't tracked here —
-this suite is about the optimizer/codegen work `references/TODO.md`
-tracks, not the frontend.
+`optimized`, `mips`, `interpret` by default (`harness.DEFAULT_STAGE_NAMES`),
+run in that order — a case that also cares about a stage outside that
+default (currently just `compute-rig`, for register-interference-graph
+output) opts in with a first-line comment in its `input.c`:
+
+```c
+// test phases: optimized, mips, interpret, compute-rig
+```
+
+naming the exact subset it runs (still evaluated in `harness.STAGES`
+order). Leave the comment off for the common case — nothing needs to name
+`optimized, mips, interpret` explicitly, that's already the default.
+`ast`/`bril` (the pre-optimization stages) aren't tracked at all — this
+suite is about the optimizer/codegen work `references/TODO.md` tracks, not
+the frontend.
 
 **A `unit/<name>/TO_FIX` file** means that test is a known, deliberate
 repro for one `references/TODO.md` item (the file names which) — its
@@ -60,7 +71,8 @@ silently going stale.
 ## Running the suite
 
 ```bash
-tests/run_tests.py                    # everything
+tests/run_tests.py                    # everything (PASS hidden by default)
+tests/run_tests.py --verbose          # ...and show PASS too
 tests/run_tests.py --category unit
 tests/run_tests.py --stages optimized,mips
 tests/run_tests.py --pattern loop
@@ -73,10 +85,15 @@ individual compiler invocation has a 15s timeout
 (`harness.DEFAULT_TIMEOUT`) — `benchmarks/lexer`'s `optimized` stage is a
 known slow case that can exceed this on some machines.
 
-Each stage's PASS/FAIL/etc. line prints live as it completes (not sorted —
-completion order) with that stage's live-run duration (`PASS unit/simple
-[optimized] (4ms)`), and a persistent progress bar underneath shows the
-running tally (`match=N mismatch=N ...`) and cases remaining.
+Each stage's PASS/TODO/FAIL/etc. line prints live as it completes (not
+sorted — completion order) with that stage's live-run duration (`PASS
+unit/simple [optimized] (4ms)`), and a persistent progress bar underneath
+shows the running tally (`match=N todo=N mismatch=N ...`) and cases
+remaining. A match against a `TO_FIX`-marked case prints as **TODO**, not
+PASS — it's matching today's known-imperfect baseline, not genuinely fully
+optimal (see the `TO_FIX` note above) — tagged with the reason either way.
+**PASS results are hidden by default** so a run stays focused on
+TODO/FAIL/etc.; pass `--verbose` to print them too.
 
 Exit code is non-zero if any `mismatch`/`timeout`/`orphan` was found
 (add `--require-golden` to also fail on `missing`).
@@ -101,6 +118,10 @@ full new output, if there wasn't one yet) and prompts:
 
 `--accept-all` skips the prompts and accepts everything — useful for bulk
 bootstrapping a category you've already verified by hand (e.g. `broken/`,
-where "the current error message" is unambiguously the right golden), but
-not a substitute for actually reviewing `TO_FIX`-marked tests' outputs,
-since those are *expected* to be imperfect (see `references/TODO.md`).
+where "the current error message" is unambiguously the right golden). It
+**holds back `TO_FIX`-marked cases by default** rather than touching them:
+whether a new output is now actually correct, or just differently
+imperfect, is exactly the judgment call those need a human for (see
+`references/TODO.md`), and blindly sweeping over one is the one way this
+tool can silently corrupt a hand-verified golden — pass `--include-to-fix`
+if you really do want `--accept-all` to cover them too.

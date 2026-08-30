@@ -1,3 +1,4 @@
+// test phases: optimized, interpret
 
 int wain(int a, int b) {
   // Create 'a' memory leaks, each pf size 'b'

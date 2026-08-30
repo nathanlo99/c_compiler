@@ -1,1 +1,1 @@
-TODO.md item 9: mutual recursion is never inlined (by design -- worth revisiting)
+TODO.md item 19: mutual recursion is never inlined (by design -- worth revisiting)

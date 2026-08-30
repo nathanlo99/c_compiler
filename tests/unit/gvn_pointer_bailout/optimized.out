@@ -1,0 +1,24 @@
+@wain(a: int, b: int) : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 0;
+  %2: int = const 0;
+  %3: int = const 1;
+  %4: ptr<int> = alloc %3;
+  %0: ptr<int> = id %4;
+  %5: int = const 1;
+  %6: ptr<int> = id %0;
+  store %6 %5;
+  %7: ptr<int> = id %0;
+  %8: int = load %7;
+  %1: int = id %8;
+  %9: ptr<int> = id %0;
+  %10: int = load %9;
+  %2: int = id %10;
+  %11: ptr<int> = id %0;
+  free %11;
+  %12: int = id %1;
+  %13: int = id %2;
+  %14: int = add %12 %13;
+  ret %14;
+}
+

@@ -1,2 +1,3 @@
+// test phases: optimized, interpret
 
 int wain(int *a, int b) { return *(a + (b - 1)); }

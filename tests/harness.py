@@ -3,21 +3,25 @@
 Layout (one directory per test case):
 
     tests/<category>/<name>/
-        input.c        - the C program under test
+        input.c        - the C program under test; may start with a
+                          `// test phases: <name>, <name>, ...` comment
+                          (see Case.declared_phases) naming a subset of
+                          STAGES to run instead of DEFAULT_STAGE_NAMES
         stdin           - (optional) stdin fed to the "interpret" stage;
                           defaults to "5 10\\n" (two ints) if absent
         TO_FIX          - (optional) marks this as a known, deliberate
                           repro for a references/TODO.md item (names
                           which); absent means "expected fully optimal"
         <stage>.out     - golden stdout (or stderr, if the stage failed
-                          and stdout was empty) for that pipeline stage
+                          and stdout was empty) for that stage
 
-Stages are evaluated in STAGE_ORDER. The moment a stage's *live* run
-returns a non-zero exit code, evaluation for that test case stops: later
-stages are not run, not checked against golden files, and should not have
-golden files at all (a test that's meant to fail to parse simply has no
-mips/interpret golden -- absence, not an empty file, is how "doesn't get
-this far" is represented).
+A case's stages are evaluated in STAGES order, restricted to whichever
+subset applies to it (see Case.stage_names). The moment a stage's *live*
+run returns a non-zero exit code, evaluation for that test case stops:
+later stages are not run, not checked against golden files, and should
+not have golden files at all (a test that's meant to fail to parse simply
+has no mips/interpret golden -- absence, not an empty file, is how
+"doesn't get this far" is represented).
 
 Return codes aren't golden-checked -- in practice every non-zero-rc case
 we've hit also changed its stdout, so the text diff alone catches it, and
@@ -29,6 +33,7 @@ from __future__ import annotations
 
 import dataclasses
 import pathlib
+import re
 import subprocess
 import time
 
@@ -51,16 +56,25 @@ class Stage:
     needs_stdin: bool = False
 
 
-# Order matters: this is the pipeline order used for short-circuiting.
-# ast/bril were dropped -- we're not developing the frontend right now, and
-# the optimizer/codegen work this suite tracks (see references/TODO.md) is
+# Order matters: this is the canonical order stages run/print in. ast/bril
+# were dropped -- we're not developing the frontend right now, and the
+# optimizer/codegen work this suite tracks (see references/TODO.md) is
 # about "optimized" and "mips", not the raw pre-optimization IR.
 STAGES: list[Stage] = [
     Stage("optimized", "--run-optimizations"),
     Stage("mips", "--emit-mips"),
     Stage("interpret", "--interpret", needs_stdin=True),
+    Stage("compute-rig", "--compute-rig"),
 ]
 STAGES_BY_NAME = {s.name: s for s in STAGES}
+
+# What a case runs if its input.c has no `// test phases:` comment. Doesn't
+# include "compute-rig": it's opt-in per case (see Case.declared_phases)
+# since almost no test cares about register-interference-graph output, and
+# defaulting it on would mean a golden file for every single case.
+DEFAULT_STAGE_NAMES = ["optimized", "mips", "interpret"]
+
+_PHASES_COMMENT_RE = re.compile(r"^//\s*test phases:\s*(.+)$", re.MULTILINE)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -86,6 +100,30 @@ class Case:
         if self.stdin_path.exists():
             return self.stdin_path.read_bytes()
         return DEFAULT_STDIN
+
+    @property
+    def declared_phases(self) -> list[str] | None:
+        """The stage names named by input.c's `// test phases: ...`
+        comment, in the order given, or None if it has no such comment
+        (in which case DEFAULT_STAGE_NAMES applies -- see stage_names).
+        Raises ValueError if a named phase isn't a known stage, to catch
+        typos loudly instead of silently skipping a stage."""
+        match = _PHASES_COMMENT_RE.search(self.c_path.read_text(encoding="utf-8"))
+        if match is None:
+            return None
+        names = [name.strip() for name in match.group(1).split(",")]
+        for name in names:
+            if name not in STAGES_BY_NAME:
+                raise ValueError(
+                    f"{self.c_path}: unknown phase {name!r} in 'test phases' "
+                    f"comment (known: {', '.join(STAGES_BY_NAME)})"
+                )
+        return names
+
+    def stage_names(self) -> list[str]:
+        """The stage names this case actually runs: its own declared_phases
+        if it has any, else DEFAULT_STAGE_NAMES."""
+        return self.declared_phases or DEFAULT_STAGE_NAMES
 
     @property
     def to_fix_path(self) -> pathlib.Path:

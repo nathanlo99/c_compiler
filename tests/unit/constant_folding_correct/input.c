@@ -1,3 +1,4 @@
+// test phases: optimized, interpret
 int wain(int a, int b) {
   println(241);
   println((b - a));

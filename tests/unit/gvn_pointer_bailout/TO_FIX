@@ -1,0 +1,1 @@
+TODO.md item 15: GVN disables itself for the whole function if it touches memory anywhere

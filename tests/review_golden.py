@@ -13,10 +13,17 @@ a now-earlier failure makes unreachable), shows a diff and prompts:
     [s] show the full new output (not just the diff)
     [q] quit (everything accepted so far is already saved)
 
+--accept-all holds back TO_FIX-marked cases by default -- "is this new
+output actually correct now, or just differently imperfect" is exactly the
+call those need a human for, and this is the one way this tool can corrupt
+a hand-verified golden instead of just being slow to update it. Pass
+--include-to-fix to sweep those in too.
+
 Usage:
     tests/review_golden.py                    # interactive, everything
     tests/review_golden.py --category unit
-    tests/review_golden.py --accept-all        # non-interactive bootstrap
+    tests/review_golden.py --accept-all        # non-interactive, holds back TO_FIX cases
+    tests/review_golden.py --accept-all --include-to-fix  # ...and those too
     tests/review_golden.py --skip-build        # skip the cmake build step
 """
 from __future__ import annotations
@@ -53,16 +60,39 @@ def print_diff(outcome: Outcome) -> None:
         print("(no output)")
 
 
-def review(outcomes: list[Outcome], auto_accept: bool) -> tuple[int, int]:
+def _split_pending(outcomes: list[Outcome], auto_accept: bool,
+                   include_to_fix: bool) -> tuple[list[Outcome], list[Outcome]]:
+    """Splits `outcomes` into (pending, held_back): held_back is TO_FIX-marked
+    pending outcomes when auto_accept and not include_to_fix, else empty."""
+    pending = [o for o in outcomes if o.status in ("missing", "mismatch", "orphan")]
+    if not (auto_accept and not include_to_fix):
+        return pending, []
+    return (
+        [o for o in pending if o.case.to_fix_reason is None],
+        [o for o in pending if o.case.to_fix_reason is not None],
+    )
+
+
+def review(outcomes: list[Outcome], auto_accept: bool,
+          include_to_fix: bool = False) -> tuple[int, int, int]:
     """Walks every pending (missing/mismatch/orphan) outcome, prompting for
     each (or auto-accepting all of them if `auto_accept`). Returns
-    (accepted, skipped) counts."""
+    (accepted, skipped, held_back) counts.
+
+    If `auto_accept` and not `include_to_fix`, TO_FIX-marked cases are held
+    back entirely -- not accepted, not prompted, not touched -- since
+    "is this new output actually correct now, or just differently
+    imperfect" is exactly the judgment call a TO_FIX case needs a human
+    for, and --accept-all sweeping over one of those silently is the one
+    way this tool can actively corrupt a hand-verified golden instead of
+    just being slow to update it. Pass --include-to-fix to opt back in."""
     accepted = skipped = 0
-    pending = [o for o in outcomes if o.status in ("missing", "mismatch", "orphan")]
+    pending, held_back = _split_pending(outcomes, auto_accept, include_to_fix)
     total = len(pending)
     for idx, outcome in enumerate(pending, 1):
-        case, stage = outcome.case, outcome.stage
-        header = f"[{idx}/{total}] {case.category}/{case.name} [{stage.name}]  ({outcome.status})"
+        case = outcome.case
+        header = (f"[{idx}/{total}] {case.category}/{case.name} "
+                 f"[{outcome.stage.name}]  ({outcome.status})")
         print("=" * len(header))
         print(header)
         print("=" * len(header))
@@ -100,9 +130,16 @@ def review(outcomes: list[Outcome], auto_accept: bool) -> tuple[int, int]:
             if choice == "q":
                 print(f"\nQuitting. Accepted {accepted}, skipped {skipped}, "
                       f"{total - idx} not reviewed.")
-                return accepted, skipped
+                return accepted, skipped, len(held_back)
             print("unrecognized choice")
-    return accepted, skipped
+
+    if held_back:
+        names = ", ".join(f"{o.case.category}/{o.case.name} [{o.stage.name}]"
+                          for o in held_back)
+        print(f"Held back {len(held_back)} TO_FIX-marked outcome(s) -- rerun "
+              f"without --accept-all (or with --include-to-fix) to review "
+              f"them: {names}")
+    return accepted, skipped, len(held_back)
 
 
 def _apply(outcome: Outcome) -> None:
@@ -119,7 +156,11 @@ def main() -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     add_common_args(parser)
     parser.add_argument("--accept-all", action="store_true",
-                        help="non-interactive: accept every pending change as golden")
+                        help="non-interactive: accept every pending change as golden "
+                             "(holds back TO_FIX-marked cases -- see --include-to-fix)")
+    parser.add_argument("--include-to-fix", action="store_true",
+                        help="with --accept-all, also auto-accept TO_FIX-marked cases "
+                             "instead of holding them back for manual review")
     parser.add_argument("--skip-build", action="store_true",
                         help="don't run cmake --build first")
     args = parser.parse_args()
@@ -146,8 +187,9 @@ def main() -> int:
           f"(missing={counts['missing']}, mismatch={counts['mismatch']}, "
           f"orphan={counts['orphan']}).\n")
 
-    accepted, skipped = review(outcomes, args.accept_all)
-    print(f"\nDone. Accepted {accepted}, skipped {skipped}.")
+    accepted, skipped, held_back = review(outcomes, args.accept_all, args.include_to_fix)
+    held_back_note = f", held back {held_back}" if held_back else ""
+    print(f"\nDone. Accepted {accepted}, skipped {skipped}{held_back_note}.")
     return 0
 
 
