@@ -54,9 +54,9 @@ struct CallGraph {
           indices[node] = low_links[node] = next_idx++;
 
           for (const auto &next : graph.at(node)) {
-            if (indices.count(next) == 0)
+            if (!indices.contains(next))
               dfs(next);
-            if (stack_set.count(next) > 0)
+            if (stack_set.contains(next))
               low_links.at(node) =
                   std::min(low_links.at(node), low_links.at(next));
           }
@@ -76,7 +76,7 @@ struct CallGraph {
         };
 
     for (const auto &[node, edges] : graph) {
-      if (indices.count(node) == 0)
+      if (!indices.contains(node))
         dfs(node);
     }
 

@@ -29,8 +29,8 @@ size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
     for (size_t idx = 0; idx < block.instructions.size(); idx++) {
       const auto &instruction = block.instructions[idx];
       const std::string destination = instruction.destination;
-      if (destination != "" && used_variables.count(destination) == 0 &&
-          addressed_variables.count(destination) == 0 &&
+      if (destination != "" && !used_variables.contains(destination) &&
+          !addressed_variables.contains(destination) &&
           instruction.is_pure()) {
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
@@ -62,7 +62,7 @@ size_t remove_local_unused_assignments(ControlFlowGraph &graph, Block &block) {
 
     // Check for definitions
     if (destination != "") {
-      if (last_def.count(destination) > 0) {
+      if (last_def.contains(destination)) {
         to_delete.insert(last_def.at(destination));
       }
       // Add pure instructions to the last def map
@@ -73,7 +73,7 @@ size_t remove_local_unused_assignments(ControlFlowGraph &graph, Block &block) {
   }
 
   // Any definitions unused by the end of an exiting block can also be deleted
-  if (graph.exiting_blocks.count(block.entry_label) > 0) {
+  if (graph.exiting_blocks.contains(block.entry_label)) {
     for (const auto &[variable, def] : last_def) {
       to_delete.insert(def);
     }
@@ -115,7 +115,7 @@ size_t remove_unused_functions(Program &program) {
   while (!worklist.empty()) {
     const std::string function_name = worklist.back();
     worklist.pop_back();
-    if (reachable_functions.count(function_name) > 0)
+    if (reachable_functions.contains(function_name))
       continue;
     reachable_functions.insert(function_name);
     const auto &function = program.functions.at(function_name);
@@ -128,7 +128,7 @@ size_t remove_unused_functions(Program &program) {
 
   std::unordered_set<std::string> unused_functions;
   program.for_each_function([&](const ControlFlowGraph &function) {
-    if (reachable_functions.count(function.name) == 0) {
+    if (!reachable_functions.contains(function.name)) {
       removed_lines += function.num_instructions();
       unused_functions.insert(function.name);
     }
@@ -150,7 +150,7 @@ size_t remove_trivial_phi_instructions(ControlFlowGraph &, Block &block) {
     for (size_t i = 0; i < instruction.arguments.size(); ++i) {
       const std::string &argument = instruction.arguments[i];
       const std::string &label = instruction.labels[i];
-      if (block.incoming_blocks.count(instruction.labels[i]) == 0)
+      if (!block.incoming_blocks.contains(instruction.labels[i]))
         continue;
       new_arguments.push_back(argument);
       new_labels.push_back(label);
@@ -207,20 +207,11 @@ size_t remove_unused_parameters(Program &program) {
     if (function.name == wain_name)
       continue;
 
-    std::unordered_set<std::string> used_parameters;
-
-    // If the variable is used anywhere as an argument, it becomes used
-    function.for_each_instruction([&](const Instruction &instruction) {
-      for (const auto &argument : instruction.arguments)
-        used_parameters.insert(argument);
-      // NOTE: If the parameter is written to and never read, we consider it
-      // unused: we don't have to worry about writing to undefined variables
-      // because every assignment operation is a definition in BRIL
-    });
+    const auto used_parameters = function.used_variables();
 
     auto &indices = unused_parameter_indices[function_name];
     for (size_t idx = 0; idx < function.arguments.size(); ++idx) {
-      if (used_parameters.count(function.arguments[idx].name) == 0)
+      if (!used_parameters.contains(function.arguments[idx].name))
         indices.push_back(idx);
     }
   }

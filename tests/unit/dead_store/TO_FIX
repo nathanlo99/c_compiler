@@ -1,1 +1,1 @@
-TODO.md item 16: dead stores are never eliminated
+TODO.md: dead_store -- dead stores are never eliminated

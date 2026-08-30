@@ -76,7 +76,7 @@ void NFA::add_string(const std::string &lexeme, const TokenKind state) {
 std::ostream &operator<<(std::ostream &os, const NFA &nfa) {
   os << "NFA with " << nfa.entries.size() << " states" << std::endl;
   for (size_t state = 0; state < nfa.entries.size(); ++state) {
-    const bool is_accepting = nfa.accepting_states.count(state) > 0;
+    const bool is_accepting = nfa.accepting_states.contains(state);
     const TokenKind token_kind =
         is_accepting ? nfa.accepting_states.at(state) : TokenKind::Whitespace;
     const std::string token_str = token_kind_to_string(token_kind);
@@ -110,7 +110,7 @@ DFA NFA::to_dfa() const {
   while (!active_nodes.empty()) {
     const state_t state = active_nodes.front();
     active_nodes.pop();
-    if (state_to_idx.count(state) > 0)
+    if (state_to_idx.contains(state))
       continue;
     const std::vector<int> nfa_states = get_bits(state);
 
@@ -133,7 +133,7 @@ DFA NFA::to_dfa() const {
     for (int ch = 0; ch < 128; ++ch) {
       state_t dfa_target = 0;
       for (int source : nfa_states) {
-        if (entries[source].count(ch) == 0)
+        if (!entries[source].contains(ch))
           continue;
         for (int nfa_target : entries[source].at(ch)) {
           debug_assert(nfa_target <= 64, "NFA has too many states ({})",

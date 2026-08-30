@@ -13,7 +13,7 @@ bool ControlFlowGraph::is_in_ssa_form() const {
     for (const auto &instruction : block.instructions) {
       const auto destination = instruction.destination;
       if (destination != "") {
-        if (seen_variables.count(destination) > 0)
+        if (seen_variables.contains(destination))
           return false;
         seen_variables.insert(destination);
       }
@@ -62,7 +62,7 @@ void ControlFlowGraph::convert_to_ssa() {
 
       for (const std::string &frontier_label :
            dominance_frontiers[block_label]) {
-        if (has_phi.count(frontier_label) > 0)
+        if (has_phi.contains(frontier_label))
           continue;
         auto &frontier_block = blocks.at(frontier_label);
 
@@ -114,7 +114,7 @@ void ControlFlowGraph::rename_variables(
     if (instruction.opcode == Opcode::Phi)
       continue;
     for (auto &argument : instruction.arguments) {
-      debug_assert(definitions.count(argument) > 0, "Variable {} not defined",
+      debug_assert(definitions.contains(argument), "Variable {} not defined",
                    argument);
       argument = definitions[argument].back();
     }

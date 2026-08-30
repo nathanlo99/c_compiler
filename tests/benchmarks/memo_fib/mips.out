@@ -66,7 +66,7 @@ lis $4
 .word 4
 slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
                                 ; Removing globally unused write to $29
-add $5, $1, $0                  ; Loading argument 1 into register
+                                ; Removing locally unused write to $3
 add $3, $2, $0                  ; Loading argument 2 into register
                                 ; Calling init
 add $2, $0, $0
@@ -81,15 +81,15 @@ lw $31, -4($30)                 ;   ^
                                 ; jmp wainL0; (fallthrough)
                                 ; Code for function wain
                                 ; Removed unused label wainL0
-add $13, $5, $0
+add $13, $3, $0
                                 ; %0: int = id n;
 add $12, $11, $0                ; %1: ptr<int> = const 0x1;
 add $10, $0, $0                 ; %2: int = const 0;
                                 ; Removing locally unused write to $3
-                                ; Removing move to self
+                                ; Removing globally unused write to $5
                                 ; %4: int = id %0;
                                 ; Removing locally unused write to $3
-add $3, $5, $11                 ; %6: int = add %4 %5; (replaced $3 with $11)
+add $3, $3, $11                 ; %6: int = add %4 %5; (replaced $3 with $11) (replaced $5 with $3)
 add $1, $3, $0
 sw $3, -4($30)                  ;   push $3
 sub $30, $30, $4                ;   ^
@@ -111,7 +111,7 @@ add $12, $3, $0
                                 ; %9: ptr<int> = id %1;
 sw $11, 0($3)                   ; store %9 %8; (replaced $5 with $11)
 add $8, $11, $0                 ; %10: int = const 1;
-add $5, $3, $0                  ;  (replaced $12 with $3)
+                                ; Removing globally unused write to $5
                                 ; %11: ptr<int> = id %1;
                                 ; Removing locally unused write to $3
 mult $11, $4                    ;  (replaced $3 with $11)
@@ -149,7 +149,7 @@ mflo $6
 add $3, $12, $6                 ;  (replaced $8 with $12)
 lw $3, 0($3)                    ; %27: int = load %26;
 add $8, $9, $3                  ; %28: int = add %21 %27;
-add $5, $12, $0
+                                ; Removing globally unused write to $5
                                 ; %29: ptr<int> = id %1;
                                 ; Removing locally unused write to $3
                                 ; %30: int = id %2;
@@ -172,7 +172,7 @@ mflo $6
 add $3, $12, $6                 ;  (replaced $3 with $12)
 lw $3, 0($3)                    ; %37: int = load %36;
                                 ; %3: int = id %37;
-add $5, $12, $0
+                                ; Removing globally unused write to $5
                                 ; %38: ptr<int> = id %1;
 add $1, $12, $0                 ;  (replaced $5 with $12)
 beq $1, $11, deleteSkip0
@@ -197,4 +197,4 @@ lw $31, -4($30)                 ; print %40;
                                 ; ret %40;
 jr $31
                                 ; Done with function wain
-                                ; Number of instructions: 90
+                                ; Number of instructions: 86

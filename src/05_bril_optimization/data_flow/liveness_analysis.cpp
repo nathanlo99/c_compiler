@@ -41,7 +41,7 @@ allocate_registers(const ControlFlowGraph &function,
   while (!queue.empty()) {
     const auto [degree, node] = queue.top();
     queue.pop();
-    if (processed_nodes.count(node) > 0)
+    if (processed_nodes.contains(node))
       continue;
     processed_nodes.insert(node);
     node_stack.push_back(node);
@@ -61,14 +61,14 @@ allocate_registers(const ControlFlowGraph &function,
   std::vector<std::set<Reg>> node_available_registers(
       graph.index_to_variable.size());
   for (size_t i = 0; i < node_available_registers.size(); ++i) {
-    if (addressed_variables.count(graph.index_to_variable[i]) == 0)
+    if (!addressed_variables.contains(graph.index_to_variable[i]))
       node_available_registers[i].insert(available_registers.begin(),
                                          available_registers.end());
   }
 
   for (const size_t node : node_stack) {
     const std::string &var = graph.index_to_variable[node];
-    if (addressed_variables.count(var) > 0) {
+    if (addressed_variables.contains(var)) {
       result.spill_variable(var);
       continue;
     }

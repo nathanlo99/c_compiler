@@ -48,7 +48,7 @@ Token Lexer::get_next_token() {
 
   next_idx = last_accepting_idx;
 
-  if (keywords.count(lexeme) > 0)
+  if (keywords.contains(lexeme))
     last_accepting_kind = keywords.at(lexeme);
   if (last_accepting_kind == TokenKind::Num && !is_valid_number_literal(lexeme))
     throw CompileError(fmt::format("{}: numeric literal out of range ({})",

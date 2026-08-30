@@ -1,1 +1,1 @@
-TODO.md item 4: no dead-allocation elimination
+TODO.md: dead_alloc_elim -- no dead-allocation elimination

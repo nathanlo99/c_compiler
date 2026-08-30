@@ -127,7 +127,7 @@ struct BRILStackFrame {
 
   // Get the value of a variable
   int get_int(const std::string &name) {
-    debug_assert(variables.count(name) > 0, "Variable {} not found", name);
+    debug_assert(variables.contains(name), "Variable {} not found", name);
     debug_assert(variables[name].type == BRILValue::Type::Int,
                  "Variable {} is not an int", name);
     return variables[name].int_value;
@@ -135,7 +135,7 @@ struct BRILStackFrame {
   BRILValue get_value(const std::string &name) {
     if (name == "__undefined")
       return BRILValue();
-    debug_assert(variables.count(name) > 0, "Variable {} not found", name);
+    debug_assert(variables.contains(name), "Variable {} not found", name);
     return variables[name];
   }
 

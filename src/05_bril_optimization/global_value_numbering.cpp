@@ -74,7 +74,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
       std::make_pair(Opcode::Ge, 1),  std::make_pair(Opcode::Eq, 1),
       std::make_pair(Opcode::Ne, 0),
   };
-  if (foldable_ops.count(opcode) == 0)
+  if (!foldable_ops.contains(opcode))
     return std::nullopt;
 
   const GVNValue &lhs_value = expressions[lhs_idx];
@@ -88,7 +88,7 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
 
   if (!all_constants) {
     // If the two arguments are the same, we might be able to simplify
-    if (cancellable_ops.count(opcode) > 0 && lhs_idx == rhs_idx) {
+    if (cancellable_ops.contains(opcode) && lhs_idx == rhs_idx) {
       const int result = cancellable_ops.at(opcode);
       return GVNValue(result, type);
     }

@@ -17,7 +17,7 @@ bool optimize_call_graph(Program &program) {
                      instruction.funcs[0] == function.name;
             }))
       return false;
-    if (call_graph.graph.at(function.name).count(function.name) > 0)
+    if (call_graph.graph.at(function.name).contains(function.name))
       return false;
     return function.num_instructions() < 10 || function.num_labels() < 5;
   };

@@ -35,7 +35,7 @@ lis $4
 .word 4
 slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
                                 ; Removing globally unused write to $29
-add $5, $1, $0                  ; Loading argument 1 into register
+                                ; Removing locally unused write to $3
                                 ; Removing locally unused write to $3
                                 ; jmp wainL0; (fallthrough)
                                 ; Code for function wain
@@ -73,7 +73,7 @@ beq $3, $0, wainL6              ; br %8 .L5 .L6;
                                 ; Removed unused label wainL5
 beq $0, $0, wainL7              ; jmp .L7;
 wainL6:
-add $1, $8, $0
+                                ; Removing globally unused write to $1
 sw $31, -4($30)                 ;   push $31
 sub $30, $30, $4                ;   ^
 lis $2
@@ -91,4 +91,4 @@ add $3, $8, $0
                                 ; ret %1;
 jr $31
                                 ; Done with function wain
-                                ; Number of instructions: 39
+                                ; Number of instructions: 37

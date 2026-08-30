@@ -65,7 +65,7 @@ private:
       } else if (source_location.in_memory()) {
         from_memory.push_back(i);
       } else {
-        debug_assert(register_graph.count(target_location.reg) == 0,
+        debug_assert(!register_graph.contains(target_location.reg),
                      "Register graph has multiple edges");
         register_graph[target_location.reg] = source_location.reg;
         sink_nodes.insert(target_location.reg);
@@ -100,7 +100,7 @@ private:
     // - D is the sink, so we copy D to C, C to B, and B to A
     for (const auto &sink : sink_nodes) {
       Reg node = sink;
-      while (register_graph.count(node) != 0) {
+      while (register_graph.contains(node)) {
         const Reg next = register_graph[node];
         register_graph.erase(node);
         copy(node, next);

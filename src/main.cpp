@@ -459,7 +459,7 @@ int main(int argc, char *argv[]) try {
   const std::string argument = argc > 2 ? argv[2] : "--default",
                     filename = argv[1];
 
-  if (options_map.count(argument) == 0) {
+  if (!options_map.contains(argument)) {
     fmt::print(stderr, "Unknown option: {}\n", argument);
     fmt::print(stderr, "Options are:\n");
     for (const auto &[option, _] : options) {

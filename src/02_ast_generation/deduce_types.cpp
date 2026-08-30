@@ -57,17 +57,17 @@ void DeduceTypesVisitor::post_visit(BinaryExpr &expr) {
   debug_assert(rhs_type != Type::Unknown, "Type deduction failed on rhs");
   switch (expr.operation) {
   case BinaryOperation::Add: {
-    debug_assert(plus_types.count(type_pair) > 0, "Invalid types to +");
+    debug_assert(plus_types.contains(type_pair), "Invalid types to +");
     expr.type = plus_types.at(type_pair);
   } break;
   case BinaryOperation::Sub: {
-    debug_assert(minus_types.count(type_pair) > 0, "Invalid types to -");
+    debug_assert(minus_types.contains(type_pair), "Invalid types to -");
     expr.type = minus_types.at(type_pair);
   } break;
   case BinaryOperation::Mul:
   case BinaryOperation::Div:
   case BinaryOperation::Mod: {
-    debug_assert(integer_types.count(type_pair) > 0, "Invalid types to {}",
+    debug_assert(integer_types.contains(type_pair), "Invalid types to {}",
                  binary_operation_to_string(expr.operation));
     expr.type = integer_types.at(type_pair);
   } break;

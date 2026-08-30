@@ -1,2 +1,2 @@
-TODO.md item 10: LVN skips blocks touching memory (loop-carried copies)
-TODO.md item 29: no loop unrolling / compile-time loop evaluation
+TODO.md: lvn_memory_bailout -- LVN skips blocks touching memory (loop-carried copies)
+TODO.md: loop_unrolling -- no loop unrolling / compile-time loop evaluation

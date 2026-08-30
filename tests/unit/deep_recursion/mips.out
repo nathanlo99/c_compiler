@@ -27,7 +27,7 @@ lis $4
 .word 4
 slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
 sub $29, $30, $4                ; Initializing base pointer
-add $5, $1, $0                  ; Loading argument 1 into register
+                                ; Removing locally unused write to $3
                                 ; Removing locally unused write to $3
                                 ; jmp wainL0; (fallthrough)
                                 ; Code for function wain
@@ -151,4 +151,4 @@ fL3:
                                 ; ret %2;
 jr $31
                                 ; Done with function f
-                                ; Number of instructions: 78
+                                ; Number of instructions: 77

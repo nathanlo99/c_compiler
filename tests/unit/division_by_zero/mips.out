@@ -6,12 +6,11 @@
                                 ;   (removed lis)
                                 ; Removing globally unused write to $11
                                 ; Removing globally unused write to $29
-                                ; Removing globally unused write to $5
                                 ; Removing locally unused write to $3
+add $3, $2, $0                  ; Loading argument 2 into register
                                 ; jmp wainL0; (fallthrough)
                                 ; Code for function wain
                                 ; Removed unused label wainL0
-add $3, $1, $0                  ;  (replaced $5 with $1)
                                 ; ret a;
 jr $31
                                 ; Done with function wain

@@ -36,7 +36,7 @@ template <typename Result> struct InstructionDataFlowResult {
   }
   bool set_data(const std::string &label, const size_t idx,
                 const Result &result) {
-    debug_assert(data.count(label) > 0, "Block not initialized");
+    debug_assert(data.contains(label), "Block not initialized");
     debug_assert(idx < data.at(label).size(),
                  "Invalid instruction index {} >= {}", idx,
                  data.at(label).size());
@@ -151,7 +151,7 @@ template <typename Result> struct BackwardDataFlowPass {
       const Block &block = function.get_block(label);
 
       // 1. out[b] = merge(in[p] for every succ p of b)
-      if (function.exiting_blocks.count(label) == 0) {
+      if (!function.exiting_blocks.contains(label)) {
         std::vector<Result> arguments;
         arguments.reserve(block.outgoing_blocks.size());
         for (const std::string &pred : block.outgoing_blocks) {

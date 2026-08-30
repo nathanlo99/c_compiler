@@ -37,10 +37,10 @@ struct GVNValue {
         std::make_pair(Opcode::Ge, Opcode::Le),
     };
 
-    if (commutative_ops.count(opcode) > 0) {
+    if (commutative_ops.contains(opcode)) {
       debug_assert(arguments.size() == 2, "Expected binary operation");
       std::sort(arguments.begin(), arguments.end());
-    } else if (switchable_ops.count(opcode) > 0) {
+    } else if (switchable_ops.contains(opcode)) {
       debug_assert(arguments.size() == 2, "Expected binary operation");
       std::swap(arguments[0], arguments[1]);
       opcode = switchable_ops.at(opcode);
@@ -117,7 +117,7 @@ struct GVNTable {
   GVNValue simplify(const GVNValue &value) const;
 
   size_t query_variable(const std::string &variable) const {
-    debug_assert(variable_to_value_number.count(variable) > 0,
+    debug_assert(variable_to_value_number.contains(variable),
                  "Variable {} not found in GVNTable", variable);
     return variable_to_value_number.at(variable);
   }

@@ -23,7 +23,7 @@ bool BRILToMIPSGenerator::remove_globally_unused_writes() {
       const auto written_register = instruction.written_register();
       if (!written_register.has_value())
         continue;
-      if (read_registers.count(written_register.value()) == 0) {
+      if (!read_registers.contains(written_register.value())) {
         if (instructions[i].opcode == ::Opcode::Lis) {
           debug_assert(i + 1 < instructions.size(), "Lis not followed by word");
           instructions[i + 1] = MIPSInstruction::comment("  (removed lis)");
@@ -76,7 +76,7 @@ bool BRILToMIPSGenerator::remove_locally_unused_writes() {
       }
       // The register was read before it was written to again: the write cannot
       // be removed
-      if (other_instruction.read_registers().count(dest) > 0) {
+      if (other_instruction.read_registers().contains(dest)) {
         read = true;
         break;
       }
@@ -129,7 +129,7 @@ bool BRILToMIPSGenerator::remove_unused_labels() {
       ::Opcode::Beq, ::Opcode::Bne, ::Opcode::Word};
   for (size_t i = 0; i < instructions.size(); ++i) {
     const auto &instruction = instructions[i];
-    if (used_opcodes.count(instruction.opcode) == 0 ||
+    if (!used_opcodes.contains(instruction.opcode) ||
         instruction.string_value == "")
       continue;
     used_labels.insert(instruction.string_value);
@@ -137,7 +137,7 @@ bool BRILToMIPSGenerator::remove_unused_labels() {
 
   for (size_t i = 0; i < instructions.size(); ++i) {
     if (instructions[i].opcode == ::Opcode::Label &&
-        used_labels.count(instructions[i].string_value) == 0) {
+        !used_labels.contains(instructions[i].string_value)) {
       instructions[i] = MIPSInstruction::comment("Removed unused label " +
                                                  instructions[i].string_value);
       changed = true;
@@ -184,7 +184,7 @@ bool BRILToMIPSGenerator::collapse_moves() {
         break;
 
       // Substitute arguments
-      if (substitutable_opcodes.count(other_instruction.opcode) > 0) {
+      if (substitutable_opcodes.contains(other_instruction.opcode)) {
         changed |= other_instruction.substitute_arguments(dest, src);
       }
 

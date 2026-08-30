@@ -29,11 +29,11 @@ LocalValueNumber::LocalValueNumber(const Opcode opcode,
   };
 
   // Canonicalize arguments of commutative operations
-  if (commutative_operations.count(opcode) > 0) {
+  if (commutative_operations.contains(opcode)) {
     debug_assert(this->arguments.size() == 2,
                  "Expected binary expression in commutative operation");
     std::sort(this->arguments.begin(), this->arguments.end());
-  } else if (switch_order.count(opcode) > 0) {
+  } else if (switch_order.contains(opcode)) {
     debug_assert(this->arguments.size() == 2,
                  "Expected binary expression in switchable LVN");
     const auto switched_opcode = switch_order.at(opcode);
@@ -48,7 +48,7 @@ LocalValueNumber::LocalValueNumber(const int value, const Type type)
 std::optional<int>
 LocalValueTable::fold_constants(const LocalValueNumber &value) const {
   const static std::unordered_set<Type> foldable_types = {Type::Int};
-  if (foldable_types.count(value.type) == 0)
+  if (!foldable_types.contains(value.type))
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
@@ -83,7 +83,7 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
 
   if (value.opcode == Opcode::Const)
     return value.value;
-  if (foldable_ops.count(value.opcode) == 0)
+  if (!foldable_ops.contains(value.opcode))
     return std::nullopt;
   debug_assert(value.arguments.size() == 2,
                "Expected foldable opcode to have two arguments");
@@ -103,7 +103,7 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
     // arguments are not constants
 
     // Cancellation:
-    if (cancellable_ops.count(value.opcode) > 0 &&
+    if (cancellable_ops.contains(value.opcode) &&
         value.arguments[0] == value.arguments[1]) {
       return cancellable_ops.at(value.opcode);
     }
@@ -152,7 +152,7 @@ size_t LocalValueTable::query_row(const LocalValueNumber &value) const {
 }
 
 std::string LocalValueTable::canonical_name(const std::string &variable) const {
-  debug_assert(env.count(variable) > 0,
+  debug_assert(env.contains(variable),
                "Variable {} was not present in the table", variable);
   const size_t idx = env.at(variable);
   return canonical_variables[idx];
@@ -178,7 +178,7 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
     const std::string destination = instruction.destination;
 
     for (const auto &argument : instruction.arguments) {
-      if (table.last_write.count(argument) == 0) {
+      if (!table.last_write.contains(argument)) {
         read_before_written.insert(argument);
       }
     }
@@ -256,7 +256,7 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
     // Construct value
     std::vector<size_t> arguments;
     for (const auto &argument : instruction.arguments) {
-      debug_assert(table.env.count(argument) > 0,
+      debug_assert(table.env.contains(argument),
                    "Argument {} not found in env", argument);
       arguments.push_back(table.env.at(argument));
     }
@@ -284,7 +284,7 @@ size_t local_value_numbering(ControlFlowGraph &graph, Block &block) {
 
     if (instruction.destination != "") {
       const std::string original_destination = instruction.destination;
-      debug_assert(table.last_write.count(original_destination) > 0,
+      debug_assert(table.last_write.contains(original_destination),
                    "Destination {} not in last_write", original_destination);
       const bool dest_overwritten =
           table.last_write.at(original_destination) > i;

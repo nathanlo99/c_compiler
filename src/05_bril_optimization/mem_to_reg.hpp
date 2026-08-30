@@ -26,7 +26,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
 
       switch (instruction.opcode) {
       case Opcode::Id: {
-        debug_assert(locations_out.count(destination) > 0,
+        debug_assert(locations_out.contains(destination),
                      "Missing location of {} in id instruction", destination);
         const auto &possible_locations = locations_out.at(destination);
         if (possible_locations.size() == 1) {
@@ -40,7 +40,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
       } break;
 
       case Opcode::Store: {
-        debug_assert(locations_in.count(instruction.arguments[0]) > 0,
+        debug_assert(locations_in.contains(instruction.arguments[0]),
                      "Missing location of {} in store instruction",
                      instruction.arguments[0]);
         const auto &possible_locations =
@@ -57,7 +57,7 @@ inline size_t promote_memory_to_registers(ControlFlowGraph &function) {
       } break;
 
       case Opcode::Load: {
-        debug_assert(locations_out.count(instruction.arguments[0]) > 0,
+        debug_assert(locations_out.contains(instruction.arguments[0]),
                      "Missing location of {} in load instruction",
                      instruction.arguments[0]);
         const auto &possible_locations =

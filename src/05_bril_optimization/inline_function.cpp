@@ -71,12 +71,12 @@ void Program::inline_function_call(const std::string &function_name,
   std::unordered_map<std::string, std::string> renamed_variables;
   std::unordered_map<std::string, std::string> renamed_labels;
   const auto get_fresh_variable = [&](const std::string &name) {
-    if (renamed_variables.count(name) > 0)
+    if (renamed_variables.contains(name))
       return renamed_variables.at(name);
     size_t idx = 0;
     while (true) {
       const std::string fresh_name = name + "." + std::to_string(idx);
-      if (current_variables.count(fresh_name) == 0) {
+      if (!current_variables.contains(fresh_name)) {
         current_variables.insert(fresh_name);
         renamed_variables[name] = fresh_name;
         return fresh_name;
@@ -85,12 +85,12 @@ void Program::inline_function_call(const std::string &function_name,
     }
   };
   const auto get_fresh_label = [&](const std::string &name) {
-    if (renamed_labels.count(name) > 0)
+    if (renamed_labels.contains(name))
       return renamed_labels.at(name);
     size_t idx = 0;
     while (true) {
       std::string fresh_name = name + "." + std::to_string(idx);
-      if (current_labels.count(fresh_name) == 0) {
+      if (!current_labels.contains(fresh_name)) {
         current_labels.insert(fresh_name);
         renamed_labels[name] = fresh_name;
         return fresh_name;
@@ -99,12 +99,12 @@ void Program::inline_function_call(const std::string &function_name,
     }
   };
   const auto get_renamed_variable = [&](const std::string &name) {
-    debug_assert(renamed_variables.count(name) > 0, "Variable {} not renamed",
+    debug_assert(renamed_variables.contains(name), "Variable {} not renamed",
                  name);
     return renamed_variables.at(name);
   };
   const auto get_renamed_label = [&](const std::string &name) {
-    debug_assert(renamed_labels.count(name) > 0, "Label {} not renamed", name);
+    debug_assert(renamed_labels.contains(name), "Label {} not renamed", name);
     return renamed_labels.at(name);
   };
 

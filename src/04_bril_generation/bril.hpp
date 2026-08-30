@@ -121,25 +121,25 @@ struct ControlFlowGraph {
   explicit ControlFlowGraph(const Function &function);
 
   std::string get_fresh_label(const std::string &prefix) const {
-    if (blocks.count(prefix) == 0)
+    if (!blocks.contains(prefix))
       return prefix;
 
     size_t idx = 0;
     while (true) {
       const std::string label = prefix + std::to_string(idx);
-      if (blocks.count(label) == 0)
+      if (!blocks.contains(label))
         return label;
       ++idx;
     }
   }
 
   Block &get_block(const std::string &block_label) {
-    debug_assert(blocks.count(block_label) > 0, "Block not found: {}",
+    debug_assert(blocks.contains(block_label), "Block not found: {}",
                  block_label);
     return blocks.at(block_label);
   }
   const Block &get_block(const std::string &block_label) const {
-    debug_assert(blocks.count(block_label) > 0, "Block not found: {}",
+    debug_assert(blocks.contains(block_label), "Block not found: {}",
                  block_label);
     return blocks.at(block_label);
   }
@@ -188,6 +188,20 @@ struct ControlFlowGraph {
     return any_of_instructions([](const Instruction &instruction) {
       return instruction.opcode == Opcode::Phi;
     });
+  }
+
+  // Every variable read anywhere in this function, as an instruction
+  // argument. NOTE: a variable that's written to but never read counts as
+  // unused here -- we don't have to worry about that leaving a "write to an
+  // undefined variable" behind, since every assignment is its own
+  // definition in BRIL.
+  std::unordered_set<std::string> used_variables() const {
+    std::unordered_set<std::string> result;
+    for_each_instruction([&](const Instruction &instruction) {
+      for (const auto &argument : instruction.arguments)
+        result.insert(argument);
+    });
+    return result;
   }
 
   size_t num_instructions() const {
@@ -314,16 +328,16 @@ struct Program {
   std::map<std::string, ControlFlowGraph> functions;
 
   const ControlFlowGraph &wain() const {
-    debug_assert(functions.count("wain") > 0, "wain not found");
+    debug_assert(functions.contains("wain"), "wain not found");
     return functions.at("wain");
   }
 
   ControlFlowGraph &get_function(const std::string &name) {
-    debug_assert(functions.count(name) > 0, "Function {} not found", name);
+    debug_assert(functions.contains(name), "Function {} not found", name);
     return functions.at(name);
   }
   const ControlFlowGraph &get_function(const std::string &name) const {
-    debug_assert(functions.count(name) > 0, "Function {} not found", name);
+    debug_assert(functions.contains(name), "Function {} not found", name);
     return functions.at(name);
   }
 

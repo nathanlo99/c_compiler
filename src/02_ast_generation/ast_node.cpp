@@ -55,12 +55,12 @@ void check_reduce_functions(
     std::stringstream error_message;
     error_message << "Missing productions: \n";
     for (const auto &production : grammar_productions)
-      if (present_productions.count(production) == 0)
+      if (!present_productions.contains(production))
         error_message << " - " << production << "\n";
     error_message << "\n";
     error_message << "Extra productions: \n";
     for (const auto &production : present_productions)
-      if (grammar_productions.count(production) == 0)
+      if (!grammar_productions.contains(production))
         error_message << " - " << production << "\n";
     throw std::runtime_error(error_message.str());
   }
@@ -76,7 +76,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     std::unordered_map<std::string, Func> result;
     const auto &register_function = [&](const std::string &production_str,
                                         const Func &function) {
-      if (result.count(production_str) > 0)
+      if (result.contains(production_str))
         throw std::runtime_error("Duplicate production: " + production_str);
       result[production_str] = function;
     };
@@ -437,7 +437,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     return result;
   }();
 
-  debug_assert(reduce_functions.count(production_str) > 0,
+  debug_assert(reduce_functions.contains(production_str),
                "Production '{}' not yet handled", production_str);
 
   return reduce_functions.at(production_str)(node);

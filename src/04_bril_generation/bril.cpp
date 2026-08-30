@@ -77,7 +77,7 @@ ControlFlowGraph::ControlFlowGraph(const Function &function)
   }
   for_each_block([&](const Block &block) {
     for (const auto &exit_label : block.exit_labels) {
-      debug_assert(blocks.count(exit_label) > 0,
+      debug_assert(blocks.contains(exit_label),
                    "Exit label {} not found in label map", exit_label);
       add_edge(block.entry_label, exit_label);
     }
@@ -131,11 +131,11 @@ void ControlFlowGraph::add_edge(const std::string &source,
 
 void ControlFlowGraph::remove_edge(const std::string &source,
                                    const std::string &target) {
-  debug_assert(blocks.count(source) > 0, "No block with label {}", source);
-  debug_assert(blocks.count(target) > 0, "No block with label {}", target);
-  debug_assert(get_block(source).outgoing_blocks.count(target) > 0,
+  debug_assert(blocks.contains(source), "No block with label {}", source);
+  debug_assert(blocks.contains(target), "No block with label {}", target);
+  debug_assert(get_block(source).outgoing_blocks.contains(target),
                "No edge between '{}' and '{}'", source, target);
-  debug_assert(get_block(target).incoming_blocks.count(source) > 0,
+  debug_assert(get_block(target).incoming_blocks.contains(source),
                "No edge between '{}' and '{}'", source, target);
 
   get_block(source).outgoing_blocks.erase(target);
@@ -152,7 +152,7 @@ void ControlFlowGraph::add_block(const Block &block) {
 
 void ControlFlowGraph::remove_block(const std::string &block_label) {
   // std::cerr << "Removing block " << block_label << std::endl;
-  debug_assert(blocks.count(block_label) > 0, "No block with label {}",
+  debug_assert(blocks.contains(block_label), "No block with label {}",
                block_label);
 
   // If there are any jumps with this block as a target, throw an exception
@@ -205,13 +205,13 @@ void ControlFlowGraph::remove_block(const std::string &block_label) {
 void ControlFlowGraph::combine_blocks(const std::string &source,
                                       const std::string &target) {
   std::cerr << "Combining blocks " << source << " and " << target << std::endl;
-  debug_assert(blocks.count(source) > 0, "No block with label {}", source);
-  debug_assert(blocks.count(target) > 0, "No block with label {}", target);
+  debug_assert(blocks.contains(source), "No block with label {}", source);
+  debug_assert(blocks.contains(target), "No block with label {}", target);
   auto &source_block = get_block(source);
   auto &target_block = get_block(target);
-  debug_assert(source_block.outgoing_blocks.count(target) > 0,
+  debug_assert(source_block.outgoing_blocks.contains(target),
                "No edge between '{}' and '{}'", source, target);
-  debug_assert(target_block.incoming_blocks.count(source) > 0,
+  debug_assert(target_block.incoming_blocks.contains(source),
                "No edge between '{}' and '{}'", source, target);
   debug_assert(source_block.outgoing_blocks.size() == 1,
                "Source block has multiple exit labels");
@@ -247,7 +247,7 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
   }
 
   // If target block is an exit block, make source block an exit block
-  if (exiting_blocks.count(target) > 0) {
+  if (exiting_blocks.contains(target)) {
     exiting_blocks.insert(source);
   }
 
@@ -264,7 +264,7 @@ void ControlFlowGraph::combine_blocks(const std::string &source,
 std::string ControlFlowGraph::split_block(const std::string &block_label,
                                           const size_t instruction_idx,
                                           const std::string &new_label_hint) {
-  debug_assert(blocks.count(block_label) > 0, "No block with label {}",
+  debug_assert(blocks.contains(block_label), "No block with label {}",
                block_label);
   auto &block = get_block(block_label);
   debug_assert(instruction_idx < block.instructions.size(),
@@ -296,9 +296,9 @@ void ControlFlowGraph::rename_label(const std::string &old_label,
                                     const std::string &new_label) {
   if (old_label == new_label)
     return;
-  debug_assert(blocks.count(old_label) > 0,
+  debug_assert(blocks.contains(old_label),
                "Cannot rename non-existent label '{}'", old_label);
-  debug_assert(blocks.count(new_label) == 0,
+  debug_assert(!blocks.contains(new_label),
                "Cannot rename label to an existing label '{}'", new_label);
   if (entry_label == old_label)
     entry_label = new_label;
@@ -436,14 +436,14 @@ void ControlFlowGraph::compute_dominators() {
 
 std::string
 ControlFlowGraph::immediate_dominator(const std::string &label) const {
-  if (immediate_dominators.count(label) == 0)
+  if (!immediate_dominators.contains(label))
     return "(none)";
   return immediate_dominators.at(label);
 }
 
 std::unordered_set<std::string>
 ControlFlowGraph::dominance_frontier(const std::string &label) const {
-  if (dominance_frontiers.count(label) == 0)
+  if (!dominance_frontiers.contains(label))
     return {};
   return dominance_frontiers.at(label);
 }

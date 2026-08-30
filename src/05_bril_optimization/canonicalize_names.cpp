@@ -13,11 +13,11 @@ void canonicalize_names(ControlFlowGraph &function) {
     renamed_variables[arg] = arg;
   };
   const auto insert_variable = [&](const std::string &var) {
-    if (renamed_variables.count(var) == 0)
+    if (!renamed_variables.contains(var))
       renamed_variables[var] = "%" + std::to_string(next_variable_idx++);
   };
   const auto insert_label = [&](const std::string &label) {
-    if (renamed_labels.count(label) == 0)
+    if (!renamed_labels.contains(label))
       renamed_labels[label] = ".L" + std::to_string(next_label_idx++);
   };
 

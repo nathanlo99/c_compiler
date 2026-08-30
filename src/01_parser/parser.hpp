@@ -47,10 +47,10 @@ struct ContextFreeGrammar {
     return productions_by_product.at(product);
   }
   bool is_non_terminal(const std::string &symbol) const {
-    return non_terminal_symbols.count(symbol) > 0;
+    return non_terminal_symbols.contains(symbol);
   }
   bool is_definitely_nullable(const std::string &symbol) const {
-    return nullable_symbols.count(symbol) > 0;
+    return nullable_symbols.contains(symbol);
   }
 
   void finalize() {
@@ -61,7 +61,7 @@ struct ContextFreeGrammar {
         for (const auto &ingredient : production.ingredients)
           symbols.insert(ingredient);
       for (const auto &symbol : symbols) {
-        if (non_terminal_symbols.count(symbol) == 0)
+        if (!non_terminal_symbols.contains(symbol))
           terminal_symbols.insert(symbol);
       }
     }

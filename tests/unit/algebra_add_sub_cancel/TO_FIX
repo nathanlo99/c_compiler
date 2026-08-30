@@ -1,1 +1,1 @@
-TODO.md item 2: GVN inverse-cancellation operand-order bug
+TODO.md: gvn_cancel_operand -- GVN inverse-cancellation operand-order bug

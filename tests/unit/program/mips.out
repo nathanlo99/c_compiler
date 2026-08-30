@@ -7,7 +7,7 @@
                                 ;   (removed lis)
                                 ; Removing globally unused write to $11
                                 ; Removing globally unused write to $29
-                                ; Removing globally unused write to $5
+                                ; Removing locally unused write to $3
                                 ; Removing locally unused write to $3
                                 ; jmp wainL0; (fallthrough)
                                 ; Code for function wain

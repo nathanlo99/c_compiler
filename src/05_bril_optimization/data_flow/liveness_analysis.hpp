@@ -48,10 +48,24 @@ struct RegisterInterferenceGraph {
 
   RegisterInterferenceGraph(const ControlFlowGraph &graph)
       : liveness_data(LivenessAnalysis(graph).run()) {
-    // TODO: Skip adding edges if the variable is never used
-    for (const auto &arg1 : graph.arguments) {
-      for (const auto &arg2 : graph.arguments) {
-        add_edge(arg1.name, arg2.name);
+    // Every argument still needs a node in the graph (so it always gets a
+    // register/stack location allocated, even if it's never read -- this
+    // matters for wain, whose arguments are always materialized by the
+    // MIPS prologue regardless of usage), but only add interference edges
+    // between arguments that are actually used: an unused argument is dead
+    // on arrival and doesn't really interfere with anything.
+    const auto used_arguments = graph.used_variables();
+    std::vector<std::string> relevant_arguments;
+    for (const auto &arg : graph.arguments) {
+      add_variable(arg.name);
+      if (used_arguments.contains(arg.name))
+        relevant_arguments.push_back(arg.name);
+    }
+    for (const auto &arg1 : relevant_arguments) {
+      for (const auto &arg2 : relevant_arguments) {
+        if (arg1 == arg2)
+          continue;
+        add_edge(arg1, arg2);
       }
     }
 
@@ -67,7 +81,7 @@ struct RegisterInterferenceGraph {
   }
 
   void add_variable(const std::string &var) {
-    if (variable_to_index.count(var) > 0)
+    if (variable_to_index.contains(var))
       return;
     const size_t idx = index_to_variable.size();
     variable_to_index[var] = idx;
@@ -157,10 +171,10 @@ struct RegisterAllocation {
   }
 
   bool in_register(const std::string &variable) const {
-    return register_allocation.count(variable) > 0;
+    return register_allocation.contains(variable);
   }
   bool is_spilled(const std::string &variable) const {
-    return spilled_variables.count(variable) > 0;
+    return spilled_variables.contains(variable);
   }
   Reg get_register(const std::string &variable) const {
     debug_assert(
