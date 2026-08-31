@@ -19,10 +19,10 @@
                                 ;   %14: int = const 2;
                                 ;   %2: int = id %14;
                                 ;   jmp .L1;
-                                ; .L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+                                ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
                                 ;   %15: int = le %2 %0;
                                 ;   br %15 .L2 .L3;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
                                 ;   %16: ptr<int> = id %1;
                                 ;   %17: int = id %2;
                                 ;   %18: int = const 1;
@@ -44,7 +44,7 @@
                                 ;   %33: int = add %2 %32;
                                 ;   %2: int = id %33;
                                 ;   jmp .L1;
-                                ; .L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+                                ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
                                 ;   %34: ptr<int> = id %1;
                                 ;   %35: int = id %0;
                                 ;   %36: ptr<int> = ptradd %34 %35;

@@ -1,0 +1,97 @@
+Distilled from the official WLP4 (Waterloo Language Plus Pointers Plus
+Procedures) specification: https://student.cs.uwaterloo.ca/~cs241/wlp4/
+(CS241, University of Waterloo). This is a summary in our own words, not a
+copy -- see the source for the authoritative text. `wlp4/` below means
+"canonical WLP4, per that page"; this project's dialect is noted
+separately wherever it differs.
+
+This project's own grammar/lexicon reference files
+(references/productions.cfg, references/augmented.cfg,
+references/lexical_syntax.txt) are STALE -- none of them match the grammar
+actually compiled in (src/01_parser/productions.hpp's `context_free_grammar`
+string, verified directly). The extensions list below is diffed against
+that real, live grammar, not the stale files.
+
+== Core WLP4 rules (canonical, unless noted as an extension below) ==
+
+Types: every declared variable has type `long` or `long*` (this project
+spells these `int`/`int*`). `NUM` is typed `long`; `NULL` is typed `long*`.
+Pointer arithmetic: long + long -> long; long* + long -> long*;
+long + long* -> long*; long* - long -> long*; long* - long* -> long
+(pointer difference). `&lvalue` needs a `long` lvalue and produces
+`long*`; `*factor` needs a `long*` factor and produces `long`. Assignment,
+`println`, `putchar` args, and both `if`/`while`/`for`-condition operands
+(where wlp4 uses `test`, not general `expr` -- see extensions) require
+matching types.
+
+Procedures: declared by first occurrence of their name; no two procedures
+share a name; wlp4 only allows a procedure to call procedures already
+declared above it (no forward calls) and to recurse into itself --
+explicitly forbidding mutual recursion between two procedures (this
+project lifts both restrictions together, since forward calls are what
+mutual recursion needs -- see below). `wain` can't recursively call itself
+(enforced
+structurally: `wain` is a keyword, not an ID). Variable/procedure name
+resolution: an ID used inside a procedure must be declared in that same
+procedure; if a variable and a procedure share a name, uses inside that
+procedure's own body resolve to the variable.
+
+Behaviour: a syntactically/semantically valid WLP4 program is also a valid
+C++ program, dropped into one of two C++ shells (matching this project's
+`tests/ground_truth.py` `TWO_INTS_TEMPLATE`/`ARRAY_TEMPLATE` almost
+exactly) and expected to behave identically. Failed `new` returns NULL
+(not a C++ exception). Dereferencing NULL must crash. An out-of-bounds
+pointer *value* (e.g. `array + 241` past the array's end) is well-defined
+(same as any in-bounds pointer expression) but *dereferencing* one is
+undefined, same as C++. Anything else undefined in C++ is undefined here
+too.
+
+== Confirmed extensions over canonical WLP4 (verified against source) ==
+
+- Procedures may return `int*`, not just `int` (productions.hpp: "Allow
+  procedures to return any type").
+- `return` is an ordinary statement (usable anywhere, including early
+  returns / more than once), not a fixed grammar tail forcing exactly one
+  `return` at the very end of a procedure.
+- `if` without `else`.
+- `for (init; cond; step) { ... }`.
+- `break;` / `continue;`.
+- Bare expression statements (`expr SEMI`) -- e.g. a call for its side
+  effects, standalone.
+- Assignment as a right-associative *expression*, not just a statement --
+  `expr -> lvalue BECOMES expr` enables `a = b = c;`.
+- `&&` / `||`, with real short-circuit evaluation (verified:
+  `simple_bril_generator.cpp`'s `BooleanAndExpr`/`BooleanOrExpr` lowering
+  branches around the un-evaluated side, doesn't just eagerly compute
+  both).
+- `if`/`while`/`for` conditions are any `expr` (via a full C-style
+  precedence chain: `||` > `&&` > `==`/`!=` > `<`/`<=`/`>=`/`>` > `+`/`-` >
+  `*`/`/`/`%`), not wlp4's restricted single-comparison `test`.
+- Hex integer literals (`0x`/`0X` + hex digits) -- lexical only, not in
+  any grammar file, purely a DFA extension (finite_automata.cpp).
+- `NUM` has no lexical range restriction and never fails to parse:
+  truncates to 32 bits on use, matching what a real C compiler does when
+  narrowing an oversized integer constant -- see
+  tests/unit/dec_literal_overflow, tests/unit/hex_literal_overflow.
+- Forward calls (calling a procedure declared later in the file) and
+  mutual recursion between two procedures are both allowed (wlp4
+  explicitly forbids both) -- verified directly: a procedure calling one
+  declared after it interprets correctly, and tests/unit/mutual_recursion
+  runs successfully. The optimizer just doesn't inline across mutual
+  recursion well yet (references/TODO.md: mutual_recursion).
+
+== Removed from canonical WLP4 ==
+
+- `putchar(expr)` (statement) and `getchar()` (factor) are gone -- no
+  lexical keyword, no grammar production. I/O instead goes through
+  ordinary user-defined functions using raw MMIO addresses (see
+  tests/unit/vector's `get_char`/`print_char`, reading/writing
+  `0xffff0004`/`0xffff000c`).
+
+== Considered, not enabled ==
+
+- A `for` production appears commented out in references/augmented.cfg
+  with different syntax (`FOR LPAREN statement SEMI test SEMI statement
+  RPAREN ...`, i.e. full statements instead of expressions in the
+  init/step slots) -- superseded by the expr-based `for` that's actually
+  live in productions.hpp.

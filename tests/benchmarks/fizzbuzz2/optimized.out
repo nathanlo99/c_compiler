@@ -4,44 +4,44 @@
   %2: int = const 0;
   %3: int = eq %1 %2;
   br %3 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
   %4: int = const -15;
   ret %4;
-.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}
   %5: int = const 3;
   %6: int = mod n %5;
   %7: int = eq %6 %2;
   br %7 .L3 .L4;
-.L3:                                               preds = {.L2}, dominators = {.L3, .L2, .L0}
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
   %8: int = const -3;
   ret %8;
-.L4:                                               preds = {.L2}, dominators = {.L4, .L2, .L0}
+.L4:                                               preds = {.L2}, dominators = {.L0, .L2, .L4}
   %9: int = const 5;
   %10: int = mod n %9;
   %11: int = eq %10 %2;
   br %11 .L5 .L6;
-.L5:                                               preds = {.L4}, dominators = {.L4, .L2, .L5, .L0}
+.L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
   %12: int = const -5;
   ret %12;
-.L6:                                               preds = {.L4}, dominators = {.L6, .L4, .L2, .L0}
+.L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
   ret n;
 }
 
 @wain(start: int, end: int) : int {
   %0: int = id start;
   jmp .L1;
-.L1:                                               preds = {.L2, .L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
   %1: int = id %0;
   %2: int = lt %0 end;
   br %2 .L2 .L3;
-.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
   %3: int = call @fizzbuzz %1;
   print %3;
   %4: int = const 1;
   %5: int = add %1 %4;
   %0: int = id %5;
   jmp .L1;
-.L3:                                               preds = {.L1}, dominators = {.L3, .L1, .L0}
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
   ret %1;
 }
 

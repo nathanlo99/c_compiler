@@ -6,15 +6,27 @@
 #include "util.hpp"
 #include <memory>
 
+// NUM has no lexical range restriction (WLP4 spec: "the type of a NUM is
+// long" -- wider than the target 32-bit type) and never fails to parse:
+// truncate to 32 bits, same as a real C compiler narrowing a wide integer
+// constant to `int` (see references/lexical_syntax.txt). Accumulating mod
+// 2^64 (uint64_t's natural wraparound) then truncating to 32 bits gives
+// the same low 32 bits regardless of how many digits `lexeme` has.
 int64_t parse_literal(const std::string &lexeme) {
-  try {
-    const int64_t result = std::stoll(lexeme, nullptr, 0);
-    if (result < 0 && (lexeme.starts_with("0x") || lexeme.starts_with("0X")))
-      return result + 0x1'0000'0000LL;
-    return result;
-  } catch (const std::exception &e) {
-    throw std::runtime_error("Could not parse literal: " + lexeme);
+  const bool is_hex = lexeme.size() > 1 && lexeme[0] == '0' &&
+                      (lexeme[1] == 'x' || lexeme[1] == 'X');
+  const std::string_view digits =
+      is_hex ? std::string_view(lexeme).substr(2) : std::string_view(lexeme);
+  const int base = is_hex ? 16 : 10;
+
+  uint64_t value = 0;
+  for (const char c : digits) {
+    const int digit = (c <= '9') ? c - '0' : (c | 0x20) - 'a' + 10;
+    debug_assert(digit >= 0 && digit < base, "Invalid digit {} in NUM {}", c,
+                lexeme);
+    value = value * base + digit;
   }
+  return static_cast<int64_t>(static_cast<uint32_t>(value));
 }
 
 Type parse_node_to_type(const std::shared_ptr<ParseNode> &node) {
@@ -297,7 +309,7 @@ std::shared_ptr<ASTNode> construct_ast(const std::shared_ptr<ParseNode> &node) {
     });
 
     register_function("factor -> NUM", [](const auto &node) {
-      const auto value = std::stoi(node->children[0]->token.lexeme);
+      const auto value = parse_literal(node->children[0]->token.lexeme);
       return std::make_shared<LiteralExpr>(Literal(value, Type::Int));
     });
 

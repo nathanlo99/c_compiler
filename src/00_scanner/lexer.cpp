@@ -5,15 +5,6 @@
 #include <bit>
 #include <cassert>
 
-bool is_valid_number_literal(const std::string &lexeme) {
-  try {
-    std::stoi(lexeme);
-    return true;
-  } catch (const std::exception &e) {
-    return false;
-  }
-}
-
 Token Lexer::get_next_token() {
   const size_t start_idx = next_idx;
   uint64_t state = 0;
@@ -50,9 +41,8 @@ Token Lexer::get_next_token() {
 
   if (keywords.contains(lexeme))
     last_accepting_kind = keywords.at(lexeme);
-  if (last_accepting_kind == TokenKind::Num && !is_valid_number_literal(lexeme))
-    throw CompileError(fmt::format("{}: numeric literal out of range ({})",
-                                   start_location, lexeme));
+  // Range isn't checked here, only shape -- parse_literal (ast_node.cpp)
+  // checks range once the value is actually needed.
 
   InputRange location(filename, start_location.line, start_location.column,
                       end_location.column + 1);

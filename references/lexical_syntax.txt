@@ -1,5 +1,5 @@
 ID: a string consisting of a letter (in the range a-z or A-Z) followed by zero or more letters and digits (in the range 0-9), but not equal to "wain", "int", "if", "else", "while", "println", "return", "NULL", "new" or "delete".
-NUM: a string consisting of a single digit (in the range 0-9) or two or more digits, the first of which is not 0; the numeric value of a NUM token cannot exceed 2^31-1
+NUM: a string consisting of a single digit (in the range 0-9) or two or more digits, the first of which is not 0; also accepts "0x"/"0X" followed by one or more hex digits (an extension beyond real WLP4). No lexical range restriction: per the official WLP4 spec (https://student.cs.uwaterloo.ca/~cs241/wlp4/), "the type of a NUM is long" -- wider than the target int -- and it truncates to 32 bits on use, same as a real C compiler narrowing an oversized integer constant. (This line previously claimed a 2^31-1 cap; that wasn't ever part of the real spec and this compiler no longer enforces it -- see tests/unit/dec_literal_overflow, tests/unit/hex_literal_overflow.)
 LPAREN: the string "("
 RPAREN: the string ")"
 LBRACE: the string "{"

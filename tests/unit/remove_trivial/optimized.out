@@ -2,9 +2,9 @@
   %0: int = const 0;
   %1: int = eq b a;
   br %1 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
   jmp .L2;
-.L2:                                               preds = {.L0, .L1}, dominators = {.L2, .L0}
+.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
   ret %0;
 }
 

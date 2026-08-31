@@ -4,15 +4,15 @@
   %2: int = const 0;
   %3: int = eq %1 %2;
   br %3 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
   %4: int = mul a a;
   %5: int = id %4;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L2, .L0}
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}
   %6: int = add a a;
   %5: int = id %6;
   jmp .L3;
-.L3:                                               preds = {.L2, .L1}, dominators = {.L3, .L0}
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
   print %5;
   ret %5;
 }

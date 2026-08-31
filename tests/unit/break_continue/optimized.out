@@ -1,32 +1,32 @@
 @wain(a: int, b: int) : int {
   %0: int = const 0;
   jmp .L1;
-.L1:                                               preds = {.L7, .L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0, .L7}, dominators = {.L0, .L1}
   %1: int = id %0;
   %2: int = const 10;
   %3: int = lt %0 %2;
   br %3 .L2 .L8;
-.L2:                                               preds = {.L1}, dominators = {.L2, .L1, .L0}
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
   %4: int = eq %1 %2;
   br %4 .L3 .L4;
-.L3:                                               preds = {.L2}, dominators = {.L3, .L2, .L1, .L0}
+.L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
   jmp .L8;
-.L4:                                               preds = {.L2}, dominators = {.L4, .L2, .L1, .L0}
+.L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}
   %5: int = const 2;
   %6: int = mod %1 %5;
   %7: int = const 1;
   %8: int = eq %6 %7;
   br %8 .L5 .L6;
-.L5:                                               preds = {.L4}, dominators = {.L4, .L2, .L5, .L1, .L0}
+.L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L5}
   jmp .L7;
-.L6:                                               preds = {.L4}, dominators = {.L6, .L4, .L2, .L1, .L0}
+.L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L6}
   print %1;
   jmp .L7;
-.L7:                                               preds = {.L6, .L5}, dominators = {.L7, .L4, .L2, .L1, .L0}
+.L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L2, .L4, .L7}
   %9: int = add %1 %7;
   %0: int = id %9;
   jmp .L1;
-.L8:                                               preds = {.L1, .L3}, dominators = {.L8, .L1, .L0}
+.L8:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L8}
   ret %1;
 }
 

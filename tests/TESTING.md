@@ -16,6 +16,13 @@ python3 -m venv .venv
 via `.venv/bin/python3 tests/run_tests.py ...` (or activate the venv
 first with `source .venv/bin/activate` and drop the `.venv/bin/` prefix).
 
+`tests/run_tests.py` only builds `build/` (Release, `-O3`) — that's the
+binary golden files are checked against. `../build.sh` builds that *and*
+`build-debug/` (`-Og`, ASan+UBSan, `DEBUG_BUILD` defined): run
+`build-debug/compile <file> <flag>` directly to catch memory/UB bugs a
+plain Release run won't. `debug_assert` runs in both regardless (see
+`util.hpp` — it was never gated on `NDEBUG`).
+
 ## Layout
 
 ```

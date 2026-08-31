@@ -15,6 +15,7 @@ risk even though today's behavior is safe (noted inline).
 | # | Slug | Category | Difficulty |
 |---|------|----------|------------|
 | ✅ | `rig_unused_args` | QoL | trivial — **DONE** |
+| ✅ | `debug_release_builds` | QoL | small — **DONE** |
 | 1 | `gvn_cancel_operand` | QoL | trivial |
 | 2 | `gvn_strength_reduction` | QoL | trivial |
 | 3 | `dead_alloc_elim` | QoL | trivial |
@@ -33,23 +34,26 @@ risk even though today's behavior is safe (noted inline).
 | 16 | `per_pass_timers` | QoL (perf) | small |
 | 17 | `verify_parser_scaling` | QoL (perf) | small |
 | 18 | `audit_graph_dirty` | QoL (perf) | small |
-| 19 | `gvn_pointer_bailout` | QoL | medium |
-| 20 | `equivalent_arms` | QoL | medium |
-| 21 | `mutual_recursion` | QoL | medium |
-| 22 | `scoped_table_utility` | QoL | medium |
-| 23 | `gvn_dominance_branch` | QoL | medium |
-| 24 | `gvn_inline_redundancy` | QoL | medium |
-| 25 | `ir_verifier` | QoL | medium |
-| 26 | `per_pass_dump` | QoL | medium |
-| 27 | `unify_comparison_canonicalization` | QoL | medium |
-| 28 | `gate_debug_prints` | QoL | medium |
-| 29 | `licm` | QoL | hard |
-| 30 | `induction_strength_reduction` | QoL | hard |
-| 31 | `loop_unrolling` | QoL | hard |
-| 32 | `tail_call_elim` | **Correctness** | hard |
-| 33 | `source_location_tracking` | QoL | hard |
-| 34 | `persistent_value_graph` | QoL | hard |
-| 35 | `worklist_fixpoint` | QoL (perf) | hard |
+| 19 | `reconcile_grammar_docs` | QoL | small |
+| 20 | `gvn_pointer_bailout` | QoL | medium |
+| 21 | `equivalent_arms` | QoL | medium |
+| 22 | `mutual_recursion` | QoL | medium |
+| 23 | `scoped_table_utility` | QoL | medium |
+| 24 | `gvn_dominance_branch` | QoL | medium |
+| 25 | `gvn_inline_redundancy` | QoL | medium |
+| 26 | `ir_verifier` | QoL | medium |
+| 27 | `per_pass_dump` | QoL | medium |
+| 28 | `unify_comparison_canonicalization` | QoL | medium |
+| 29 | `gate_debug_prints` | QoL | medium |
+| 30 | `single_source_grammar` | QoL | medium |
+| 31 | `putchar_getchar_support` | QoL | medium |
+| 32 | `licm` | QoL | hard |
+| 33 | `induction_strength_reduction` | QoL | hard |
+| 34 | `loop_unrolling` | QoL | hard |
+| 35 | `tail_call_elim` | **Correctness** | hard |
+| 36 | `source_location_tracking` | QoL | hard |
+| 37 | `persistent_value_graph` | QoL | hard |
+| 38 | `worklist_fixpoint` | QoL (perf) | hard |
 
 ## Dependency graph
 
@@ -63,6 +67,7 @@ flowchart TD
 
     subgraph indep["independent, trivial"]
         rig_unused_args["rig_unused_args ✅"]
+        debug_release_builds["debug_release_builds ✅"]
         gvn_cancel_operand
         gvn_strength_reduction
         dead_alloc_elim
@@ -77,6 +82,12 @@ flowchart TD
         naive_mips_fate
         scoped_table_utility
         unify_comparison_canonicalization
+    end
+
+    subgraph frontend["grammar / frontend"]
+        reconcile_grammar_docs
+        single_source_grammar
+        putchar_getchar_support
     end
 
     subgraph memvn["memory-aware value numbering"]
@@ -138,12 +149,13 @@ flowchart TD
     persistent_value_graph -.would subsume.-> scoped_table_utility
     per_pass_timers -.recommended before.-> worklist_fixpoint
     persistent_value_graph -.would also address.-> worklist_fixpoint
+    single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
     class gvn_cancel_operand,gvn_strength_reduction,dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty small
-    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints medium
+    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
+    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support medium
     class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,worklist_fixpoint hard
-    class rig_unused_args done
+    class rig_unused_args,debug_release_builds done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -153,6 +165,18 @@ sits after its prereqs regardless.
 **[QoL · trivial] · DONE**
 `liveness_analysis.hpp:49` — edges only between used args now. No
 regressions; some MIPS output shrank as a side effect.
+
+## `debug_release_builds` — ~~Add a debug (ASan/UBSan) build mode~~ ✅ Done
+**[QoL · small] · DONE**
+`CMakeLists.txt` now branches on `CMAKE_BUILD_TYPE`; `./build.sh` builds
+both `build/` (Release, unchanged) and `build-debug/` (`-Og`, ASan+UBSan,
+`DEBUG_BUILD` defined) by default. Found along the way: Apple Clang's ASan
+deadlocks in its own init on this machine (verified with a standalone
+hello-world, not a compiler_cpp bug) — `build.sh` prefers Homebrew's clang
+for the debug build when available. Swept the sanitized build over every
+test input: one hit, and it's the already-known one (`deep_recursion`'s
+stack overflow, `tail_call_elim`), now with a precise `bril_interpreter.
+cpp:58` location instead of a bare SIGSEGV.
 
 ## `gvn_cancel_operand` — Check both operand positions in GVN's inverse-cancellation rule
 **[QoL · trivial]**
@@ -241,6 +265,25 @@ Bare `4` (word size) ~26× across MIPS codegen + `symbol_table.hpp:36`.
 `naive_mips_generator.{cpp,hpp}` (767 lines): second AST→MIPS backend,
 `--emit-naive-mips`, zero test/build references — untested, unverified.
 Document or remove.
+
+## `reconcile_grammar_docs` — Update the stale reference grammar/lexicon files
+**[QoL · small]**
+`productions.cfg`/`augmented.cfg`/`lexical_syntax.txt` don't match the
+live grammar (`productions.hpp`) -- see `references/spec.txt`. Update
+them; see `single_source_grammar` for the real fix.
+
+## `single_source_grammar` — Load the grammar from a file, not a hardcoded duplicate
+**[QoL · medium]**
+`productions.hpp` hardcodes the grammar as a string, duplicating the
+`.cfg` files -- how they went stale. `load_grammar_from_file` already
+exists (used for `--augmented-cfg`); use it by default too. Tradeoff:
+needs the file at runtime, unless embedded at build time.
+
+## `putchar_getchar_support` — Add `putchar`/`getchar` language builtins
+**[QoL · medium]**
+Upstream WLP4 has both (`references/spec.txt`); this project dropped them
+for manual MMIO I/O instead (`tests/unit/vector`). Add keyword + grammar +
+AST + codegen -- same store/load the manual version already proves works.
 
 ## `dead_store` — Eliminate dead stores
 **[QoL · small]**

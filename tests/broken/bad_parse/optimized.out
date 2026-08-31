@@ -1,2 +1,2 @@
-libc++abi: terminating due to uncaught exception of type std::runtime_error: /Users/admin/dev/compiler_cpp/src/01_parser/parser.cpp:212 -- Should be unreachable: Parse error at 1 (RPAREN ()) at /Users/admin/dev/compiler_cpp/tests/broken/bad_parse/input.c:1:1-2): expected {type, main, procedure}
+libc++abi: terminating due to uncaught exception of type std::runtime_error: /Users/admin/dev/compiler_cpp/src/01_parser/parser.cpp:212 -- Should be unreachable: Parse error at 1 (RPAREN ()) at /Users/admin/dev/compiler_cpp/tests/broken/bad_parse/input.c:1:1-2): expected {main, procedure, type}
 Context:      • )      

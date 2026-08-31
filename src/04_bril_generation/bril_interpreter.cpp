@@ -3,6 +3,7 @@
 #include "bril.hpp"
 #include "timer.hpp"
 #include "util.hpp"
+#include <limits>
 
 namespace bril {
 namespace interpreter {
@@ -89,22 +90,31 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     // 3. Interpret the instruction
     const std::string destination = instruction.destination;
     switch (instruction.opcode) {
+    // Add/Sub/Mul wrap mod 2^32 by design (real MIPS arithmetic) -- done
+    // via unsigned, since signed overflow is UB in C++ even though it
+    // wraps in practice.
     case Opcode::Add: {
       const int lhs = context.get_int(instruction.arguments[0]);
       const int rhs = context.get_int(instruction.arguments[1]);
-      context.write_int(destination, lhs + rhs);
+      context.write_int(destination, static_cast<int>(
+                                         static_cast<unsigned>(lhs) +
+                                         static_cast<unsigned>(rhs)));
     } break;
 
     case Opcode::Sub: {
       const int lhs = context.get_int(instruction.arguments[0]);
       const int rhs = context.get_int(instruction.arguments[1]);
-      context.write_int(destination, lhs - rhs);
+      context.write_int(destination, static_cast<int>(
+                                         static_cast<unsigned>(lhs) -
+                                         static_cast<unsigned>(rhs)));
     } break;
 
     case Opcode::Mul: {
       const int lhs = context.get_int(instruction.arguments[0]);
       const int rhs = context.get_int(instruction.arguments[1]);
-      context.write_int(destination, lhs * rhs);
+      context.write_int(destination, static_cast<int>(
+                                         static_cast<unsigned>(lhs) *
+                                         static_cast<unsigned>(rhs)));
     } break;
 
     case Opcode::Div: {
@@ -112,6 +122,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       const int rhs = context.get_int(instruction.arguments[1]);
       if (rhs == 0)
         throw std::runtime_error("Division by zero");
+      if (lhs == std::numeric_limits<int>::min() && rhs == -1)
+        throw std::runtime_error("Division overflow");
       context.write_int(destination, lhs / rhs);
     } break;
 
@@ -120,6 +132,8 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
       const int rhs = context.get_int(instruction.arguments[1]);
       if (rhs == 0)
         throw std::runtime_error("Division by zero");
+      if (lhs == std::numeric_limits<int>::min() && rhs == -1)
+        throw std::runtime_error("Division overflow");
       context.write_int(destination, lhs % rhs);
     } break;
 

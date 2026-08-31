@@ -1,5 +1,6 @@
 
 #include "global_value_numbering.hpp"
+#include <limits>
 #include <optional>
 
 namespace bril {
@@ -46,19 +47,41 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
   // Constant folding
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
-      std::make_pair(Opcode::Add, [](int a, int b) { return a + b; }),
-      std::make_pair(Opcode::Sub, [](int a, int b) { return a - b; }),
-      std::make_pair(Opcode::Mul, [](int a, int b) { return a * b; }),
-      std::make_pair(Opcode::Div,
-                     [](int a, int b) -> std::optional<int> {
-                       return (b == 0) ? std::nullopt
-                                       : std::make_optional(a / b);
+      // Add/Sub/Mul wrap mod 2^32 by design (matches real MIPS arithmetic,
+      // see references/lexical_syntax.txt) -- done via unsigned, since
+      // signed overflow is UB in C++ even though it wraps in practice.
+      std::make_pair(Opcode::Add,
+                     [](int a, int b) {
+                       return static_cast<int>(static_cast<unsigned>(a) +
+                                               static_cast<unsigned>(b));
                      }),
-      std::make_pair(Opcode::Mod,
-                     [](int a, int b) -> std::optional<int> {
-                       return (b == 0) ? std::nullopt
-                                       : std::make_optional(a % b);
+      std::make_pair(Opcode::Sub,
+                     [](int a, int b) {
+                       return static_cast<int>(static_cast<unsigned>(a) -
+                                               static_cast<unsigned>(b));
                      }),
+      std::make_pair(Opcode::Mul,
+                     [](int a, int b) {
+                       return static_cast<int>(static_cast<unsigned>(a) *
+                                               static_cast<unsigned>(b));
+                     }),
+      std::make_pair(
+          Opcode::Div,
+          [](int a, int b) -> std::optional<int> {
+            // b == 0: division by zero. a == INT_MIN && b == -1: the one
+            // case INT_MIN/-1 doesn't fit in int either -- also UB, and
+            // undefined on real MIPS hardware too. Leave both unfolded.
+            if (b == 0 || (a == std::numeric_limits<int>::min() && b == -1))
+              return std::nullopt;
+            return a / b;
+          }),
+      std::make_pair(
+          Opcode::Mod,
+          [](int a, int b) -> std::optional<int> {
+            if (b == 0 || (a == std::numeric_limits<int>::min() && b == -1))
+              return std::nullopt;
+            return a % b;
+          }),
       std::make_pair(Opcode::Lt, [](int a, int b) { return a < b; }),
       std::make_pair(Opcode::Le, [](int a, int b) { return a <= b; }),
       std::make_pair(Opcode::Gt, [](int a, int b) { return a > b; }),

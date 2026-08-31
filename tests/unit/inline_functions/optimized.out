@@ -4,10 +4,10 @@
   %2: int = lt a b;
   %3: int = id a;
   br %2 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
   %3: int = id %1;
   jmp .L2;
-.L2:                                               preds = {.L1, .L0}, dominators = {.L2, .L0}
+.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
   %4: int = sub %0 %3;
   %5: int = mul %4 %4;
   %6: int = id %5;
@@ -15,26 +15,26 @@
   %8: int = lt a b;
   %9: int = id a;
   br %8 .L3 .L4;
-.L3:                                               preds = {.L2}, dominators = {.L3, .L2, .L0}
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
   %9: int = id %7;
   jmp .L4;
-.L4:                                               preds = {.L3, .L2}, dominators = {.L4, .L2, .L0}
+.L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}
   %10: int = mul %9 %9;
   %11: int = add %10 %6;
   %12: int = id %11;
   %13: int = const 0;
   jmp .L5;
-.L5:                                               preds = {.L6, .L4}, dominators = {.L4, .L2, .L5, .L0}
+.L5:                                               preds = {.L4, .L6}, dominators = {.L0, .L2, .L4, .L5}
   %14: int = id %13;
   %15: int = mul %13 %13;
   %16: int = lt %15 %12;
   br %16 .L6 .L7;
-.L6:                                               preds = {.L5}, dominators = {.L6, .L4, .L2, .L5, .L0}
+.L6:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L6}
   %17: int = const 1;
   %18: int = add %14 %17;
   %13: int = id %18;
   jmp .L5;
-.L7:                                               preds = {.L5}, dominators = {.L7, .L4, .L2, .L5, .L0}
+.L7:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L7}
   ret %14;
 }
 

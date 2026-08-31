@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <compare>
+#include <tuple>
+
 #include "data_flow/data_flow.hpp"
 #include "util.hpp"
 
@@ -41,6 +44,13 @@ struct MemoryLocation {
   }
 
   bool operator==(const MemoryLocation &other) const = default;
+  // Only for deterministic printing (util.hpp sorts unordered_set/map before
+  // printing) -- not a meaningful ordering otherwise.
+  auto operator<=>(const MemoryLocation &other) const {
+    return std::tie(type, name, instruction_idx, raw_value) <=>
+           std::tie(other.type, other.name, other.instruction_idx,
+                    other.raw_value);
+  }
 
   friend std::ostream &operator<<(std::ostream &os,
                                   const bril::MemoryLocation &location) {

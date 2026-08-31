@@ -104,16 +104,20 @@ static inline std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
+// Sorted, not insertion/bucket order: unordered_set/map iteration order
+// depends on the standard library's hash implementation, so it silently
+// changes across toolchains (bit us switching to Homebrew LLVM's libc++).
+// Printed output should be deterministic regardless of which stdlib built it.
 template <typename T, typename Hash>
 static inline std::ostream &
 operator<<(std::ostream &os, const std::unordered_set<T, Hash> &list) {
+  std::vector<T> sorted(list.begin(), list.end());
+  std::sort(sorted.begin(), sorted.end());
   os << "{";
-  size_t i = 0;
-  for (const auto &item : list) {
-    os << item;
-    if (i != list.size() - 1)
+  for (size_t i = 0; i < sorted.size(); ++i) {
+    os << sorted[i];
+    if (i + 1 != sorted.size())
       os << ", ";
-    i++;
   }
   os << "}";
   return os;
@@ -122,14 +126,13 @@ operator<<(std::ostream &os, const std::unordered_set<T, Hash> &list) {
 template <typename T, typename U, typename Hash>
 static inline std::ostream &
 operator<<(std::ostream &os, const std::unordered_map<T, U, Hash> &dict) {
-  bool first = true;
+  std::vector<std::pair<T, U>> sorted(dict.begin(), dict.end());
+  std::sort(sorted.begin(), sorted.end());
   os << "{";
-  for (const auto &[key, value] : dict) {
-    if (first)
-      first = false;
-    else
+  for (size_t i = 0; i < sorted.size(); ++i) {
+    os << sorted[i].first << ": " << sorted[i].second;
+    if (i + 1 != sorted.size())
       os << ", ";
-    os << key << ": " << value;
   }
   os << "}";
   return os;

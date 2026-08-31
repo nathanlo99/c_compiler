@@ -1,15 +1,15 @@
                                 ; @wain(a: int, b: int) : int {
                                 ;   %0: int = lt a b;
                                 ;   br %0 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L1, .L0}
+                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
                                 ;   print a;
                                 ;   jmp .L2;
-                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L2, .L0}
+                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
                                 ;   br %0 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L3, .L2, .L0}
+                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
                                 ;   print b;
                                 ;   jmp .L4;
-                                ; .L4:                                               preds = {.L2, .L3}, dominators = {.L4, .L2, .L0}
+                                ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}
                                 ;   ret a;
                                 ; }
                                 ; 
