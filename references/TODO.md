@@ -5,56 +5,60 @@
 slug. `tests/run_tests.py` checks goldens; `tests/review_golden.py` accepts
 new ones.
 
-Slugs, not numbers — reorder by editing the table only. Tagged
-**[Correctness | QoL] · [difficulty]**; only `tail_call_elim` is
-Correctness (a crash, not just suboptimal codegen). A few fixes carry real
-risk even though today's behavior is safe (noted inline).
+Slugs, not numbers — row order in the table below *is* the suggested
+order, so reordering is just moving rows, not renumbering. ⬜/✅ marks
+done-ness. Tagged **[Correctness | QoL] · [difficulty]**; only
+`tail_call_elim` is Correctness (a crash, not just suboptimal codegen). A
+few fixes carry real risk even though today's behavior is safe (noted
+inline).
 
 ## Suggested order
 
-| # | Slug | Category | Difficulty |
-|---|------|----------|------------|
-| ✅ | `rig_unused_args` | QoL | trivial — **DONE** |
-| ✅ | `debug_release_builds` | QoL | small — **DONE** |
-| ✅ | `gvn_cancel_operand` | QoL | trivial — **DONE** |
-| ✅ | `gvn_strength_reduction` | QoL | trivial — **DONE** |
-| 1 | `dead_alloc_elim` | QoL | trivial |
-| 3 | `lvn_fold_zero_add` | QoL | trivial |
-| 4 | `static_const_opcode_tables` | QoL | trivial |
-| 5 | `fix_log_macro` | QoL | trivial |
-| 6 | `remove_bad_dump` | QoL | trivial |
-| ✅ | `gvn_negate_via_sub` | QoL | small — **DONE** |
-| 7 | `reassociation` | QoL | small |
-| 9 | `lvn_memory_bailout` | QoL | small |
-| 10 | `should_inline_or_and` | QoL | small |
-| 11 | `word_size_constant` | QoL | small |
-| 12 | `delete_stale_debug_prints` | QoL | small |
-| 13 | `naive_mips_fate` | QoL | small |
-| 14 | `dead_store` | QoL | small |
-| 15 | `wain_unused_arg_write` | QoL | small |
-| 16 | `per_pass_timers` | QoL (perf) | small |
-| 17 | `verify_parser_scaling` | QoL (perf) | small |
-| 18 | `audit_graph_dirty` | QoL (perf) | small |
-| 19 | `reconcile_grammar_docs` | QoL | small |
-| 20 | `gvn_pointer_bailout` | QoL | medium |
-| 21 | `equivalent_arms` | QoL | medium |
-| 22 | `mutual_recursion` | QoL | medium |
-| 23 | `scoped_table_utility` | QoL | medium |
-| 24 | `gvn_dominance_branch` | QoL | medium |
-| 25 | `gvn_inline_redundancy` | QoL | medium |
-| 26 | `ir_verifier` | QoL | medium |
-| 27 | `per_pass_dump` | QoL | medium |
-| 28 | `unify_comparison_canonicalization` | QoL | medium |
-| 29 | `gate_debug_prints` | QoL | medium |
-| 30 | `single_source_grammar` | QoL | medium |
-| 31 | `putchar_getchar_support` | QoL | medium |
-| 32 | `licm` | QoL | hard |
-| 33 | `induction_strength_reduction` | QoL | hard |
-| 34 | `loop_unrolling` | QoL | hard |
-| 35 | `tail_call_elim` | **Correctness** | hard |
-| 36 | `source_location_tracking` | QoL | hard |
-| 37 | `persistent_value_graph` | QoL | hard |
-| 38 | `worklist_fixpoint` | QoL (perf) | hard |
+| Done | Slug | Category | Difficulty |
+|------|------|----------|------------|
+| ✅ | `rig_unused_args` | QoL | trivial |
+| ✅ | `debug_release_builds` | QoL | small |
+| ✅ | `gvn_cancel_operand` | QoL | trivial |
+| ✅ | `gvn_strength_reduction` | QoL | trivial |
+| ✅ | `gvn_negate_via_sub` | QoL | small |
+| ⬜ | `dead_alloc_elim` | QoL | trivial |
+| ⬜ | `lvn_fold_zero_add` | QoL | trivial |
+| ⬜ | `static_const_opcode_tables` | QoL | trivial |
+| ⬜ | `fix_log_macro` | QoL | trivial |
+| ⬜ | `remove_bad_dump` | QoL | trivial |
+| ⬜ | `reassociation` | QoL | small |
+| ⬜ | `ssa_copy_propagation` | QoL (perf) | small |
+| ⬜ | `lvn_memory_bailout` | QoL | small |
+| ⬜ | `should_inline_or_and` | QoL | small |
+| ⬜ | `word_size_constant` | QoL | small |
+| ⬜ | `delete_stale_debug_prints` | QoL | small |
+| ⬜ | `naive_mips_fate` | QoL | small |
+| ⬜ | `dead_store` | QoL | small |
+| ⬜ | `wain_unused_arg_write` | QoL | small |
+| ⬜ | `per_pass_timers` | QoL (perf) | small |
+| ⬜ | `verify_parser_scaling` | QoL (perf) | small |
+| ⬜ | `audit_graph_dirty` | QoL (perf) | small |
+| ⬜ | `reconcile_grammar_docs` | QoL | small |
+| ⬜ | `gvn_pointer_bailout` | QoL | medium |
+| ⬜ | `equivalent_arms` | QoL | medium |
+| ⬜ | `mutual_recursion` | QoL | medium |
+| ⬜ | `scoped_table_utility` | QoL | medium |
+| ⬜ | `gvn_dominance_branch` | QoL | medium |
+| ⬜ | `gvn_inline_redundancy` | QoL | medium |
+| ⬜ | `ir_verifier` | QoL | medium |
+| ⬜ | `per_pass_dump` | QoL | medium |
+| ⬜ | `unify_comparison_canonicalization` | QoL | medium |
+| ⬜ | `gate_debug_prints` | QoL | medium |
+| ⬜ | `single_source_grammar` | QoL | medium |
+| ⬜ | `putchar_getchar_support` | QoL | medium |
+| ⬜ | `copy_coalescing` | QoL (perf) | medium |
+| ⬜ | `licm` | QoL | hard |
+| ⬜ | `induction_strength_reduction` | QoL | hard |
+| ⬜ | `loop_unrolling` | QoL | hard |
+| ⬜ | `tail_call_elim` | **Correctness** | hard |
+| ⬜ | `source_location_tracking` | QoL | hard |
+| ⬜ | `persistent_value_graph` | QoL | hard |
+| ⬜ | `worklist_fixpoint` | QoL (perf) | hard |
 
 ## Dependency graph
 
@@ -81,6 +85,7 @@ flowchart TD
     subgraph gvncore["GVN core / hygiene"]
         gvn_negate_via_sub["gvn_negate_via_sub ✅"]
         reassociation
+        ssa_copy_propagation
         naive_mips_fate
         scoped_table_utility
         unify_comparison_canonicalization
@@ -131,6 +136,7 @@ flowchart TD
 
     tail_call_elim
     word_size_constant
+    copy_coalescing
 
     lvn_memory_bailout --> dead_store
     gvn_pointer_bailout --> dead_store
@@ -154,8 +160,8 @@ flowchart TD
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
     class dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
-    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support medium
+    class reassociation,ssa_copy_propagation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
+    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support,copy_coalescing medium
     class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,worklist_fixpoint hard
     class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub done
 ```
@@ -232,6 +238,14 @@ never caught. Fix to `__func__` or delete.
 (signed) and Mul chains into a term multiset, fold, rebuild.
 Repro: [`tests/unit/constant_folding_reassociate`](../tests/unit/constant_folding_reassociate/input.c),
 [`constant_folding_negate_add`](../tests/unit/constant_folding_negate_add/input.c).
+
+## `ssa_copy_propagation` — Explicit, function-wide `id` elimination in SSA form
+**[QoL (perf) · small]**
+`x = id y` is always eliminable in SSA (dominance proves it safe). No
+output-correctness gap -- GVN's table already gets this right -- but DCE
+runs before GVN each round, so a dead `id` GVN just created waits for
+another fixpoint round to actually vanish. One pass doing both avoids
+that. Doesn't fix `copy_coalescing` (that's post-SSA-destruction).
 
 ## `lvn_memory_bailout` — Let LVN process blocks that touch memory
 **[QoL · small]**
@@ -384,6 +398,12 @@ level. Pick one layer.
 **[QoL · medium]**
 `combine_blocks`, LVN branch resolution, inline decisions all print to
 stderr unconditionally. Gate via `log()`.
+
+## `copy_coalescing` — Eliminate copies `convert_from_ssa` inserts at phi predecessors
+**[QoL (perf) · medium]**
+Each predecessor gets a copy (`x = id y`), never merged into one name --
+a real MIPS move per copy (`unit/loop`'s `wainL4`). Prefer redoing SSA
+destruction via congruence classes over a post-hoc coalescing pass.
 
 ## `licm` — Hoist loop-invariant code out of loops
 **[QoL · hard]**
