@@ -21,7 +21,7 @@ inline).
 | ✅ | `gvn_cancel_operand` | QoL | trivial |
 | ✅ | `gvn_strength_reduction` | QoL | trivial |
 | ✅ | `gvn_negate_via_sub` | QoL | small |
-| ⬜ | `dead_alloc_elim` | QoL | trivial |
+| ✅ | `dead_alloc_elim` | QoL | trivial |
 | ⬜ | `lvn_fold_zero_add` | QoL | trivial |
 | ⬜ | `static_const_opcode_tables` | QoL | trivial |
 | ⬜ | `fix_log_macro` | QoL | trivial |
@@ -58,6 +58,7 @@ inline).
 | ⬜ | `tail_call_elim` | **Correctness** | hard |
 | ⬜ | `source_location_tracking` | QoL | hard |
 | ⬜ | `persistent_value_graph` | QoL | hard |
+| ⬜ | `safe_block_mutation` | QoL | hard |
 | ⬜ | `worklist_fixpoint` | QoL (perf) | hard |
 
 ## Dependency graph
@@ -75,7 +76,7 @@ flowchart TD
         debug_release_builds["debug_release_builds ✅"]
         gvn_cancel_operand["gvn_cancel_operand ✅"]
         gvn_strength_reduction["gvn_strength_reduction ✅"]
-        dead_alloc_elim
+        dead_alloc_elim["dead_alloc_elim ✅"]
         lvn_fold_zero_add
         static_const_opcode_tables
         fix_log_macro
@@ -125,6 +126,7 @@ flowchart TD
         gate_debug_prints
         source_location_tracking
         persistent_value_graph
+        safe_block_mutation
     end
 
     subgraph perf["performance"]
@@ -157,13 +159,14 @@ flowchart TD
     persistent_value_graph -.would subsume.-> scoped_table_utility
     per_pass_timers -.recommended before.-> worklist_fixpoint
     persistent_value_graph -.would also address.-> worklist_fixpoint
+    safe_block_mutation -.would ease.-> persistent_value_graph
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
-    class dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
+    class lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
     class reassociation,ssa_copy_propagation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
     class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support,copy_coalescing medium
-    class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,worklist_fixpoint hard
-    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub done
+    class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,safe_block_mutation,worklist_fixpoint hard
+    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub,dead_alloc_elim done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -205,11 +208,12 @@ per item. General capability, reusable by future rules. Also added
 `--gvn-only` (SSA + local DCE + one GVN pass, no `canonicalize_names`) as a
 `gvn` test phase, to make dedup-vs-synthesize visible in goldens.
 
-## `dead_alloc_elim` — Delete dead allocations
-**[QoL · trivial]**
-`bril_instruction.hpp:197`'s `is_pure()` excludes `Alloc` unconditionally,
-so DCE can't remove an unused one.
-Repro: [`tests/unit/memory_leaks`](../tests/unit/memory_leaks/input.c).
+## `dead_alloc_elim` — ~~Delete dead allocations~~ ✅ Done
+**[QoL · trivial] · DONE**
+`is_pure()` (renamed `is_removable_if_unused()` -- Alloc isn't idempotent/side-effect-free,
+just droppable) no longer excludes `Alloc`; DCE removes one whose pointer
+is never read. Ignores heap-exhaustion shifting a later alloc's success --
+same spirit as treating overflow as UB.
 
 ## `lvn_fold_zero_add` — LVN doesn't fold `0 + x`, only `x + 0`
 **[QoL · trivial]**
@@ -246,6 +250,11 @@ output-correctness gap -- GVN's table already gets this right -- but DCE
 runs before GVN each round, so a dead `id` GVN just created waits for
 another fixpoint round to actually vanish. One pass doing both avoids
 that. Doesn't fix `copy_coalescing` (that's post-SSA-destruction).
+Caught live: `tests/unit/memory_leaks`'s `ssa` stage has two (`%5`, `%6`,
+both bare `id`s with zero uses) -- not a rare edge case, since every bare
+`x = expr;` statement's now-discarded expression-value read creates one of
+these. Both gone by the `optimized` stage; more fixpoint rounds after
+unSSA clean them up eventually either way.
 
 ## `lvn_memory_bailout` — Let LVN process blocks that touch memory
 **[QoL · small]**
@@ -309,7 +318,7 @@ AST + codegen -- same store/load the manual version already proves works.
 
 ## `dead_store` — Eliminate dead stores
 **[QoL · small]**
-`is_pure()` excludes `Store`; never DCE'd. Local case needs
+`is_removable_if_unused()` excludes `Store`; never DCE'd. Local case needs
 `lvn_memory_bailout`; general case needs `gvn_pointer_bailout`.
 Repro: [`tests/unit/dead_store`](../tests/unit/dead_store/input.c).
 
@@ -449,6 +458,17 @@ from scratch — why `reassociation` is awkward. Would simplify
 `gvn_inline_redundancy`; subsumes `scoped_table_utility`; helps
 `worklist_fixpoint`. Must key by instruction identity — names get reused
 post-SSA.
+
+## `safe_block_mutation` — Give `Block` a real mutation API instead of raw vector splicing
+**[QoL · hard]**
+7 call sites (DCE, GVN, inlining, `bril.cpp`) do `erase`/`insert` on
+`block.instructions` with hand-rolled index bookkeeping (`idx--` after
+erase, `++i` after insert) -- easy to get wrong, and GVN's synthesis path
+already had to reason carefully about reference invalidation from it.
+Preferred fix (per discussion): something like an intrusive doubly-linked
+list, so erase/insert are index-safe by construction -- not just a
+`remove_if`-style helper bolted onto the vector. Real cost: ~50 sites elsewhere index into `instructions[i]` directly (22 in
+`bril_to_mips_generator.cpp` alone), all of which would need converting.
 
 ## `worklist_fixpoint` — Track dirty functions/blocks instead of re-scanning everything every iteration
 **[QoL (perf) · hard]**

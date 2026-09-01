@@ -7,31 +7,27 @@ size_t remove_global_unused_assignments(ControlFlowGraph &graph) {
   // For any given assignment 'var = value'
   // - If we never use 'var' anywhere else in the function, remove the
   //   assignment
+  //
+  // Memory-safe with no special-casing: Store/Free have no destination
+  // (never candidates here), Load is excluded by is_removable_if_unused(),
+  // and any pointer read through Load/Store/etc. is just an ordinary
+  // argument -- already caught by the scan below.
   size_t num_removed_lines = 0;
   std::unordered_set<std::string> used_variables;
-  std::unordered_set<std::string> addressed_variables;
   for (const auto &[block_label, block] : graph.blocks) {
     for (const auto &instruction : block.instructions) {
       for (const auto &argument : instruction.arguments) {
         used_variables.insert(argument);
       }
-      if (instruction.opcode == Opcode::AddressOf ||
-          instruction.opcode == Opcode::Load) {
-        for (const auto &argument : instruction.arguments) {
-          addressed_variables.insert(argument);
-        }
-      }
     }
   }
 
-  // TODO: Figure out what to do if a memory access / write happens
   for (auto &[block_label, block] : graph.blocks) {
     for (size_t idx = 0; idx < block.instructions.size(); idx++) {
       const auto &instruction = block.instructions[idx];
       const std::string destination = instruction.destination;
       if (destination != "" && !used_variables.contains(destination) &&
-          !addressed_variables.contains(destination) &&
-          instruction.is_pure()) {
+          instruction.is_removable_if_unused()) {
         block.instructions.erase(block.instructions.begin() + idx);
         idx--;
         num_removed_lines += 1;
@@ -66,7 +62,7 @@ size_t remove_local_unused_assignments(ControlFlowGraph &graph, Block &block) {
         to_delete.insert(last_def.at(destination));
       }
       // Add pure instructions to the last def map
-      if (instruction.is_pure()) {
+      if (instruction.is_removable_if_unused()) {
         last_def[destination] = idx;
       }
     }

@@ -194,10 +194,16 @@ struct Instruction {
       : opcode(Opcode::Const), type(type), destination(destination),
         value(value) {}
 
-  inline bool is_pure() const {
+  // Not "pure" in the idempotent/no-side-effects/deterministic sense --
+  // Alloc fails all three, it's still droppable. This just means "DCE may
+  // drop this if its destination is unused." Alloc counts: if the
+  // pointer's never read, nothing observes its address (heap exhaustion
+  // shifting a later alloc's success is the one edge case this ignores,
+  // same spirit as treating overflow as UB).
+  inline bool is_removable_if_unused() const {
     return opcode != Opcode::Call && opcode != Opcode::Print &&
-           opcode != Opcode::Alloc && opcode != Opcode::Free &&
-           opcode != Opcode::Load && opcode != Opcode::Store;
+           opcode != Opcode::Free && opcode != Opcode::Load &&
+           opcode != Opcode::Store;
   }
 
   inline bool is_jump() const {
