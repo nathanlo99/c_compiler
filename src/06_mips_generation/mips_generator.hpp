@@ -138,6 +138,8 @@ struct MIPSGenerator {
 
   void print(std::ostream &os) {
     for (const auto &instruction : instructions) {
+      if (instruction.opcode != Opcode::Label)
+        os << "  ";
       os << instruction.to_string() << std::endl;
     }
   }

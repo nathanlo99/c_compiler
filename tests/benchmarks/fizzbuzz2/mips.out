@@ -1,167 +1,167 @@
-                                ; @fizzbuzz(n: int) : int {
-                                ;   %0: int = const 15;
-                                ;   %1: int = mod n %0;
-                                ;   %2: int = const 0;
-                                ;   %3: int = eq %1 %2;
-                                ;   br %3 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %4: int = const -15;
-                                ;   ret %4;
-                                ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
-                                ;   %5: int = const 3;
-                                ;   %6: int = mod n %5;
-                                ;   %7: int = eq %6 %2;
-                                ;   br %7 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
-                                ;   %8: int = const -3;
-                                ;   ret %8;
-                                ; .L4:                                               preds = {.L2}, dominators = {.L0, .L2, .L4}
-                                ;   %9: int = const 5;
-                                ;   %10: int = mod n %9;
-                                ;   %11: int = eq %10 %2;
-                                ;   br %11 .L5 .L6;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
-                                ;   %12: int = const -5;
-                                ;   ret %12;
-                                ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
-                                ;   ret n;
-                                ; }
-                                ; 
-                                ; @wain(start: int, end: int) : int {
-                                ;   %0: int = id start;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
-                                ;   %1: int = id %0;
-                                ;   %2: int = lt %0 end;
-                                ;   br %2 .L2 .L3;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
-                                ;   %3: int = call @fizzbuzz %1;
-                                ;   print %3;
-                                ;   %4: int = const 1;
-                                ;   %5: int = add %1 %4;
-                                ;   %0: int = id %5;
-                                ;   jmp .L1;
-                                ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
-                                ;   ret %1;
-                                ; }
-                                ; 
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-add $3, $1, $0                  ; Loading argument 1 into register
-add $8, $2, $0                  ; Loading argument 2 into register
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-                                ; %0: int = id start;
-                                ; jmp wainL1; (fallthrough)
+                                  ; @fizzbuzz(n: int) : int {
+                                  ;   %0: int = const 15;
+                                  ;   %1: int = mod n %0;
+                                  ;   %2: int = const 0;
+                                  ;   %3: int = eq %1 %2;
+                                  ;   br %3 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %4: int = const -15;
+                                  ;   ret %4;
+                                  ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+                                  ;   %5: int = const 3;
+                                  ;   %6: int = mod n %5;
+                                  ;   %7: int = eq %6 %2;
+                                  ;   br %7 .L3 .L4;
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
+                                  ;   %8: int = const -3;
+                                  ;   ret %8;
+                                  ; .L4:                                               preds = {.L2}, dominators = {.L0, .L2, .L4}
+                                  ;   %9: int = const 5;
+                                  ;   %10: int = mod n %9;
+                                  ;   %11: int = eq %10 %2;
+                                  ;   br %11 .L5 .L6;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
+                                  ;   %12: int = const -5;
+                                  ;   ret %12;
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
+                                  ;   ret n;
+                                  ; }
+                                  ; 
+                                  ; @wain(start: int, end: int) : int {
+                                  ;   %0: int = id start;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+                                  ;   %1: int = id %0;
+                                  ;   %2: int = lt %0 end;
+                                  ;   br %2 .L2 .L3;
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ;   %3: int = call @fizzbuzz %1;
+                                  ;   print %3;
+                                  ;   %4: int = const 1;
+                                  ;   %5: int = add %1 %4;
+                                  ;   %0: int = id %5;
+                                  ;   jmp .L1;
+                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+                                  ;   ret %1;
+                                  ; }
+                                  ; 
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+  add $3, $1, $0                  ; Loading argument 1 into register
+  add $8, $2, $0                  ; Loading argument 2 into register
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+                                  ; %0: int = id start;
+                                  ; jmp wainL1; (fallthrough)
 wainL1:
-add $5, $3, $0
-                                ; %1: int = id %0;
-slt $3, $3, $8                  ; %2: int = lt %0 end;
-beq $3, $0, wainL3              ; br %2 .L2 .L3;
-                                ; jmp wainL2; (fallthrough)
-                                ; Removed unused label wainL2
-                                ; Generating function call: %3: int = call @fizzbuzz %1;
-                                ; 1. Save the live registers
-sw $5, -4($30)                  ;   push $5
-sub $30, $30, $4                ;   ^
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $8, $5, $0                  ; Copying argument from register $8 to register $5
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to fizzbuzz
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word fizzbuzzL0
-jalr $2                         ; 4. Jump to fizzbuzz
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-add $30, $30, $4                ;   pop $5
-lw $5, -4($30)                  ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %3
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %3;
-                                ; Removing locally unused write to $3
-add $3, $5, $11                 ; %5: int = add %1 %4; (replaced $3 with $11)
-                                ; %0: int = id %5;
-beq $0, $0, wainL1              ; jmp .L1;
+  add $5, $3, $0
+                                  ; %1: int = id %0;
+  slt $3, $3, $8                  ; %2: int = lt %0 end;
+  beq $3, $0, wainL3              ; br %2 .L2 .L3;
+                                  ; jmp wainL2; (fallthrough)
+                                  ; Removed unused label wainL2
+                                  ; Generating function call: %3: int = call @fizzbuzz %1;
+                                  ; 1. Save the live registers
+  sw $5, -4($30)                  ;   push $5
+  sub $30, $30, $4                ;   ^
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $8, $5, $0                  ; Copying argument from register $8 to register $5
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to fizzbuzz
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word fizzbuzzL0
+  jalr $2                         ; 4. Jump to fizzbuzz
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+  add $30, $30, $4                ;   pop $5
+  lw $5, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %3
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %3;
+                                  ; Removing locally unused write to $3
+  add $3, $5, $11                 ; %5: int = add %1 %4; (replaced $3 with $11)
+                                  ; %0: int = id %5;
+  beq $0, $0, wainL1              ; jmp .L1;
 wainL3:
-add $3, $5, $0
-                                ; ret %1;
-jr $31
-                                ; Done with function wain
-                                ; Code for function fizzbuzz
+  add $3, $5, $0
+                                  ; ret %1;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function fizzbuzz
 fizzbuzzL0:
-lis $3
-.word 15                        ; %0: int = const 15;
-div $8, $3
-mfhi $3                         ; %1: int = mod n %0;
-add $5, $0, $0                  ; %2: int = const 0;
-slt $6, $3, $0                  ;  (replaced $5 with $0)
-slt $7, $0, $3                  ;  (replaced $5 with $0)
-add $3, $6, $7
-sub $3, $11, $3                 ; %3: int = eq %1 %2;
-beq $3, $0, fizzbuzzL2          ; br %3 .L1 .L2;
-                                ; jmp fizzbuzzL1; (fallthrough)
-                                ; Removed unused label fizzbuzzL1
-lis $3
-.word -15                       ; %4: int = const -15;
-                                ; ret %4;
-jr $31
+  lis $3
+  .word 15                        ; %0: int = const 15;
+  div $8, $3
+  mfhi $3                         ; %1: int = mod n %0;
+  add $5, $0, $0                  ; %2: int = const 0;
+  slt $6, $3, $0                  ;  (replaced $5 with $0)
+  slt $7, $0, $3                  ;  (replaced $5 with $0)
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %3: int = eq %1 %2;
+  beq $3, $0, fizzbuzzL2          ; br %3 .L1 .L2;
+                                  ; jmp fizzbuzzL1; (fallthrough)
+                                  ; Removed unused label fizzbuzzL1
+  lis $3
+  .word -15                       ; %4: int = const -15;
+                                  ; ret %4;
+  jr $31
 fizzbuzzL2:
-sub $3, $4, $11                 ; %5: int = const 3;
-div $8, $3
-mfhi $3                         ; %6: int = mod n %5;
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %7: int = eq %6 %2;
-beq $3, $0, fizzbuzzL4          ; br %7 .L3 .L4;
-                                ; jmp fizzbuzzL3; (fallthrough)
-                                ; Removed unused label fizzbuzzL3
-sub $3, $11, $4                 ; %8: int = const -3;
-                                ; ret %8;
-jr $31
+  sub $3, $4, $11                 ; %5: int = const 3;
+  div $8, $3
+  mfhi $3                         ; %6: int = mod n %5;
+  slt $6, $3, $5
+  slt $7, $5, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %7: int = eq %6 %2;
+  beq $3, $0, fizzbuzzL4          ; br %7 .L3 .L4;
+                                  ; jmp fizzbuzzL3; (fallthrough)
+                                  ; Removed unused label fizzbuzzL3
+  sub $3, $11, $4                 ; %8: int = const -3;
+                                  ; ret %8;
+  jr $31
 fizzbuzzL4:
-add $3, $11, $4                 ; %9: int = const 5;
-div $8, $3
-mfhi $3                         ; %10: int = mod n %9;
-slt $6, $3, $5
-slt $7, $5, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %11: int = eq %10 %2;
-beq $3, $0, fizzbuzzL6          ; br %11 .L5 .L6;
-                                ; jmp fizzbuzzL5; (fallthrough)
-                                ; Removed unused label fizzbuzzL5
-lis $3
-.word -5                        ; %12: int = const -5;
-                                ; ret %12;
-jr $31
+  add $3, $11, $4                 ; %9: int = const 5;
+  div $8, $3
+  mfhi $3                         ; %10: int = mod n %9;
+  slt $6, $3, $5
+  slt $7, $5, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %11: int = eq %10 %2;
+  beq $3, $0, fizzbuzzL6          ; br %11 .L5 .L6;
+                                  ; jmp fizzbuzzL5; (fallthrough)
+                                  ; Removed unused label fizzbuzzL5
+  lis $3
+  .word -5                        ; %12: int = const -5;
+                                  ; ret %12;
+  jr $31
 fizzbuzzL6:
-add $3, $8, $0
-                                ; ret n;
-jr $31
-                                ; Done with function fizzbuzz
-                                ; Number of instructions: 81
+  add $3, $8, $0
+                                  ; ret n;
+  jr $31
+                                  ; Done with function fizzbuzz
+                                  ; Number of instructions: 81

@@ -1,29 +1,29 @@
-                                ; @wain(a: int, b: int) : int {
-                                ;   %0: int = const 1;
-                                ;   print %0;
-                                ;   ret %0;
-                                ; }
-                                ; 
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-                                ; Removing globally unused write to $29
-                                ; Removing locally unused write to $3
-                                ; Removing locally unused write to $3
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-add $3, $11, $0                 ; %0: int = const 1;
-                                ; Removing globally unused write to $1
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %0;
-                                ; ret %0;
-jr $31
-                                ; Done with function wain
-                                ; Number of instructions: 13
+                                  ; @wain(a: int, b: int) : int {
+                                  ;   %0: int = const 1;
+                                  ;   print %0;
+                                  ;   ret %0;
+                                  ; }
+                                  ; 
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                  ; Removing globally unused write to $29
+                                  ; Removing locally unused write to $3
+                                  ; Removing locally unused write to $3
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  add $3, $11, $0                 ; %0: int = const 1;
+                                  ; Removing globally unused write to $1
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %0;
+                                  ; ret %0;
+  jr $31
+                                  ; Done with function wain
+                                  ; Number of instructions: 13

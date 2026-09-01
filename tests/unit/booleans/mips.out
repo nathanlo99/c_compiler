@@ -1,175 +1,175 @@
-                                ; @wain(a: int, b: int) : int {
-                                ;   %0: int = const 1;
-                                ;   %1: int = const 1;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L12}, dominators = {.L0, .L1}
-                                ;   %2: int = id %1;
-                                ;   %3: int = lt %1 a;
-                                ;   br %3 .L2 .L13;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
-                                ;   %4: int = const 0;
-                                ;   %5: int = const 3;
-                                ;   %6: int = mod %2 %5;
-                                ;   %7: int = eq %6 %4;
-                                ;   %8: int = const 0;
-                                ;   br %7 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
-                                ;   %9: int = const 5;
-                                ;   %10: int = mod %2 %9;
-                                ;   %11: int = eq %10 %4;
-                                ;   %8: int = id %11;
-                                ;   jmp .L4;
-                                ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L1, .L2, .L4}
-                                ;   %12: int = eq %8 %4;
-                                ;   br %12 .L5 .L11;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L5}
-                                ;   br %7 .L6 .L7;
-                                ; .L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L4, .L5, .L6}
-                                ;   %13: int = const 333;
-                                ;   print %13;
-                                ;   jmp .L10;
-                                ; .L7:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7}
-                                ;   %14: int = const 5;
-                                ;   %15: int = mod %2 %14;
-                                ;   %16: int = eq %15 %4;
-                                ;   br %16 .L8 .L9;
-                                ; .L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7, .L8}
-                                ;   %17: int = const 555;
-                                ;   print %17;
-                                ;   jmp .L10;
-                                ; .L9:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7, .L9}
-                                ;   print %2;
-                                ;   jmp .L10;
-                                ; .L10:                                              preds = {.L6, .L8, .L9}, dominators = {.L0, .L1, .L10, .L2, .L4, .L5}
-                                ;   jmp .L12;
-                                ; .L11:                                              preds = {.L4}, dominators = {.L0, .L1, .L11, .L2, .L4}
-                                ;   %18: int = const 99999;
-                                ;   print %18;
-                                ;   jmp .L12;
-                                ; .L12:                                              preds = {.L10, .L11}, dominators = {.L0, .L1, .L12, .L2, .L4}
-                                ;   %19: int = add %2 %0;
-                                ;   %1: int = id %19;
-                                ;   jmp .L1;
-                                ; .L13:                                              preds = {.L1}, dominators = {.L0, .L1, .L13}
-                                ;   ret %2;
-                                ; }
-                                ; 
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-                                ; Removing globally unused write to $29
-add $12, $1, $0                 ; Loading argument 1 into register
-                                ; Removing locally unused write to $3
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-add $10, $11, $0                ; %0: int = const 1;
-add $3, $11, $0                 ; %1: int = const 1;
-                                ; jmp wainL1; (fallthrough)
+                                  ; @wain(a: int, b: int) : int {
+                                  ;   %0: int = const 1;
+                                  ;   %1: int = const 1;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L12}, dominators = {.L0, .L1}
+                                  ;   %2: int = id %1;
+                                  ;   %3: int = lt %1 a;
+                                  ;   br %3 .L2 .L13;
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ;   %4: int = const 0;
+                                  ;   %5: int = const 3;
+                                  ;   %6: int = mod %2 %5;
+                                  ;   %7: int = eq %6 %4;
+                                  ;   %8: int = const 0;
+                                  ;   br %7 .L3 .L4;
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
+                                  ;   %9: int = const 5;
+                                  ;   %10: int = mod %2 %9;
+                                  ;   %11: int = eq %10 %4;
+                                  ;   %8: int = id %11;
+                                  ;   jmp .L4;
+                                  ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L1, .L2, .L4}
+                                  ;   %12: int = eq %8 %4;
+                                  ;   br %12 .L5 .L11;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L5}
+                                  ;   br %7 .L6 .L7;
+                                  ; .L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L4, .L5, .L6}
+                                  ;   %13: int = const 333;
+                                  ;   print %13;
+                                  ;   jmp .L10;
+                                  ; .L7:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7}
+                                  ;   %14: int = const 5;
+                                  ;   %15: int = mod %2 %14;
+                                  ;   %16: int = eq %15 %4;
+                                  ;   br %16 .L8 .L9;
+                                  ; .L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7, .L8}
+                                  ;   %17: int = const 555;
+                                  ;   print %17;
+                                  ;   jmp .L10;
+                                  ; .L9:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L4, .L5, .L7, .L9}
+                                  ;   print %2;
+                                  ;   jmp .L10;
+                                  ; .L10:                                              preds = {.L6, .L8, .L9}, dominators = {.L0, .L1, .L10, .L2, .L4, .L5}
+                                  ;   jmp .L12;
+                                  ; .L11:                                              preds = {.L4}, dominators = {.L0, .L1, .L11, .L2, .L4}
+                                  ;   %18: int = const 99999;
+                                  ;   print %18;
+                                  ;   jmp .L12;
+                                  ; .L12:                                              preds = {.L10, .L11}, dominators = {.L0, .L1, .L12, .L2, .L4}
+                                  ;   %19: int = add %2 %0;
+                                  ;   %1: int = id %19;
+                                  ;   jmp .L1;
+                                  ; .L13:                                              preds = {.L1}, dominators = {.L0, .L1, .L13}
+                                  ;   ret %2;
+                                  ; }
+                                  ; 
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                  ; Removing globally unused write to $29
+  add $12, $1, $0                 ; Loading argument 1 into register
+                                  ; Removing locally unused write to $3
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  add $10, $11, $0                ; %0: int = const 1;
+  add $3, $11, $0                 ; %1: int = const 1;
+                                  ; jmp wainL1; (fallthrough)
 wainL1:
-add $9, $3, $0
-                                ; %2: int = id %1;
-slt $3, $3, $12                 ; %3: int = lt %1 a;
-beq $3, $0, wainL13             ; br %3 .L2 .L13;
-                                ; jmp wainL2; (fallthrough)
-                                ; Removed unused label wainL2
-add $8, $0, $0                  ; %4: int = const 0;
-sub $3, $4, $11                 ; %5: int = const 3;
-div $9, $3
-mfhi $3                         ; %6: int = mod %2 %5;
-slt $6, $3, $0                  ;  (replaced $8 with $0)
-slt $7, $0, $3                  ;  (replaced $8 with $0)
-add $5, $6, $7
-sub $5, $11, $5                 ; %7: int = eq %6 %4;
-add $3, $0, $0                  ; %8: int = const 0;
-beq $5, $0, wainL4              ; br %7 .L3 .L4;
-                                ; jmp wainL3; (fallthrough)
-                                ; Removed unused label wainL3
-add $3, $11, $4                 ; %9: int = const 5;
-div $9, $3
-mfhi $3                         ; %10: int = mod %2 %9;
-slt $6, $3, $8
-slt $7, $8, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %11: int = eq %10 %4;
-                                ; %8: int = id %11;
-                                ; jmp wainL4; (fallthrough)
+  add $9, $3, $0
+                                  ; %2: int = id %1;
+  slt $3, $3, $12                 ; %3: int = lt %1 a;
+  beq $3, $0, wainL13             ; br %3 .L2 .L13;
+                                  ; jmp wainL2; (fallthrough)
+                                  ; Removed unused label wainL2
+  add $8, $0, $0                  ; %4: int = const 0;
+  sub $3, $4, $11                 ; %5: int = const 3;
+  div $9, $3
+  mfhi $3                         ; %6: int = mod %2 %5;
+  slt $6, $3, $0                  ;  (replaced $8 with $0)
+  slt $7, $0, $3                  ;  (replaced $8 with $0)
+  add $5, $6, $7
+  sub $5, $11, $5                 ; %7: int = eq %6 %4;
+  add $3, $0, $0                  ; %8: int = const 0;
+  beq $5, $0, wainL4              ; br %7 .L3 .L4;
+                                  ; jmp wainL3; (fallthrough)
+                                  ; Removed unused label wainL3
+  add $3, $11, $4                 ; %9: int = const 5;
+  div $9, $3
+  mfhi $3                         ; %10: int = mod %2 %9;
+  slt $6, $3, $8
+  slt $7, $8, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %11: int = eq %10 %4;
+                                  ; %8: int = id %11;
+                                  ; jmp wainL4; (fallthrough)
 wainL4:
-slt $6, $3, $8
-slt $7, $8, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %12: int = eq %8 %4;
-beq $3, $0, wainL11             ; br %12 .L5 .L11;
-                                ; jmp wainL5; (fallthrough)
-                                ; Removed unused label wainL5
-beq $5, $0, wainL7              ; br %7 .L6 .L7;
-                                ; jmp wainL6; (fallthrough)
-                                ; Removed unused label wainL6
-lis $3
-.word 333                       ; %13: int = const 333;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %13;
-beq $0, $0, wainL10             ; jmp .L10;
+  slt $6, $3, $8
+  slt $7, $8, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %12: int = eq %8 %4;
+  beq $3, $0, wainL11             ; br %12 .L5 .L11;
+                                  ; jmp wainL5; (fallthrough)
+                                  ; Removed unused label wainL5
+  beq $5, $0, wainL7              ; br %7 .L6 .L7;
+                                  ; jmp wainL6; (fallthrough)
+                                  ; Removed unused label wainL6
+  lis $3
+  .word 333                       ; %13: int = const 333;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %13;
+  beq $0, $0, wainL10             ; jmp .L10;
 wainL7:
-add $3, $11, $4                 ; %14: int = const 5;
-div $9, $3
-mfhi $3                         ; %15: int = mod %2 %14;
-slt $6, $3, $8
-slt $7, $8, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %16: int = eq %15 %4;
-beq $3, $0, wainL9              ; br %16 .L8 .L9;
-                                ; jmp wainL8; (fallthrough)
-                                ; Removed unused label wainL8
-lis $3
-.word 555                       ; %17: int = const 555;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %17;
-beq $0, $0, wainL10             ; jmp .L10;
+  add $3, $11, $4                 ; %14: int = const 5;
+  div $9, $3
+  mfhi $3                         ; %15: int = mod %2 %14;
+  slt $6, $3, $8
+  slt $7, $8, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %16: int = eq %15 %4;
+  beq $3, $0, wainL9              ; br %16 .L8 .L9;
+                                  ; jmp wainL8; (fallthrough)
+                                  ; Removed unused label wainL8
+  lis $3
+  .word 555                       ; %17: int = const 555;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %17;
+  beq $0, $0, wainL10             ; jmp .L10;
 wainL9:
-add $1, $9, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %2;
-                                ; jmp wainL10; (fallthrough)
+  add $1, $9, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %2;
+                                  ; jmp wainL10; (fallthrough)
 wainL10:
-beq $0, $0, wainL12             ; jmp .L12;
+  beq $0, $0, wainL12             ; jmp .L12;
 wainL11:
-lis $3
-.word 99999                     ; %18: int = const 99999;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %18;
-                                ; jmp wainL12; (fallthrough)
+  lis $3
+  .word 99999                     ; %18: int = const 99999;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %18;
+                                  ; jmp wainL12; (fallthrough)
 wainL12:
-add $3, $9, $10                 ; %19: int = add %2 %0;
-                                ; %1: int = id %19;
-beq $0, $0, wainL1              ; jmp .L1;
+  add $3, $9, $10                 ; %19: int = add %2 %0;
+                                  ; %1: int = id %19;
+  beq $0, $0, wainL1              ; jmp .L1;
 wainL13:
-add $3, $9, $0
-                                ; ret %2;
-jr $31
-                                ; Done with function wain
-                                ; Number of instructions: 86
+  add $3, $9, $0
+                                  ; ret %2;
+  jr $31
+                                  ; Done with function wain
+                                  ; Number of instructions: 86

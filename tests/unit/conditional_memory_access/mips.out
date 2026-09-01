@@ -1,47 +1,47 @@
-                                ; @wain(a: int, b: int) : int {
-                                ;   %0: ptr<int> = const 0x1;
-                                ;   %1: int = lt b a;
-                                ;   br %1 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %0: ptr<int> = addressof a;
-                                ;   jmp .L3;
-                                ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
-                                ;   %0: ptr<int> = addressof b;
-                                ;   jmp .L3;
-                                ; .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
-                                ;   %2: ptr<int> = id %0;
-                                ;   %3: int = load %2;
-                                ;   ret %3;
-                                ; }
-                                ; 
-lis $4
-.word 4
-                                ; Removing globally unused write to $11
-sub $29, $30, $4                ; Initializing base pointer
-sw $1, -4($29)                  ; Loading argument 1 into variable a
-sw $2, 0($29)                   ; Loading argument 2 into variable b
-lis $1
-.word -8
-add $30, $30, $1
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-                                ; Removing locally unused write to $3
-lw $1, 0($29)                   ; Loading variable b from offset 0
-lw $2, -4($29)                  ; Loading variable a from offset -4
-slt $3, $1, $2                  ; %1: int = lt b a;
-beq $3, $0, wainL2              ; br %1 .L1 .L2;
-                                ; jmp wainL1; (fallthrough)
-                                ; Removed unused label wainL1
-sub $3, $29, $4
-beq $0, $0, wainL3              ; jmp .L3;
+                                  ; @wain(a: int, b: int) : int {
+                                  ;   %0: ptr<int> = const 0x1;
+                                  ;   %1: int = lt b a;
+                                  ;   br %1 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %0: ptr<int> = addressof a;
+                                  ;   jmp .L3;
+                                  ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+                                  ;   %0: ptr<int> = addressof b;
+                                  ;   jmp .L3;
+                                  ; .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
+                                  ;   %2: ptr<int> = id %0;
+                                  ;   %3: int = load %2;
+                                  ;   ret %3;
+                                  ; }
+                                  ; 
+  lis $4
+  .word 4
+                                  ; Removing globally unused write to $11
+  sub $29, $30, $4                ; Initializing base pointer
+  sw $1, -4($29)                  ; Loading argument 1 into variable a
+  sw $2, 0($29)                   ; Loading argument 2 into variable b
+  lis $1
+  .word -8
+  add $30, $30, $1
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+                                  ; Removing locally unused write to $3
+  lw $1, 0($29)                   ; Loading variable b from offset 0
+  lw $2, -4($29)                  ; Loading variable a from offset -4
+  slt $3, $1, $2                  ; %1: int = lt b a;
+  beq $3, $0, wainL2              ; br %1 .L1 .L2;
+                                  ; jmp wainL1; (fallthrough)
+                                  ; Removed unused label wainL1
+  sub $3, $29, $4
+  beq $0, $0, wainL3              ; jmp .L3;
 wainL2:
-add $3, $29, $0
-                                ; jmp wainL3; (fallthrough)
+  add $3, $29, $0
+                                  ; jmp wainL3; (fallthrough)
 wainL3:
-                                ; %2: ptr<int> = id %0;
-lw $3, 0($3)                    ; %3: int = load %2;
-                                ; ret %3;
-jr $31
-                                ; Done with function wain
-                                ; Number of instructions: 17
+                                  ; %2: ptr<int> = id %0;
+  lw $3, 0($3)                    ; %3: int = load %2;
+                                  ; ret %3;
+  jr $31
+                                  ; Done with function wain
+                                  ; Number of instructions: 17

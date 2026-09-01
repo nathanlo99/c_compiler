@@ -1,88 +1,88 @@
-                                ; @wain(arr: ptr<int>, length: int) : int {
-                                ;   %0: int = const 0;
-                                ;   %1: int = const 0;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
-                                ;   %2: int = lt %0 length;
-                                ;   br %2 .L2 .L3;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
-                                ;   %3: ptr<int> = id arr;
-                                ;   %4: int = id %0;
-                                ;   %5: ptr<int> = ptradd %3 %4;
-                                ;   %6: int = load %5;
-                                ;   print %6;
-                                ;   %7: int = id %1;
-                                ;   %8: ptr<int> = id arr;
-                                ;   %9: int = id %0;
-                                ;   %10: ptr<int> = ptradd %8 %9;
-                                ;   %11: int = load %10;
-                                ;   %12: int = add %7 %11;
-                                ;   %1: int = id %12;
-                                ;   %13: int = id %0;
-                                ;   %14: int = const 1;
-                                ;   %15: int = add %13 %14;
-                                ;   %0: int = id %15;
-                                ;   jmp .L1;
-                                ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
-                                ;   ret %1;
-                                ; }
-                                ; 
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-                                ; Removing globally unused write to $29
-add $12, $1, $0                 ; Loading argument 1 into register
-add $10, $2, $0                 ; Loading argument 2 into register
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-add $9, $0, $0                  ; %0: int = const 0;
-add $8, $0, $0                  ; %1: int = const 0;
-                                ; jmp wainL1; (fallthrough)
+                                  ; @wain(arr: ptr<int>, length: int) : int {
+                                  ;   %0: int = const 0;
+                                  ;   %1: int = const 0;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+                                  ;   %2: int = lt %0 length;
+                                  ;   br %2 .L2 .L3;
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ;   %3: ptr<int> = id arr;
+                                  ;   %4: int = id %0;
+                                  ;   %5: ptr<int> = ptradd %3 %4;
+                                  ;   %6: int = load %5;
+                                  ;   print %6;
+                                  ;   %7: int = id %1;
+                                  ;   %8: ptr<int> = id arr;
+                                  ;   %9: int = id %0;
+                                  ;   %10: ptr<int> = ptradd %8 %9;
+                                  ;   %11: int = load %10;
+                                  ;   %12: int = add %7 %11;
+                                  ;   %1: int = id %12;
+                                  ;   %13: int = id %0;
+                                  ;   %14: int = const 1;
+                                  ;   %15: int = add %13 %14;
+                                  ;   %0: int = id %15;
+                                  ;   jmp .L1;
+                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+                                  ;   ret %1;
+                                  ; }
+                                  ; 
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+                                  ; Removing globally unused write to $29
+  add $12, $1, $0                 ; Loading argument 1 into register
+  add $10, $2, $0                 ; Loading argument 2 into register
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  add $9, $0, $0                  ; %0: int = const 0;
+  add $8, $0, $0                  ; %1: int = const 0;
+                                  ; jmp wainL1; (fallthrough)
 wainL1:
-slt $3, $9, $10                 ; %2: int = lt %0 length;
-beq $3, $0, wainL3              ; br %2 .L2 .L3;
-                                ; jmp wainL2; (fallthrough)
-                                ; Removed unused label wainL2
-                                ; Removing globally unused write to $5
-                                ; %3: ptr<int> = id arr;
-                                ; Removing locally unused write to $3
-                                ; %4: int = id %0;
-mult $9, $4                     ;  (replaced $3 with $9)
-mflo $6
-add $3, $12, $6                 ;  (replaced $5 with $12)
-lw $3, 0($3)                    ; %6: int = load %5;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %6;
-                                ; %7: int = id %1;
-                                ; Removing globally unused write to $5
-                                ; %8: ptr<int> = id arr;
-                                ; Removing locally unused write to $3
-                                ; %9: int = id %0;
-mult $9, $4                     ;  (replaced $3 with $9)
-mflo $6
-add $3, $12, $6                 ;  (replaced $5 with $12)
-lw $3, 0($3)                    ; %11: int = load %10;
-add $3, $8, $3                  ; %12: int = add %7 %11;
-add $8, $3, $0
-                                ; %1: int = id %12;
-                                ; Removing globally unused write to $5
-                                ; %13: int = id %0;
-                                ; Removing locally unused write to $3
-add $3, $9, $11                 ; %15: int = add %13 %14; (replaced $5 with $9) (replaced $3 with $11)
-add $9, $3, $0
-                                ; %0: int = id %15;
-beq $0, $0, wainL1              ; jmp .L1;
+  slt $3, $9, $10                 ; %2: int = lt %0 length;
+  beq $3, $0, wainL3              ; br %2 .L2 .L3;
+                                  ; jmp wainL2; (fallthrough)
+                                  ; Removed unused label wainL2
+                                  ; Removing globally unused write to $5
+                                  ; %3: ptr<int> = id arr;
+                                  ; Removing locally unused write to $3
+                                  ; %4: int = id %0;
+  mult $9, $4                     ;  (replaced $3 with $9)
+  mflo $6
+  add $3, $12, $6                 ;  (replaced $5 with $12)
+  lw $3, 0($3)                    ; %6: int = load %5;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %6;
+                                  ; %7: int = id %1;
+                                  ; Removing globally unused write to $5
+                                  ; %8: ptr<int> = id arr;
+                                  ; Removing locally unused write to $3
+                                  ; %9: int = id %0;
+  mult $9, $4                     ;  (replaced $3 with $9)
+  mflo $6
+  add $3, $12, $6                 ;  (replaced $5 with $12)
+  lw $3, 0($3)                    ; %11: int = load %10;
+  add $3, $8, $3                  ; %12: int = add %7 %11;
+  add $8, $3, $0
+                                  ; %1: int = id %12;
+                                  ; Removing globally unused write to $5
+                                  ; %13: int = id %0;
+                                  ; Removing locally unused write to $3
+  add $3, $9, $11                 ; %15: int = add %13 %14; (replaced $5 with $9) (replaced $3 with $11)
+  add $9, $3, $0
+                                  ; %0: int = id %15;
+  beq $0, $0, wainL1              ; jmp .L1;
 wainL3:
-add $3, $8, $0
-                                ; ret %1;
-jr $31
-                                ; Done with function wain
-                                ; Number of instructions: 33
+  add $3, $8, $0
+                                  ; ret %1;
+  jr $31
+                                  ; Done with function wain
+                                  ; Number of instructions: 33

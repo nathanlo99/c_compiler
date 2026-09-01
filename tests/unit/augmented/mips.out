@@ -1,394 +1,394 @@
-                                ; @is_prime(n: int) : int {
-                                ;   %0: int = const 1;
-                                ;   %1: int = const 2;
-                                ;   %2: int = lt n %1;
-                                ;   %3: int = const 1;
-                                ;   br %2 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %3: int = const 0;
-                                ;   jmp .L2;
-                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
-                                ;   %4: int = id %3;
-                                ;   %5: int = id %1;
-                                ;   jmp .L3;
-                                ; .L3:                                               preds = {.L2, .L6}, dominators = {.L0, .L2, .L3}
-                                ;   %6: int = id %4;
-                                ;   %7: int = id %5;
-                                ;   %8: int = mul %5 %5;
-                                ;   %9: int = le %8 n;
-                                ;   br %9 .L4 .L7;
-                                ; .L4:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L4}
-                                ;   %10: int = mod n %7;
-                                ;   %11: int = const 0;
-                                ;   %12: int = eq %10 %11;
-                                ;   %13: int = id %6;
-                                ;   br %12 .L5 .L6;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L3, .L4, .L5}
-                                ;   %13: int = id %11;
-                                ;   jmp .L6;
-                                ; .L6:                                               preds = {.L4, .L5}, dominators = {.L0, .L2, .L3, .L4, .L6}
-                                ;   %14: int = add %7 %0;
-                                ;   %4: int = id %13;
-                                ;   %5: int = id %14;
-                                ;   jmp .L3;
-                                ; .L7:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L7}
-                                ;   ret %6;
-                                ; }
-                                ; 
-                                ; @wain(num_primes: int, start_number: int) : int {
-                                ;   %0: ptr<int> = alloc num_primes;
-                                ;   %1: ptr<int> = id %0;
-                                ;   %2: int = id start_number;
-                                ;   %3: int = const 0;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L4}, dominators = {.L0, .L1}
-                                ;   %4: int = lt %3 num_primes;
-                                ;   br %4 .L2 .L5;
-                                ; .L2:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L2}
-                                ;   %5: int = call @is_prime %2;
-                                ;   %6: int = const 0;
-                                ;   %7: int = eq %5 %6;
-                                ;   br %7 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
-                                ;   %8: int = const 1;
-                                ;   %9: int = add %2 %8;
-                                ;   %2: int = id %9;
-                                ;   jmp .L2;
-                                ; .L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}
-                                ;   %10: int = id %2;
-                                ;   %11: ptr<int> = id %1;
-                                ;   %12: int = id %3;
-                                ;   %13: ptr<int> = ptradd %11 %12;
-                                ;   store %13 %10;
-                                ;   %14: int = id %2;
-                                ;   %15: int = const 1;
-                                ;   %16: int = add %14 %15;
-                                ;   %2: int = id %16;
-                                ;   %17: int = const 1;
-                                ;   %18: int = add %3 %17;
-                                ;   %3: int = id %18;
-                                ;   jmp .L1;
-                                ; .L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}
-                                ;   %3: int = const 0;
-                                ;   jmp .L6;
-                                ; .L6:                                               preds = {.L5, .L7}, dominators = {.L0, .L1, .L5, .L6}
-                                ;   %19: int = lt %3 num_primes;
-                                ;   br %19 .L7 .L8;
-                                ; .L7:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L7}
-                                ;   %20: ptr<int> = id %1;
-                                ;   %21: int = id %3;
-                                ;   %22: ptr<int> = ptradd %20 %21;
-                                ;   %23: int = load %22;
-                                ;   print %23;
-                                ;   %24: int = const 1;
-                                ;   %25: int = add %3 %24;
-                                ;   %3: int = id %25;
-                                ;   jmp .L6;
-                                ; .L8:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L8}
-                                ;   %2: int = const 40;
-                                ;   jmp .L9;
-                                ; .L9:                                               preds = {.L13, .L8}, dominators = {.L0, .L1, .L5, .L6, .L8, .L9}
-                                ;   %26: int = const 1;
-                                ;   %27: int = sub %2 %26;
-                                ;   %28: int = const 0;
-                                ;   %29: int = ne %27 %28;
-                                ;   br %29 .L10 .L14;
-                                ; .L10:                                              preds = {.L9}, dominators = {.L0, .L1, .L10, .L5, .L6, .L8, .L9}
-                                ;   print %2;
-                                ;   %30: int = id %2;
-                                ;   %31: int = const 2;
-                                ;   %32: int = mod %2 %31;
-                                ;   %33: int = const 0;
-                                ;   %34: int = eq %32 %33;
-                                ;   br %34 .L11 .L12;
-                                ; .L11:                                              preds = {.L10}, dominators = {.L0, .L1, .L10, .L11, .L5, .L6, .L8, .L9}
-                                ;   %35: int = const 2;
-                                ;   %36: int = div %30 %35;
-                                ;   %2: void = id %36;
-                                ;   jmp .L13;
-                                ; .L12:                                              preds = {.L10}, dominators = {.L0, .L1, .L10, .L12, .L5, .L6, .L8, .L9}
-                                ;   %37: int = const 3;
-                                ;   %38: int = mul %37 %30;
-                                ;   %39: int = const 1;
-                                ;   %40: int = add %38 %39;
-                                ;   %2: void = id %40;
-                                ;   jmp .L13;
-                                ; .L13:                                              preds = {.L11, .L12}, dominators = {.L0, .L1, .L10, .L13, .L5, .L6, .L8, .L9}
-                                ;   jmp .L9;
-                                ; .L14:                                              preds = {.L9}, dominators = {.L0, .L1, .L14, .L5, .L6, .L8, .L9}
-                                ;   free %1;
-                                ;   %41: int = const 0;
-                                ;   ret %41;
-                                ; }
-                                ; 
-.import init
-.import new
-.import delete
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-add $13, $1, $0                 ; Loading argument 1 into register
-add $3, $2, $0                  ; Loading argument 2 into register
-                                ; Calling init
-add $2, $0, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $1
-.word init
-jalr $1
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; Done calling init
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-add $1, $13, $0
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word new
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-bne $3, $0, allocSuccess0
-add $3, $11, $0
+                                  ; @is_prime(n: int) : int {
+                                  ;   %0: int = const 1;
+                                  ;   %1: int = const 2;
+                                  ;   %2: int = lt n %1;
+                                  ;   %3: int = const 1;
+                                  ;   br %2 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %3: int = const 0;
+                                  ;   jmp .L2;
+                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+                                  ;   %4: int = id %3;
+                                  ;   %5: int = id %1;
+                                  ;   jmp .L3;
+                                  ; .L3:                                               preds = {.L2, .L6}, dominators = {.L0, .L2, .L3}
+                                  ;   %6: int = id %4;
+                                  ;   %7: int = id %5;
+                                  ;   %8: int = mul %5 %5;
+                                  ;   %9: int = le %8 n;
+                                  ;   br %9 .L4 .L7;
+                                  ; .L4:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L4}
+                                  ;   %10: int = mod n %7;
+                                  ;   %11: int = const 0;
+                                  ;   %12: int = eq %10 %11;
+                                  ;   %13: int = id %6;
+                                  ;   br %12 .L5 .L6;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L3, .L4, .L5}
+                                  ;   %13: int = id %11;
+                                  ;   jmp .L6;
+                                  ; .L6:                                               preds = {.L4, .L5}, dominators = {.L0, .L2, .L3, .L4, .L6}
+                                  ;   %14: int = add %7 %0;
+                                  ;   %4: int = id %13;
+                                  ;   %5: int = id %14;
+                                  ;   jmp .L3;
+                                  ; .L7:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L7}
+                                  ;   ret %6;
+                                  ; }
+                                  ; 
+                                  ; @wain(num_primes: int, start_number: int) : int {
+                                  ;   %0: ptr<int> = alloc num_primes;
+                                  ;   %1: ptr<int> = id %0;
+                                  ;   %2: int = id start_number;
+                                  ;   %3: int = const 0;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L4}, dominators = {.L0, .L1}
+                                  ;   %4: int = lt %3 num_primes;
+                                  ;   br %4 .L2 .L5;
+                                  ; .L2:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L2}
+                                  ;   %5: int = call @is_prime %2;
+                                  ;   %6: int = const 0;
+                                  ;   %7: int = eq %5 %6;
+                                  ;   br %7 .L3 .L4;
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
+                                  ;   %8: int = const 1;
+                                  ;   %9: int = add %2 %8;
+                                  ;   %2: int = id %9;
+                                  ;   jmp .L2;
+                                  ; .L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}
+                                  ;   %10: int = id %2;
+                                  ;   %11: ptr<int> = id %1;
+                                  ;   %12: int = id %3;
+                                  ;   %13: ptr<int> = ptradd %11 %12;
+                                  ;   store %13 %10;
+                                  ;   %14: int = id %2;
+                                  ;   %15: int = const 1;
+                                  ;   %16: int = add %14 %15;
+                                  ;   %2: int = id %16;
+                                  ;   %17: int = const 1;
+                                  ;   %18: int = add %3 %17;
+                                  ;   %3: int = id %18;
+                                  ;   jmp .L1;
+                                  ; .L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}
+                                  ;   %3: int = const 0;
+                                  ;   jmp .L6;
+                                  ; .L6:                                               preds = {.L5, .L7}, dominators = {.L0, .L1, .L5, .L6}
+                                  ;   %19: int = lt %3 num_primes;
+                                  ;   br %19 .L7 .L8;
+                                  ; .L7:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L7}
+                                  ;   %20: ptr<int> = id %1;
+                                  ;   %21: int = id %3;
+                                  ;   %22: ptr<int> = ptradd %20 %21;
+                                  ;   %23: int = load %22;
+                                  ;   print %23;
+                                  ;   %24: int = const 1;
+                                  ;   %25: int = add %3 %24;
+                                  ;   %3: int = id %25;
+                                  ;   jmp .L6;
+                                  ; .L8:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L8}
+                                  ;   %2: int = const 40;
+                                  ;   jmp .L9;
+                                  ; .L9:                                               preds = {.L13, .L8}, dominators = {.L0, .L1, .L5, .L6, .L8, .L9}
+                                  ;   %26: int = const 1;
+                                  ;   %27: int = sub %2 %26;
+                                  ;   %28: int = const 0;
+                                  ;   %29: int = ne %27 %28;
+                                  ;   br %29 .L10 .L14;
+                                  ; .L10:                                              preds = {.L9}, dominators = {.L0, .L1, .L10, .L5, .L6, .L8, .L9}
+                                  ;   print %2;
+                                  ;   %30: int = id %2;
+                                  ;   %31: int = const 2;
+                                  ;   %32: int = mod %2 %31;
+                                  ;   %33: int = const 0;
+                                  ;   %34: int = eq %32 %33;
+                                  ;   br %34 .L11 .L12;
+                                  ; .L11:                                              preds = {.L10}, dominators = {.L0, .L1, .L10, .L11, .L5, .L6, .L8, .L9}
+                                  ;   %35: int = const 2;
+                                  ;   %36: int = div %30 %35;
+                                  ;   %2: void = id %36;
+                                  ;   jmp .L13;
+                                  ; .L12:                                              preds = {.L10}, dominators = {.L0, .L1, .L10, .L12, .L5, .L6, .L8, .L9}
+                                  ;   %37: int = const 3;
+                                  ;   %38: int = mul %37 %30;
+                                  ;   %39: int = const 1;
+                                  ;   %40: int = add %38 %39;
+                                  ;   %2: void = id %40;
+                                  ;   jmp .L13;
+                                  ; .L13:                                              preds = {.L11, .L12}, dominators = {.L0, .L1, .L10, .L13, .L5, .L6, .L8, .L9}
+                                  ;   jmp .L9;
+                                  ; .L14:                                              preds = {.L9}, dominators = {.L0, .L1, .L14, .L5, .L6, .L8, .L9}
+                                  ;   free %1;
+                                  ;   %41: int = const 0;
+                                  ;   ret %41;
+                                  ; }
+                                  ; 
+  .import init
+  .import new
+  .import delete
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+  add $13, $1, $0                 ; Loading argument 1 into register
+  add $3, $2, $0                  ; Loading argument 2 into register
+                                  ; Calling init
+  add $2, $0, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $1
+  .word init
+  jalr $1
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; Done calling init
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  add $1, $13, $0
+  sw $3, -4($30)                  ;   push $3
+  sub $30, $30, $4                ;   ^
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word new
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+  bne $3, $0, allocSuccess0
+  add $3, $11, $0
 allocSuccess0:
-add $5, $3, $0
-add $30, $30, $4                ;   pop $3
-lw $3, -4($30)                  ;   ^
-add $12, $5, $0
-                                ; %1: ptr<int> = id %0;
-add $10, $3, $0
-                                ; %2: int = id start_number;
-add $9, $0, $0                  ; %3: int = const 0;
-                                ; jmp wainL1; (fallthrough)
+  add $5, $3, $0
+  add $30, $30, $4                ;   pop $3
+  lw $3, -4($30)                  ;   ^
+  add $12, $5, $0
+                                  ; %1: ptr<int> = id %0;
+  add $10, $3, $0
+                                  ; %2: int = id start_number;
+  add $9, $0, $0                  ; %3: int = const 0;
+                                  ; jmp wainL1; (fallthrough)
 wainL1:
-slt $3, $9, $13                 ; %4: int = lt %3 num_primes;
-beq $3, $0, wainL5              ; br %4 .L2 .L5;
-                                ; jmp wainL2; (fallthrough)
+  slt $3, $9, $13                 ; %4: int = lt %3 num_primes;
+  beq $3, $0, wainL5              ; br %4 .L2 .L5;
+                                  ; jmp wainL2; (fallthrough)
 wainL2:
-                                ; Generating function call: %5: int = call @is_prime %2;
-                                ; 1. Save the live registers
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $10, -4($30)                 ;   push $10
-sub $30, $30, $4                ;   ^
-sw $12, -4($30)                 ;   push $12
-sub $30, $30, $4                ;   ^
-sw $13, -4($30)                 ;   push $13
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $12, $10, $0                ; Copying argument from register $12 to register $10
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to is_prime
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word isPrimeL0
-jalr $2                         ; 4. Jump to is_prime
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $13
-lw $13, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $12
-lw $12, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $10
-lw $10, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $5, $3, $0
-                                ; 8. Copy return value to %5
-                                ; Removing locally unused write to $3
-slt $6, $3, $0                  ;  (replaced $3 with $0) (replaced $5 with $3)
-slt $7, $0, $3                  ;  (replaced $3 with $0) (replaced $5 with $3)
-add $3, $6, $7
-sub $3, $11, $3                 ; %7: int = eq %5 %6;
-beq $3, $0, wainL4              ; br %7 .L3 .L4;
-                                ; jmp wainL3; (fallthrough)
-                                ; Removed unused label wainL3
-                                ; Removing locally unused write to $3
-add $3, $10, $11                ; %9: int = add %2 %8; (replaced $3 with $11)
-add $10, $3, $0
-                                ; %2: int = id %9;
-beq $0, $0, wainL2              ; jmp .L2;
+                                  ; Generating function call: %5: int = call @is_prime %2;
+                                  ; 1. Save the live registers
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $10, -4($30)                 ;   push $10
+  sub $30, $30, $4                ;   ^
+  sw $12, -4($30)                 ;   push $12
+  sub $30, $30, $4                ;   ^
+  sw $13, -4($30)                 ;   push $13
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $12, $10, $0                ; Copying argument from register $12 to register $10
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to is_prime
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word isPrimeL0
+  jalr $2                         ; 4. Jump to is_prime
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $13
+  lw $13, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $12
+  lw $12, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $10
+  lw $10, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $5, $3, $0
+                                  ; 8. Copy return value to %5
+                                  ; Removing locally unused write to $3
+  slt $6, $3, $0                  ;  (replaced $3 with $0) (replaced $5 with $3)
+  slt $7, $0, $3                  ;  (replaced $3 with $0) (replaced $5 with $3)
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %7: int = eq %5 %6;
+  beq $3, $0, wainL4              ; br %7 .L3 .L4;
+                                  ; jmp wainL3; (fallthrough)
+                                  ; Removed unused label wainL3
+                                  ; Removing locally unused write to $3
+  add $3, $10, $11                ; %9: int = add %2 %8; (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %2: int = id %9;
+  beq $0, $0, wainL2              ; jmp .L2;
 wainL4:
-add $8, $10, $0
-                                ; %10: int = id %2;
-                                ; Removing locally unused write to $5
-                                ; %11: ptr<int> = id %1;
-                                ; Removing locally unused write to $3
-                                ; %12: int = id %3;
-mult $9, $4                     ;  (replaced $3 with $9)
-mflo $6
-add $3, $12, $6                 ;  (replaced $5 with $12)
-sw $10, 0($3)                   ; store %13 %10; (replaced $8 with $10)
-add $5, $10, $0
-                                ; %14: int = id %2;
-                                ; Removing locally unused write to $3
-add $3, $10, $11                ; %16: int = add %14 %15; (replaced $5 with $10) (replaced $3 with $11)
-add $10, $3, $0
-                                ; %2: int = id %16;
-                                ; Removing locally unused write to $3
-add $3, $9, $11                 ; %18: int = add %3 %17; (replaced $3 with $11)
-add $9, $3, $0
-                                ; %3: int = id %18;
-beq $0, $0, wainL1              ; jmp .L1;
+  add $8, $10, $0
+                                  ; %10: int = id %2;
+                                  ; Removing locally unused write to $5
+                                  ; %11: ptr<int> = id %1;
+                                  ; Removing locally unused write to $3
+                                  ; %12: int = id %3;
+  mult $9, $4                     ;  (replaced $3 with $9)
+  mflo $6
+  add $3, $12, $6                 ;  (replaced $5 with $12)
+  sw $10, 0($3)                   ; store %13 %10; (replaced $8 with $10)
+  add $5, $10, $0
+                                  ; %14: int = id %2;
+                                  ; Removing locally unused write to $3
+  add $3, $10, $11                ; %16: int = add %14 %15; (replaced $5 with $10) (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %2: int = id %16;
+                                  ; Removing locally unused write to $3
+  add $3, $9, $11                 ; %18: int = add %3 %17; (replaced $3 with $11)
+  add $9, $3, $0
+                                  ; %3: int = id %18;
+  beq $0, $0, wainL1              ; jmp .L1;
 wainL5:
-add $9, $0, $0                  ; %3: int = const 0;
-                                ; jmp wainL6; (fallthrough)
+  add $9, $0, $0                  ; %3: int = const 0;
+                                  ; jmp wainL6; (fallthrough)
 wainL6:
-slt $3, $9, $13                 ; %19: int = lt %3 num_primes;
-beq $3, $0, wainL8              ; br %19 .L7 .L8;
-                                ; jmp wainL7; (fallthrough)
-                                ; Removed unused label wainL7
-add $5, $12, $0
-                                ; %20: ptr<int> = id %1;
-                                ; Removing locally unused write to $3
-                                ; %21: int = id %3;
-mult $9, $4                     ;  (replaced $3 with $9)
-mflo $6
-add $3, $12, $6                 ;  (replaced $5 with $12)
-lw $3, 0($3)                    ; %23: int = load %22;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %23;
-                                ; Removing locally unused write to $3
-add $3, $9, $11                 ; %25: int = add %3 %24; (replaced $3 with $11)
-add $9, $3, $0
-                                ; %3: int = id %25;
-beq $0, $0, wainL6              ; jmp .L6;
+  slt $3, $9, $13                 ; %19: int = lt %3 num_primes;
+  beq $3, $0, wainL8              ; br %19 .L7 .L8;
+                                  ; jmp wainL7; (fallthrough)
+                                  ; Removed unused label wainL7
+  add $5, $12, $0
+                                  ; %20: ptr<int> = id %1;
+                                  ; Removing locally unused write to $3
+                                  ; %21: int = id %3;
+  mult $9, $4                     ;  (replaced $3 with $9)
+  mflo $6
+  add $3, $12, $6                 ;  (replaced $5 with $12)
+  lw $3, 0($3)                    ; %23: int = load %22;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %23;
+                                  ; Removing locally unused write to $3
+  add $3, $9, $11                 ; %25: int = add %3 %24; (replaced $3 with $11)
+  add $9, $3, $0
+                                  ; %3: int = id %25;
+  beq $0, $0, wainL6              ; jmp .L6;
 wainL8:
-lis $10
-.word 40                        ; %2: int = const 40;
-                                ; jmp wainL9; (fallthrough)
+  lis $10
+  .word 40                        ; %2: int = const 40;
+                                  ; jmp wainL9; (fallthrough)
 wainL9:
-                                ; Removing locally unused write to $3
-sub $5, $10, $11                ; %27: int = sub %2 %26; (replaced $3 with $11)
-                                ; Removing locally unused write to $3
-slt $6, $5, $0                  ;  (replaced $3 with $0)
-slt $7, $0, $5                  ;  (replaced $3 with $0)
-add $3, $6, $7                  ; %29: int = ne %27 %28;
-beq $3, $0, wainL14             ; br %29 .L10 .L14;
-                                ; jmp wainL10; (fallthrough)
-                                ; Removed unused label wainL10
-add $1, $10, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %2;
-add $3, $10, $0
-                                ; %30: int = id %2;
-add $5, $11, $11                ; %31: int = const 2;
-div $10, $5
-mfhi $8                         ; %32: int = mod %2 %31;
-                                ; Removing locally unused write to $5
-slt $6, $8, $0                  ;  (replaced $5 with $0)
-slt $7, $0, $8                  ;  (replaced $5 with $0)
-add $5, $6, $7
-sub $5, $11, $5                 ; %34: int = eq %32 %33;
-beq $5, $0, wainL12             ; br %34 .L11 .L12;
-                                ; jmp wainL11; (fallthrough)
-                                ; Removed unused label wainL11
-add $5, $11, $11                ; %35: int = const 2;
-div $3, $5
-mflo $3                         ; %36: int = div %30 %35;
-add $10, $3, $0
-                                ; %2: void = id %36;
-beq $0, $0, wainL13             ; jmp .L13;
+                                  ; Removing locally unused write to $3
+  sub $5, $10, $11                ; %27: int = sub %2 %26; (replaced $3 with $11)
+                                  ; Removing locally unused write to $3
+  slt $6, $5, $0                  ;  (replaced $3 with $0)
+  slt $7, $0, $5                  ;  (replaced $3 with $0)
+  add $3, $6, $7                  ; %29: int = ne %27 %28;
+  beq $3, $0, wainL14             ; br %29 .L10 .L14;
+                                  ; jmp wainL10; (fallthrough)
+                                  ; Removed unused label wainL10
+  add $1, $10, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %2;
+  add $3, $10, $0
+                                  ; %30: int = id %2;
+  add $5, $11, $11                ; %31: int = const 2;
+  div $10, $5
+  mfhi $8                         ; %32: int = mod %2 %31;
+                                  ; Removing locally unused write to $5
+  slt $6, $8, $0                  ;  (replaced $5 with $0)
+  slt $7, $0, $8                  ;  (replaced $5 with $0)
+  add $5, $6, $7
+  sub $5, $11, $5                 ; %34: int = eq %32 %33;
+  beq $5, $0, wainL12             ; br %34 .L11 .L12;
+                                  ; jmp wainL11; (fallthrough)
+                                  ; Removed unused label wainL11
+  add $5, $11, $11                ; %35: int = const 2;
+  div $3, $5
+  mflo $3                         ; %36: int = div %30 %35;
+  add $10, $3, $0
+                                  ; %2: void = id %36;
+  beq $0, $0, wainL13             ; jmp .L13;
 wainL12:
-sub $5, $4, $11                 ; %37: int = const 3;
-mult $5, $3
-mflo $5                         ; %38: int = mul %37 %30;
-                                ; Removing locally unused write to $3
-add $3, $5, $11                 ; %40: int = add %38 %39; (replaced $3 with $11)
-add $10, $3, $0
-                                ; %2: void = id %40;
-                                ; jmp wainL13; (fallthrough)
+  sub $5, $4, $11                 ; %37: int = const 3;
+  mult $5, $3
+  mflo $5                         ; %38: int = mul %37 %30;
+                                  ; Removing locally unused write to $3
+  add $3, $5, $11                 ; %40: int = add %38 %39; (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %2: void = id %40;
+                                  ; jmp wainL13; (fallthrough)
 wainL13:
-beq $0, $0, wainL9              ; jmp .L9;
+  beq $0, $0, wainL9              ; jmp .L9;
 wainL14:
-add $1, $12, $0
-beq $1, $11, deleteSkip0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word delete
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
+  add $1, $12, $0
+  beq $1, $11, deleteSkip0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word delete
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
 deleteSkip0:
-add $3, $0, $0                  ; %41: int = const 0;
-                                ; ret %41;
-jr $31
-                                ; Done with function wain
-                                ; Code for function is_prime
+  add $3, $0, $0                  ; %41: int = const 0;
+                                  ; ret %41;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function is_prime
 isPrimeL0:
-add $10, $11, $0                ; %0: int = const 1;
-add $5, $11, $11                ; %1: int = const 2;
-slt $8, $12, $5                 ; %2: int = lt n %1;
-add $3, $11, $0                 ; %3: int = const 1;
-beq $8, $0, isPrimeL2           ; br %2 .L1 .L2;
-                                ; jmp isPrimeL1; (fallthrough)
-                                ; Removed unused label isPrimeL1
-add $3, $0, $0                  ; %3: int = const 0;
-                                ; jmp isPrimeL2; (fallthrough)
+  add $10, $11, $0                ; %0: int = const 1;
+  add $5, $11, $11                ; %1: int = const 2;
+  slt $8, $12, $5                 ; %2: int = lt n %1;
+  add $3, $11, $0                 ; %3: int = const 1;
+  beq $8, $0, isPrimeL2           ; br %2 .L1 .L2;
+                                  ; jmp isPrimeL1; (fallthrough)
+                                  ; Removed unused label isPrimeL1
+  add $3, $0, $0                  ; %3: int = const 0;
+                                  ; jmp isPrimeL2; (fallthrough)
 isPrimeL2:
-                                ; %4: int = id %3;
-                                ; %5: int = id %1;
-                                ; jmp isPrimeL3; (fallthrough)
+                                  ; %4: int = id %3;
+                                  ; %5: int = id %1;
+                                  ; jmp isPrimeL3; (fallthrough)
 isPrimeL3:
-                                ; %6: int = id %4;
-add $9, $5, $0
-                                ; %7: int = id %5;
-mult $5, $5
-mflo $5                         ; %8: int = mul %5 %5;
-slt $5, $12, $5
-sub $5, $11, $5                 ; %9: int = le %8 n;
-beq $5, $0, isPrimeL7           ; br %9 .L4 .L7;
-                                ; jmp isPrimeL4; (fallthrough)
-                                ; Removed unused label isPrimeL4
-div $12, $9
-mfhi $5                         ; %10: int = mod n %7;
-add $8, $0, $0                  ; %11: int = const 0;
-slt $6, $5, $0                  ;  (replaced $8 with $0)
-slt $7, $0, $5                  ;  (replaced $8 with $0)
-add $5, $6, $7
-sub $5, $11, $5                 ; %12: int = eq %10 %11;
-                                ; %13: int = id %6;
-beq $5, $0, isPrimeL6           ; br %12 .L5 .L6;
-                                ; jmp isPrimeL5; (fallthrough)
-                                ; Removed unused label isPrimeL5
-add $3, $8, $0
-                                ; %13: int = id %11;
-                                ; jmp isPrimeL6; (fallthrough)
+                                  ; %6: int = id %4;
+  add $9, $5, $0
+                                  ; %7: int = id %5;
+  mult $5, $5
+  mflo $5                         ; %8: int = mul %5 %5;
+  slt $5, $12, $5
+  sub $5, $11, $5                 ; %9: int = le %8 n;
+  beq $5, $0, isPrimeL7           ; br %9 .L4 .L7;
+                                  ; jmp isPrimeL4; (fallthrough)
+                                  ; Removed unused label isPrimeL4
+  div $12, $9
+  mfhi $5                         ; %10: int = mod n %7;
+  add $8, $0, $0                  ; %11: int = const 0;
+  slt $6, $5, $0                  ;  (replaced $8 with $0)
+  slt $7, $0, $5                  ;  (replaced $8 with $0)
+  add $5, $6, $7
+  sub $5, $11, $5                 ; %12: int = eq %10 %11;
+                                  ; %13: int = id %6;
+  beq $5, $0, isPrimeL6           ; br %12 .L5 .L6;
+                                  ; jmp isPrimeL5; (fallthrough)
+                                  ; Removed unused label isPrimeL5
+  add $3, $8, $0
+                                  ; %13: int = id %11;
+                                  ; jmp isPrimeL6; (fallthrough)
 isPrimeL6:
-add $5, $9, $10                 ; %14: int = add %7 %0;
-                                ; %4: int = id %13;
-                                ; %5: int = id %14;
-beq $0, $0, isPrimeL3           ; jmp .L3;
+  add $5, $9, $10                 ; %14: int = add %7 %0;
+                                  ; %4: int = id %13;
+                                  ; %5: int = id %14;
+  beq $0, $0, isPrimeL3           ; jmp .L3;
 isPrimeL7:
-                                ; ret %6;
-jr $31
-                                ; Done with function is_prime
-                                ; Number of instructions: 178
+                                  ; ret %6;
+  jr $31
+                                  ; Done with function is_prime
+                                  ; Number of instructions: 178

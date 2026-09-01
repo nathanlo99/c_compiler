@@ -1,554 +1,554 @@
-                                ; @fastSort(array: ptr<int>, left: int, right: int) : int {
-                                ;   %0: int = const 0;
-                                ;   %1: int = le %0 left;
-                                ;   %2: int = const 0;
-                                ;   br %1 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %3: int = le %0 right;
-                                ;   %2: int = id %3;
-                                ;   jmp .L2;
-                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
-                                ;   %4: int = id %0;
-                                ;   br %2 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
-                                ;   %5: int = lt left right;
-                                ;   %4: int = id %5;
-                                ;   jmp .L4;
-                                ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}
-                                ;   %6: int = eq %4 %0;
-                                ;   br %6 .L5 .L6;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
-                                ;   jmp .L7;
-                                ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
-                                ;   %7: int = call @partition array left right;
-                                ;   %8: int = call @fastSort array left %7;
-                                ;   %9: int = const 1;
-                                ;   %10: int = add %7 %9;
-                                ;   %11: int = call @fastSort array %10 right;
-                                ;   jmp .L7;
-                                ; .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L2, .L4, .L7}
-                                ;   ret %0;
-                                ; }
-                                ; 
-                                ; @partition(array: ptr<int>, left: int, right: int) : int {
-                                ;   %0: int = const 0;
-                                ;   %1: int = const 0;
-                                ;   %2: int = const 0;
-                                ;   %3: int = const 0;
-                                ;   %4: ptr<int> = id array;
-                                ;   %5: int = id left;
-                                ;   %6: ptr<int> = ptradd %4 %5;
-                                ;   %7: int = load %6;
-                                ;   %0: int = id %7;
-                                ;   %8: int = id left;
-                                ;   %9: int = const 1;
-                                ;   %10: int = sub %8 %9;
-                                ;   %1: int = id %10;
-                                ;   %11: int = id right;
-                                ;   %12: int = const 1;
-                                ;   %13: int = add %11 %12;
-                                ;   %2: int = id %13;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L10}, dominators = {.L0, .L1}
-                                ;   %14: int = lt %1 %2;
-                                ;   br %14 .L2 .L11;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
-                                ;   %15: int = const 1;
-                                ;   %16: int = add %1 %15;
-                                ;   %1: int = id %16;
-                                ;   jmp .L3;
-                                ; .L3:                                               preds = {.L2, .L4}, dominators = {.L0, .L1, .L2, .L3}
-                                ;   %17: ptr<int> = id array;
-                                ;   %18: int = id %1;
-                                ;   %19: ptr<int> = ptradd %17 %18;
-                                ;   %20: int = load %19;
-                                ;   %21: int = id %0;
-                                ;   %22: int = lt %20 %21;
-                                ;   br %22 .L4 .L5;
-                                ; .L4:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L4}
-                                ;   %23: int = const 1;
-                                ;   %24: int = add %1 %23;
-                                ;   %1: int = id %24;
-                                ;   jmp .L3;
-                                ; .L5:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L5}
-                                ;   %25: int = const 1;
-                                ;   %26: int = sub %2 %25;
-                                ;   %2: int = id %26;
-                                ;   jmp .L6;
-                                ; .L6:                                               preds = {.L5, .L7}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6}
-                                ;   %27: ptr<int> = id array;
-                                ;   %28: int = id %2;
-                                ;   %29: ptr<int> = ptradd %27 %28;
-                                ;   %30: int = load %29;
-                                ;   %31: int = id %0;
-                                ;   %32: int = gt %30 %31;
-                                ;   br %32 .L7 .L8;
-                                ; .L7:                                               preds = {.L6}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L7}
-                                ;   %33: int = const 1;
-                                ;   %34: int = sub %2 %33;
-                                ;   %2: int = id %34;
-                                ;   jmp .L6;
-                                ; .L8:                                               preds = {.L6}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L8}
-                                ;   %35: int = lt %1 %2;
-                                ;   br %35 .L9 .L10;
-                                ; .L9:                                               preds = {.L8}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L8, .L9}
-                                ;   %36: ptr<int> = id array;
-                                ;   %37: int = id %1;
-                                ;   %38: ptr<int> = ptradd %36 %37;
-                                ;   %39: int = load %38;
-                                ;   %3: int = id %39;
-                                ;   %40: ptr<int> = id array;
-                                ;   %41: int = id %2;
-                                ;   %42: ptr<int> = ptradd %40 %41;
-                                ;   %43: int = load %42;
-                                ;   %44: ptr<int> = id array;
-                                ;   %45: int = id %1;
-                                ;   %46: ptr<int> = ptradd %44 %45;
-                                ;   store %46 %43;
-                                ;   %47: int = id %3;
-                                ;   %48: ptr<int> = id array;
-                                ;   %49: int = id %2;
-                                ;   %50: ptr<int> = ptradd %48 %49;
-                                ;   store %50 %47;
-                                ;   jmp .L10;
-                                ; .L10:                                              preds = {.L8, .L9}, dominators = {.L0, .L1, .L10, .L2, .L3, .L5, .L6, .L8}
-                                ;   jmp .L1;
-                                ; .L11:                                              preds = {.L1}, dominators = {.L0, .L1, .L11}
-                                ;   ret %2;
-                                ; }
-                                ; 
-                                ; @wain(a: ptr<int>, b: int) : int {
-                                ;   %0: int = const 0;
-                                ;   jmp .L1;
-                                ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
-                                ;   %1: int = lt %0 b;
-                                ;   br %1 .L2 .L3;
-                                ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
-                                ;   %2: ptr<int> = id a;
-                                ;   %3: int = id %0;
-                                ;   %4: ptr<int> = ptradd %2 %3;
-                                ;   %5: int = load %4;
-                                ;   print %5;
-                                ;   %6: int = const 1;
-                                ;   %7: int = add %0 %6;
-                                ;   %0: int = id %7;
-                                ;   jmp .L1;
-                                ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
-                                ;   %8: int = const 0;
-                                ;   %9: int = const 1;
-                                ;   %10: int = sub b %9;
-                                ;   %11: int = call @fastSort a %8 %10;
-                                ;   %0: int = const 0;
-                                ;   jmp .L4;
-                                ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}
-                                ;   %12: int = lt %0 b;
-                                ;   br %12 .L5 .L6;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}
-                                ;   %13: ptr<int> = id a;
-                                ;   %14: int = id %0;
-                                ;   %15: ptr<int> = ptradd %13 %14;
-                                ;   %16: int = load %15;
-                                ;   print %16;
-                                ;   %17: int = const 1;
-                                ;   %18: int = add %0 %17;
-                                ;   %0: int = id %18;
-                                ;   jmp .L4;
-                                ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}
-                                ;   %19: int = const 0;
-                                ;   ret %19;
-                                ; }
-                                ; 
-.import print
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-add $10, $1, $0                 ; Loading argument 1 into register
-add $9, $2, $0                  ; Loading argument 2 into register
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-add $8, $0, $0                  ; %0: int = const 0;
-                                ; jmp wainL1; (fallthrough)
+                                  ; @fastSort(array: ptr<int>, left: int, right: int) : int {
+                                  ;   %0: int = const 0;
+                                  ;   %1: int = le %0 left;
+                                  ;   %2: int = const 0;
+                                  ;   br %1 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %3: int = le %0 right;
+                                  ;   %2: int = id %3;
+                                  ;   jmp .L2;
+                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+                                  ;   %4: int = id %0;
+                                  ;   br %2 .L3 .L4;
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
+                                  ;   %5: int = lt left right;
+                                  ;   %4: int = id %5;
+                                  ;   jmp .L4;
+                                  ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}
+                                  ;   %6: int = eq %4 %0;
+                                  ;   br %6 .L5 .L6;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
+                                  ;   jmp .L7;
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
+                                  ;   %7: int = call @partition array left right;
+                                  ;   %8: int = call @fastSort array left %7;
+                                  ;   %9: int = const 1;
+                                  ;   %10: int = add %7 %9;
+                                  ;   %11: int = call @fastSort array %10 right;
+                                  ;   jmp .L7;
+                                  ; .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L2, .L4, .L7}
+                                  ;   ret %0;
+                                  ; }
+                                  ; 
+                                  ; @partition(array: ptr<int>, left: int, right: int) : int {
+                                  ;   %0: int = const 0;
+                                  ;   %1: int = const 0;
+                                  ;   %2: int = const 0;
+                                  ;   %3: int = const 0;
+                                  ;   %4: ptr<int> = id array;
+                                  ;   %5: int = id left;
+                                  ;   %6: ptr<int> = ptradd %4 %5;
+                                  ;   %7: int = load %6;
+                                  ;   %0: int = id %7;
+                                  ;   %8: int = id left;
+                                  ;   %9: int = const 1;
+                                  ;   %10: int = sub %8 %9;
+                                  ;   %1: int = id %10;
+                                  ;   %11: int = id right;
+                                  ;   %12: int = const 1;
+                                  ;   %13: int = add %11 %12;
+                                  ;   %2: int = id %13;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L10}, dominators = {.L0, .L1}
+                                  ;   %14: int = lt %1 %2;
+                                  ;   br %14 .L2 .L11;
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ;   %15: int = const 1;
+                                  ;   %16: int = add %1 %15;
+                                  ;   %1: int = id %16;
+                                  ;   jmp .L3;
+                                  ; .L3:                                               preds = {.L2, .L4}, dominators = {.L0, .L1, .L2, .L3}
+                                  ;   %17: ptr<int> = id array;
+                                  ;   %18: int = id %1;
+                                  ;   %19: ptr<int> = ptradd %17 %18;
+                                  ;   %20: int = load %19;
+                                  ;   %21: int = id %0;
+                                  ;   %22: int = lt %20 %21;
+                                  ;   br %22 .L4 .L5;
+                                  ; .L4:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L4}
+                                  ;   %23: int = const 1;
+                                  ;   %24: int = add %1 %23;
+                                  ;   %1: int = id %24;
+                                  ;   jmp .L3;
+                                  ; .L5:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L5}
+                                  ;   %25: int = const 1;
+                                  ;   %26: int = sub %2 %25;
+                                  ;   %2: int = id %26;
+                                  ;   jmp .L6;
+                                  ; .L6:                                               preds = {.L5, .L7}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6}
+                                  ;   %27: ptr<int> = id array;
+                                  ;   %28: int = id %2;
+                                  ;   %29: ptr<int> = ptradd %27 %28;
+                                  ;   %30: int = load %29;
+                                  ;   %31: int = id %0;
+                                  ;   %32: int = gt %30 %31;
+                                  ;   br %32 .L7 .L8;
+                                  ; .L7:                                               preds = {.L6}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L7}
+                                  ;   %33: int = const 1;
+                                  ;   %34: int = sub %2 %33;
+                                  ;   %2: int = id %34;
+                                  ;   jmp .L6;
+                                  ; .L8:                                               preds = {.L6}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L8}
+                                  ;   %35: int = lt %1 %2;
+                                  ;   br %35 .L9 .L10;
+                                  ; .L9:                                               preds = {.L8}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6, .L8, .L9}
+                                  ;   %36: ptr<int> = id array;
+                                  ;   %37: int = id %1;
+                                  ;   %38: ptr<int> = ptradd %36 %37;
+                                  ;   %39: int = load %38;
+                                  ;   %3: int = id %39;
+                                  ;   %40: ptr<int> = id array;
+                                  ;   %41: int = id %2;
+                                  ;   %42: ptr<int> = ptradd %40 %41;
+                                  ;   %43: int = load %42;
+                                  ;   %44: ptr<int> = id array;
+                                  ;   %45: int = id %1;
+                                  ;   %46: ptr<int> = ptradd %44 %45;
+                                  ;   store %46 %43;
+                                  ;   %47: int = id %3;
+                                  ;   %48: ptr<int> = id array;
+                                  ;   %49: int = id %2;
+                                  ;   %50: ptr<int> = ptradd %48 %49;
+                                  ;   store %50 %47;
+                                  ;   jmp .L10;
+                                  ; .L10:                                              preds = {.L8, .L9}, dominators = {.L0, .L1, .L10, .L2, .L3, .L5, .L6, .L8}
+                                  ;   jmp .L1;
+                                  ; .L11:                                              preds = {.L1}, dominators = {.L0, .L1, .L11}
+                                  ;   ret %2;
+                                  ; }
+                                  ; 
+                                  ; @wain(a: ptr<int>, b: int) : int {
+                                  ;   %0: int = const 0;
+                                  ;   jmp .L1;
+                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+                                  ;   %1: int = lt %0 b;
+                                  ;   br %1 .L2 .L3;
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ;   %2: ptr<int> = id a;
+                                  ;   %3: int = id %0;
+                                  ;   %4: ptr<int> = ptradd %2 %3;
+                                  ;   %5: int = load %4;
+                                  ;   print %5;
+                                  ;   %6: int = const 1;
+                                  ;   %7: int = add %0 %6;
+                                  ;   %0: int = id %7;
+                                  ;   jmp .L1;
+                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+                                  ;   %8: int = const 0;
+                                  ;   %9: int = const 1;
+                                  ;   %10: int = sub b %9;
+                                  ;   %11: int = call @fastSort a %8 %10;
+                                  ;   %0: int = const 0;
+                                  ;   jmp .L4;
+                                  ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}
+                                  ;   %12: int = lt %0 b;
+                                  ;   br %12 .L5 .L6;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}
+                                  ;   %13: ptr<int> = id a;
+                                  ;   %14: int = id %0;
+                                  ;   %15: ptr<int> = ptradd %13 %14;
+                                  ;   %16: int = load %15;
+                                  ;   print %16;
+                                  ;   %17: int = const 1;
+                                  ;   %18: int = add %0 %17;
+                                  ;   %0: int = id %18;
+                                  ;   jmp .L4;
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}
+                                  ;   %19: int = const 0;
+                                  ;   ret %19;
+                                  ; }
+                                  ; 
+  .import print
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+  add $10, $1, $0                 ; Loading argument 1 into register
+  add $9, $2, $0                  ; Loading argument 2 into register
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  add $8, $0, $0                  ; %0: int = const 0;
+                                  ; jmp wainL1; (fallthrough)
 wainL1:
-slt $3, $8, $9                  ; %1: int = lt %0 b;
-beq $3, $0, wainL3              ; br %1 .L2 .L3;
-                                ; jmp wainL2; (fallthrough)
-                                ; Removed unused label wainL2
-add $5, $10, $0
-                                ; %2: ptr<int> = id a;
-                                ; Removing locally unused write to $3
-                                ; %3: int = id %0;
-mult $8, $4                     ;  (replaced $3 with $8)
-mflo $6
-add $3, $10, $6                 ;  (replaced $5 with $10)
-lw $3, 0($3)                    ; %5: int = load %4;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %5;
-                                ; Removing locally unused write to $3
-add $3, $8, $11                 ; %7: int = add %0 %6; (replaced $3 with $11)
-add $8, $3, $0
-                                ; %0: int = id %7;
-beq $0, $0, wainL1              ; jmp .L1;
+  slt $3, $8, $9                  ; %1: int = lt %0 b;
+  beq $3, $0, wainL3              ; br %1 .L2 .L3;
+                                  ; jmp wainL2; (fallthrough)
+                                  ; Removed unused label wainL2
+  add $5, $10, $0
+                                  ; %2: ptr<int> = id a;
+                                  ; Removing locally unused write to $3
+                                  ; %3: int = id %0;
+  mult $8, $4                     ;  (replaced $3 with $8)
+  mflo $6
+  add $3, $10, $6                 ;  (replaced $5 with $10)
+  lw $3, 0($3)                    ; %5: int = load %4;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %5;
+                                  ; Removing locally unused write to $3
+  add $3, $8, $11                 ; %7: int = add %0 %6; (replaced $3 with $11)
+  add $8, $3, $0
+                                  ; %0: int = id %7;
+  beq $0, $0, wainL1              ; jmp .L1;
 wainL3:
-add $5, $0, $0                  ; %8: int = const 0;
-                                ; Removing locally unused write to $3
-sub $3, $9, $11                 ; %10: int = sub b %9; (replaced $3 with $11)
-                                ; Generating function call: %11: int = call @fastSort a %8 %10;
-                                ; 1. Save the live registers
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $10, -4($30)                 ;   push $10
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $9, $3, $0                  ; Copying argument from register $9 to register $3
-add $12, $10, $0                ; Copying argument from register $12 to register $10
-add $10, $0, $0                 ; Copying argument from register $10 to register $5 (replaced $5 with $0)
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to fastSort
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word fastSortL0
-jalr $2                         ; 4. Jump to fastSort
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $10
-lw $10, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $1, $3, $0
-                                ; 8. Copy return value to %11
-add $8, $0, $0                  ; %0: int = const 0;
-                                ; jmp wainL4; (fallthrough)
+  add $5, $0, $0                  ; %8: int = const 0;
+                                  ; Removing locally unused write to $3
+  sub $3, $9, $11                 ; %10: int = sub b %9; (replaced $3 with $11)
+                                  ; Generating function call: %11: int = call @fastSort a %8 %10;
+                                  ; 1. Save the live registers
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $10, -4($30)                 ;   push $10
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $9, $3, $0                  ; Copying argument from register $9 to register $3
+  add $12, $10, $0                ; Copying argument from register $12 to register $10
+  add $10, $0, $0                 ; Copying argument from register $10 to register $5 (replaced $5 with $0)
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to fastSort
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word fastSortL0
+  jalr $2                         ; 4. Jump to fastSort
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $10
+  lw $10, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $1, $3, $0
+                                  ; 8. Copy return value to %11
+  add $8, $0, $0                  ; %0: int = const 0;
+                                  ; jmp wainL4; (fallthrough)
 wainL4:
-slt $3, $8, $9                  ; %12: int = lt %0 b;
-beq $3, $0, wainL6              ; br %12 .L5 .L6;
-                                ; jmp wainL5; (fallthrough)
-                                ; Removed unused label wainL5
-add $5, $10, $0
-                                ; %13: ptr<int> = id a;
-                                ; Removing locally unused write to $3
-                                ; %14: int = id %0;
-mult $8, $4                     ;  (replaced $3 with $8)
-mflo $6
-add $3, $10, $6                 ;  (replaced $5 with $10)
-lw $3, 0($3)                    ; %16: int = load %15;
-add $1, $3, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word print
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ; print %16;
-                                ; Removing locally unused write to $3
-add $3, $8, $11                 ; %18: int = add %0 %17; (replaced $3 with $11)
-add $8, $3, $0
-                                ; %0: int = id %18;
-beq $0, $0, wainL4              ; jmp .L4;
+  slt $3, $8, $9                  ; %12: int = lt %0 b;
+  beq $3, $0, wainL6              ; br %12 .L5 .L6;
+                                  ; jmp wainL5; (fallthrough)
+                                  ; Removed unused label wainL5
+  add $5, $10, $0
+                                  ; %13: ptr<int> = id a;
+                                  ; Removing locally unused write to $3
+                                  ; %14: int = id %0;
+  mult $8, $4                     ;  (replaced $3 with $8)
+  mflo $6
+  add $3, $10, $6                 ;  (replaced $5 with $10)
+  lw $3, 0($3)                    ; %16: int = load %15;
+  add $1, $3, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word print
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ; print %16;
+                                  ; Removing locally unused write to $3
+  add $3, $8, $11                 ; %18: int = add %0 %17; (replaced $3 with $11)
+  add $8, $3, $0
+                                  ; %0: int = id %18;
+  beq $0, $0, wainL4              ; jmp .L4;
 wainL6:
-add $3, $0, $0                  ; %19: int = const 0;
-                                ; ret %19;
-jr $31
-                                ; Done with function wain
-                                ; Code for function fastSort
+  add $3, $0, $0                  ; %19: int = const 0;
+                                  ; ret %19;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function fastSort
 fastSortL0:
-add $8, $0, $0                  ; %0: int = const 0;
-slt $3, $10, $0                 ;  (replaced $8 with $0)
-sub $3, $11, $3                 ; %1: int = le %0 left;
-add $5, $0, $0                  ; %2: int = const 0;
-beq $3, $0, fastSortL2          ; br %1 .L1 .L2;
-                                ; jmp fastSortL1; (fallthrough)
-                                ; Removed unused label fastSortL1
-slt $3, $9, $8
-sub $3, $11, $3                 ; %3: int = le %0 right;
-add $5, $3, $0
-                                ; %2: int = id %3;
-                                ; jmp fastSortL2; (fallthrough)
+  add $8, $0, $0                  ; %0: int = const 0;
+  slt $3, $10, $0                 ;  (replaced $8 with $0)
+  sub $3, $11, $3                 ; %1: int = le %0 left;
+  add $5, $0, $0                  ; %2: int = const 0;
+  beq $3, $0, fastSortL2          ; br %1 .L1 .L2;
+                                  ; jmp fastSortL1; (fallthrough)
+                                  ; Removed unused label fastSortL1
+  slt $3, $9, $8
+  sub $3, $11, $3                 ; %3: int = le %0 right;
+  add $5, $3, $0
+                                  ; %2: int = id %3;
+                                  ; jmp fastSortL2; (fallthrough)
 fastSortL2:
-add $3, $8, $0
-                                ; %4: int = id %0;
-beq $5, $0, fastSortL4          ; br %2 .L3 .L4;
-                                ; jmp fastSortL3; (fallthrough)
-                                ; Removed unused label fastSortL3
-slt $3, $10, $9                 ; %5: int = lt left right;
-                                ; %4: int = id %5;
-                                ; jmp fastSortL4; (fallthrough)
+  add $3, $8, $0
+                                  ; %4: int = id %0;
+  beq $5, $0, fastSortL4          ; br %2 .L3 .L4;
+                                  ; jmp fastSortL3; (fallthrough)
+                                  ; Removed unused label fastSortL3
+  slt $3, $10, $9                 ; %5: int = lt left right;
+                                  ; %4: int = id %5;
+                                  ; jmp fastSortL4; (fallthrough)
 fastSortL4:
-slt $6, $3, $8
-slt $7, $8, $3
-add $3, $6, $7
-sub $3, $11, $3                 ; %6: int = eq %4 %0;
-beq $3, $0, fastSortL6          ; br %6 .L5 .L6;
-                                ; jmp fastSortL5; (fallthrough)
-                                ; Removed unused label fastSortL5
-beq $0, $0, fastSortL7          ; jmp .L7;
+  slt $6, $3, $8
+  slt $7, $8, $3
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %6: int = eq %4 %0;
+  beq $3, $0, fastSortL6          ; br %6 .L5 .L6;
+                                  ; jmp fastSortL5; (fallthrough)
+                                  ; Removed unused label fastSortL5
+  beq $0, $0, fastSortL7          ; jmp .L7;
 fastSortL6:
-                                ; Generating function call: %7: int = call @partition array left right;
-                                ; 1. Save the live registers
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $10, -4($30)                 ;   push $10
-sub $30, $30, $4                ;   ^
-sw $12, -4($30)                 ;   push $12
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $3, $9, $0                  ; Copying argument from register $3 to register $9
-add $5, $10, $0                 ; Copying argument from register $5 to register $10
-add $14, $12, $0                ; Copying argument from register $14 to register $12
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to partition
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word partitionL0
-jalr $2                         ; 4. Jump to partition
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $12
-lw $12, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $10
-lw $10, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %7
-                                ; Generating function call: %8: int = call @fastSort array left %7;
-                                ; 1. Save the live registers
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $12, -4($30)                 ;   push $12
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $9, $3, $0                  ; Copying argument from register $9 to register $3
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to fastSort
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word fastSortL0
-jalr $2                         ; 4. Jump to fastSort
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $12
-lw $12, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-add $30, $30, $4                ;   pop $3
-lw $3, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $1, $3, $0
-                                ; 8. Copy return value to %8
-add $5, $11, $0                 ; %9: int = const 1;
-add $3, $3, $11                 ; %10: int = add %7 %9; (replaced $5 with $11)
-                                ; Generating function call: %11: int = call @fastSort array %10 right;
-                                ; 1. Save the live registers
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $10, $3, $0                 ; Copying argument from register $10 to register $3
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to fastSort
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word fastSortL0
-jalr $2                         ; 4. Jump to fastSort
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $1, $3, $0
-                                ; 8. Copy return value to %11
-                                ; jmp fastSortL7; (fallthrough)
+                                  ; Generating function call: %7: int = call @partition array left right;
+                                  ; 1. Save the live registers
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $10, -4($30)                 ;   push $10
+  sub $30, $30, $4                ;   ^
+  sw $12, -4($30)                 ;   push $12
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $3, $9, $0                  ; Copying argument from register $3 to register $9
+  add $5, $10, $0                 ; Copying argument from register $5 to register $10
+  add $14, $12, $0                ; Copying argument from register $14 to register $12
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to partition
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word partitionL0
+  jalr $2                         ; 4. Jump to partition
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $12
+  lw $12, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $10
+  lw $10, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %7
+                                  ; Generating function call: %8: int = call @fastSort array left %7;
+                                  ; 1. Save the live registers
+  sw $3, -4($30)                  ;   push $3
+  sub $30, $30, $4                ;   ^
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $12, -4($30)                 ;   push $12
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $9, $3, $0                  ; Copying argument from register $9 to register $3
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to fastSort
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word fastSortL0
+  jalr $2                         ; 4. Jump to fastSort
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $12
+  lw $12, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+  add $30, $30, $4                ;   pop $3
+  lw $3, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $1, $3, $0
+                                  ; 8. Copy return value to %8
+  add $5, $11, $0                 ; %9: int = const 1;
+  add $3, $3, $11                 ; %10: int = add %7 %9; (replaced $5 with $11)
+                                  ; Generating function call: %11: int = call @fastSort array %10 right;
+                                  ; 1. Save the live registers
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $10, $3, $0                 ; Copying argument from register $10 to register $3
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to fastSort
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word fastSortL0
+  jalr $2                         ; 4. Jump to fastSort
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $1, $3, $0
+                                  ; 8. Copy return value to %11
+                                  ; jmp fastSortL7; (fallthrough)
 fastSortL7:
-add $3, $8, $0
-                                ; ret %0;
-jr $31
-                                ; Done with function fastSort
-                                ; Code for function partition
+  add $3, $8, $0
+                                  ; ret %0;
+  jr $31
+                                  ; Done with function fastSort
+                                  ; Code for function partition
 partitionL0:
-                                ; Removing locally unused write to $13
-                                ; Removing locally unused write to $12
-                                ; Removing locally unused write to $10
-                                ; Removing locally unused write to $9
-add $9, $14, $0
-                                ; %4: ptr<int> = id array;
-                                ; Removing locally unused write to $8
-                                ; %5: int = id left;
-mult $5, $4                     ;  (replaced $8 with $5)
-mflo $6
-add $8, $14, $6                 ;  (replaced $9 with $14)
-lw $8, 0($8)                    ; %7: int = load %6;
-add $13, $8, $0
-                                ; %0: int = id %7;
-add $8, $5, $0
-                                ; %8: int = id left;
-                                ; Removing locally unused write to $5
-sub $5, $5, $11                 ; %10: int = sub %8 %9; (replaced $5 with $11) (replaced $8 with $5)
-add $12, $5, $0
-                                ; %1: int = id %10;
-add $5, $3, $0
-                                ; %11: int = id right;
-                                ; Removing locally unused write to $3
-add $3, $3, $11                 ; %13: int = add %11 %12; (replaced $3 with $11) (replaced $5 with $3)
-add $10, $3, $0
-                                ; %2: int = id %13;
-                                ; jmp partitionL1; (fallthrough)
+                                  ; Removing locally unused write to $13
+                                  ; Removing locally unused write to $12
+                                  ; Removing locally unused write to $10
+                                  ; Removing locally unused write to $9
+  add $9, $14, $0
+                                  ; %4: ptr<int> = id array;
+                                  ; Removing locally unused write to $8
+                                  ; %5: int = id left;
+  mult $5, $4                     ;  (replaced $8 with $5)
+  mflo $6
+  add $8, $14, $6                 ;  (replaced $9 with $14)
+  lw $8, 0($8)                    ; %7: int = load %6;
+  add $13, $8, $0
+                                  ; %0: int = id %7;
+  add $8, $5, $0
+                                  ; %8: int = id left;
+                                  ; Removing locally unused write to $5
+  sub $5, $5, $11                 ; %10: int = sub %8 %9; (replaced $5 with $11) (replaced $8 with $5)
+  add $12, $5, $0
+                                  ; %1: int = id %10;
+  add $5, $3, $0
+                                  ; %11: int = id right;
+                                  ; Removing locally unused write to $3
+  add $3, $3, $11                 ; %13: int = add %11 %12; (replaced $3 with $11) (replaced $5 with $3)
+  add $10, $3, $0
+                                  ; %2: int = id %13;
+                                  ; jmp partitionL1; (fallthrough)
 partitionL1:
-slt $3, $12, $10                ; %14: int = lt %1 %2;
-beq $3, $0, partitionL11        ; br %14 .L2 .L11;
-                                ; jmp partitionL2; (fallthrough)
-                                ; Removed unused label partitionL2
-                                ; Removing locally unused write to $3
-add $3, $12, $11                ; %16: int = add %1 %15; (replaced $3 with $11)
-add $12, $3, $0
-                                ; %1: int = id %16;
-                                ; jmp partitionL3; (fallthrough)
+  slt $3, $12, $10                ; %14: int = lt %1 %2;
+  beq $3, $0, partitionL11        ; br %14 .L2 .L11;
+                                  ; jmp partitionL2; (fallthrough)
+                                  ; Removed unused label partitionL2
+                                  ; Removing locally unused write to $3
+  add $3, $12, $11                ; %16: int = add %1 %15; (replaced $3 with $11)
+  add $12, $3, $0
+                                  ; %1: int = id %16;
+                                  ; jmp partitionL3; (fallthrough)
 partitionL3:
-                                ; Removing locally unused write to $5
-                                ; %17: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %18: int = id %1;
-mult $12, $4                    ;  (replaced $3 with $12)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-lw $5, 0($3)                    ; %20: int = load %19;
-                                ; Removing locally unused write to $3
-                                ; %21: int = id %0;
-slt $3, $5, $13                 ; %22: int = lt %20 %21; (replaced $3 with $13)
-beq $3, $0, partitionL5         ; br %22 .L4 .L5;
-                                ; jmp partitionL4; (fallthrough)
-                                ; Removed unused label partitionL4
-                                ; Removing locally unused write to $3
-add $3, $12, $11                ; %24: int = add %1 %23; (replaced $3 with $11)
-add $12, $3, $0
-                                ; %1: int = id %24;
-beq $0, $0, partitionL3         ; jmp .L3;
+                                  ; Removing locally unused write to $5
+                                  ; %17: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %18: int = id %1;
+  mult $12, $4                    ;  (replaced $3 with $12)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  lw $5, 0($3)                    ; %20: int = load %19;
+                                  ; Removing locally unused write to $3
+                                  ; %21: int = id %0;
+  slt $3, $5, $13                 ; %22: int = lt %20 %21; (replaced $3 with $13)
+  beq $3, $0, partitionL5         ; br %22 .L4 .L5;
+                                  ; jmp partitionL4; (fallthrough)
+                                  ; Removed unused label partitionL4
+                                  ; Removing locally unused write to $3
+  add $3, $12, $11                ; %24: int = add %1 %23; (replaced $3 with $11)
+  add $12, $3, $0
+                                  ; %1: int = id %24;
+  beq $0, $0, partitionL3         ; jmp .L3;
 partitionL5:
-                                ; Removing locally unused write to $3
-sub $3, $10, $11                ; %26: int = sub %2 %25; (replaced $3 with $11)
-add $10, $3, $0
-                                ; %2: int = id %26;
-                                ; jmp partitionL6; (fallthrough)
+                                  ; Removing locally unused write to $3
+  sub $3, $10, $11                ; %26: int = sub %2 %25; (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %2: int = id %26;
+                                  ; jmp partitionL6; (fallthrough)
 partitionL6:
-                                ; Removing locally unused write to $5
-                                ; %27: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %28: int = id %2;
-mult $10, $4                    ;  (replaced $3 with $10)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-lw $5, 0($3)                    ; %30: int = load %29;
-                                ; Removing locally unused write to $3
-                                ; %31: int = id %0;
-slt $3, $13, $5                 ; %32: int = gt %30 %31; (replaced $3 with $13)
-beq $3, $0, partitionL8         ; br %32 .L7 .L8;
-                                ; jmp partitionL7; (fallthrough)
-                                ; Removed unused label partitionL7
-                                ; Removing locally unused write to $3
-sub $3, $10, $11                ; %34: int = sub %2 %33; (replaced $3 with $11)
-add $10, $3, $0
-                                ; %2: int = id %34;
-beq $0, $0, partitionL6         ; jmp .L6;
+                                  ; Removing locally unused write to $5
+                                  ; %27: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %28: int = id %2;
+  mult $10, $4                    ;  (replaced $3 with $10)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  lw $5, 0($3)                    ; %30: int = load %29;
+                                  ; Removing locally unused write to $3
+                                  ; %31: int = id %0;
+  slt $3, $13, $5                 ; %32: int = gt %30 %31; (replaced $3 with $13)
+  beq $3, $0, partitionL8         ; br %32 .L7 .L8;
+                                  ; jmp partitionL7; (fallthrough)
+                                  ; Removed unused label partitionL7
+                                  ; Removing locally unused write to $3
+  sub $3, $10, $11                ; %34: int = sub %2 %33; (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %2: int = id %34;
+  beq $0, $0, partitionL6         ; jmp .L6;
 partitionL8:
-slt $3, $12, $10                ; %35: int = lt %1 %2;
-beq $3, $0, partitionL10        ; br %35 .L9 .L10;
-                                ; jmp partitionL9; (fallthrough)
-                                ; Removed unused label partitionL9
-                                ; Removing locally unused write to $5
-                                ; %36: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %37: int = id %1;
-mult $12, $4                    ;  (replaced $3 with $12)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-lw $3, 0($3)                    ; %39: int = load %38;
-add $9, $3, $0
-                                ; %3: int = id %39;
-                                ; Removing locally unused write to $5
-                                ; %40: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %41: int = id %2;
-mult $10, $4                    ;  (replaced $3 with $10)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-lw $8, 0($3)                    ; %43: int = load %42;
-                                ; Removing locally unused write to $5
-                                ; %44: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %45: int = id %1;
-mult $12, $4                    ;  (replaced $3 with $12)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-sw $8, 0($3)                    ; store %46 %43;
-add $8, $9, $0
-                                ; %47: int = id %3;
-add $5, $14, $0
-                                ; %48: ptr<int> = id array;
-                                ; Removing locally unused write to $3
-                                ; %49: int = id %2;
-mult $10, $4                    ;  (replaced $3 with $10)
-mflo $6
-add $3, $14, $6                 ;  (replaced $5 with $14)
-sw $9, 0($3)                    ; store %50 %47; (replaced $8 with $9)
-                                ; jmp partitionL10; (fallthrough)
+  slt $3, $12, $10                ; %35: int = lt %1 %2;
+  beq $3, $0, partitionL10        ; br %35 .L9 .L10;
+                                  ; jmp partitionL9; (fallthrough)
+                                  ; Removed unused label partitionL9
+                                  ; Removing locally unused write to $5
+                                  ; %36: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %37: int = id %1;
+  mult $12, $4                    ;  (replaced $3 with $12)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  lw $3, 0($3)                    ; %39: int = load %38;
+  add $9, $3, $0
+                                  ; %3: int = id %39;
+                                  ; Removing locally unused write to $5
+                                  ; %40: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %41: int = id %2;
+  mult $10, $4                    ;  (replaced $3 with $10)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  lw $8, 0($3)                    ; %43: int = load %42;
+                                  ; Removing locally unused write to $5
+                                  ; %44: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %45: int = id %1;
+  mult $12, $4                    ;  (replaced $3 with $12)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  sw $8, 0($3)                    ; store %46 %43;
+  add $8, $9, $0
+                                  ; %47: int = id %3;
+  add $5, $14, $0
+                                  ; %48: ptr<int> = id array;
+                                  ; Removing locally unused write to $3
+                                  ; %49: int = id %2;
+  mult $10, $4                    ;  (replaced $3 with $10)
+  mflo $6
+  add $3, $14, $6                 ;  (replaced $5 with $14)
+  sw $9, 0($3)                    ; store %50 %47; (replaced $8 with $9)
+                                  ; jmp partitionL10; (fallthrough)
 partitionL10:
-beq $0, $0, partitionL1         ; jmp .L1;
+  beq $0, $0, partitionL1         ; jmp .L1;
 partitionL11:
-add $3, $10, $0
-                                ; ret %2;
-jr $31
-                                ; Done with function partition
-                                ; Number of instructions: 241
+  add $3, $10, $0
+                                  ; ret %2;
+  jr $31
+                                  ; Done with function partition
+                                  ; Number of instructions: 241

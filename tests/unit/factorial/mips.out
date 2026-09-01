@@ -1,105 +1,105 @@
-                                ; @factorial(a: int) : int {
-                                ;   %0: int = const 1;
-                                ;   %1: int = lt %0 a;
-                                ;   br %1 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %2: int = sub a %0;
-                                ;   %3: int = call @factorial %2;
-                                ;   %4: int = mul %3 a;
-                                ;   %5: int = id %4;
-                                ;   jmp .L3;
-                                ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
-                                ;   %5: int = id %0;
-                                ;   jmp .L3;
-                                ; .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
-                                ;   ret %5;
-                                ; }
-                                ; 
-                                ; @wain(a: int, result: int) : int {
-                                ;   %0: int = call @factorial a;
-                                ;   ret %0;
-                                ; }
-                                ; 
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-                                ; Removing locally unused write to $3
-add $3, $2, $0                  ; Loading argument 2 into register
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-                                ; Generating function call: %0: int = call @factorial a;
-                                ; 1. Save the live registers
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $8, $2, $0                  ; Copying argument from register $8 to register $3 (replaced $3 with $2)
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to factorial
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word factorialL0
-jalr $2                         ; 4. Jump to factorial
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %0
-                                ; ret %0;
-jr $31
-                                ; Done with function wain
-                                ; Code for function factorial
+                                  ; @factorial(a: int) : int {
+                                  ;   %0: int = const 1;
+                                  ;   %1: int = lt %0 a;
+                                  ;   br %1 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %2: int = sub a %0;
+                                  ;   %3: int = call @factorial %2;
+                                  ;   %4: int = mul %3 a;
+                                  ;   %5: int = id %4;
+                                  ;   jmp .L3;
+                                  ; .L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+                                  ;   %5: int = id %0;
+                                  ;   jmp .L3;
+                                  ; .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
+                                  ;   ret %5;
+                                  ; }
+                                  ; 
+                                  ; @wain(a: int, result: int) : int {
+                                  ;   %0: int = call @factorial a;
+                                  ;   ret %0;
+                                  ; }
+                                  ; 
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+                                  ; Removing locally unused write to $3
+  add $3, $2, $0                  ; Loading argument 2 into register
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+                                  ; Generating function call: %0: int = call @factorial a;
+                                  ; 1. Save the live registers
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $8, $2, $0                  ; Copying argument from register $8 to register $3 (replaced $3 with $2)
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to factorial
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word factorialL0
+  jalr $2                         ; 4. Jump to factorial
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %0
+                                  ; ret %0;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function factorial
 factorialL0:
-add $5, $11, $0                 ; %0: int = const 1;
-slt $3, $11, $8                 ; %1: int = lt %0 a; (replaced $5 with $11)
-beq $3, $0, factorialL2         ; br %1 .L1 .L2;
-                                ; jmp factorialL1; (fallthrough)
-                                ; Removed unused label factorialL1
-sub $3, $8, $5                  ; %2: int = sub a %0;
-                                ; Generating function call: %3: int = call @factorial %2;
-                                ; 1. Save the live registers
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $8, $3, $0                  ; Copying argument from register $8 to register $3
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to factorial
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word factorialL0
-jalr $2                         ; 4. Jump to factorial
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %3
-mult $3, $8
-mflo $3                         ; %4: int = mul %3 a;
-                                ; %5: int = id %4;
-beq $0, $0, factorialL3         ; jmp .L3;
+  add $5, $11, $0                 ; %0: int = const 1;
+  slt $3, $11, $8                 ; %1: int = lt %0 a; (replaced $5 with $11)
+  beq $3, $0, factorialL2         ; br %1 .L1 .L2;
+                                  ; jmp factorialL1; (fallthrough)
+                                  ; Removed unused label factorialL1
+  sub $3, $8, $5                  ; %2: int = sub a %0;
+                                  ; Generating function call: %3: int = call @factorial %2;
+                                  ; 1. Save the live registers
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $8, $3, $0                  ; Copying argument from register $8 to register $3
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to factorial
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word factorialL0
+  jalr $2                         ; 4. Jump to factorial
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %3
+  mult $3, $8
+  mflo $3                         ; %4: int = mul %3 a;
+                                  ; %5: int = id %4;
+  beq $0, $0, factorialL3         ; jmp .L3;
 factorialL2:
-add $3, $5, $0
-                                ; %5: int = id %0;
-                                ; jmp factorialL3; (fallthrough)
+  add $3, $5, $0
+                                  ; %5: int = id %0;
+                                  ; jmp factorialL3; (fallthrough)
 factorialL3:
-                                ; ret %5;
-jr $31
-                                ; Done with function factorial
-                                ; Number of instructions: 49
+                                  ; ret %5;
+  jr $31
+                                  ; Done with function factorial
+                                  ; Number of instructions: 49

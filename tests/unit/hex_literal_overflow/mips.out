@@ -1,19 +1,19 @@
-                                ; @wain(a: int, b: int) : int {
-                                ;   %0: int = const -1;
-                                ;   ret %0;
-                                ; }
-                                ; 
-                                ; Removing globally unused write to $4
-                                ;   (removed lis)
-                                ; Removing globally unused write to $11
-                                ; Removing globally unused write to $29
-                                ; Removing locally unused write to $3
-                                ; Removing locally unused write to $3
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-sub $3, $0, $1                  ; %0: int = const -1;
-                                ; ret %0;
-jr $31
-                                ; Done with function wain
-                                ; Number of instructions: 2
+                                  ; @wain(a: int, b: int) : int {
+                                  ;   %0: int = const -1;
+                                  ;   ret %0;
+                                  ; }
+                                  ; 
+                                  ; Removing globally unused write to $4
+                                  ;   (removed lis)
+                                  ; Removing globally unused write to $11
+                                  ; Removing globally unused write to $29
+                                  ; Removing locally unused write to $3
+                                  ; Removing locally unused write to $3
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+  sub $3, $0, $1                  ; %0: int = const -1;
+                                  ; ret %0;
+  jr $31
+                                  ; Done with function wain
+                                  ; Number of instructions: 2

@@ -1,447 +1,447 @@
-                                ; @print_num(num: int) : int {
-                                ;   %0: int = const 0;
-                                ;   %1: int = const 0;
-                                ;   %2: int = const 0;
-                                ;   %3: int = const 10;
-                                ;   %4: ptr<int> = alloc %3;
-                                ;   %5: ptr<int> = id %4;
-                                ;   %6: int = eq num %0;
-                                ;   br %6 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %7: int = const 48;
-                                ;   %8: ptr<int> = const 0xffff000c;
-                                ;   %9: int = id %7;
-                                ;   %10: ptr<int> = id %8;
-                                ;   store %10 %9;
-                                ;   jmp .L2;
-                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
-                                ;   %11: int = const 0;
-                                ;   %12: int = lt num %11;
-                                ;   br %12 .L3 .L4;
-                                ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
-                                ;   %13: int = const 45;
-                                ;   %14: ptr<int> = const 0xffff000c;
-                                ;   %15: int = id %13;
-                                ;   %16: ptr<int> = id %14;
-                                ;   store %16 %15;
-                                ;   %17: int = const 0;
-                                ;   %18: int = sub %17 num;
-                                ;   num: int = id %18;
-                                ;   jmp .L4;
-                                ; .L4:                                               preds = {.L2, .L3, .L5}, dominators = {.L0, .L2, .L4}
-                                ;   %19: int = const 0;
-                                ;   %20: int = ne num %19;
-                                ;   br %20 .L5 .L6;
-                                ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
-                                ;   %21: int = id num;
-                                ;   %22: int = const 10;
-                                ;   %23: int = mod %21 %22;
-                                ;   %2: int = id %23;
-                                ;   %24: int = id %2;
-                                ;   %25: int = const 48;
-                                ;   %26: int = add %24 %25;
-                                ;   %27: ptr<int> = id %5;
-                                ;   %28: int = id %0;
-                                ;   %29: ptr<int> = ptradd %27 %28;
-                                ;   store %29 %26;
-                                ;   %30: int = id %0;
-                                ;   %31: int = const 1;
-                                ;   %32: int = add %30 %31;
-                                ;   %0: int = id %32;
-                                ;   %33: int = id num;
-                                ;   %34: int = const 10;
-                                ;   %35: int = div %33 %34;
-                                ;   num: int = id %35;
-                                ;   jmp .L4;
-                                ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
-                                ;   %36: int = const 1;
-                                ;   %37: int = sub %0 %36;
-                                ;   %1: int = id %37;
-                                ;   jmp .L7;
-                                ; .L7:                                               preds = {.L6, .L8}, dominators = {.L0, .L2, .L4, .L6, .L7}
-                                ;   %38: int = const 0;
-                                ;   %39: int = ge %1 %38;
-                                ;   br %39 .L8 .L9;
-                                ; .L8:                                               preds = {.L7}, dominators = {.L0, .L2, .L4, .L6, .L7, .L8}
-                                ;   %40: ptr<int> = id %5;
-                                ;   %41: int = id %1;
-                                ;   %42: ptr<int> = ptradd %40 %41;
-                                ;   %43: int = load %42;
-                                ;   %44: int = id %43;
-                                ;   %45: ptr<int> = const 0xffff000c;
-                                ;   %46: int = id %44;
-                                ;   %47: ptr<int> = id %45;
-                                ;   store %47 %46;
-                                ;   %48: int = const 1;
-                                ;   %49: int = sub %1 %48;
-                                ;   %1: int = id %49;
-                                ;   jmp .L7;
-                                ; .L9:                                               preds = {.L7}, dominators = {.L0, .L2, .L4, .L6, .L7, .L9}
-                                ;   free %5;
-                                ;   %50: int = const 0;
-                                ;   ret %50;
-                                ; }
-                                ; 
-                                ; @wain(a: int, b: int) : int {
-                                ;   %0: int = call @print_num a;
-                                ;   %1: int = const 32;
-                                ;   %2: int = const 32;
-                                ;   %3: ptr<int> = const 0xffff000c;
-                                ;   %4: int = id %2;
-                                ;   %5: ptr<int> = id %3;
-                                ;   store %5 %4;
-                                ;   %6: int = const 43;
-                                ;   %7: ptr<int> = const 0xffff000c;
-                                ;   %8: int = id %6;
-                                ;   %9: ptr<int> = id %7;
-                                ;   store %9 %8;
-                                ;   %10: int = id %1;
-                                ;   %11: ptr<int> = const 0xffff000c;
-                                ;   %12: int = id %10;
-                                ;   %13: ptr<int> = id %11;
-                                ;   store %13 %12;
-                                ;   %14: int = call @print_num b;
-                                ;   %15: int = id %1;
-                                ;   %16: ptr<int> = const 0xffff000c;
-                                ;   %17: int = id %15;
-                                ;   %18: ptr<int> = id %16;
-                                ;   store %18 %17;
-                                ;   %19: int = const 61;
-                                ;   %20: ptr<int> = const 0xffff000c;
-                                ;   %21: int = id %19;
-                                ;   %22: ptr<int> = id %20;
-                                ;   store %22 %21;
-                                ;   %23: int = id %1;
-                                ;   %24: ptr<int> = const 0xffff000c;
-                                ;   %25: int = id %23;
-                                ;   %26: ptr<int> = id %24;
-                                ;   store %26 %25;
-                                ;   %27: int = add b a;
-                                ;   %28: int = call @print_num %27;
-                                ;   %29: int = const 10;
-                                ;   %30: ptr<int> = const 0xffff000c;
-                                ;   %31: int = id %29;
-                                ;   %32: ptr<int> = id %30;
-                                ;   store %32 %31;
-                                ;   %33: int = const 0;
-                                ;   ret %33;
-                                ; }
-                                ; 
-.import init
-.import new
-.import delete
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-add $10, $1, $0                 ; Loading argument 1 into register
-add $9, $2, $0                  ; Loading argument 2 into register
-                                ; Calling init
-add $2, $0, $0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $1
-.word init
-jalr $1
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; Done calling init
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-                                ; Generating function call: %0: int = call @print_num a;
-                                ; 1. Save the live registers
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $10, -4($30)                 ;   push $10
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $12, $10, $0                ; Copying argument from register $12 to register $10
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to print_num
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word printNumL0
-jalr $2                         ; 4. Jump to print_num
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $10
-lw $10, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $1, $3, $0
-                                ; 8. Copy return value to %0
-lis $8
-.word 32                        ; %1: int = const 32;
-lis $5
-.word 32                        ; %2: int = const 32;
-lis $3
-.word 4294901772                ; %3: ptr<int> = const 0xffff000c;
-                                ; %4: int = id %2;
-                                ; %5: ptr<int> = id %3;
-sw $5, 0($3)                    ; store %5 %4;
-lis $5
-.word 43                        ; %6: int = const 43;
-lis $3
-.word 4294901772                ; %7: ptr<int> = const 0xffff000c;
-                                ; %8: int = id %6;
-                                ; %9: ptr<int> = id %7;
-sw $5, 0($3)                    ; store %9 %8;
-add $5, $8, $0
-                                ; %10: int = id %1;
-lis $3
-.word 4294901772                ; %11: ptr<int> = const 0xffff000c;
-                                ; %12: int = id %10;
-                                ; %13: ptr<int> = id %11;
-sw $8, 0($3)                    ; store %13 %12; (replaced $5 with $8)
-                                ; Generating function call: %14: int = call @print_num b;
-                                ; 1. Save the live registers
-sw $8, -4($30)                  ;   push $8
-sub $30, $30, $4                ;   ^
-sw $9, -4($30)                  ;   push $9
-sub $30, $30, $4                ;   ^
-sw $10, -4($30)                 ;   push $10
-sub $30, $30, $4                ;   ^
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $12, $9, $0                 ; Copying argument from register $12 to register $9
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to print_num
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word printNumL0
-jalr $2                         ; 4. Jump to print_num
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $10
-lw $10, -4($30)                 ;   ^
-add $30, $30, $4                ;   pop $9
-lw $9, -4($30)                  ;   ^
-add $30, $30, $4                ;   pop $8
-lw $8, -4($30)                  ;   ^
-                                ; 7. Done with function call
-add $1, $3, $0
-                                ; 8. Copy return value to %14
-                                ; Removing locally unused write to $5
-                                ; %15: int = id %1;
-lis $3
-.word 4294901772                ; %16: ptr<int> = const 0xffff000c;
-                                ; %17: int = id %15;
-                                ; %18: ptr<int> = id %16;
-sw $8, 0($3)                    ; store %18 %17; (replaced $5 with $8)
-lis $5
-.word 61                        ; %19: int = const 61;
-lis $3
-.word 4294901772                ; %20: ptr<int> = const 0xffff000c;
-                                ; %21: int = id %19;
-                                ; %22: ptr<int> = id %20;
-sw $5, 0($3)                    ; store %22 %21;
-add $5, $8, $0
-                                ; %23: int = id %1;
-lis $3
-.word 4294901772                ; %24: ptr<int> = const 0xffff000c;
-                                ; %25: int = id %23;
-                                ; %26: ptr<int> = id %24;
-sw $8, 0($3)                    ; store %26 %25; (replaced $5 with $8)
-add $3, $9, $10                 ; %27: int = add b a;
-                                ; Generating function call: %28: int = call @print_num %27;
-                                ; 1. Save the live registers
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $12, $3, $0                 ; Copying argument from register $12 to register $3
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to print_num
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word printNumL0
-jalr $2                         ; 4. Jump to print_num
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-                                ; 7. Done with function call
-                                ; Removing locally unused write to $1
-                                ; 8. Copy return value to %28
-lis $5
-.word 10                        ; %29: int = const 10;
-lis $3
-.word 4294901772                ; %30: ptr<int> = const 0xffff000c;
-                                ; %31: int = id %29;
-                                ; %32: ptr<int> = id %30;
-sw $5, 0($3)                    ; store %32 %31;
-add $3, $0, $0                  ; %33: int = const 0;
-                                ; ret %33;
-jr $31
-                                ; Done with function wain
-                                ; Code for function print_num
+                                  ; @print_num(num: int) : int {
+                                  ;   %0: int = const 0;
+                                  ;   %1: int = const 0;
+                                  ;   %2: int = const 0;
+                                  ;   %3: int = const 10;
+                                  ;   %4: ptr<int> = alloc %3;
+                                  ;   %5: ptr<int> = id %4;
+                                  ;   %6: int = eq num %0;
+                                  ;   br %6 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %7: int = const 48;
+                                  ;   %8: ptr<int> = const 0xffff000c;
+                                  ;   %9: int = id %7;
+                                  ;   %10: ptr<int> = id %8;
+                                  ;   store %10 %9;
+                                  ;   jmp .L2;
+                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+                                  ;   %11: int = const 0;
+                                  ;   %12: int = lt num %11;
+                                  ;   br %12 .L3 .L4;
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
+                                  ;   %13: int = const 45;
+                                  ;   %14: ptr<int> = const 0xffff000c;
+                                  ;   %15: int = id %13;
+                                  ;   %16: ptr<int> = id %14;
+                                  ;   store %16 %15;
+                                  ;   %17: int = const 0;
+                                  ;   %18: int = sub %17 num;
+                                  ;   num: int = id %18;
+                                  ;   jmp .L4;
+                                  ; .L4:                                               preds = {.L2, .L3, .L5}, dominators = {.L0, .L2, .L4}
+                                  ;   %19: int = const 0;
+                                  ;   %20: int = ne num %19;
+                                  ;   br %20 .L5 .L6;
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}
+                                  ;   %21: int = id num;
+                                  ;   %22: int = const 10;
+                                  ;   %23: int = mod %21 %22;
+                                  ;   %2: int = id %23;
+                                  ;   %24: int = id %2;
+                                  ;   %25: int = const 48;
+                                  ;   %26: int = add %24 %25;
+                                  ;   %27: ptr<int> = id %5;
+                                  ;   %28: int = id %0;
+                                  ;   %29: ptr<int> = ptradd %27 %28;
+                                  ;   store %29 %26;
+                                  ;   %30: int = id %0;
+                                  ;   %31: int = const 1;
+                                  ;   %32: int = add %30 %31;
+                                  ;   %0: int = id %32;
+                                  ;   %33: int = id num;
+                                  ;   %34: int = const 10;
+                                  ;   %35: int = div %33 %34;
+                                  ;   num: int = id %35;
+                                  ;   jmp .L4;
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L6}
+                                  ;   %36: int = const 1;
+                                  ;   %37: int = sub %0 %36;
+                                  ;   %1: int = id %37;
+                                  ;   jmp .L7;
+                                  ; .L7:                                               preds = {.L6, .L8}, dominators = {.L0, .L2, .L4, .L6, .L7}
+                                  ;   %38: int = const 0;
+                                  ;   %39: int = ge %1 %38;
+                                  ;   br %39 .L8 .L9;
+                                  ; .L8:                                               preds = {.L7}, dominators = {.L0, .L2, .L4, .L6, .L7, .L8}
+                                  ;   %40: ptr<int> = id %5;
+                                  ;   %41: int = id %1;
+                                  ;   %42: ptr<int> = ptradd %40 %41;
+                                  ;   %43: int = load %42;
+                                  ;   %44: int = id %43;
+                                  ;   %45: ptr<int> = const 0xffff000c;
+                                  ;   %46: int = id %44;
+                                  ;   %47: ptr<int> = id %45;
+                                  ;   store %47 %46;
+                                  ;   %48: int = const 1;
+                                  ;   %49: int = sub %1 %48;
+                                  ;   %1: int = id %49;
+                                  ;   jmp .L7;
+                                  ; .L9:                                               preds = {.L7}, dominators = {.L0, .L2, .L4, .L6, .L7, .L9}
+                                  ;   free %5;
+                                  ;   %50: int = const 0;
+                                  ;   ret %50;
+                                  ; }
+                                  ; 
+                                  ; @wain(a: int, b: int) : int {
+                                  ;   %0: int = call @print_num a;
+                                  ;   %1: int = const 32;
+                                  ;   %2: int = const 32;
+                                  ;   %3: ptr<int> = const 0xffff000c;
+                                  ;   %4: int = id %2;
+                                  ;   %5: ptr<int> = id %3;
+                                  ;   store %5 %4;
+                                  ;   %6: int = const 43;
+                                  ;   %7: ptr<int> = const 0xffff000c;
+                                  ;   %8: int = id %6;
+                                  ;   %9: ptr<int> = id %7;
+                                  ;   store %9 %8;
+                                  ;   %10: int = id %1;
+                                  ;   %11: ptr<int> = const 0xffff000c;
+                                  ;   %12: int = id %10;
+                                  ;   %13: ptr<int> = id %11;
+                                  ;   store %13 %12;
+                                  ;   %14: int = call @print_num b;
+                                  ;   %15: int = id %1;
+                                  ;   %16: ptr<int> = const 0xffff000c;
+                                  ;   %17: int = id %15;
+                                  ;   %18: ptr<int> = id %16;
+                                  ;   store %18 %17;
+                                  ;   %19: int = const 61;
+                                  ;   %20: ptr<int> = const 0xffff000c;
+                                  ;   %21: int = id %19;
+                                  ;   %22: ptr<int> = id %20;
+                                  ;   store %22 %21;
+                                  ;   %23: int = id %1;
+                                  ;   %24: ptr<int> = const 0xffff000c;
+                                  ;   %25: int = id %23;
+                                  ;   %26: ptr<int> = id %24;
+                                  ;   store %26 %25;
+                                  ;   %27: int = add b a;
+                                  ;   %28: int = call @print_num %27;
+                                  ;   %29: int = const 10;
+                                  ;   %30: ptr<int> = const 0xffff000c;
+                                  ;   %31: int = id %29;
+                                  ;   %32: ptr<int> = id %30;
+                                  ;   store %32 %31;
+                                  ;   %33: int = const 0;
+                                  ;   ret %33;
+                                  ; }
+                                  ; 
+  .import init
+  .import new
+  .import delete
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+  add $10, $1, $0                 ; Loading argument 1 into register
+  add $9, $2, $0                  ; Loading argument 2 into register
+                                  ; Calling init
+  add $2, $0, $0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $1
+  .word init
+  jalr $1
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; Done calling init
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+                                  ; Generating function call: %0: int = call @print_num a;
+                                  ; 1. Save the live registers
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $10, -4($30)                 ;   push $10
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $12, $10, $0                ; Copying argument from register $12 to register $10
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to print_num
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word printNumL0
+  jalr $2                         ; 4. Jump to print_num
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $10
+  lw $10, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $1, $3, $0
+                                  ; 8. Copy return value to %0
+  lis $8
+  .word 32                        ; %1: int = const 32;
+  lis $5
+  .word 32                        ; %2: int = const 32;
+  lis $3
+  .word 4294901772                ; %3: ptr<int> = const 0xffff000c;
+                                  ; %4: int = id %2;
+                                  ; %5: ptr<int> = id %3;
+  sw $5, 0($3)                    ; store %5 %4;
+  lis $5
+  .word 43                        ; %6: int = const 43;
+  lis $3
+  .word 4294901772                ; %7: ptr<int> = const 0xffff000c;
+                                  ; %8: int = id %6;
+                                  ; %9: ptr<int> = id %7;
+  sw $5, 0($3)                    ; store %9 %8;
+  add $5, $8, $0
+                                  ; %10: int = id %1;
+  lis $3
+  .word 4294901772                ; %11: ptr<int> = const 0xffff000c;
+                                  ; %12: int = id %10;
+                                  ; %13: ptr<int> = id %11;
+  sw $8, 0($3)                    ; store %13 %12; (replaced $5 with $8)
+                                  ; Generating function call: %14: int = call @print_num b;
+                                  ; 1. Save the live registers
+  sw $8, -4($30)                  ;   push $8
+  sub $30, $30, $4                ;   ^
+  sw $9, -4($30)                  ;   push $9
+  sub $30, $30, $4                ;   ^
+  sw $10, -4($30)                 ;   push $10
+  sub $30, $30, $4                ;   ^
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $12, $9, $0                 ; Copying argument from register $12 to register $9
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to print_num
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word printNumL0
+  jalr $2                         ; 4. Jump to print_num
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $10
+  lw $10, -4($30)                 ;   ^
+  add $30, $30, $4                ;   pop $9
+  lw $9, -4($30)                  ;   ^
+  add $30, $30, $4                ;   pop $8
+  lw $8, -4($30)                  ;   ^
+                                  ; 7. Done with function call
+  add $1, $3, $0
+                                  ; 8. Copy return value to %14
+                                  ; Removing locally unused write to $5
+                                  ; %15: int = id %1;
+  lis $3
+  .word 4294901772                ; %16: ptr<int> = const 0xffff000c;
+                                  ; %17: int = id %15;
+                                  ; %18: ptr<int> = id %16;
+  sw $8, 0($3)                    ; store %18 %17; (replaced $5 with $8)
+  lis $5
+  .word 61                        ; %19: int = const 61;
+  lis $3
+  .word 4294901772                ; %20: ptr<int> = const 0xffff000c;
+                                  ; %21: int = id %19;
+                                  ; %22: ptr<int> = id %20;
+  sw $5, 0($3)                    ; store %22 %21;
+  add $5, $8, $0
+                                  ; %23: int = id %1;
+  lis $3
+  .word 4294901772                ; %24: ptr<int> = const 0xffff000c;
+                                  ; %25: int = id %23;
+                                  ; %26: ptr<int> = id %24;
+  sw $8, 0($3)                    ; store %26 %25; (replaced $5 with $8)
+  add $3, $9, $10                 ; %27: int = add b a;
+                                  ; Generating function call: %28: int = call @print_num %27;
+                                  ; 1. Save the live registers
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $12, $3, $0                 ; Copying argument from register $12 to register $3
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to print_num
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word printNumL0
+  jalr $2                         ; 4. Jump to print_num
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+                                  ; 7. Done with function call
+                                  ; Removing locally unused write to $1
+                                  ; 8. Copy return value to %28
+  lis $5
+  .word 10                        ; %29: int = const 10;
+  lis $3
+  .word 4294901772                ; %30: ptr<int> = const 0xffff000c;
+                                  ; %31: int = id %29;
+                                  ; %32: ptr<int> = id %30;
+  sw $5, 0($3)                    ; store %32 %31;
+  add $3, $0, $0                  ; %33: int = const 0;
+                                  ; ret %33;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function print_num
 printNumL0:
-add $10, $0, $0                 ; %0: int = const 0;
-add $8, $0, $0                  ; %1: int = const 0;
-                                ; Removing locally unused write to $3
-lis $3
-.word 10                        ; %3: int = const 10;
-add $1, $3, $0
-sw $3, -4($30)                  ;   push $3
-sub $30, $30, $4                ;   ^
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word new
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-bne $3, $0, allocSuccess0
-add $3, $11, $0
+  add $10, $0, $0                 ; %0: int = const 0;
+  add $8, $0, $0                  ; %1: int = const 0;
+                                  ; Removing locally unused write to $3
+  lis $3
+  .word 10                        ; %3: int = const 10;
+  add $1, $3, $0
+  sw $3, -4($30)                  ;   push $3
+  sub $30, $30, $4                ;   ^
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word new
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+  bne $3, $0, allocSuccess0
+  add $3, $11, $0
 allocSuccess0:
-add $30, $30, $4
-add $9, $3, $0
-                                ; %5: ptr<int> = id %4;
-slt $6, $12, $10
-slt $7, $10, $12
-add $3, $6, $7
-sub $3, $11, $3                 ; %6: int = eq num %0;
-beq $3, $0, printNumL2          ; br %6 .L1 .L2;
-                                ; jmp printNumL1; (fallthrough)
-                                ; Removed unused label printNumL1
-lis $5
-.word 48                        ; %7: int = const 48;
-lis $3
-.word 4294901772                ; %8: ptr<int> = const 0xffff000c;
-                                ; %9: int = id %7;
-                                ; %10: ptr<int> = id %8;
-sw $5, 0($3)                    ; store %10 %9;
-                                ; jmp printNumL2; (fallthrough)
+  add $30, $30, $4
+  add $9, $3, $0
+                                  ; %5: ptr<int> = id %4;
+  slt $6, $12, $10
+  slt $7, $10, $12
+  add $3, $6, $7
+  sub $3, $11, $3                 ; %6: int = eq num %0;
+  beq $3, $0, printNumL2          ; br %6 .L1 .L2;
+                                  ; jmp printNumL1; (fallthrough)
+                                  ; Removed unused label printNumL1
+  lis $5
+  .word 48                        ; %7: int = const 48;
+  lis $3
+  .word 4294901772                ; %8: ptr<int> = const 0xffff000c;
+                                  ; %9: int = id %7;
+                                  ; %10: ptr<int> = id %8;
+  sw $5, 0($3)                    ; store %10 %9;
+                                  ; jmp printNumL2; (fallthrough)
 printNumL2:
-                                ; Removing locally unused write to $3
-slt $3, $12, $0                 ; %12: int = lt num %11; (replaced $3 with $0)
-beq $3, $0, printNumL4          ; br %12 .L3 .L4;
-                                ; jmp printNumL3; (fallthrough)
-                                ; Removed unused label printNumL3
-lis $5
-.word 45                        ; %13: int = const 45;
-lis $3
-.word 4294901772                ; %14: ptr<int> = const 0xffff000c;
-                                ; %15: int = id %13;
-                                ; %16: ptr<int> = id %14;
-sw $5, 0($3)                    ; store %16 %15;
-                                ; Removing locally unused write to $3
-sub $3, $0, $12                 ; %18: int = sub %17 num; (replaced $3 with $0)
-add $12, $3, $0
-                                ; num: int = id %18;
-                                ; jmp printNumL4; (fallthrough)
+                                  ; Removing locally unused write to $3
+  slt $3, $12, $0                 ; %12: int = lt num %11; (replaced $3 with $0)
+  beq $3, $0, printNumL4          ; br %12 .L3 .L4;
+                                  ; jmp printNumL3; (fallthrough)
+                                  ; Removed unused label printNumL3
+  lis $5
+  .word 45                        ; %13: int = const 45;
+  lis $3
+  .word 4294901772                ; %14: ptr<int> = const 0xffff000c;
+                                  ; %15: int = id %13;
+                                  ; %16: ptr<int> = id %14;
+  sw $5, 0($3)                    ; store %16 %15;
+                                  ; Removing locally unused write to $3
+  sub $3, $0, $12                 ; %18: int = sub %17 num; (replaced $3 with $0)
+  add $12, $3, $0
+                                  ; num: int = id %18;
+                                  ; jmp printNumL4; (fallthrough)
 printNumL4:
-                                ; Removing locally unused write to $3
-slt $6, $12, $0                 ;  (replaced $3 with $0)
-slt $7, $0, $12                 ;  (replaced $3 with $0)
-add $3, $6, $7                  ; %20: int = ne num %19;
-beq $3, $0, printNumL6          ; br %20 .L5 .L6;
-                                ; jmp printNumL5; (fallthrough)
-                                ; Removed unused label printNumL5
-                                ; Removing locally unused write to $5
-                                ; %21: int = id num;
-lis $3
-.word 10                        ; %22: int = const 10;
-div $12, $3                     ;  (replaced $5 with $12)
-mfhi $3                         ; %23: int = mod %21 %22;
-                                ; %2: int = id %23;
-add $5, $3, $0
-                                ; %24: int = id %2;
-lis $3
-.word 48                        ; %25: int = const 48;
-add $8, $5, $3                  ; %26: int = add %24 %25;
-                                ; Removing locally unused write to $5
-                                ; %27: ptr<int> = id %5;
-                                ; Removing locally unused write to $3
-                                ; %28: int = id %0;
-mult $10, $4                    ;  (replaced $3 with $10)
-mflo $6
-add $3, $9, $6                  ;  (replaced $5 with $9)
-sw $8, 0($3)                    ; store %29 %26;
-                                ; Removing locally unused write to $5
-                                ; %30: int = id %0;
-                                ; Removing locally unused write to $3
-add $3, $10, $11                ; %32: int = add %30 %31; (replaced $5 with $10) (replaced $3 with $11)
-add $10, $3, $0
-                                ; %0: int = id %32;
-add $5, $12, $0
-                                ; %33: int = id num;
-lis $3
-.word 10                        ; %34: int = const 10;
-div $12, $3                     ;  (replaced $5 with $12)
-mflo $3                         ; %35: int = div %33 %34;
-add $12, $3, $0
-                                ; num: int = id %35;
-beq $0, $0, printNumL4          ; jmp .L4;
+                                  ; Removing locally unused write to $3
+  slt $6, $12, $0                 ;  (replaced $3 with $0)
+  slt $7, $0, $12                 ;  (replaced $3 with $0)
+  add $3, $6, $7                  ; %20: int = ne num %19;
+  beq $3, $0, printNumL6          ; br %20 .L5 .L6;
+                                  ; jmp printNumL5; (fallthrough)
+                                  ; Removed unused label printNumL5
+                                  ; Removing locally unused write to $5
+                                  ; %21: int = id num;
+  lis $3
+  .word 10                        ; %22: int = const 10;
+  div $12, $3                     ;  (replaced $5 with $12)
+  mfhi $3                         ; %23: int = mod %21 %22;
+                                  ; %2: int = id %23;
+  add $5, $3, $0
+                                  ; %24: int = id %2;
+  lis $3
+  .word 48                        ; %25: int = const 48;
+  add $8, $5, $3                  ; %26: int = add %24 %25;
+                                  ; Removing locally unused write to $5
+                                  ; %27: ptr<int> = id %5;
+                                  ; Removing locally unused write to $3
+                                  ; %28: int = id %0;
+  mult $10, $4                    ;  (replaced $3 with $10)
+  mflo $6
+  add $3, $9, $6                  ;  (replaced $5 with $9)
+  sw $8, 0($3)                    ; store %29 %26;
+                                  ; Removing locally unused write to $5
+                                  ; %30: int = id %0;
+                                  ; Removing locally unused write to $3
+  add $3, $10, $11                ; %32: int = add %30 %31; (replaced $5 with $10) (replaced $3 with $11)
+  add $10, $3, $0
+                                  ; %0: int = id %32;
+  add $5, $12, $0
+                                  ; %33: int = id num;
+  lis $3
+  .word 10                        ; %34: int = const 10;
+  div $12, $3                     ;  (replaced $5 with $12)
+  mflo $3                         ; %35: int = div %33 %34;
+  add $12, $3, $0
+                                  ; num: int = id %35;
+  beq $0, $0, printNumL4          ; jmp .L4;
 printNumL6:
-                                ; Removing locally unused write to $3
-sub $3, $10, $11                ; %37: int = sub %0 %36; (replaced $3 with $11)
-add $8, $3, $0
-                                ; %1: int = id %37;
-                                ; jmp printNumL7; (fallthrough)
+                                  ; Removing locally unused write to $3
+  sub $3, $10, $11                ; %37: int = sub %0 %36; (replaced $3 with $11)
+  add $8, $3, $0
+                                  ; %1: int = id %37;
+                                  ; jmp printNumL7; (fallthrough)
 printNumL7:
-                                ; Removing locally unused write to $3
-slt $3, $8, $0                  ;  (replaced $3 with $0)
-sub $3, $11, $3                 ; %39: int = ge %1 %38;
-beq $3, $0, printNumL9          ; br %39 .L8 .L9;
-                                ; jmp printNumL8; (fallthrough)
-                                ; Removed unused label printNumL8
-                                ; Removing locally unused write to $5
-                                ; %40: ptr<int> = id %5;
-                                ; Removing locally unused write to $3
-                                ; %41: int = id %1;
-mult $8, $4                     ;  (replaced $3 with $8)
-mflo $6
-add $3, $9, $6                  ;  (replaced $5 with $9)
-lw $3, 0($3)                    ; %43: int = load %42;
-add $5, $3, $0
-                                ; %44: int = id %43;
-lis $3
-.word 4294901772                ; %45: ptr<int> = const 0xffff000c;
-                                ; %46: int = id %44;
-                                ; %47: ptr<int> = id %45;
-sw $5, 0($3)                    ; store %47 %46;
-                                ; Removing locally unused write to $3
-sub $3, $8, $11                 ; %49: int = sub %1 %48; (replaced $3 with $11)
-add $8, $3, $0
-                                ; %1: int = id %49;
-beq $0, $0, printNumL7          ; jmp .L7;
+                                  ; Removing locally unused write to $3
+  slt $3, $8, $0                  ;  (replaced $3 with $0)
+  sub $3, $11, $3                 ; %39: int = ge %1 %38;
+  beq $3, $0, printNumL9          ; br %39 .L8 .L9;
+                                  ; jmp printNumL8; (fallthrough)
+                                  ; Removed unused label printNumL8
+                                  ; Removing locally unused write to $5
+                                  ; %40: ptr<int> = id %5;
+                                  ; Removing locally unused write to $3
+                                  ; %41: int = id %1;
+  mult $8, $4                     ;  (replaced $3 with $8)
+  mflo $6
+  add $3, $9, $6                  ;  (replaced $5 with $9)
+  lw $3, 0($3)                    ; %43: int = load %42;
+  add $5, $3, $0
+                                  ; %44: int = id %43;
+  lis $3
+  .word 4294901772                ; %45: ptr<int> = const 0xffff000c;
+                                  ; %46: int = id %44;
+                                  ; %47: ptr<int> = id %45;
+  sw $5, 0($3)                    ; store %47 %46;
+                                  ; Removing locally unused write to $3
+  sub $3, $8, $11                 ; %49: int = sub %1 %48; (replaced $3 with $11)
+  add $8, $3, $0
+                                  ; %1: int = id %49;
+  beq $0, $0, printNumL7          ; jmp .L7;
 printNumL9:
-add $1, $9, $0
-beq $1, $11, deleteSkip0
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word delete
-jalr $2
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
+  add $1, $9, $0
+  beq $1, $11, deleteSkip0
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word delete
+  jalr $2
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
 deleteSkip0:
-add $3, $0, $0                  ; %50: int = const 0;
-                                ; ret %50;
-jr $31
-                                ; Done with function print_num
-                                ; Number of instructions: 209
+  add $3, $0, $0                  ; %50: int = const 0;
+                                  ; ret %50;
+  jr $31
+                                  ; Done with function print_num
+                                  ; Number of instructions: 209

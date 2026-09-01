@@ -1,103 +1,103 @@
-                                ; @odd_part(n: int) : int {
-                                ;   %0: int = const 2;
-                                ;   %1: int = mod n %0;
-                                ;   %2: int = const 0;
-                                ;   %3: int = eq %1 %2;
-                                ;   %4: int = id n;
-                                ;   br %3 .L1 .L2;
-                                ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
-                                ;   %5: int = div n %0;
-                                ;   %6: int = call @odd_part %5;
-                                ;   %4: int = id %6;
-                                ;   jmp .L2;
-                                ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
-                                ;   ret %4;
-                                ; }
-                                ; 
-                                ; @wain(n: int, unused: int) : int {
-                                ;   %0: int = call @odd_part n;
-                                ;   ret %0;
-                                ; }
-                                ; 
-lis $4
-.word 4
-slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
-sub $29, $30, $4                ; Initializing base pointer
-                                ; Removing locally unused write to $3
-add $3, $2, $0                  ; Loading argument 2 into register
-                                ; jmp wainL0; (fallthrough)
-                                ; Code for function wain
-                                ; Removed unused label wainL0
-                                ; Generating function call: %0: int = call @odd_part n;
-                                ; 1. Save the live registers
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $9, $2, $0                  ; Copying argument from register $9 to register $3 (replaced $3 with $2)
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to odd_part
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word oddPartL0
-jalr $2                         ; 4. Jump to odd_part
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %0
-                                ; ret %0;
-jr $31
-                                ; Done with function wain
-                                ; Code for function odd_part
+                                  ; @odd_part(n: int) : int {
+                                  ;   %0: int = const 2;
+                                  ;   %1: int = mod n %0;
+                                  ;   %2: int = const 0;
+                                  ;   %3: int = eq %1 %2;
+                                  ;   %4: int = id n;
+                                  ;   br %3 .L1 .L2;
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ;   %5: int = div n %0;
+                                  ;   %6: int = call @odd_part %5;
+                                  ;   %4: int = id %6;
+                                  ;   jmp .L2;
+                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+                                  ;   ret %4;
+                                  ; }
+                                  ; 
+                                  ; @wain(n: int, unused: int) : int {
+                                  ;   %0: int = call @odd_part n;
+                                  ;   ret %0;
+                                  ; }
+                                  ; 
+  lis $4
+  .word 4
+  slt $11, $0, $4                 ; $11 = ($0 < $4) = 1
+  sub $29, $30, $4                ; Initializing base pointer
+                                  ; Removing locally unused write to $3
+  add $3, $2, $0                  ; Loading argument 2 into register
+                                  ; jmp wainL0; (fallthrough)
+                                  ; Code for function wain
+                                  ; Removed unused label wainL0
+                                  ; Generating function call: %0: int = call @odd_part n;
+                                  ; 1. Save the live registers
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $9, $2, $0                  ; Copying argument from register $9 to register $3 (replaced $3 with $2)
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to odd_part
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word oddPartL0
+  jalr $2                         ; 4. Jump to odd_part
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %0
+                                  ; ret %0;
+  jr $31
+                                  ; Done with function wain
+                                  ; Code for function odd_part
 oddPartL0:
-add $8, $11, $11                ; %0: int = const 2;
-div $9, $8
-mfhi $5                         ; %1: int = mod n %0;
-                                ; Removing locally unused write to $3
-slt $6, $5, $0                  ;  (replaced $3 with $0)
-slt $7, $0, $5                  ;  (replaced $3 with $0)
-add $5, $6, $7
-sub $5, $11, $5                 ; %3: int = eq %1 %2;
-add $3, $9, $0
-                                ; %4: int = id n;
-beq $5, $0, oddPartL2           ; br %3 .L1 .L2;
-                                ; jmp oddPartL1; (fallthrough)
-                                ; Removed unused label oddPartL1
-div $9, $8
-mflo $3                         ; %5: int = div n %0;
-                                ; Generating function call: %6: int = call @odd_part %5;
-                                ; 1. Save the live registers
-sw $29, -4($30)                 ;   push $29
-sub $30, $30, $4                ;   ^
-sub $30, $30, $4                ; 2. Obtain the new base pointer
-                                ; Copying arguments
-add $9, $3, $0                  ; Copying argument from register $9 to register $3
-add $29, $30, $0
-add $30, $30, $4
-                                ; 3. Done copying arguments to odd_part
-sw $31, -4($30)                 ;   push $31
-sub $30, $30, $4                ;   ^
-lis $2
-.word oddPartL0
-jalr $2                         ; 4. Jump to odd_part
-add $30, $30, $4                ;   pop $31
-lw $31, -4($30)                 ;   ^
-                                ; 5. Restore the stack pointer
-                                ; 6. Pop the saved registers off the stack
-add $30, $30, $4                ;   pop $29
-lw $29, -4($30)                 ;   ^
-                                ; 7. Done with function call
-                                ; 8. Copy return value to %6
-                                ; %4: int = id %6;
-                                ; jmp oddPartL2; (fallthrough)
+  add $8, $11, $11                ; %0: int = const 2;
+  div $9, $8
+  mfhi $5                         ; %1: int = mod n %0;
+                                  ; Removing locally unused write to $3
+  slt $6, $5, $0                  ;  (replaced $3 with $0)
+  slt $7, $0, $5                  ;  (replaced $3 with $0)
+  add $5, $6, $7
+  sub $5, $11, $5                 ; %3: int = eq %1 %2;
+  add $3, $9, $0
+                                  ; %4: int = id n;
+  beq $5, $0, oddPartL2           ; br %3 .L1 .L2;
+                                  ; jmp oddPartL1; (fallthrough)
+                                  ; Removed unused label oddPartL1
+  div $9, $8
+  mflo $3                         ; %5: int = div n %0;
+                                  ; Generating function call: %6: int = call @odd_part %5;
+                                  ; 1. Save the live registers
+  sw $29, -4($30)                 ;   push $29
+  sub $30, $30, $4                ;   ^
+  sub $30, $30, $4                ; 2. Obtain the new base pointer
+                                  ; Copying arguments
+  add $9, $3, $0                  ; Copying argument from register $9 to register $3
+  add $29, $30, $0
+  add $30, $30, $4
+                                  ; 3. Done copying arguments to odd_part
+  sw $31, -4($30)                 ;   push $31
+  sub $30, $30, $4                ;   ^
+  lis $2
+  .word oddPartL0
+  jalr $2                         ; 4. Jump to odd_part
+  add $30, $30, $4                ;   pop $31
+  lw $31, -4($30)                 ;   ^
+                                  ; 5. Restore the stack pointer
+                                  ; 6. Pop the saved registers off the stack
+  add $30, $30, $4                ;   pop $29
+  lw $29, -4($30)                 ;   ^
+                                  ; 7. Done with function call
+                                  ; 8. Copy return value to %6
+                                  ; %4: int = id %6;
+                                  ; jmp oddPartL2; (fallthrough)
 oddPartL2:
-                                ; ret %4;
-jr $31
-                                ; Done with function odd_part
-                                ; Number of instructions: 48
+                                  ; ret %4;
+  jr $31
+                                  ; Done with function odd_part
+                                  ; Number of instructions: 48
