@@ -44,7 +44,7 @@ CASES_DIR = REPO_ROOT / "tests"
 CATEGORIES = ["unit", "benchmarks", "broken"]
 
 DEFAULT_STDIN = b"5 10\n"
-DEFAULT_TIMEOUT = 15.0
+DEFAULT_TIMEOUT = 3.0
 
 
 @dataclasses.dataclass(frozen=True)
