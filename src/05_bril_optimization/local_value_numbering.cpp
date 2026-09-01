@@ -53,9 +53,9 @@ LocalValueTable::fold_constants(const LocalValueNumber &value) const {
     return std::nullopt;
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
-      // Add/Sub/Mul wrap mod 2^32 by design (matches real MIPS arithmetic,
-      // see references/lexical_syntax.txt) -- done via unsigned, since
-      // signed overflow is UB in C++ even though it wraps in practice.
+      // Signed overflow is UB (references/spec.txt); still needs *some*
+      // fixed value when folding one, so: unsigned-cast wraparound, since
+      // plain signed overflow is UB in our own C++ too.
       std::make_pair(Opcode::Add,
                      [](int a, int b) {
                        return static_cast<int>(static_cast<unsigned>(a) +

@@ -127,8 +127,10 @@ def compile_and_run(source: str) -> int:
         directory = pathlib.Path(directory_str)
         binary = directory / "a.out"
 
+        # -O2: signed overflow is UB here too (references/spec.txt); -O0
+        # mostly doesn't exploit that, masking the difference.
         compile_result = subprocess.run(
-            ["g++", "-xc++", "-", "-o", str(binary)],
+            ["g++", "-O2", "-xc++", "-", "-o", str(binary)],
             input=source, text=True, check=False,
         )
         if compile_result.returncode != 0:

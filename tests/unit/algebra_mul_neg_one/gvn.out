@@ -1,0 +1,6 @@
+@wain(a: int, b: int) : int {
+  _t0.0: int = const 0;
+  _t6.0: int = sub _t0.0 a;
+  ret _t6.0;
+}
+

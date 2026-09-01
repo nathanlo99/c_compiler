@@ -74,6 +74,41 @@ bril::Program get_optimized_bril_from_file(const std::string &filename) {
   return bril_program;
 }
 
+// Same as get_optimized_bril_from_file, but stops right after the SSA-form
+// optimization pass -- no convert_from_ssa, no post-unSSA cleanup pass, no
+// call-graph optimization. Lets tests see the fully-optimized program while
+// it's still real SSA (phis and all), not the copy-inserted, phi-lowered
+// form "optimized" prints.
+bril::Program get_ssa_optimized_bril_from_file(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
+  run_optimization_passes(bril_program);
+  bril_program.convert_to_ssa();
+  run_optimization_passes(bril_program);
+  bril_program.for_each_function(bril::canonicalize_names);
+  return bril_program;
+}
+
+void run_ssa_optimizations(const std::string &filename) {
+  get_ssa_optimized_bril_from_file(filename).print_flattened(std::cout);
+}
+
+// SSA conversion + a single GVN pass, nothing else (well, plus local dead
+// assignment removal so the output isn't drowned in pre-optimization dead
+// code -- no LVN/mem2reg fixpoint). Deliberately NOT canonicalize_names:
+// that renames everything to a uniform %N scheme, which erases exactly what
+// this stage exists to show -- whether a rewrite reused an existing name
+// (dedup) or minted a fresh `gvn_N` (verified: with it, both cases print
+// identically).
+void run_gvn_only(const std::string &filename) {
+  auto bril_program = get_bril_from_file(filename);
+  bril_program.convert_to_ssa();
+  bril_program.apply_local_pass(bril::remove_local_unused_assignments);
+  bril_program.apply_global_pass(bril::global_value_numbering);
+  while (bril_program.apply_local_pass(bril::remove_local_unused_assignments) > 0)
+    ;
+  bril_program.print_flattened(std::cout);
+}
+
 void lex(const std::string &filename) {
   const std::vector<Token> token_stream = Lexer(filename).token_stream();
   for (const auto &token : token_stream) {
@@ -435,6 +470,8 @@ const static std::vector<
         {"--round-trip-interpret", round_trip_interpret},
         {"--emit-c", emit_c},
         {"--ssa", to_ssa},
+        {"--optimized-ssa", run_ssa_optimizations},
+        {"--gvn-only", run_gvn_only},
         {"--ssa-round-trip", ssa_round_trip},
         {"--run-optimization", run_optimization},
         {"--run-optimizations", run_optimization},

@@ -61,6 +61,15 @@ class Stage:
 # optimizer/codegen work this suite tracks (see references/TODO.md) is
 # about "optimized" and "mips", not the raw pre-optimization IR.
 STAGES: list[Stage] = [
+    # Narrow slice (SSA + local DCE + a single GVN pass, nothing else) for
+    # pinning down GVN's own output -- e.g. which of its rewrites synthesize
+    # a fresh `gvn_N` vs. dedup into something that already existed. Not in
+    # DEFAULT_STAGE_NAMES; opt in with `// test phases: gvn, ...`.
+    Stage("gvn", "--gvn-only"),
+    # Fully optimized, but still real SSA (phis and all) -- "optimized" runs
+    # convert_from_ssa first, so it never shows phis. Not in
+    # DEFAULT_STAGE_NAMES; opt in with `// test phases: ssa, ...`.
+    Stage("ssa", "--optimized-ssa"),
     Stage("optimized", "--run-optimizations"),
     Stage("mips", "--emit-mips"),
     Stage("interpret", "--interpret", needs_stdin=True),

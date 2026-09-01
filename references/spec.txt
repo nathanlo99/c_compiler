@@ -44,7 +44,9 @@ exactly) and expected to behave identically. Failed `new` returns NULL
 pointer *value* (e.g. `array + 241` past the array's end) is well-defined
 (same as any in-bounds pointer expression) but *dereferencing* one is
 undefined, same as C++. Anything else undefined in C++ is undefined here
-too.
+too -- notably signed overflow: the optimizer may assume it never happens,
+same as a real C compiler (tests/ground_truth.py compiles with `-O2` so it
+actually does too, not `-O0`'s incidental wraparound).
 
 == Confirmed extensions over canonical WLP4 (verified against source) ==
 

@@ -90,9 +90,9 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     // 3. Interpret the instruction
     const std::string destination = instruction.destination;
     switch (instruction.opcode) {
-    // Add/Sub/Mul wrap mod 2^32 by design (real MIPS arithmetic) -- done
-    // via unsigned, since signed overflow is UB in C++ even though it
-    // wraps in practice.
+    // Simulates real MIPS registers, which just wrap (UB is a source-level
+    // concept, references/spec.txt). Unsigned-cast wraparound since plain
+    // signed overflow is UB in our own C++ too.
     case Opcode::Add: {
       const int lhs = context.get_int(instruction.arguments[0]);
       const int rhs = context.get_int(instruction.arguments[1]);

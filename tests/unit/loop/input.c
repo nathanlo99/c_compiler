@@ -1,4 +1,4 @@
-
+// test phases: ssa, optimized, mips, interpret
 int wain(int a, int b) {
   int x = 0;
   int i = 0;

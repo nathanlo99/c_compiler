@@ -66,6 +66,10 @@ struct GVNValue {
 
   bool operator==(const GVNValue &other) const = default;
 
+  bool is_constant(const int expected) const {
+    return opcode == Opcode::Const && value == expected;
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const GVNValue &value) {
     using util::operator<<;
     os << "GVNValue(" << value.opcode;
@@ -79,6 +83,15 @@ struct GVNValue {
     }
     return os;
   }
+};
+
+// A variable's resolved value number, bundled with the two things almost
+// every caller immediately looks up from it -- avoids the
+// query-then-index-twice pattern.
+struct GVNRef {
+  size_t idx;
+  const GVNValue &value;
+  const std::string &canonical_name;
 };
 
 struct GVNTable {
@@ -116,10 +129,39 @@ struct GVNTable {
                                           const size_t rhs) const;
   GVNValue simplify(const GVNValue &value) const;
 
-  size_t query_variable(const std::string &variable) const {
+  // For rules whose result needs a subexpression that may not exist in the
+  // table yet (e.g. `x * -1 == 0 - x` needs a `0`). Returns nullopt if no
+  // such rule applies to `instruction`. On success, returns >=1 equivalent
+  // instructions to run through the normal value-numbering pipeline in
+  // order: any but the last use disposable placeholder names (only used to
+  // wire up references *within* this list -- the caller assigns their real,
+  // interned names); the last reuses `instruction.destination` once the
+  // caller overwrites it, exactly like an ordinary rewrite.
+  std::optional<std::vector<Instruction>>
+  simplify_with_synthesis(const Instruction &instruction) const;
+
+  // Resolves a binary instruction's two operands, reordered (for a
+  // commutative opcode) so the less complex one is second -- same
+  // convention simplify_binary assumes ("rhs is always the less complex
+  // one"), computed here since simplify_with_synthesis runs before
+  // simplify() would otherwise establish it. GVNRef has reference members
+  // (not assignable), hence returning the already-decided pair directly
+  // rather than swapping in place.
+  std::pair<GVNRef, GVNRef>
+  sort_commutative_operands(const Instruction &instruction) const {
+    const GVNRef lhs = query_variable(instruction.arguments[0]);
+    const GVNRef rhs = query_variable(instruction.arguments[1]);
+    if (is_commutative(instruction.opcode) &&
+        get_complexity_key(lhs.idx) < get_complexity_key(rhs.idx))
+      return {rhs, lhs};
+    return {lhs, rhs};
+  }
+
+  GVNRef query_variable(const std::string &variable) const {
     debug_assert(variable_to_value_number.contains(variable),
                  "Variable {} not found in GVNTable", variable);
-    return variable_to_value_number.at(variable);
+    const size_t idx = variable_to_value_number.at(variable);
+    return GVNRef{idx, expressions[idx], canonical_variables[idx]};
   }
 
   Instruction value_to_instruction(const std::string &destination,
@@ -143,19 +185,25 @@ struct GVNTable {
     return NOT_FOUND;
   }
 
-  size_t query_or_insert(const std::string &destination,
-                         const GVNValue &value) {
+  // Second element: true iff `value` was genuinely new (didn't already
+  // exist in the table). Callers must use this to decide whether to emit a
+  // copy vs. materialize `value` -- NOT `index == expressions.size() - 1`,
+  // which looks like the same thing but silently breaks whenever the
+  // *found* entry already happens to be the last one in the table (e.g.
+  // any `dest = id src` right after `src`'s own defining instruction).
+  std::pair<size_t, bool> query_or_insert(const std::string &destination,
+                                          const GVNValue &value) {
     const size_t present_idx = query(value);
     if (present_idx != NOT_FOUND) {
       variable_to_value_number[destination] = present_idx;
-      return present_idx;
+      return {present_idx, false};
     }
 
     const size_t idx = expressions.size();
     expressions.push_back(value);
     canonical_variables.push_back(destination);
     variable_to_value_number[destination] = idx;
-    return idx;
+    return {idx, true};
   }
 };
 

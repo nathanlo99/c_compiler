@@ -1,3 +1,3 @@
-// test phases: optimized, interpret
-// 2 * a == a + a (TODO.md item 3: strength reduction not implemented)
+// test phases: gvn, optimized, interpret
+// 2 * a == a + a (was TODO.md: gvn_strength_reduction)
 int wain(int a, int b) { return 2 * a; }

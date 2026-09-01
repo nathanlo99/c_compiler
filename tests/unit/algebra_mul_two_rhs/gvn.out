@@ -1,0 +1,5 @@
+@wain(a: int, b: int) : int {
+  _t2.0: int = add a a;
+  ret _t2.0;
+}
+

@@ -17,14 +17,14 @@ risk even though today's behavior is safe (noted inline).
 | ✅ | `rig_unused_args` | QoL | trivial — **DONE** |
 | ✅ | `debug_release_builds` | QoL | small — **DONE** |
 | ✅ | `gvn_cancel_operand` | QoL | trivial — **DONE** |
-| 1 | `gvn_strength_reduction` | QoL | trivial |
-| 2 | `dead_alloc_elim` | QoL | trivial |
+| ✅ | `gvn_strength_reduction` | QoL | trivial — **DONE** |
+| 1 | `dead_alloc_elim` | QoL | trivial |
 | 3 | `lvn_fold_zero_add` | QoL | trivial |
 | 4 | `static_const_opcode_tables` | QoL | trivial |
 | 5 | `fix_log_macro` | QoL | trivial |
 | 6 | `remove_bad_dump` | QoL | trivial |
-| 7 | `gvn_negate_via_sub` | QoL | small |
-| 8 | `reassociation` | QoL | small |
+| ✅ | `gvn_negate_via_sub` | QoL | small — **DONE** |
+| 7 | `reassociation` | QoL | small |
 | 9 | `lvn_memory_bailout` | QoL | small |
 | 10 | `should_inline_or_and` | QoL | small |
 | 11 | `word_size_constant` | QoL | small |
@@ -70,7 +70,7 @@ flowchart TD
         rig_unused_args["rig_unused_args ✅"]
         debug_release_builds["debug_release_builds ✅"]
         gvn_cancel_operand["gvn_cancel_operand ✅"]
-        gvn_strength_reduction
+        gvn_strength_reduction["gvn_strength_reduction ✅"]
         dead_alloc_elim
         lvn_fold_zero_add
         static_const_opcode_tables
@@ -79,7 +79,7 @@ flowchart TD
     end
 
     subgraph gvncore["GVN core / hygiene"]
-        gvn_negate_via_sub
+        gvn_negate_via_sub["gvn_negate_via_sub ✅"]
         reassociation
         naive_mips_fate
         scoped_table_utility
@@ -153,11 +153,11 @@ flowchart TD
     persistent_value_graph -.would also address.-> worklist_fixpoint
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
-    class gvn_strength_reduction,dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class gvn_negate_via_sub,reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
+    class dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
+    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
     class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support medium
     class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,worklist_fixpoint hard
-    class rig_unused_args,debug_release_builds,gvn_cancel_operand done
+    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -186,21 +186,18 @@ cpp:58` location instead of a bare SIGSEGV.
 OP' b -> a` and `(a * b) % b == 0` rules; now also checks `arguments[0]`
 when the inner op is commutative.
 
-## `gvn_strength_reduction` — Implement `x*2 == x+x`
-**[QoL · trivial]**
-`global_value_numbering.cpp:151` comments this, never implements it. Just
-references the existing operand's index twice, no new expression needed.
-Repro: [`tests/unit/algebra_mul_two_rhs`](../tests/unit/algebra_mul_two_rhs/input.c),
-[`algebra_mul_two_lhs`](../tests/unit/algebra_mul_two_lhs/input.c).
+## `gvn_strength_reduction` — ~~Implement `x*2 == x+x`~~ ✅ Done
+**[QoL · trivial] · DONE**
+One line in `simplify_binary`, no new machinery needed.
 
-## `gvn_negate_via_sub` — Implement `x*-1 == 0-x`
-**[QoL · small]**
-Split from `gvn_strength_reduction`: unlike `x*2==x+x`, this needs a
-constant `0` value-number that may not already exist in the table.
-`simplify_binary`/`simplify`/`create_value` are all `const` -- none of them
-can insert a new expression today. Needs that capability first (useful
-beyond this one rule).
-Repro: [`tests/unit/algebra_mul_neg_one`](../tests/unit/algebra_mul_neg_one/input.c).
+## `gvn_negate_via_sub` — ~~Implement `x*-1 == 0-x`~~ ✅ Done
+**[QoL · small] · DONE**
+Added `GVNTable::simplify_with_synthesis`: still `const`, returns a small
+instruction list with placeholder names instead of one `GVNValue`; the
+caller (now index-based, so it can splice) dedups or mints a fresh `gvn_N`
+per item. General capability, reusable by future rules. Also added
+`--gvn-only` (SSA + local DCE + one GVN pass, no `canonicalize_names`) as a
+`gvn` test phase, to make dedup-vs-synthesize visible in goldens.
 
 ## `dead_alloc_elim` — Delete dead allocations
 **[QoL · trivial]**

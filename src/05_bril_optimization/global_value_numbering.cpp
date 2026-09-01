@@ -11,7 +11,7 @@ GVNValue GVNTable::create_value(const Instruction &instruction) const {
   std::vector<size_t> arguments;
   arguments.reserve(instruction.arguments.size());
   for (const auto &argument : instruction.arguments) {
-    arguments.push_back(query_variable(argument));
+    arguments.push_back(query_variable(argument).idx);
   }
   const auto value = GVNValue(instruction.opcode, arguments, instruction.labels,
                               instruction.type);
@@ -47,9 +47,9 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
   // Constant folding
   using BinaryFunc = std::function<std::optional<int>(int, int)>;
   const std::unordered_map<Opcode, BinaryFunc> foldable_ops = {
-      // Add/Sub/Mul wrap mod 2^32 by design (matches real MIPS arithmetic,
-      // see references/lexical_syntax.txt) -- done via unsigned, since
-      // signed overflow is UB in C++ even though it wraps in practice.
+      // Signed overflow is UB (references/spec.txt); still needs *some*
+      // fixed value when folding one, so: unsigned-cast wraparound, since
+      // plain signed overflow is UB in our own C++ too.
       std::make_pair(Opcode::Add,
                      [](int a, int b) {
                        return static_cast<int>(static_cast<unsigned>(a) +
@@ -144,12 +144,24 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
       return GVNValue(0, type);
     }
 
+    // (x + x) / 2 == x, (x + x) % 2 == 0 -- recovers the multiplicative
+    // structure the x*2==x+x rewrite below already erased. Without this,
+    // `b*2/2` folds to `b+b` then gets stuck: the two rules never see each
+    // other, since by the time this division is simplified, `b*2` has
+    // already been permanently rewritten to `b+b` wherever it was computed.
+    if (rhs_is_const && rhs_integer == 2 && lhs_value.opcode == Opcode::Add &&
+        lhs_value.arguments[0] == lhs_value.arguments[1]) {
+      if (opcode == Opcode::Div)
+        return expressions[lhs_value.arguments[0]];
+      if (opcode == Opcode::Mod)
+        return GVNValue(0, type);
+    }
+
     // x + 0 == x
     // x - 0 == x
     // x * 0 == 0
     // x * 1 == x
     // x * 2 == x + x
-    // x * -1 == 0 - x (TODO)
     // x / 1 == x
     // x % 1 == 0
     if (rhs_is_const) {
@@ -161,6 +173,8 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
         return GVNValue(0, type);
       if (rhs_integer == 1 && opcode == Opcode::Mul)
         return lhs_value;
+      if (rhs_integer == 2 && opcode == Opcode::Mul)
+        return GVNValue(Opcode::Add, {lhs_idx, lhs_idx}, {}, type);
       if (rhs_integer == 1 && opcode == Opcode::Div)
         return lhs_value;
       if (rhs_integer == 1 && opcode == Opcode::Mod)
@@ -214,6 +228,29 @@ GVNValue GVNTable::simplify(const GVNValue &value) const {
 
     return result;
   } while (true);
+}
+
+std::optional<std::vector<Instruction>>
+GVNTable::simplify_with_synthesis(const Instruction &instruction) const {
+  // x * -1 == 0 - x
+  if (instruction.opcode != Opcode::Mul)
+    return std::nullopt;
+  debug_assert(instruction.arguments.size() == 2, "Mul expects 2 arguments");
+
+  // Canonicalized, so rhs is always the -1 if either operand is (matches
+  // simplify_binary's own convention). all-constant case (rhs is -1 *and*
+  // lhs is also const) is excluded -- let simplify_binary fold that
+  // directly instead of routing it through here.
+  const auto [lhs, rhs] = sort_commutative_operands(instruction);
+  if (lhs.value.opcode == Opcode::Const || !rhs.value.is_constant(-1))
+    return std::nullopt;
+
+  // Placeholder names, wired up within this list only -- the caller assigns
+  // real (interned) names before anything is written to the block.
+  return std::vector<Instruction>{
+      Instruction::constant("_gvn0", 0, instruction.type),
+      Instruction::sub("_gvn1", "_gvn0", lhs.canonical_name),
+  };
 }
 
 struct GVNPhiValue {
@@ -284,52 +321,104 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
         Instruction::id(destination, canonical_variable, instruction.type);
   }
 
-  for (auto &instruction : block.instructions) {
+  for (size_t i = 0; i < block.instructions.size(); ++i) {
+    // Copy, not reference: synthesis below may insert into block.instructions
+    // ahead of this position, which can reallocate and invalidate a
+    // reference obtained before that happened.
+    Instruction instruction = block.instructions[i];
     const auto destination = instruction.destination;
     if (instruction.opcode == Opcode::Phi)
       continue;
 
     if (instruction.opcode == Opcode::Call) {
       for (auto &argument : instruction.arguments) {
-        argument = table.canonical_variables[table.query_variable(argument)];
+        argument = table.query_variable(argument).canonical_name;
       }
       table.insert_axiom(destination, instruction.type);
+      block.instructions[i] = instruction;
       continue;
     }
 
     if (destination == "") {
       // This is a pure instruction, so just canonicalize the arguments
       for (auto &argument : instruction.arguments) {
-        argument = table.canonical_variables[table.query_variable(argument)];
+        argument = table.query_variable(argument).canonical_name;
       }
 
       if (instruction.opcode == Opcode::Br) {
-        const auto &cond_expr =
-            table.expressions[table.query_variable(instruction.arguments[0])];
-        if (cond_expr.opcode != Opcode::Const)
-          continue;
-        const bool cond = cond_expr.value != 0;
-        const auto &target = instruction.labels[cond ? 0 : 1];
-        instruction = Instruction::jmp(target);
-        function.is_graph_dirty = true;
+        const auto &cond_expr = table.query_variable(instruction.arguments[0]).value;
+        if (cond_expr.opcode == Opcode::Const) {
+          const bool cond = cond_expr.value != 0;
+          const auto &target = instruction.labels[cond ? 0 : 1];
+          instruction = Instruction::jmp(target);
+          function.is_graph_dirty = true;
+        }
       }
 
+      block.instructions[i] = instruction;
+      continue;
+    }
+
+    if (const auto synthesized = table.simplify_with_synthesis(instruction);
+        synthesized.has_value()) {
+      // Feed each synthesized instruction through the same value-numbering
+      // pipeline as any real instruction, substituting this rewrite's own
+      // placeholder names for their real (interned or freshly-materialized)
+      // ones as we go.
+      std::unordered_map<std::string, std::string> local_rename;
+      const auto &candidates = synthesized.value();
+      for (size_t k = 0; k < candidates.size(); ++k) {
+        Instruction candidate = candidates[k];
+        for (auto &argument : candidate.arguments) {
+          if (const auto it = local_rename.find(argument);
+              it != local_rename.end())
+            argument = it->second;
+        }
+
+        const bool is_last = (k + 1 == candidates.size());
+        if (!is_last) {
+          const auto value = table.create_value(candidate);
+          const size_t existing = table.query(value);
+          if (existing != GVNTable::NOT_FOUND) {
+            local_rename[candidate.destination] =
+                table.canonical_variables[existing];
+            continue; // dedup hit -- nothing to materialize
+          }
+          const std::string real_name =
+              fmt::format("gvn_{}", table.expressions.size());
+          table.query_or_insert(real_name, value);
+          local_rename[candidate.destination] = real_name;
+          candidate.destination = real_name;
+          block.instructions.insert(block.instructions.begin() + i, candidate);
+          ++i;
+        } else {
+          candidate.destination = destination; // always the original name
+          const auto value = table.create_value(candidate);
+          const auto [value_number, is_new] = table.query_or_insert(destination, value);
+          if (!is_new) {
+            block.instructions[i] = Instruction::id(
+                destination, table.canonical_variables[value_number],
+                candidate.type);
+          } else {
+            block.instructions[i] = table.value_to_instruction(destination, value);
+          }
+        }
+      }
       continue;
     }
 
     const auto value = table.create_value(instruction);
-    const size_t value_number = table.query_or_insert(destination, value);
-    // std::cerr << "Value number for " << destination << " with value " <<
-    // value << " is " << value_number << std::endl;
+    const auto [value_number, is_new] = table.query_or_insert(destination, value);
 
     // If the value was already present, replace it with a copy
-    if (value_number != table.expressions.size() - 1) {
+    if (!is_new) {
       instruction =
           Instruction::id(destination, table.canonical_variables[value_number],
                           instruction.type);
     } else {
       instruction = table.value_to_instruction(destination, value);
     }
+    block.instructions[i] = instruction;
   }
 
   for (const auto &successor : block.outgoing_blocks) {
@@ -343,8 +432,7 @@ void GlobalValueNumberingPass::process_block(const std::string &label) {
         continue;
       const size_t idx = it - phi_instruction.labels.begin();
       const auto argument = phi_instruction.arguments[idx];
-      const auto value_number = table.query_variable(argument);
-      phi_instruction.arguments[idx] = table.canonical_variables[value_number];
+      phi_instruction.arguments[idx] = table.query_variable(argument).canonical_name;
     }
   }
 

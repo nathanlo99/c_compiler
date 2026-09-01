@@ -19,12 +19,11 @@
                                 ;   %8: int = id %10;
                                 ;   jmp .L4;
                                 ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L1, .L2, .L4}
-                                ;   %11: int = const 2;
-                                ;   %12: int = mul %8 %11;
-                                ;   %13: int = const 1;
-                                ;   %14: int = add %3 %13;
-                                ;   %0: int = id %12;
-                                ;   %1: int = id %14;
+                                ;   %11: int = add %8 %8;
+                                ;   %12: int = const 1;
+                                ;   %13: int = add %3 %12;
+                                ;   %0: int = id %11;
+                                ;   %1: int = id %13;
                                 ;   jmp .L1;
                                 ; .L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}
                                 ;   ret %2;
@@ -65,19 +64,17 @@ add $3, $9, $11                 ; %10: int = add %2 %9; (replaced $3 with $11)
                                 ; %8: int = id %10;
                                 ; jmp wainL4; (fallthrough)
 wainL4:
-add $5, $11, $11                ; %11: int = const 2;
-mult $3, $5
-mflo $5                         ; %12: int = mul %8 %11;
+add $5, $3, $3                  ; %11: int = add %8 %8;
                                 ; Removing locally unused write to $3
-add $3, $8, $11                 ; %14: int = add %3 %13; (replaced $3 with $11)
+add $3, $8, $11                 ; %13: int = add %3 %12; (replaced $3 with $11)
 add $8, $5, $0
-                                ; %0: int = id %12;
+                                ; %0: int = id %11;
 add $5, $3, $0
-                                ; %1: int = id %14;
+                                ; %1: int = id %13;
 beq $0, $0, wainL1              ; jmp .L1;
 wainL5:
 add $3, $9, $0
                                 ; ret %2;
 jr $31
                                 ; Done with function wain
-                                ; Number of instructions: 26
+                                ; Number of instructions: 24
