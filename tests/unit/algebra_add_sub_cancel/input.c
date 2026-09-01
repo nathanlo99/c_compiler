@@ -1,3 +1,3 @@
 // test phases: optimized, interpret
-// a + b - b == a (TODO.md item 2: GVN inverse-cancellation operand-order bug)
+// a + b - b == a (was TODO.md: gvn_cancel_operand)
 int wain(int a, int b) { return a + b - b; }

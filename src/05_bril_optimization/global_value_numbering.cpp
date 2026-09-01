@@ -131,11 +131,16 @@ std::optional<GVNValue> GVNTable::simplify_binary(const Type type,
           lhs_value.arguments[1] == rhs_idx) {
         return expressions[lhs_value.arguments[0]];
       }
+      // (b OP a) OP' b --> a      if OP is also commutative
+      if (is_commutative(reverse_opcode) && lhs_value.opcode == reverse_opcode &&
+          lhs_value.arguments[0] == rhs_idx) {
+        return expressions[lhs_value.arguments[1]];
+      }
     }
 
     // (a * b) % b == 0
     if (opcode == Opcode::Mod && lhs_value.opcode == Opcode::Mul &&
-        lhs_value.arguments[1] == rhs_idx) {
+        (lhs_value.arguments[1] == rhs_idx || lhs_value.arguments[0] == rhs_idx)) {
       return GVNValue(0, type);
     }
 

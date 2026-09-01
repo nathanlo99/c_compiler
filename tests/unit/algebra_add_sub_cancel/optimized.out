@@ -1,6 +1,4 @@
 @wain(a: int, b: int) : int {
-  %0: int = add b a;
-  %1: int = sub %0 b;
-  ret %1;
+  ret a;
 }
 

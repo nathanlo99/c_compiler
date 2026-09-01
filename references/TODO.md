@@ -16,13 +16,14 @@ risk even though today's behavior is safe (noted inline).
 |---|------|----------|------------|
 | ✅ | `rig_unused_args` | QoL | trivial — **DONE** |
 | ✅ | `debug_release_builds` | QoL | small — **DONE** |
-| 1 | `gvn_cancel_operand` | QoL | trivial |
-| 2 | `gvn_strength_reduction` | QoL | trivial |
-| 3 | `dead_alloc_elim` | QoL | trivial |
-| 4 | `lvn_fold_zero_add` | QoL | trivial |
-| 5 | `static_const_opcode_tables` | QoL | trivial |
-| 6 | `fix_log_macro` | QoL | trivial |
-| 7 | `remove_bad_dump` | QoL | trivial |
+| ✅ | `gvn_cancel_operand` | QoL | trivial — **DONE** |
+| 1 | `gvn_strength_reduction` | QoL | trivial |
+| 2 | `dead_alloc_elim` | QoL | trivial |
+| 3 | `lvn_fold_zero_add` | QoL | trivial |
+| 4 | `static_const_opcode_tables` | QoL | trivial |
+| 5 | `fix_log_macro` | QoL | trivial |
+| 6 | `remove_bad_dump` | QoL | trivial |
+| 7 | `gvn_negate_via_sub` | QoL | small |
 | 8 | `reassociation` | QoL | small |
 | 9 | `lvn_memory_bailout` | QoL | small |
 | 10 | `should_inline_or_and` | QoL | small |
@@ -68,7 +69,7 @@ flowchart TD
     subgraph indep["independent, trivial"]
         rig_unused_args["rig_unused_args ✅"]
         debug_release_builds["debug_release_builds ✅"]
-        gvn_cancel_operand
+        gvn_cancel_operand["gvn_cancel_operand ✅"]
         gvn_strength_reduction
         dead_alloc_elim
         lvn_fold_zero_add
@@ -78,6 +79,7 @@ flowchart TD
     end
 
     subgraph gvncore["GVN core / hygiene"]
+        gvn_negate_via_sub
         reassociation
         naive_mips_fate
         scoped_table_utility
@@ -151,11 +153,11 @@ flowchart TD
     persistent_value_graph -.would also address.-> worklist_fixpoint
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
-    class gvn_cancel_operand,gvn_strength_reduction,dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
+    class gvn_strength_reduction,dead_alloc_elim,lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
+    class gvn_negate_via_sub,reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
     class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support medium
     class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,worklist_fixpoint hard
-    class rig_unused_args,debug_release_builds done
+    class rig_unused_args,debug_release_builds,gvn_cancel_operand done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -178,18 +180,27 @@ test input: one hit, and it's the already-known one (`deep_recursion`'s
 stack overflow, `tail_call_elim`), now with a precise `bril_interpreter.
 cpp:58` location instead of a bare SIGSEGV.
 
-## `gvn_cancel_operand` — Check both operand positions in GVN's inverse-cancellation rule
-**[QoL · trivial]**
-`global_value_numbering.cpp:107` only checks `arguments[1]`; check
-`arguments[0]` too.
-Repro: [`tests/unit/algebra_add_sub_cancel`](../tests/unit/algebra_add_sub_cancel/input.c).
+## `gvn_cancel_operand` — ~~Check both operand positions in GVN's inverse-cancellation rule~~ ✅ Done
+**[QoL · trivial] · DONE**
+`global_value_numbering.cpp` only checked `arguments[1]` for the `(a OP b)
+OP' b -> a` and `(a * b) % b == 0` rules; now also checks `arguments[0]`
+when the inner op is commutative.
 
-## `gvn_strength_reduction` — Implement the documented strength-reduction rules
+## `gvn_strength_reduction` — Implement `x*2 == x+x`
 **[QoL · trivial]**
-`global_value_numbering.cpp:124` comments `x*2==x+x`/`x*-1==0-x`, never
-implements them.
+`global_value_numbering.cpp:151` comments this, never implements it. Just
+references the existing operand's index twice, no new expression needed.
 Repro: [`tests/unit/algebra_mul_two_rhs`](../tests/unit/algebra_mul_two_rhs/input.c),
 [`algebra_mul_two_lhs`](../tests/unit/algebra_mul_two_lhs/input.c).
+
+## `gvn_negate_via_sub` — Implement `x*-1 == 0-x`
+**[QoL · small]**
+Split from `gvn_strength_reduction`: unlike `x*2==x+x`, this needs a
+constant `0` value-number that may not already exist in the table.
+`simplify_binary`/`simplify`/`create_value` are all `const` -- none of them
+can insert a new expression today. Needs that capability first (useful
+beyond this one rule).
+Repro: [`tests/unit/algebra_mul_neg_one`](../tests/unit/algebra_mul_neg_one/input.c).
 
 ## `dead_alloc_elim` — Delete dead allocations
 **[QoL · trivial]**
@@ -319,7 +330,8 @@ site actually changed CFG shape.
 **[QoL · medium]**
 `global_value_numbering.hpp:170` bails the whole function on
 `uses_pointers()`, killing `gvn_cancel_operand`/`gvn_strength_reduction`/
-`reassociation`/`gvn_dominance_branch`/`gvn_inline_redundancy` too.
+`gvn_negate_via_sub`/`reassociation`/`gvn_dominance_branch`/
+`gvn_inline_redundancy` too.
 `MayAliasAnalysis` already has the points-to sets needed. Highest-leverage
 and riskiest item here — a mistake miscompiles, not just under-optimizes.
 Repro: [`tests/unit/gvn_pointer_bailout`](../tests/unit/gvn_pointer_bailout/input.c).
