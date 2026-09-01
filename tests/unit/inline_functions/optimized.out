@@ -4,10 +4,10 @@
   %2: int = lt a b;
   %3: int = id a;
   br %2 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%3}
   %3: int = id %1;
   jmp .L2;
-.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}, escapes = {%6, %7, %9}
   %4: int = sub %0 %3;
   %5: int = mul %4 %4;
   %6: int = id %5;
@@ -15,26 +15,26 @@
   %8: int = lt a b;
   %9: int = id a;
   br %8 .L3 .L4;
-.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}, escapes = {%9}
   %9: int = id %7;
   jmp .L4;
-.L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}
+.L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}, escapes = {%12, %13}
   %10: int = mul %9 %9;
   %11: int = add %10 %6;
   %12: int = id %11;
   %13: int = const 0;
   jmp .L5;
-.L5:                                               preds = {.L4, .L6}, dominators = {.L0, .L2, .L4, .L5}
+.L5:                                               preds = {.L4, .L6}, dominators = {.L0, .L2, .L4, .L5}, escapes = {%14}
   %14: int = id %13;
   %15: int = mul %13 %13;
   %16: int = lt %15 %12;
   br %16 .L6 .L7;
-.L6:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L6}
+.L6:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L6}, escapes = {%13}
   %17: int = const 1;
   %18: int = add %14 %17;
   %13: int = id %18;
   jmp .L5;
-.L7:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L7}
+.L7:                                               preds = {.L5}, dominators = {.L0, .L2, .L4, .L5, .L7}, escapes = {}
   ret %14;
 }
 

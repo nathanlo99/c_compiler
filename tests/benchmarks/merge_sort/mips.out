@@ -13,10 +13,10 @@
                                   ;   %11: ptr<int> = id %10;
                                   ;   %12: int = const 0;
                                   ;   jmp .L1;
-                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
                                   ;   %13: int = lt %12 %5;
                                   ;   br %13 .L2 .L3;
-                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%12}
                                   ;   %14: ptr<int> = id arr;
                                   ;   %15: int = id left;
                                   ;   %16: ptr<int> = ptradd %14 %15;
@@ -32,13 +32,13 @@
                                   ;   %25: int = add %23 %24;
                                   ;   %12: int = id %25;
                                   ;   jmp .L1;
-                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {%0}
                                   ;   %0: int = const 0;
                                   ;   jmp .L4;
-                                  ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}
+                                  ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}, escapes = {}
                                   ;   %26: int = lt %0 %7;
                                   ;   br %26 .L5 .L6;
-                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}, escapes = {%0}
                                   ;   %27: ptr<int> = id arr;
                                   ;   %28: int = id mid;
                                   ;   %29: ptr<int> = ptradd %27 %28;
@@ -56,16 +56,16 @@
                                   ;   %40: int = add %38 %39;
                                   ;   %0: int = id %40;
                                   ;   jmp .L4;
-                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}, escapes = {%0, %1, %12}
                                   ;   %12: int = const 0;
                                   ;   %0: int = const 0;
                                   ;   %1: int = id left;
                                   ;   jmp .L7;
-                                  ; .L7:                                               preds = {.L17, .L6}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7}
+                                  ; .L7:                                               preds = {.L17, .L6}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7}, escapes = {}
                                   ;   %41: int = const 1;
                                   ;   %42: int = eq %2 %41;
                                   ;   br %42 .L8 .L18;
-                                  ; .L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7, .L8}, escapes = {}
                                   ;   %43: ptr<int> = id %11;
                                   ;   %44: int = id %0;
                                   ;   %45: ptr<int> = ptradd %43 %44;
@@ -76,7 +76,7 @@
                                   ;   %50: int = load %49;
                                   ;   %51: int = lt %46 %50;
                                   ;   br %51 .L9 .L10;
-                                  ; .L9:                                               preds = {.L8}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7, .L8, .L9}
+                                  ; .L9:                                               preds = {.L8}, dominators = {.L0, .L1, .L3, .L4, .L6, .L7, .L8, .L9}, escapes = {%0}
                                   ;   %52: ptr<int> = id %11;
                                   ;   %53: int = id %0;
                                   ;   %54: ptr<int> = ptradd %52 %53;
@@ -90,7 +90,7 @@
                                   ;   %61: int = add %59 %60;
                                   ;   %0: int = id %61;
                                   ;   jmp .L11;
-                                  ; .L10:                                              preds = {.L8}, dominators = {.L0, .L1, .L10, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L10:                                              preds = {.L8}, dominators = {.L0, .L1, .L10, .L3, .L4, .L6, .L7, .L8}, escapes = {%12}
                                   ;   %62: ptr<int> = id %9;
                                   ;   %63: int = id %12;
                                   ;   %64: ptr<int> = ptradd %62 %63;
@@ -104,31 +104,31 @@
                                   ;   %71: int = add %69 %70;
                                   ;   %12: int = id %71;
                                   ;   jmp .L11;
-                                  ; .L11:                                              preds = {.L10, .L9}, dominators = {.L0, .L1, .L11, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L11:                                              preds = {.L10, .L9}, dominators = {.L0, .L1, .L11, .L3, .L4, .L6, .L7, .L8}, escapes = {%1}
                                   ;   %72: int = const 1;
                                   ;   %73: int = add %1 %72;
                                   ;   %1: int = id %73;
                                   ;   %74: int = lt %12 %5;
                                   ;   br %74 .L12 .L13;
-                                  ; .L12:                                              preds = {.L11}, dominators = {.L0, .L1, .L11, .L12, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L12:                                              preds = {.L11}, dominators = {.L0, .L1, .L11, .L12, .L3, .L4, .L6, .L7, .L8}, escapes = {}
                                   ;   jmp .L14;
-                                  ; .L13:                                              preds = {.L11}, dominators = {.L0, .L1, .L11, .L13, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L13:                                              preds = {.L11}, dominators = {.L0, .L1, .L11, .L13, .L3, .L4, .L6, .L7, .L8}, escapes = {%2}
                                   ;   %2: int = const 0;
                                   ;   jmp .L14;
-                                  ; .L14:                                              preds = {.L12, .L13}, dominators = {.L0, .L1, .L11, .L14, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L14:                                              preds = {.L12, .L13}, dominators = {.L0, .L1, .L11, .L14, .L3, .L4, .L6, .L7, .L8}, escapes = {}
                                   ;   %75: int = lt %0 %7;
                                   ;   br %75 .L15 .L16;
-                                  ; .L15:                                              preds = {.L14}, dominators = {.L0, .L1, .L11, .L14, .L15, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L15:                                              preds = {.L14}, dominators = {.L0, .L1, .L11, .L14, .L15, .L3, .L4, .L6, .L7, .L8}, escapes = {}
                                   ;   jmp .L17;
-                                  ; .L16:                                              preds = {.L14}, dominators = {.L0, .L1, .L11, .L14, .L16, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L16:                                              preds = {.L14}, dominators = {.L0, .L1, .L11, .L14, .L16, .L3, .L4, .L6, .L7, .L8}, escapes = {%2}
                                   ;   %2: int = const 0;
                                   ;   jmp .L17;
-                                  ; .L17:                                              preds = {.L15, .L16}, dominators = {.L0, .L1, .L11, .L14, .L17, .L3, .L4, .L6, .L7, .L8}
+                                  ; .L17:                                              preds = {.L15, .L16}, dominators = {.L0, .L1, .L11, .L14, .L17, .L3, .L4, .L6, .L7, .L8}, escapes = {}
                                   ;   jmp .L7;
-                                  ; .L18:                                              preds = {.L19, .L7}, dominators = {.L0, .L1, .L18, .L3, .L4, .L6, .L7}
+                                  ; .L18:                                              preds = {.L19, .L7}, dominators = {.L0, .L1, .L18, .L3, .L4, .L6, .L7}, escapes = {}
                                   ;   %76: int = lt %12 %5;
                                   ;   br %76 .L19 .L20;
-                                  ; .L19:                                              preds = {.L18}, dominators = {.L0, .L1, .L18, .L19, .L3, .L4, .L6, .L7}
+                                  ; .L19:                                              preds = {.L18}, dominators = {.L0, .L1, .L18, .L19, .L3, .L4, .L6, .L7}, escapes = {%1, %12}
                                   ;   %77: ptr<int> = id %9;
                                   ;   %78: int = id %12;
                                   ;   %79: ptr<int> = ptradd %77 %78;
@@ -146,10 +146,10 @@
                                   ;   %89: int = add %87 %88;
                                   ;   %1: int = id %89;
                                   ;   jmp .L18;
-                                  ; .L20:                                              preds = {.L18, .L21}, dominators = {.L0, .L1, .L18, .L20, .L3, .L4, .L6, .L7}
+                                  ; .L20:                                              preds = {.L18, .L21}, dominators = {.L0, .L1, .L18, .L20, .L3, .L4, .L6, .L7}, escapes = {}
                                   ;   %90: int = lt %0 %7;
                                   ;   br %90 .L21 .L22;
-                                  ; .L21:                                              preds = {.L20}, dominators = {.L0, .L1, .L18, .L20, .L21, .L3, .L4, .L6, .L7}
+                                  ; .L21:                                              preds = {.L20}, dominators = {.L0, .L1, .L18, .L20, .L21, .L3, .L4, .L6, .L7}, escapes = {%0, %1}
                                   ;   %91: ptr<int> = id %11;
                                   ;   %92: int = id %0;
                                   ;   %93: ptr<int> = ptradd %91 %92;
@@ -167,7 +167,7 @@
                                   ;   %103: int = add %101 %102;
                                   ;   %1: int = id %103;
                                   ;   jmp .L20;
-                                  ; .L22:                                              preds = {.L20}, dominators = {.L0, .L1, .L18, .L20, .L22, .L3, .L4, .L6, .L7}
+                                  ; .L22:                                              preds = {.L20}, dominators = {.L0, .L1, .L18, .L20, .L22, .L3, .L4, .L6, .L7}, escapes = {}
                                   ;   free %9;
                                   ;   free %11;
                                   ;   %104: int = const 0;
@@ -177,7 +177,7 @@
                                   ; @mergeSort(arr: ptr<int>, left: int, right: int) : int {
                                   ;   %0: int = lt left right;
                                   ;   br %0 .L1 .L2;
-                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+                                  ; .L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
                                   ;   %1: int = sub right left;
                                   ;   %2: int = const 2;
                                   ;   %3: int = div %1 %2;
@@ -188,7 +188,7 @@
                                   ;   %8: int = call @mergeSort arr %7 right;
                                   ;   %9: int = call @merge arr left %4 right;
                                   ;   jmp .L2;
-                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}
+                                  ; .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}, escapes = {}
                                   ;   %10: int = const 0;
                                   ;   ret %10;
                                   ; }
@@ -196,10 +196,10 @@
                                   ; @wain(a: ptr<int>, b: int) : int {
                                   ;   %0: int = const 0;
                                   ;   jmp .L1;
-                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+                                  ; .L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
                                   ;   %1: int = lt %0 b;
                                   ;   br %1 .L2 .L3;
-                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%0}
                                   ;   %2: ptr<int> = id a;
                                   ;   %3: int = id %0;
                                   ;   %4: ptr<int> = ptradd %2 %3;
@@ -209,17 +209,17 @@
                                   ;   %7: int = add %0 %6;
                                   ;   %0: int = id %7;
                                   ;   jmp .L1;
-                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+                                  ; .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {%0}
                                   ;   %8: int = const 0;
                                   ;   %9: int = const 1;
                                   ;   %10: int = sub b %9;
                                   ;   %11: int = call @mergeSort a %8 %10;
                                   ;   %0: int = const 0;
                                   ;   jmp .L4;
-                                  ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}
+                                  ; .L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}, escapes = {}
                                   ;   %12: int = lt %0 b;
                                   ;   br %12 .L5 .L6;
-                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}, escapes = {%0}
                                   ;   %13: ptr<int> = id a;
                                   ;   %14: int = id %0;
                                   ;   %15: ptr<int> = ptradd %13 %14;
@@ -229,7 +229,7 @@
                                   ;   %18: int = add %0 %17;
                                   ;   %0: int = id %18;
                                   ;   jmp .L4;
-                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L6}, escapes = {}
                                   ;   %19: int = const 0;
                                   ;   ret %19;
                                   ; }

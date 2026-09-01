@@ -1,0 +1,63 @@
+@fib(n: int) : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 0;
+  %2: int = const 0;
+  %3: int = id n;
+  %4: int = const 1;
+  %5: int = add %3 %4;
+  %6: ptr<int> = alloc %5;
+  %0: ptr<int> = id %6;
+  %7: int = const 1;
+  %8: ptr<int> = id %0;
+  store %8 %7;
+  %9: int = const 1;
+  %10: ptr<int> = id %0;
+  %11: int = const 1;
+  %12: ptr<int> = ptradd %10 %11;
+  store %12 %9;
+  %13: int = const 2;
+  %1: int = id %13;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
+  %14: int = le %1 n;
+  br %14 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%1}
+  %15: ptr<int> = id %0;
+  %16: int = id %1;
+  %17: int = const 1;
+  %18: int = sub %16 %17;
+  %19: ptr<int> = ptradd %15 %18;
+  %20: int = load %19;
+  %21: ptr<int> = id %0;
+  %22: int = id %1;
+  %23: int = const 2;
+  %24: int = sub %22 %23;
+  %25: ptr<int> = ptradd %21 %24;
+  %26: int = load %25;
+  %27: int = add %20 %26;
+  %28: ptr<int> = id %0;
+  %29: int = id %1;
+  %30: ptr<int> = ptradd %28 %29;
+  store %30 %27;
+  %31: int = const 1;
+  %32: int = add %1 %31;
+  %1: int = id %32;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
+  %33: ptr<int> = id %0;
+  %34: int = id n;
+  %35: ptr<int> = ptradd %33 %34;
+  %36: int = load %35;
+  %2: int = id %36;
+  %37: ptr<int> = id %0;
+  free %37;
+  %38: int = id %2;
+  ret %38;
+}
+
+@wain(n: int, res: int) : int {
+  %0: int = call @fib n;
+  print %0;
+  ret %0;
+}
+

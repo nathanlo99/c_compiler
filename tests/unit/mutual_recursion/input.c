@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 
 int abs(int n) { return n; }
 

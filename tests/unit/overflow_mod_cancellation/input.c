@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 // a*3%3 == 0 assumes a*3 doesn't overflow -- signed overflow is UB here
 // (references/spec.txt), matching real C. NOT a bug: this cancellation
 // fires unconditionally, even for an `a` that overflows at runtime (see

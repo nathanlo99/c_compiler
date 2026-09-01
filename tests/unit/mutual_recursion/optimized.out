@@ -2,16 +2,16 @@
   %0: int = const 0;
   %1: int = eq n %0;
   br %1 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%2}
   %2: int = const 1;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%2}
   %3: int = const 1;
   %4: int = sub n %3;
   %5: int = call @isOdd %4;
   %2: int = id %5;
   jmp .L3;
-.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
   ret %2;
 }
 
@@ -19,16 +19,16 @@
   %0: int = const 0;
   %1: int = eq n %0;
   br %1 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%2}
   %2: int = id %0;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%2}
   %3: int = const 1;
   %4: int = sub n %3;
   %5: int = call @isEven %4;
   %2: int = id %5;
   jmp .L3;
-.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
   ret %2;
 }
 

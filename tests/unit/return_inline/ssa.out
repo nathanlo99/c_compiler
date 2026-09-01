@@ -1,0 +1,15 @@
+@foo(n: int) : int {
+  %0: int = const 0;
+  %1: int = eq n %0;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  ret %0;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {}
+  ret n;
+}
+
+@wain(a: int, b: int) : int {
+  %0: int = call @foo a;
+  ret %0;
+}
+

@@ -204,6 +204,32 @@ struct ControlFlowGraph {
     return result;
   }
 
+  // Variables defined in `label`'s block that some OTHER block reads --
+  // phi argument, ordinary SSA-dominance use, or (post-convert_from_ssa,
+  // where phis no longer exist) a plain cross-block mutable-slot read.
+  // Not just phis: a value can flow to a dominated block directly in SSA
+  // form, and phis don't exist at all once SSA is destroyed.
+  std::unordered_set<std::string> escaping_variables(const std::string &label) const {
+    std::unordered_set<std::string> locally_defined;
+    for (const auto &instruction : get_block(label).instructions) {
+      if (instruction.destination != "")
+        locally_defined.insert(instruction.destination);
+    }
+
+    std::unordered_set<std::string> result;
+    for (const auto &[other_label, block] : blocks) {
+      if (other_label == label)
+        continue;
+      for (const auto &instruction : block.instructions) {
+        for (const auto &argument : instruction.arguments) {
+          if (locally_defined.contains(argument))
+            result.insert(argument);
+        }
+      }
+    }
+    return result;
+  }
+
   size_t num_instructions() const {
     size_t num_instructions = 0;
     for (const auto &[label, block] : blocks) {
@@ -398,7 +424,8 @@ struct Program {
           const auto padding = 50 - label.size();
           os << instruction.labels[0] << ":" << std::string(padding, ' ')
              << "preds = " << function.get_block(label).incoming_blocks
-             << ", dominators = " << function.dominators.at(label) << std::endl;
+             << ", dominators = " << function.dominators.at(label)
+             << ", escapes = " << function.escaping_variables(label) << std::endl;
         } else {
           os << "  " << instruction << std::endl;
         }

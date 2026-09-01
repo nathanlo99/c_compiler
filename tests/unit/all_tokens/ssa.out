@@ -1,0 +1,166 @@
+@collatz(num: ptr<int>) : int {
+  %0: int = const 0;
+  %1: ptr<int> = id num;
+  %2: int = load %1;
+  %0: int = id %2;
+  %3: int = id %0;
+  %4: int = const 2;
+  %5: int = lt %3 %4;
+  br %5 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  %6: int = const 1;
+  %7: ptr<int> = id num;
+  store %7 %6;
+  jmp .L5;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {}
+  %8: int = const 2;
+  %9: int = mod %0 %8;
+  %10: int = const 0;
+  %11: int = eq %9 %10;
+  br %11 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}, escapes = {}
+  %12: int = id %0;
+  %13: int = const 2;
+  %14: int = div %12 %13;
+  %15: ptr<int> = id num;
+  store %15 %14;
+  jmp .L5;
+.L4:                                               preds = {.L2}, dominators = {.L0, .L2, .L4}, escapes = {}
+  %16: int = const 3;
+  %17: int = id %0;
+  %18: int = mul %16 %17;
+  %19: int = const 2;
+  %20: int = add %18 %19;
+  %21: int = const 1;
+  %22: int = sub %20 %21;
+  %23: ptr<int> = id num;
+  store %23 %22;
+  jmp .L5;
+.L5:                                               preds = {.L1, .L3, .L4}, dominators = {.L0, .L5}, escapes = {}
+  %24: int = const 0;
+  ret %24;
+}
+
+@isPrime(n: int) : int {
+  %0: int = const 2;
+  %1: int = const 1;
+  %2: int = id %1;
+  %3: int = const 3;
+  %4: int = lt %3 n;
+  br %4 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
+  %5: int = const 0;
+  jmp .L3;
+.L3:                                               preds = {.L1, .L10, .L2}, dominators = {.L0, .L3}, escapes = {%11, %12, %7, %9}
+  %7: int = phi .L2 %5 .L1 %1 .L10 %6;
+  %9: int = phi .L2 %1 .L1 %1 .L10 %8;
+  %11: int = phi .L2 %0 .L1 %0 .L10 %10;
+  %12: int = const 0;
+  %13: int = ne %7 %12;
+  br %13 .L4 .L11;
+.L4:                                               preds = {.L3}, dominators = {.L0, .L3, .L4}, escapes = {}
+  %14: int = mod n %11;
+  %15: int = id %12;
+  %16: int = eq %14 %12;
+  br %16 .L5 .L6;
+.L5:                                               preds = {.L4}, dominators = {.L0, .L3, .L4, .L5}, escapes = {}
+  %17: int = id %12;
+  jmp .L6;
+.L6:                                               preds = {.L4, .L5}, dominators = {.L0, .L3, .L4, .L6}, escapes = {%10, %8}
+  %8: int = phi .L4 %9 .L5 %12;
+  %18: int = id %1;
+  %10: int = add %11 %1;
+  %19: int = id %10;
+  %20: int = mul %10 %10;
+  %21: int = lt n %20;
+  br %21 .L7 .L8;
+.L7:                                               preds = {.L6}, dominators = {.L0, .L3, .L4, .L6, .L7}, escapes = {}
+  %22: int = id %12;
+  jmp .L10;
+.L8:                                               preds = {.L6}, dominators = {.L0, .L3, .L4, .L6, .L8}, escapes = {}
+  %23: int = id %12;
+  %24: int = eq %8 %12;
+  br %24 .L9 .L10;
+.L9:                                               preds = {.L8}, dominators = {.L0, .L3, .L4, .L6, .L8, .L9}, escapes = {}
+  %25: int = id %12;
+  jmp .L10;
+.L10:                                              preds = {.L7, .L8, .L9}, dominators = {.L0, .L10, .L3, .L4, .L6}, escapes = {%6}
+  %6: int = phi .L7 %12 .L8 %7 .L9 %12;
+  jmp .L3;
+.L11:                                              preds = {.L3}, dominators = {.L0, .L11, .L3}, escapes = {}
+  ret %9;
+}
+
+@wain(startNumber: int, numPrimes: int) : int {
+  %0: int = const 0;
+  %1: int = const 0;
+  %2: ptr<int> = alloc numPrimes;
+  %3: ptr<int> = id %2;
+  %1: int = id startNumber;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L4}, dominators = {.L0, .L1}, escapes = {}
+  %4: int = lt %0 numPrimes;
+  br %4 .L2 .L5;
+.L2:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L2}, escapes = {}
+  %5: int = call @isPrime %1;
+  %6: int = const 0;
+  %7: int = eq %5 %6;
+  br %7 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {%1}
+  %8: int = const 1;
+  %9: int = add %1 %8;
+  %1: int = id %9;
+  jmp .L2;
+.L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}, escapes = {%0, %1}
+  %10: int = id %1;
+  %11: ptr<int> = id %3;
+  %12: int = id %0;
+  %13: ptr<int> = ptradd %11 %12;
+  store %13 %10;
+  %14: int = id %1;
+  %15: int = const 1;
+  %16: int = add %14 %15;
+  %1: int = id %16;
+  %17: int = id %0;
+  %18: int = const 1;
+  %19: int = add %17 %18;
+  %0: int = id %19;
+  jmp .L1;
+.L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}, escapes = {%0}
+  %0: int = const 0;
+  jmp .L6;
+.L6:                                               preds = {.L5, .L7}, dominators = {.L0, .L1, .L5, .L6}, escapes = {}
+  %20: int = lt %0 numPrimes;
+  br %20 .L7 .L8;
+.L7:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L7}, escapes = {%0}
+  %21: ptr<int> = id %3;
+  %22: int = id %0;
+  %23: ptr<int> = ptradd %21 %22;
+  %24: int = load %23;
+  print %24;
+  %25: int = id %0;
+  %26: int = const 1;
+  %27: int = add %25 %26;
+  %0: int = id %27;
+  jmp .L6;
+.L8:                                               preds = {.L6}, dominators = {.L0, .L1, .L5, .L6, .L8}, escapes = {%1}
+  %1: int = const 40;
+  jmp .L9;
+.L9:                                               preds = {.L10, .L8}, dominators = {.L0, .L1, .L5, .L6, .L8, .L9}, escapes = {}
+  %28: int = const 1;
+  %29: int = ne %1 %28;
+  br %29 .L10 .L11;
+.L10:                                              preds = {.L9}, dominators = {.L0, .L1, .L10, .L5, .L6, .L8, .L9}, escapes = {%0}
+  print %1;
+  %30: ptr<int> = addressof %1;
+  %31: int = call @collatz %30;
+  %0: int = id %31;
+  jmp .L9;
+.L11:                                              preds = {.L9}, dominators = {.L0, .L1, .L11, .L5, .L6, .L8, .L9}, escapes = {}
+  free %3;
+  %32: int = const 0;
+  ret %32;
+}
+

@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 
 int square(int n) { return n * n; }
 int cube(int n) { return n * n * n; }

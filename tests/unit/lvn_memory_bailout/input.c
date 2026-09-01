@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 // LVN bails on this ENTIRE block just because it contains a Store, even
 // though the redundant arithmetic below has nothing to do with memory at
 // all: `y` should be a copy of `x` (same-block CSE of `a + b`), but never

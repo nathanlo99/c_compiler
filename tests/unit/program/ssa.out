@@ -1,0 +1,35 @@
+@eat() : int {
+  %0: int = const 241;
+  ret %0;
+}
+
+@loong() : int {
+  %0: int = const 0;
+  ret %0;
+}
+
+@p() : int {
+  %0: int = call @eat;
+  ret %0;
+}
+
+@q() : int {
+  %0: int = call @eat;
+  %1: int = call @p;
+  ret %1;
+}
+
+@r() : int {
+  %0: int = call @eat;
+  %1: int = call @q;
+  ret %1;
+}
+
+@wain(a: ptr<int>, b: int) : int {
+  %0: int = call @p;
+  %1: int = call @q;
+  %2: int = call @loong;
+  %3: int = call @r;
+  ret %3;
+}
+

@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 // `i * 4` is a classic induction-variable strength-reduction candidate: `i`
 // increases by 1 each iteration, so `i * 4` increases by a constant 4 each
 // iteration and the multiply could become an accumulator add. Nothing does

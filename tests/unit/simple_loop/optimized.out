@@ -1,17 +1,17 @@
 @wain(a: int, b: int) : int {
   %0: int = id a;
   jmp .L1;
-.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {%1}
   %1: int = id %0;
   %2: int = const 10;
   %3: int = lt %0 %2;
   br %3 .L2 .L3;
-.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%0}
   %4: int = const 1;
   %5: int = add %1 %4;
   %0: int = id %5;
   jmp .L1;
-.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
   ret %1;
 }
 

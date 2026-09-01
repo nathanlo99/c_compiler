@@ -1,13 +1,13 @@
 @wain(a: int, b: int) : int {
   %0: int = eq b a;
   br %0 .L1 .L2;
-.L1:                                               preds = {.L0}, dominators = {.L0, .L1}
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%1}
   %1: int = const 1;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%1}
   %1: int = const 1;
   jmp .L3;
-.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
   ret %1;
 }
 

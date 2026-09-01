@@ -1,0 +1,5 @@
+@wain(meep: int, meepmeep: int) : int {
+  %0: int = add meepmeep meep;
+  ret %0;
+}
+

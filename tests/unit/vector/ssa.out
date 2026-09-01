@@ -1,0 +1,296 @@
+@print_char(c: int) : int {
+  %0: ptr<int> = const 0xffff000c;
+  %1: int = id c;
+  %2: ptr<int> = id %0;
+  store %2 %1;
+  %3: int = id %1;
+  ret %3;
+}
+
+@print_num(num: int) : int {
+  %0: int = const 0;
+  %1: int = const 0;
+  %2: int = const 0;
+  %3: int = const 0;
+  %4: int = const 10;
+  %5: ptr<int> = alloc %4;
+  %6: ptr<int> = id %5;
+  %7: int = lt num %0;
+  br %7 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%3, num}
+  %3: int = const 1;
+  %8: int = const 0;
+  %9: int = sub %8 num;
+  num: int = id %9;
+  jmp .L2;
+.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}, escapes = {}
+  %10: int = const 0;
+  %11: int = eq num %10;
+  br %11 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}, escapes = {%0}
+  %12: int = const 48;
+  %13: ptr<int> = id %6;
+  %14: int = id %0;
+  %15: ptr<int> = ptradd %13 %14;
+  store %15 %12;
+  %16: int = id %0;
+  %17: int = const 1;
+  %18: int = add %16 %17;
+  %0: int = id %18;
+  jmp .L6;
+.L4:                                               preds = {.L2, .L5}, dominators = {.L0, .L2, .L4}, escapes = {}
+  %19: int = const 0;
+  %20: int = ne num %19;
+  br %20 .L5 .L6;
+.L5:                                               preds = {.L4}, dominators = {.L0, .L2, .L4, .L5}, escapes = {%0, num}
+  %21: int = id num;
+  %22: int = const 10;
+  %23: int = mod %21 %22;
+  %2: int = id %23;
+  %24: int = id %2;
+  %25: int = const 48;
+  %26: int = add %24 %25;
+  %27: ptr<int> = id %6;
+  %28: int = id %0;
+  %29: ptr<int> = ptradd %27 %28;
+  store %29 %26;
+  %30: int = id %0;
+  %31: int = const 1;
+  %32: int = add %30 %31;
+  %0: int = id %32;
+  %33: int = id num;
+  %34: int = const 10;
+  %35: int = div %33 %34;
+  num: int = id %35;
+  jmp .L4;
+.L6:                                               preds = {.L3, .L4}, dominators = {.L0, .L2, .L6}, escapes = {}
+  %36: int = const 0;
+  %37: int = eq %3 %36;
+  br %37 .L7 .L8;
+.L7:                                               preds = {.L6}, dominators = {.L0, .L2, .L6, .L7}, escapes = {}
+  jmp .L9;
+.L8:                                               preds = {.L6}, dominators = {.L0, .L2, .L6, .L8}, escapes = {}
+  %38: int = const 45;
+  %39: int = call @print_char %38;
+  jmp .L9;
+.L9:                                               preds = {.L7, .L8}, dominators = {.L0, .L2, .L6, .L9}, escapes = {%1}
+  %40: int = const 1;
+  %41: int = sub %0 %40;
+  %1: int = id %41;
+  jmp .L10;
+.L10:                                              preds = {.L11, .L9}, dominators = {.L0, .L10, .L2, .L6, .L9}, escapes = {}
+  %42: int = const 0;
+  %43: int = ge %1 %42;
+  br %43 .L11 .L12;
+.L11:                                              preds = {.L10}, dominators = {.L0, .L10, .L11, .L2, .L6, .L9}, escapes = {%1}
+  %44: ptr<int> = id %6;
+  %45: int = id %1;
+  %46: ptr<int> = ptradd %44 %45;
+  %47: int = load %46;
+  %48: int = call @print_char %47;
+  %49: int = const 1;
+  %50: int = sub %1 %49;
+  %1: int = id %50;
+  jmp .L10;
+.L12:                                              preds = {.L10}, dominators = {.L0, .L10, .L12, .L2, .L6, .L9}, escapes = {}
+  free %6;
+  %51: int = const 0;
+  ret %51;
+}
+
+@throw_error() : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = load %0;
+  ret %1;
+}
+
+@vector_at(vec: ptr<int>, idx: int) : ptr<int> {
+  %0: ptr<int> = call @vector_data vec;
+  %1: ptr<int> = ptradd %0 idx;
+  ret %1;
+}
+
+@vector_capacity(vec: ptr<int>) : ptr<int> {
+  %0: int = const 1;
+  %1: ptr<int> = ptradd vec %0;
+  ret %1;
+}
+
+@vector_data(vec: ptr<int>) : ptr<int> {
+  %0: int = const 2;
+  %1: ptr<int> = ptradd vec %0;
+  ret %1;
+}
+
+@vector_delete(vec: ptr<int>) : int {
+  free vec;
+  %0: int = const 0;
+  ret %0;
+}
+
+@vector_new(n: int) : ptr<int> {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 0;
+  %2: int = lt n %1;
+  br %2 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  %3: int = call @throw_error;
+  jmp .L2;
+.L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}, escapes = {}
+  %4: int = id n;
+  %5: int = const 2;
+  %6: int = add %4 %5;
+  %7: ptr<int> = alloc %6;
+  %0: ptr<int> = id %7;
+  %8: int = const 0;
+  %9: ptr<int> = id %0;
+  %10: ptr<int> = call @vector_size %9;
+  store %10 %8;
+  %11: int = id n;
+  %12: ptr<int> = id %0;
+  %13: ptr<int> = call @vector_capacity %12;
+  store %13 %11;
+  %14: ptr<int> = id %0;
+  ret %14;
+}
+
+@vector_push_back(vec: ptr<int>, value: int) : ptr<int> {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 0;
+  %2: ptr<int> = id vec;
+  %3: ptr<int> = call @vector_size %2;
+  %4: int = load %3;
+  %5: ptr<int> = id vec;
+  %6: ptr<int> = call @vector_capacity %5;
+  %7: int = load %6;
+  %8: int = lt %4 %7;
+  br %8 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%0}
+  %9: int = id value;
+  %10: ptr<int> = id vec;
+  %11: ptr<int> = id vec;
+  %12: ptr<int> = call @vector_size %11;
+  %13: int = load %12;
+  %14: ptr<int> = call @vector_at %10 %13;
+  store %14 %9;
+  %15: ptr<int> = id vec;
+  %16: ptr<int> = call @vector_size %15;
+  %17: int = load %16;
+  %18: int = const 1;
+  %19: int = add %17 %18;
+  %20: ptr<int> = id vec;
+  %21: ptr<int> = call @vector_size %20;
+  store %21 %19;
+  %22: ptr<int> = id vec;
+  %0: ptr<int> = id %22;
+  jmp .L6;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%0, %1}
+  %23: ptr<int> = id vec;
+  %24: ptr<int> = call @vector_capacity %23;
+  %25: int = load %24;
+  %26: int = const 2;
+  %27: int = mul %25 %26;
+  %28: ptr<int> = call @vector_new %27;
+  %0: ptr<int> = id %28;
+  %29: int = const 0;
+  %1: int = id %29;
+  jmp .L3;
+.L3:                                               preds = {.L2, .L4}, dominators = {.L0, .L2, .L3}, escapes = {}
+  %30: int = id %1;
+  %31: ptr<int> = id vec;
+  %32: ptr<int> = call @vector_size %31;
+  %33: int = load %32;
+  %34: int = lt %30 %33;
+  br %34 .L4 .L5;
+.L4:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L4}, escapes = {%1}
+  %35: ptr<int> = id vec;
+  %36: int = id %1;
+  %37: ptr<int> = call @vector_at %35 %36;
+  %38: int = load %37;
+  %39: ptr<int> = id %0;
+  %40: int = id %1;
+  %41: ptr<int> = call @vector_at %39 %40;
+  store %41 %38;
+  %42: int = id %1;
+  %43: int = const 1;
+  %44: int = add %42 %43;
+  %1: int = id %44;
+  jmp .L3;
+.L5:                                               preds = {.L3}, dominators = {.L0, .L2, .L3, .L5}, escapes = {}
+  %45: int = id value;
+  %46: ptr<int> = id %0;
+  %47: ptr<int> = id vec;
+  %48: ptr<int> = call @vector_size %47;
+  %49: int = load %48;
+  %50: ptr<int> = call @vector_at %46 %49;
+  store %50 %45;
+  %51: ptr<int> = id vec;
+  %52: ptr<int> = call @vector_size %51;
+  %53: int = load %52;
+  %54: int = const 1;
+  %55: int = add %53 %54;
+  %56: ptr<int> = id %0;
+  %57: ptr<int> = call @vector_size %56;
+  store %57 %55;
+  %58: ptr<int> = id vec;
+  %59: int = call @vector_delete %58;
+  jmp .L6;
+.L6:                                               preds = {.L1, .L5}, dominators = {.L0, .L6}, escapes = {}
+  ret %0;
+}
+
+@vector_size(vec: ptr<int>) : ptr<int> {
+  ret vec;
+}
+
+@wain(n: int, unused: int) : int {
+  %0: int = const 1;
+  %1: ptr<int> = call @vector_new %0;
+  %2: ptr<int> = id %1;
+  %3: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
+  %4: int = lt %3 n;
+  br %4 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%2, %3}
+  %5: int = const 0;
+  %6: int = mul %3 %3;
+  %7: int = sub %5 %6;
+  %8: ptr<int> = call @vector_push_back %2 %7;
+  %2: ptr<int> = id %8;
+  %9: int = const 1;
+  %10: int = add %3 %9;
+  %3: int = id %10;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {%3}
+  %3: int = const 0;
+  jmp .L4;
+.L4:                                               preds = {.L3, .L7}, dominators = {.L0, .L1, .L3, .L4}, escapes = {}
+  %11: int = lt %3 n;
+  br %11 .L5 .L8;
+.L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}, escapes = {}
+  %12: int = const 0;
+  %13: int = lt %12 %3;
+  br %13 .L6 .L7;
+.L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L3, .L4, .L5, .L6}, escapes = {}
+  %14: int = const 32;
+  %15: int = call @print_char %14;
+  jmp .L7;
+.L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L3, .L4, .L5, .L7}, escapes = {%3}
+  %16: ptr<int> = id %2;
+  %17: int = id %3;
+  %18: ptr<int> = call @vector_at %16 %17;
+  %19: int = load %18;
+  %20: int = call @print_num %19;
+  %21: int = const 1;
+  %22: int = add %3 %21;
+  %3: int = id %22;
+  jmp .L4;
+.L8:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L8}, escapes = {}
+  %23: int = const 10;
+  %24: int = call @print_char %23;
+  %25: int = call @vector_delete %2;
+  %26: int = const 0;
+  ret %26;
+}
+

@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 // GVN bails out of the ENTIRE function the moment it touches a pointer
 // (see global_value_numbering.hpp's `function.uses_pointers()` guard), not
 // just around the memory op -- so even this straight-line redundant load

@@ -1,32 +1,32 @@
                                   ; @wain(a: int, b: int) : int {
                                   ;   %0: int = const 0;
                                   ;   jmp .L1;
-                                  ; .L1:                                               preds = {.L0, .L7}, dominators = {.L0, .L1}
+                                  ; .L1:                                               preds = {.L0, .L7}, dominators = {.L0, .L1}, escapes = {%1, %2}
                                   ;   %1: int = id %0;
                                   ;   %2: int = const 10;
                                   ;   %3: int = lt %0 %2;
                                   ;   br %3 .L2 .L8;
-                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {}
                                   ;   %4: int = eq %1 %2;
                                   ;   br %4 .L3 .L4;
-                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {}
                                   ;   jmp .L8;
-                                  ; .L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}
+                                  ; .L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}, escapes = {%7}
                                   ;   %5: int = const 2;
                                   ;   %6: int = mod %1 %5;
                                   ;   %7: int = const 1;
                                   ;   %8: int = eq %6 %7;
                                   ;   br %8 .L5 .L6;
-                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L5}
+                                  ; .L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L5}, escapes = {}
                                   ;   jmp .L7;
-                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L6}
+                                  ; .L6:                                               preds = {.L4}, dominators = {.L0, .L1, .L2, .L4, .L6}, escapes = {}
                                   ;   print %1;
                                   ;   jmp .L7;
-                                  ; .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L2, .L4, .L7}
+                                  ; .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L2, .L4, .L7}, escapes = {%0}
                                   ;   %9: int = add %1 %7;
                                   ;   %0: int = id %9;
                                   ;   jmp .L1;
-                                  ; .L8:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L8}
+                                  ; .L8:                                               preds = {.L1, .L3}, dominators = {.L0, .L1, .L8}, escapes = {}
                                   ;   ret %1;
                                   ; }
                                   ; 

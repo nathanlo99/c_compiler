@@ -1,0 +1,2307 @@
+@dynarrNew(ref: ptr<int>) : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 2;
+  %2: ptr<int> = alloc %1;
+  %0: ptr<int> = id %2;
+  %3: int = const 0;
+  %4: ptr<int> = id %0;
+  store %4 %3;
+  %5: int = const 0;
+  %6: ptr<int> = id %0;
+  %7: int = const 1;
+  %8: ptr<int> = ptradd %6 %7;
+  store %8 %5;
+  %9: ptr<int> = id %0;
+  %10: int = const 2;
+  %11: ptr<int> = ptradd %9 %10;
+  %0: ptr<int> = id %11;
+  %12: ptr<int> = id %0;
+  %13: ptr<int> = id ref;
+  %14: int = ptrdiff %12 %13;
+  ret %14;
+}
+
+@dynarrNewString(arr: ptr<int>, len: int) : int {
+  %0: ptr<int> = const 0x1;
+  %1: ptr<int> = const 0x1;
+  %2: ptr<int> = id arr;
+  %3: ptr<int> = id %2;
+  %4: int = id len;
+  %5: int = const 3;
+  %6: int = add %4 %5;
+  %7: ptr<int> = alloc %6;
+  %0: ptr<int> = id %7;
+  %8: int = id len;
+  %9: int = const 1;
+  %10: int = add %8 %9;
+  %11: ptr<int> = id %0;
+  store %11 %10;
+  %12: int = id len;
+  %13: int = const 1;
+  %14: int = add %12 %13;
+  %15: ptr<int> = id %0;
+  %16: int = const 1;
+  %17: ptr<int> = ptradd %15 %16;
+  store %17 %14;
+  %18: ptr<int> = id %0;
+  %19: int = const 2;
+  %20: ptr<int> = ptradd %18 %19;
+  %0: ptr<int> = id %20;
+  %21: ptr<int> = id %0;
+  %1: ptr<int> = id %21;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
+  %22: int = const 0;
+  %23: int = gt len %22;
+  br %23 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%0, arr, len}
+  %24: ptr<int> = id arr;
+  %25: int = load %24;
+  %26: ptr<int> = id %0;
+  store %26 %25;
+  %27: ptr<int> = id %0;
+  %28: int = const 1;
+  %29: ptr<int> = ptradd %27 %28;
+  %0: ptr<int> = id %29;
+  %30: ptr<int> = id arr;
+  %31: int = const 1;
+  %32: ptr<int> = ptradd %30 %31;
+  arr: ptr<int> = id %32;
+  %33: int = id len;
+  %34: int = const 1;
+  %35: int = sub %33 %34;
+  len: int = id %35;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
+  %36: int = const 0;
+  %37: ptr<int> = id %0;
+  store %37 %36;
+  %38: ptr<int> = id %1;
+  %39: ptr<int> = id %3;
+  %40: int = ptrdiff %38 %39;
+  ret %40;
+}
+
+@dynarrPush(dynarr: ptr<int>, elem: int) : int {
+  %0: int = const 0;
+  %1: int = const 0;
+  %2: ptr<int> = const 0x1;
+  %3: int = const 0;
+  %4: ptr<int> = id dynarr;
+  %5: int = const 1;
+  %6: ptr<int> = ptrsub %4 %5;
+  %7: int = load %6;
+  %0: int = id %7;
+  %8: ptr<int> = id dynarr;
+  %9: int = const 2;
+  %10: ptr<int> = ptrsub %8 %9;
+  %11: int = load %10;
+  %1: int = id %11;
+  %12: int = id %0;
+  %13: int = id %1;
+  %14: int = eq %12 %13;
+  br %14 .L1 .L7;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  %15: int = const 0;
+  %16: int = eq %0 %15;
+  br %16 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%0, %2}
+  %0: int = const 5;
+  %17: int = const 2;
+  %18: int = const 7;
+  %19: ptr<int> = alloc %18;
+  %2: ptr<int> = id %19;
+  %20: ptr<int> = ptradd %19 %17;
+  %2: ptr<int> = id %20;
+  jmp .L6;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {%0, %2, %3}
+  %21: int = const 2;
+  %22: int = mul %0 %21;
+  %0: int = id %22;
+  %23: int = add %22 %21;
+  %24: ptr<int> = alloc %23;
+  %2: ptr<int> = id %24;
+  %25: ptr<int> = ptradd %24 %21;
+  %2: ptr<int> = id %25;
+  %3: int = const 0;
+  jmp .L4;
+.L4:                                               preds = {.L3, .L5}, dominators = {.L0, .L1, .L3, .L4}, escapes = {}
+  %26: int = lt %3 %1;
+  br %26 .L5 .L6;
+.L5:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L5}, escapes = {%3}
+  %27: ptr<int> = id dynarr;
+  %28: int = id %3;
+  %29: ptr<int> = ptradd %27 %28;
+  %30: int = load %29;
+  %31: ptr<int> = id %2;
+  %32: int = id %3;
+  %33: ptr<int> = ptradd %31 %32;
+  store %33 %30;
+  %34: int = id %3;
+  %35: int = const 1;
+  %36: int = add %34 %35;
+  %3: int = id %36;
+  jmp .L4;
+.L6:                                               preds = {.L2, .L4}, dominators = {.L0, .L1, .L6}, escapes = {}
+  %37: int = const 2;
+  %38: ptr<int> = ptrsub dynarr %37;
+  free %38;
+  jmp .L8;
+.L7:                                               preds = {.L0}, dominators = {.L0, .L7}, escapes = {%2}
+  %2: ptr<int> = id dynarr;
+  jmp .L8;
+.L8:                                               preds = {.L6, .L7}, dominators = {.L0, .L8}, escapes = {%1}
+  %39: int = id elem;
+  %40: ptr<int> = id %2;
+  %41: int = id %1;
+  %42: ptr<int> = ptradd %40 %41;
+  store %42 %39;
+  %43: int = id %1;
+  %44: int = const 1;
+  %45: int = add %43 %44;
+  %1: int = id %45;
+  %46: int = id %1;
+  %47: ptr<int> = id %2;
+  %48: int = const 2;
+  %49: ptr<int> = ptrsub %47 %48;
+  store %49 %46;
+  %50: int = id %0;
+  %51: ptr<int> = id %2;
+  %52: int = const 1;
+  %53: ptr<int> = ptrsub %51 %52;
+  store %53 %50;
+  %54: ptr<int> = id %2;
+  %55: ptr<int> = id dynarr;
+  %56: int = ptrdiff %54 %55;
+  ret %56;
+}
+
+@dynarrSize(dynarr: ptr<int>) : int {
+  %0: ptr<int> = id dynarr;
+  %1: int = const 2;
+  %2: ptr<int> = ptrsub %0 %1;
+  %3: int = load %2;
+  ret %3;
+}
+
+@error() : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 5;
+  %2: ptr<int> = id %0;
+  store %2 %1;
+  %3: ptr<int> = id %0;
+  %4: int = load %3;
+  ret %4;
+}
+
+@lex(stdin: ptr<int>) : int {
+  %0: int = const 0;
+  %1: ptr<int> = const 0x1;
+  %2: ptr<int> = const 0x1;
+  %3: ptr<int> = const 0x1;
+  %4: ptr<int> = const 0x1;
+  %5: int = const 0;
+  %6: int = const 0;
+  %7: int = const 1;
+  %8: ptr<int> = id stdin;
+  %9: int = call @dynarrNew %8;
+  %10: ptr<int> = id stdin;
+  %11: ptr<int> = ptradd %10 %9;
+  %1: ptr<int> = id %11;
+  %12: ptr<int> = id stdin;
+  %13: int = load %12;
+  %0: int = id %13;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L156}, dominators = {.L0, .L1}, escapes = {}
+  %14: int = const -1;
+  %15: int = ne %0 %14;
+  br %15 .L2 .L157;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {}
+  %16: int = const 0;
+  %17: int = eq %5 %16;
+  br %17 .L3 .L56;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {%6}
+  %6: int = const 0;
+  %18: int = const 37;
+  %19: int = eq %0 %18;
+  br %19 .L4 .L5;
+.L4:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L4}, escapes = {%1, %2, %3, %4, %6}
+  %20: int = const 1;
+  %6: int = id %20;
+  %21: int = const 3;
+  %22: ptr<int> = alloc %21;
+  %4: ptr<int> = id %22;
+  %23: int = const 80;
+  %24: ptr<int> = id %4;
+  store %24 %23;
+  %25: int = const 67;
+  %26: ptr<int> = id %4;
+  %27: int = const 1;
+  %28: ptr<int> = ptradd %26 %27;
+  store %28 %25;
+  %29: int = const 84;
+  %30: ptr<int> = id %4;
+  %31: int = const 2;
+  %32: ptr<int> = ptradd %30 %31;
+  store %32 %29;
+  %33: ptr<int> = id %4;
+  %34: int = const 3;
+  %35: int = call @dynarrNewString %33 %34;
+  %36: ptr<int> = id %4;
+  %37: ptr<int> = ptradd %36 %35;
+  %3: ptr<int> = id %37;
+  %38: int = const 37;
+  %39: ptr<int> = id %4;
+  store %39 %38;
+  %40: ptr<int> = id %4;
+  %41: int = const 1;
+  %42: int = call @dynarrNewString %40 %41;
+  %43: ptr<int> = id %4;
+  %44: ptr<int> = ptradd %43 %42;
+  %2: ptr<int> = id %44;
+  %45: ptr<int> = id %4;
+  free %45;
+  %46: ptr<int> = id stdin;
+  %47: ptr<int> = id %1;
+  %48: ptr<int> = id %2;
+  %49: ptr<int> = id %3;
+  %50: int = call @tokensPush %46 %47 %48 %49;
+  %51: ptr<int> = id %1;
+  %52: ptr<int> = ptradd %51 %50;
+  %1: ptr<int> = id %52;
+  jmp .L5;
+.L5:                                               preds = {.L3, .L4}, dominators = {.L0, .L1, .L2, .L3, .L5}, escapes = {}
+  %53: int = const 38;
+  %54: int = eq %0 %53;
+  br %54 .L6 .L7;
+.L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L3, .L5, .L6}, escapes = {%1, %2, %3, %4, %6}
+  %55: int = const 1;
+  %6: int = id %55;
+  %56: int = const 3;
+  %57: ptr<int> = alloc %56;
+  %4: ptr<int> = id %57;
+  %58: int = const 65;
+  %59: ptr<int> = id %4;
+  store %59 %58;
+  %60: int = const 77;
+  %61: ptr<int> = id %4;
+  %62: int = const 1;
+  %63: ptr<int> = ptradd %61 %62;
+  store %63 %60;
+  %64: int = const 80;
+  %65: ptr<int> = id %4;
+  %66: int = const 2;
+  %67: ptr<int> = ptradd %65 %66;
+  store %67 %64;
+  %68: ptr<int> = id %4;
+  %69: int = const 3;
+  %70: int = call @dynarrNewString %68 %69;
+  %71: ptr<int> = id %4;
+  %72: ptr<int> = ptradd %71 %70;
+  %3: ptr<int> = id %72;
+  %73: int = const 38;
+  %74: ptr<int> = id %4;
+  store %74 %73;
+  %75: ptr<int> = id %4;
+  %76: int = const 1;
+  %77: int = call @dynarrNewString %75 %76;
+  %78: ptr<int> = id %4;
+  %79: ptr<int> = ptradd %78 %77;
+  %2: ptr<int> = id %79;
+  %80: ptr<int> = id %4;
+  free %80;
+  %81: ptr<int> = id stdin;
+  %82: ptr<int> = id %1;
+  %83: ptr<int> = id %2;
+  %84: ptr<int> = id %3;
+  %85: int = call @tokensPush %81 %82 %83 %84;
+  %86: ptr<int> = id %1;
+  %87: ptr<int> = ptradd %86 %85;
+  %1: ptr<int> = id %87;
+  jmp .L7;
+.L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L2, .L3, .L5, .L7}, escapes = {}
+  %88: int = const 40;
+  %89: int = eq %0 %88;
+  br %89 .L8 .L9;
+.L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L3, .L5, .L7, .L8}, escapes = {%1, %2, %3, %4, %6}
+  %90: int = const 1;
+  %6: int = id %90;
+  %91: int = const 6;
+  %92: ptr<int> = alloc %91;
+  %4: ptr<int> = id %92;
+  %93: int = const 76;
+  %94: ptr<int> = id %4;
+  store %94 %93;
+  %95: int = const 80;
+  %96: ptr<int> = id %4;
+  %97: int = const 1;
+  %98: ptr<int> = ptradd %96 %97;
+  store %98 %95;
+  %99: int = const 65;
+  %100: ptr<int> = id %4;
+  %101: int = const 2;
+  %102: ptr<int> = ptradd %100 %101;
+  store %102 %99;
+  %103: int = const 82;
+  %104: ptr<int> = id %4;
+  %105: int = const 3;
+  %106: ptr<int> = ptradd %104 %105;
+  store %106 %103;
+  %107: int = const 69;
+  %108: ptr<int> = id %4;
+  %109: int = const 4;
+  %110: ptr<int> = ptradd %108 %109;
+  store %110 %107;
+  %111: int = const 78;
+  %112: ptr<int> = id %4;
+  %113: int = const 5;
+  %114: ptr<int> = ptradd %112 %113;
+  store %114 %111;
+  %115: ptr<int> = id %4;
+  %116: int = const 6;
+  %117: int = call @dynarrNewString %115 %116;
+  %118: ptr<int> = id %4;
+  %119: ptr<int> = ptradd %118 %117;
+  %3: ptr<int> = id %119;
+  %120: int = const 40;
+  %121: ptr<int> = id %4;
+  store %121 %120;
+  %122: ptr<int> = id %4;
+  %123: int = const 1;
+  %124: int = call @dynarrNewString %122 %123;
+  %125: ptr<int> = id %4;
+  %126: ptr<int> = ptradd %125 %124;
+  %2: ptr<int> = id %126;
+  %127: ptr<int> = id %4;
+  free %127;
+  %128: ptr<int> = id stdin;
+  %129: ptr<int> = id %1;
+  %130: ptr<int> = id %2;
+  %131: ptr<int> = id %3;
+  %132: int = call @tokensPush %128 %129 %130 %131;
+  %133: ptr<int> = id %1;
+  %134: ptr<int> = ptradd %133 %132;
+  %1: ptr<int> = id %134;
+  jmp .L9;
+.L9:                                               preds = {.L7, .L8}, dominators = {.L0, .L1, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %135: int = const 41;
+  %136: int = eq %0 %135;
+  br %136 .L10 .L11;
+.L10:                                              preds = {.L9}, dominators = {.L0, .L1, .L10, .L2, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %137: int = const 1;
+  %6: int = id %137;
+  %138: int = const 6;
+  %139: ptr<int> = alloc %138;
+  %4: ptr<int> = id %139;
+  %140: int = const 82;
+  %141: ptr<int> = id %4;
+  store %141 %140;
+  %142: int = const 80;
+  %143: ptr<int> = id %4;
+  %144: int = const 1;
+  %145: ptr<int> = ptradd %143 %144;
+  store %145 %142;
+  %146: int = const 65;
+  %147: ptr<int> = id %4;
+  %148: int = const 2;
+  %149: ptr<int> = ptradd %147 %148;
+  store %149 %146;
+  %150: int = const 82;
+  %151: ptr<int> = id %4;
+  %152: int = const 3;
+  %153: ptr<int> = ptradd %151 %152;
+  store %153 %150;
+  %154: int = const 69;
+  %155: ptr<int> = id %4;
+  %156: int = const 4;
+  %157: ptr<int> = ptradd %155 %156;
+  store %157 %154;
+  %158: int = const 78;
+  %159: ptr<int> = id %4;
+  %160: int = const 5;
+  %161: ptr<int> = ptradd %159 %160;
+  store %161 %158;
+  %162: ptr<int> = id %4;
+  %163: int = const 6;
+  %164: int = call @dynarrNewString %162 %163;
+  %165: ptr<int> = id %4;
+  %166: ptr<int> = ptradd %165 %164;
+  %3: ptr<int> = id %166;
+  %167: int = const 41;
+  %168: ptr<int> = id %4;
+  store %168 %167;
+  %169: ptr<int> = id %4;
+  %170: int = const 1;
+  %171: int = call @dynarrNewString %169 %170;
+  %172: ptr<int> = id %4;
+  %173: ptr<int> = ptradd %172 %171;
+  %2: ptr<int> = id %173;
+  %174: ptr<int> = id %4;
+  free %174;
+  %175: ptr<int> = id stdin;
+  %176: ptr<int> = id %1;
+  %177: ptr<int> = id %2;
+  %178: ptr<int> = id %3;
+  %179: int = call @tokensPush %175 %176 %177 %178;
+  %180: ptr<int> = id %1;
+  %181: ptr<int> = ptradd %180 %179;
+  %1: ptr<int> = id %181;
+  jmp .L11;
+.L11:                                              preds = {.L10, .L9}, dominators = {.L0, .L1, .L11, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %182: int = const 42;
+  %183: int = eq %0 %182;
+  br %183 .L12 .L13;
+.L12:                                              preds = {.L11}, dominators = {.L0, .L1, .L11, .L12, .L2, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %184: int = const 1;
+  %6: int = id %184;
+  %185: int = const 5;
+  %186: ptr<int> = alloc %185;
+  %4: ptr<int> = id %186;
+  %187: int = const 84;
+  %188: ptr<int> = id %4;
+  store %188 %187;
+  %189: int = const 73;
+  %190: ptr<int> = id %4;
+  %191: int = const 1;
+  %192: ptr<int> = ptradd %190 %191;
+  store %192 %189;
+  %193: int = const 77;
+  %194: ptr<int> = id %4;
+  %195: int = const 2;
+  %196: ptr<int> = ptradd %194 %195;
+  store %196 %193;
+  %197: int = const 69;
+  %198: ptr<int> = id %4;
+  %199: int = const 3;
+  %200: ptr<int> = ptradd %198 %199;
+  store %200 %197;
+  %201: int = const 83;
+  %202: ptr<int> = id %4;
+  %203: int = const 4;
+  %204: ptr<int> = ptradd %202 %203;
+  store %204 %201;
+  %205: ptr<int> = id %4;
+  %206: int = const 5;
+  %207: int = call @dynarrNewString %205 %206;
+  %208: ptr<int> = id %4;
+  %209: ptr<int> = ptradd %208 %207;
+  %3: ptr<int> = id %209;
+  %210: int = const 42;
+  %211: ptr<int> = id %4;
+  store %211 %210;
+  %212: ptr<int> = id %4;
+  %213: int = const 1;
+  %214: int = call @dynarrNewString %212 %213;
+  %215: ptr<int> = id %4;
+  %216: ptr<int> = ptradd %215 %214;
+  %2: ptr<int> = id %216;
+  %217: ptr<int> = id %4;
+  free %217;
+  %218: ptr<int> = id stdin;
+  %219: ptr<int> = id %1;
+  %220: ptr<int> = id %2;
+  %221: ptr<int> = id %3;
+  %222: int = call @tokensPush %218 %219 %220 %221;
+  %223: ptr<int> = id %1;
+  %224: ptr<int> = ptradd %223 %222;
+  %1: ptr<int> = id %224;
+  jmp .L13;
+.L13:                                              preds = {.L11, .L12}, dominators = {.L0, .L1, .L11, .L13, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %225: int = const 43;
+  %226: int = eq %0 %225;
+  br %226 .L14 .L15;
+.L14:                                              preds = {.L13}, dominators = {.L0, .L1, .L11, .L13, .L14, .L2, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %227: int = const 1;
+  %6: int = id %227;
+  %228: int = const 4;
+  %229: ptr<int> = alloc %228;
+  %4: ptr<int> = id %229;
+  %230: int = const 80;
+  %231: ptr<int> = id %4;
+  store %231 %230;
+  %232: int = const 76;
+  %233: ptr<int> = id %4;
+  %234: int = const 1;
+  %235: ptr<int> = ptradd %233 %234;
+  store %235 %232;
+  %236: int = const 85;
+  %237: ptr<int> = id %4;
+  %238: int = const 2;
+  %239: ptr<int> = ptradd %237 %238;
+  store %239 %236;
+  %240: int = const 83;
+  %241: ptr<int> = id %4;
+  %242: int = const 3;
+  %243: ptr<int> = ptradd %241 %242;
+  store %243 %240;
+  %244: ptr<int> = id %4;
+  %245: int = const 4;
+  %246: int = call @dynarrNewString %244 %245;
+  %247: ptr<int> = id %4;
+  %248: ptr<int> = ptradd %247 %246;
+  %3: ptr<int> = id %248;
+  %249: int = const 43;
+  %250: ptr<int> = id %4;
+  store %250 %249;
+  %251: ptr<int> = id %4;
+  %252: int = const 1;
+  %253: int = call @dynarrNewString %251 %252;
+  %254: ptr<int> = id %4;
+  %255: ptr<int> = ptradd %254 %253;
+  %2: ptr<int> = id %255;
+  %256: ptr<int> = id %4;
+  free %256;
+  %257: ptr<int> = id stdin;
+  %258: ptr<int> = id %1;
+  %259: ptr<int> = id %2;
+  %260: ptr<int> = id %3;
+  %261: int = call @tokensPush %257 %258 %259 %260;
+  %262: ptr<int> = id %1;
+  %263: ptr<int> = ptradd %262 %261;
+  %1: ptr<int> = id %263;
+  jmp .L15;
+.L15:                                              preds = {.L13, .L14}, dominators = {.L0, .L1, .L11, .L13, .L15, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %264: int = const 44;
+  %265: int = eq %0 %264;
+  br %265 .L16 .L17;
+.L16:                                              preds = {.L15}, dominators = {.L0, .L1, .L11, .L13, .L15, .L16, .L2, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %266: int = const 1;
+  %6: int = id %266;
+  %267: int = const 5;
+  %268: ptr<int> = alloc %267;
+  %4: ptr<int> = id %268;
+  %269: int = const 67;
+  %270: ptr<int> = id %4;
+  store %270 %269;
+  %271: int = const 79;
+  %272: ptr<int> = id %4;
+  %273: int = const 1;
+  %274: ptr<int> = ptradd %272 %273;
+  store %274 %271;
+  %275: int = const 77;
+  %276: ptr<int> = id %4;
+  %277: int = const 2;
+  %278: ptr<int> = ptradd %276 %277;
+  store %278 %275;
+  %279: int = const 77;
+  %280: ptr<int> = id %4;
+  %281: int = const 3;
+  %282: ptr<int> = ptradd %280 %281;
+  store %282 %279;
+  %283: int = const 65;
+  %284: ptr<int> = id %4;
+  %285: int = const 4;
+  %286: ptr<int> = ptradd %284 %285;
+  store %286 %283;
+  %287: ptr<int> = id %4;
+  %288: int = const 5;
+  %289: int = call @dynarrNewString %287 %288;
+  %290: ptr<int> = id %4;
+  %291: ptr<int> = ptradd %290 %289;
+  %3: ptr<int> = id %291;
+  %292: int = const 44;
+  %293: ptr<int> = id %4;
+  store %293 %292;
+  %294: ptr<int> = id %4;
+  %295: int = const 1;
+  %296: int = call @dynarrNewString %294 %295;
+  %297: ptr<int> = id %4;
+  %298: ptr<int> = ptradd %297 %296;
+  %2: ptr<int> = id %298;
+  %299: ptr<int> = id %4;
+  free %299;
+  %300: ptr<int> = id stdin;
+  %301: ptr<int> = id %1;
+  %302: ptr<int> = id %2;
+  %303: ptr<int> = id %3;
+  %304: int = call @tokensPush %300 %301 %302 %303;
+  %305: ptr<int> = id %1;
+  %306: ptr<int> = ptradd %305 %304;
+  %1: ptr<int> = id %306;
+  jmp .L17;
+.L17:                                              preds = {.L15, .L16}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %307: int = const 45;
+  %308: int = eq %0 %307;
+  br %308 .L18 .L19;
+.L18:                                              preds = {.L17}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L18, .L2, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %309: int = const 1;
+  %6: int = id %309;
+  %310: int = const 5;
+  %311: ptr<int> = alloc %310;
+  %4: ptr<int> = id %311;
+  %312: int = const 77;
+  %313: ptr<int> = id %4;
+  store %313 %312;
+  %314: int = const 73;
+  %315: ptr<int> = id %4;
+  %316: int = const 1;
+  %317: ptr<int> = ptradd %315 %316;
+  store %317 %314;
+  %318: int = const 78;
+  %319: ptr<int> = id %4;
+  %320: int = const 2;
+  %321: ptr<int> = ptradd %319 %320;
+  store %321 %318;
+  %322: int = const 85;
+  %323: ptr<int> = id %4;
+  %324: int = const 3;
+  %325: ptr<int> = ptradd %323 %324;
+  store %325 %322;
+  %326: int = const 83;
+  %327: ptr<int> = id %4;
+  %328: int = const 4;
+  %329: ptr<int> = ptradd %327 %328;
+  store %329 %326;
+  %330: ptr<int> = id %4;
+  %331: int = const 5;
+  %332: int = call @dynarrNewString %330 %331;
+  %333: ptr<int> = id %4;
+  %334: ptr<int> = ptradd %333 %332;
+  %3: ptr<int> = id %334;
+  %335: int = const 45;
+  %336: ptr<int> = id %4;
+  store %336 %335;
+  %337: ptr<int> = id %4;
+  %338: int = const 1;
+  %339: int = call @dynarrNewString %337 %338;
+  %340: ptr<int> = id %4;
+  %341: ptr<int> = ptradd %340 %339;
+  %2: ptr<int> = id %341;
+  %342: ptr<int> = id %4;
+  free %342;
+  %343: ptr<int> = id stdin;
+  %344: ptr<int> = id %1;
+  %345: ptr<int> = id %2;
+  %346: ptr<int> = id %3;
+  %347: int = call @tokensPush %343 %344 %345 %346;
+  %348: ptr<int> = id %1;
+  %349: ptr<int> = ptradd %348 %347;
+  %1: ptr<int> = id %349;
+  jmp .L19;
+.L19:                                              preds = {.L17, .L18}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L3, .L5, .L7, .L9}, escapes = {}
+  %350: int = const 59;
+  %351: int = eq %0 %350;
+  br %351 .L20 .L21;
+.L20:                                              preds = {.L19}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L20, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %352: int = const 1;
+  %6: int = id %352;
+  %353: int = const 4;
+  %354: ptr<int> = alloc %353;
+  %4: ptr<int> = id %354;
+  %355: int = const 83;
+  %356: ptr<int> = id %4;
+  store %356 %355;
+  %357: int = const 69;
+  %358: ptr<int> = id %4;
+  %359: int = const 1;
+  %360: ptr<int> = ptradd %358 %359;
+  store %360 %357;
+  %361: int = const 77;
+  %362: ptr<int> = id %4;
+  %363: int = const 2;
+  %364: ptr<int> = ptradd %362 %363;
+  store %364 %361;
+  %365: int = const 73;
+  %366: ptr<int> = id %4;
+  %367: int = const 3;
+  %368: ptr<int> = ptradd %366 %367;
+  store %368 %365;
+  %369: ptr<int> = id %4;
+  %370: int = const 4;
+  %371: int = call @dynarrNewString %369 %370;
+  %372: ptr<int> = id %4;
+  %373: ptr<int> = ptradd %372 %371;
+  %3: ptr<int> = id %373;
+  %374: int = const 59;
+  %375: ptr<int> = id %4;
+  store %375 %374;
+  %376: ptr<int> = id %4;
+  %377: int = const 1;
+  %378: int = call @dynarrNewString %376 %377;
+  %379: ptr<int> = id %4;
+  %380: ptr<int> = ptradd %379 %378;
+  %2: ptr<int> = id %380;
+  %381: ptr<int> = id %4;
+  free %381;
+  %382: ptr<int> = id stdin;
+  %383: ptr<int> = id %1;
+  %384: ptr<int> = id %2;
+  %385: ptr<int> = id %3;
+  %386: int = call @tokensPush %382 %383 %384 %385;
+  %387: ptr<int> = id %1;
+  %388: ptr<int> = ptradd %387 %386;
+  %1: ptr<int> = id %388;
+  jmp .L21;
+.L21:                                              preds = {.L19, .L20}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L3, .L5, .L7, .L9}, escapes = {}
+  %389: int = const 91;
+  %390: int = eq %0 %389;
+  br %390 .L22 .L23;
+.L22:                                              preds = {.L21}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L22, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %391: int = const 1;
+  %6: int = id %391;
+  %392: int = const 6;
+  %393: ptr<int> = alloc %392;
+  %4: ptr<int> = id %393;
+  %394: int = const 76;
+  %395: ptr<int> = id %4;
+  store %395 %394;
+  %396: int = const 66;
+  %397: ptr<int> = id %4;
+  %398: int = const 1;
+  %399: ptr<int> = ptradd %397 %398;
+  store %399 %396;
+  %400: int = const 82;
+  %401: ptr<int> = id %4;
+  %402: int = const 2;
+  %403: ptr<int> = ptradd %401 %402;
+  store %403 %400;
+  %404: int = const 65;
+  %405: ptr<int> = id %4;
+  %406: int = const 3;
+  %407: ptr<int> = ptradd %405 %406;
+  store %407 %404;
+  %408: int = const 67;
+  %409: ptr<int> = id %4;
+  %410: int = const 4;
+  %411: ptr<int> = ptradd %409 %410;
+  store %411 %408;
+  %412: int = const 75;
+  %413: ptr<int> = id %4;
+  %414: int = const 5;
+  %415: ptr<int> = ptradd %413 %414;
+  store %415 %412;
+  %416: ptr<int> = id %4;
+  %417: int = const 6;
+  %418: int = call @dynarrNewString %416 %417;
+  %419: ptr<int> = id %4;
+  %420: ptr<int> = ptradd %419 %418;
+  %3: ptr<int> = id %420;
+  %421: int = const 91;
+  %422: ptr<int> = id %4;
+  store %422 %421;
+  %423: ptr<int> = id %4;
+  %424: int = const 1;
+  %425: int = call @dynarrNewString %423 %424;
+  %426: ptr<int> = id %4;
+  %427: ptr<int> = ptradd %426 %425;
+  %2: ptr<int> = id %427;
+  %428: ptr<int> = id %4;
+  free %428;
+  %429: ptr<int> = id stdin;
+  %430: ptr<int> = id %1;
+  %431: ptr<int> = id %2;
+  %432: ptr<int> = id %3;
+  %433: int = call @tokensPush %429 %430 %431 %432;
+  %434: ptr<int> = id %1;
+  %435: ptr<int> = ptradd %434 %433;
+  %1: ptr<int> = id %435;
+  jmp .L23;
+.L23:                                              preds = {.L21, .L22}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L3, .L5, .L7, .L9}, escapes = {}
+  %436: int = const 93;
+  %437: int = eq %0 %436;
+  br %437 .L24 .L25;
+.L24:                                              preds = {.L23}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L24, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %438: int = const 1;
+  %6: int = id %438;
+  %439: int = const 6;
+  %440: ptr<int> = alloc %439;
+  %4: ptr<int> = id %440;
+  %441: int = const 82;
+  %442: ptr<int> = id %4;
+  store %442 %441;
+  %443: int = const 66;
+  %444: ptr<int> = id %4;
+  %445: int = const 1;
+  %446: ptr<int> = ptradd %444 %445;
+  store %446 %443;
+  %447: int = const 82;
+  %448: ptr<int> = id %4;
+  %449: int = const 2;
+  %450: ptr<int> = ptradd %448 %449;
+  store %450 %447;
+  %451: int = const 65;
+  %452: ptr<int> = id %4;
+  %453: int = const 3;
+  %454: ptr<int> = ptradd %452 %453;
+  store %454 %451;
+  %455: int = const 67;
+  %456: ptr<int> = id %4;
+  %457: int = const 4;
+  %458: ptr<int> = ptradd %456 %457;
+  store %458 %455;
+  %459: int = const 75;
+  %460: ptr<int> = id %4;
+  %461: int = const 5;
+  %462: ptr<int> = ptradd %460 %461;
+  store %462 %459;
+  %463: ptr<int> = id %4;
+  %464: int = const 6;
+  %465: int = call @dynarrNewString %463 %464;
+  %466: ptr<int> = id %4;
+  %467: ptr<int> = ptradd %466 %465;
+  %3: ptr<int> = id %467;
+  %468: int = const 93;
+  %469: ptr<int> = id %4;
+  store %469 %468;
+  %470: ptr<int> = id %4;
+  %471: int = const 1;
+  %472: int = call @dynarrNewString %470 %471;
+  %473: ptr<int> = id %4;
+  %474: ptr<int> = ptradd %473 %472;
+  %2: ptr<int> = id %474;
+  %475: ptr<int> = id %4;
+  free %475;
+  %476: ptr<int> = id stdin;
+  %477: ptr<int> = id %1;
+  %478: ptr<int> = id %2;
+  %479: ptr<int> = id %3;
+  %480: int = call @tokensPush %476 %477 %478 %479;
+  %481: ptr<int> = id %1;
+  %482: ptr<int> = ptradd %481 %480;
+  %1: ptr<int> = id %482;
+  jmp .L25;
+.L25:                                              preds = {.L23, .L24}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L3, .L5, .L7, .L9}, escapes = {}
+  %483: int = const 123;
+  %484: int = eq %0 %483;
+  br %484 .L26 .L27;
+.L26:                                              preds = {.L25}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L26, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %485: int = const 1;
+  %6: int = id %485;
+  %486: int = const 6;
+  %487: ptr<int> = alloc %486;
+  %4: ptr<int> = id %487;
+  %488: int = const 76;
+  %489: ptr<int> = id %4;
+  store %489 %488;
+  %490: int = const 66;
+  %491: ptr<int> = id %4;
+  %492: int = const 1;
+  %493: ptr<int> = ptradd %491 %492;
+  store %493 %490;
+  %494: int = const 82;
+  %495: ptr<int> = id %4;
+  %496: int = const 2;
+  %497: ptr<int> = ptradd %495 %496;
+  store %497 %494;
+  %498: int = const 65;
+  %499: ptr<int> = id %4;
+  %500: int = const 3;
+  %501: ptr<int> = ptradd %499 %500;
+  store %501 %498;
+  %502: int = const 67;
+  %503: ptr<int> = id %4;
+  %504: int = const 4;
+  %505: ptr<int> = ptradd %503 %504;
+  store %505 %502;
+  %506: int = const 69;
+  %507: ptr<int> = id %4;
+  %508: int = const 5;
+  %509: ptr<int> = ptradd %507 %508;
+  store %509 %506;
+  %510: ptr<int> = id %4;
+  %511: int = const 6;
+  %512: int = call @dynarrNewString %510 %511;
+  %513: ptr<int> = id %4;
+  %514: ptr<int> = ptradd %513 %512;
+  %3: ptr<int> = id %514;
+  %515: int = const 123;
+  %516: ptr<int> = id %4;
+  store %516 %515;
+  %517: ptr<int> = id %4;
+  %518: int = const 1;
+  %519: int = call @dynarrNewString %517 %518;
+  %520: ptr<int> = id %4;
+  %521: ptr<int> = ptradd %520 %519;
+  %2: ptr<int> = id %521;
+  %522: ptr<int> = id %4;
+  free %522;
+  %523: ptr<int> = id stdin;
+  %524: ptr<int> = id %1;
+  %525: ptr<int> = id %2;
+  %526: ptr<int> = id %3;
+  %527: int = call @tokensPush %523 %524 %525 %526;
+  %528: ptr<int> = id %1;
+  %529: ptr<int> = ptradd %528 %527;
+  %1: ptr<int> = id %529;
+  jmp .L27;
+.L27:                                              preds = {.L25, .L26}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L3, .L5, .L7, .L9}, escapes = {}
+  %530: int = const 125;
+  %531: int = eq %0 %530;
+  br %531 .L28 .L29;
+.L28:                                              preds = {.L27}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L28, .L3, .L5, .L7, .L9}, escapes = {%1, %2, %3, %4, %6}
+  %532: int = const 1;
+  %6: int = id %532;
+  %533: int = const 6;
+  %534: ptr<int> = alloc %533;
+  %4: ptr<int> = id %534;
+  %535: int = const 82;
+  %536: ptr<int> = id %4;
+  store %536 %535;
+  %537: int = const 66;
+  %538: ptr<int> = id %4;
+  %539: int = const 1;
+  %540: ptr<int> = ptradd %538 %539;
+  store %540 %537;
+  %541: int = const 82;
+  %542: ptr<int> = id %4;
+  %543: int = const 2;
+  %544: ptr<int> = ptradd %542 %543;
+  store %544 %541;
+  %545: int = const 65;
+  %546: ptr<int> = id %4;
+  %547: int = const 3;
+  %548: ptr<int> = ptradd %546 %547;
+  store %548 %545;
+  %549: int = const 67;
+  %550: ptr<int> = id %4;
+  %551: int = const 4;
+  %552: ptr<int> = ptradd %550 %551;
+  store %552 %549;
+  %553: int = const 69;
+  %554: ptr<int> = id %4;
+  %555: int = const 5;
+  %556: ptr<int> = ptradd %554 %555;
+  store %556 %553;
+  %557: ptr<int> = id %4;
+  %558: int = const 6;
+  %559: int = call @dynarrNewString %557 %558;
+  %560: ptr<int> = id %4;
+  %561: ptr<int> = ptradd %560 %559;
+  %3: ptr<int> = id %561;
+  %562: int = const 125;
+  %563: ptr<int> = id %4;
+  store %563 %562;
+  %564: ptr<int> = id %4;
+  %565: int = const 1;
+  %566: int = call @dynarrNewString %564 %565;
+  %567: ptr<int> = id %4;
+  %568: ptr<int> = ptradd %567 %566;
+  %2: ptr<int> = id %568;
+  %569: ptr<int> = id %4;
+  free %569;
+  %570: ptr<int> = id stdin;
+  %571: ptr<int> = id %1;
+  %572: ptr<int> = id %2;
+  %573: ptr<int> = id %3;
+  %574: int = call @tokensPush %570 %571 %572 %573;
+  %575: ptr<int> = id %1;
+  %576: ptr<int> = ptradd %575 %574;
+  %1: ptr<int> = id %576;
+  jmp .L29;
+.L29:                                              preds = {.L27, .L28}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L5, .L7, .L9}, escapes = {}
+  %577: int = const 33;
+  %578: int = eq %0 %577;
+  br %578 .L30 .L31;
+.L30:                                              preds = {.L29}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L30, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 33;
+  %5: int = const -1;
+  jmp .L31;
+.L31:                                              preds = {.L29, .L30}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L5, .L7, .L9}, escapes = {}
+  %579: int = const 60;
+  %580: int = eq %0 %579;
+  br %580 .L32 .L33;
+.L32:                                              preds = {.L31}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L32, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 61;
+  %5: int = const -1;
+  jmp .L33;
+.L33:                                              preds = {.L31, .L32}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L5, .L7, .L9}, escapes = {}
+  %581: int = const 61;
+  %582: int = eq %0 %581;
+  br %582 .L34 .L35;
+.L34:                                              preds = {.L33}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L34, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 61;
+  %5: int = const -1;
+  jmp .L35;
+.L35:                                              preds = {.L33, .L34}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L5, .L7, .L9}, escapes = {}
+  %583: int = const 62;
+  %584: int = eq %0 %583;
+  br %584 .L36 .L37;
+.L36:                                              preds = {.L35}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L36, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 62;
+  %5: int = const -1;
+  jmp .L37;
+.L37:                                              preds = {.L35, .L36}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L5, .L7, .L9}, escapes = {}
+  %585: int = const 47;
+  %586: int = eq %0 %585;
+  br %586 .L38 .L39;
+.L38:                                              preds = {.L37}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L38, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 1;
+  %5: int = const -2;
+  jmp .L39;
+.L39:                                              preds = {.L37, .L38}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L5, .L7, .L9}, escapes = {}
+  %587: int = const 48;
+  %588: int = eq %0 %587;
+  br %588 .L40 .L41;
+.L40:                                              preds = {.L39}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L40, .L5, .L7, .L9}, escapes = {%5, %6}
+  %6: int = const 1;
+  %5: int = const -4;
+  jmp .L41;
+.L41:                                              preds = {.L39, .L40}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L5, .L7, .L9}, escapes = {}
+  %589: int = const 58;
+  %590: int = lt %0 %589;
+  br %590 .L42 .L45;
+.L42:                                              preds = {.L41}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L42, .L5, .L7, .L9}, escapes = {}
+  %591: int = const 48;
+  %592: int = lt %591 %0;
+  br %592 .L43 .L44;
+.L43:                                              preds = {.L42}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L42, .L43, .L5, .L7, .L9}, escapes = {%2, %5, %6}
+  %6: int = const 1;
+  %5: int = const -5;
+  %593: int = call @dynarrNew stdin;
+  %594: ptr<int> = ptradd stdin %593;
+  %2: ptr<int> = id %594;
+  %595: int = call @dynarrPush %594 %0;
+  %596: ptr<int> = ptradd %594 %595;
+  %2: ptr<int> = id %596;
+  jmp .L44;
+.L44:                                              preds = {.L42, .L43}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L42, .L44, .L5, .L7, .L9}, escapes = {}
+  jmp .L45;
+.L45:                                              preds = {.L41, .L44}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L5, .L7, .L9}, escapes = {}
+  %597: int = const 64;
+  %598: int = lt %597 %0;
+  br %598 .L46 .L49;
+.L46:                                              preds = {.L45}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L46, .L5, .L7, .L9}, escapes = {}
+  %599: int = const 91;
+  %600: int = lt %0 %599;
+  br %600 .L47 .L48;
+.L47:                                              preds = {.L46}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L46, .L47, .L5, .L7, .L9}, escapes = {%2, %5, %6}
+  %6: int = const 1;
+  %5: int = const -6;
+  %601: int = call @dynarrNew stdin;
+  %602: ptr<int> = ptradd stdin %601;
+  %2: ptr<int> = id %602;
+  %603: int = call @dynarrPush %602 %0;
+  %604: ptr<int> = ptradd %602 %603;
+  %2: ptr<int> = id %604;
+  jmp .L48;
+.L48:                                              preds = {.L46, .L47}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L46, .L48, .L5, .L7, .L9}, escapes = {}
+  jmp .L49;
+.L49:                                              preds = {.L45, .L48}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L7, .L9}, escapes = {}
+  %605: int = const 96;
+  %606: int = lt %605 %0;
+  br %606 .L50 .L53;
+.L50:                                              preds = {.L49}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L50, .L7, .L9}, escapes = {}
+  %607: int = const 123;
+  %608: int = lt %0 %607;
+  br %608 .L51 .L52;
+.L51:                                              preds = {.L50}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L50, .L51, .L7, .L9}, escapes = {%2, %5, %6}
+  %6: int = const 1;
+  %5: int = const -6;
+  %609: int = call @dynarrNew stdin;
+  %610: ptr<int> = ptradd stdin %609;
+  %2: ptr<int> = id %610;
+  %611: int = call @dynarrPush %610 %0;
+  %612: ptr<int> = ptradd %610 %611;
+  %2: ptr<int> = id %612;
+  jmp .L52;
+.L52:                                              preds = {.L50, .L51}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L50, .L52, .L7, .L9}, escapes = {}
+  jmp .L53;
+.L53:                                              preds = {.L49, .L52}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L53, .L7, .L9}, escapes = {}
+  %613: int = const 0;
+  %614: int = eq %6 %613;
+  br %614 .L54 .L55;
+.L54:                                              preds = {.L53}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L53, .L54, .L7, .L9}, escapes = {%6}
+  %615: int = call @error;
+  %6: int = id %615;
+  jmp .L55;
+.L55:                                              preds = {.L53, .L54}, dominators = {.L0, .L1, .L11, .L13, .L15, .L17, .L19, .L2, .L21, .L23, .L25, .L27, .L29, .L3, .L31, .L33, .L35, .L37, .L39, .L41, .L45, .L49, .L5, .L53, .L55, .L7, .L9}, escapes = {}
+  jmp .L56;
+.L56:                                              preds = {.L2, .L55}, dominators = {.L0, .L1, .L2, .L56}, escapes = {}
+  %616: int = const 1;
+  %617: int = eq %5 %616;
+  br %617 .L57 .L78;
+.L57:                                              preds = {.L56}, dominators = {.L0, .L1, .L2, .L56, .L57}, escapes = {%5}
+  %5: int = const 0;
+  %618: int = const 61;
+  %619: int = eq %0 %618;
+  br %619 .L58 .L67;
+.L58:                                              preds = {.L57}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58}, escapes = {%4}
+  %620: int = const 2;
+  %621: ptr<int> = alloc %620;
+  %4: ptr<int> = id %621;
+  %622: int = const 33;
+  %623: int = eq %6 %622;
+  br %623 .L59 .L60;
+.L59:                                              preds = {.L58}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L59}, escapes = {}
+  %624: int = const 78;
+  %625: ptr<int> = id %4;
+  store %625 %624;
+  %626: int = const 69;
+  %627: ptr<int> = id %4;
+  %628: int = const 1;
+  %629: ptr<int> = ptradd %627 %628;
+  store %629 %626;
+  jmp .L60;
+.L60:                                              preds = {.L58, .L59}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60}, escapes = {}
+  %630: int = const 60;
+  %631: int = eq %6 %630;
+  br %631 .L61 .L62;
+.L61:                                              preds = {.L60}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L61}, escapes = {}
+  %632: int = const 76;
+  %633: ptr<int> = id %4;
+  store %633 %632;
+  %634: int = const 69;
+  %635: ptr<int> = id %4;
+  %636: int = const 1;
+  %637: ptr<int> = ptradd %635 %636;
+  store %637 %634;
+  jmp .L62;
+.L62:                                              preds = {.L60, .L61}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L62}, escapes = {}
+  %638: int = const 61;
+  %639: int = eq %6 %638;
+  br %639 .L63 .L64;
+.L63:                                              preds = {.L62}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L62, .L63}, escapes = {}
+  %640: int = const 69;
+  %641: ptr<int> = id %4;
+  store %641 %640;
+  %642: int = const 81;
+  %643: ptr<int> = id %4;
+  %644: int = const 1;
+  %645: ptr<int> = ptradd %643 %644;
+  store %645 %642;
+  jmp .L64;
+.L64:                                              preds = {.L62, .L63}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L62, .L64}, escapes = {}
+  %646: int = const 62;
+  %647: int = eq %6 %646;
+  br %647 .L65 .L66;
+.L65:                                              preds = {.L64}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L62, .L64, .L65}, escapes = {}
+  %648: int = const 71;
+  %649: ptr<int> = id %4;
+  store %649 %648;
+  %650: int = const 69;
+  %651: ptr<int> = id %4;
+  %652: int = const 1;
+  %653: ptr<int> = ptradd %651 %652;
+  store %653 %650;
+  jmp .L66;
+.L66:                                              preds = {.L64, .L65}, dominators = {.L0, .L1, .L2, .L56, .L57, .L58, .L60, .L62, .L64, .L66}, escapes = {%1, %2, %3}
+  %654: ptr<int> = id %4;
+  %655: int = const 2;
+  %656: int = call @dynarrNewString %654 %655;
+  %657: ptr<int> = id %4;
+  %658: ptr<int> = ptradd %657 %656;
+  %3: ptr<int> = id %658;
+  %659: int = id %6;
+  %660: ptr<int> = id %4;
+  store %660 %659;
+  %661: int = id %6;
+  %662: ptr<int> = id %4;
+  %663: int = const 1;
+  %664: ptr<int> = ptradd %662 %663;
+  store %664 %661;
+  %665: ptr<int> = id %4;
+  %666: int = const 2;
+  %667: int = call @dynarrNewString %665 %666;
+  %668: ptr<int> = id %4;
+  %669: ptr<int> = ptradd %668 %667;
+  %2: ptr<int> = id %669;
+  %670: ptr<int> = id %4;
+  free %670;
+  %671: ptr<int> = id stdin;
+  %672: ptr<int> = id %1;
+  %673: ptr<int> = id %2;
+  %674: ptr<int> = id %3;
+  %675: int = call @tokensPush %671 %672 %673 %674;
+  %676: ptr<int> = id %1;
+  %677: ptr<int> = ptradd %676 %675;
+  %1: ptr<int> = id %677;
+  jmp .L77;
+.L67:                                              preds = {.L57}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67}, escapes = {%7}
+  %7: int = const 0;
+  %678: int = const 33;
+  %679: int = eq %6 %678;
+  br %679 .L68 .L69;
+.L68:                                              preds = {.L67}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L68}, escapes = {%6}
+  %680: int = call @error;
+  %6: int = id %680;
+  jmp .L69;
+.L69:                                              preds = {.L67, .L68}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69}, escapes = {}
+  %681: int = const 61;
+  %682: int = eq %6 %681;
+  br %682 .L70 .L71;
+.L70:                                              preds = {.L69}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L70}, escapes = {%3, %4}
+  %683: int = const 7;
+  %684: ptr<int> = alloc %683;
+  %4: ptr<int> = id %684;
+  %685: int = const 66;
+  %686: ptr<int> = id %4;
+  store %686 %685;
+  %687: int = const 69;
+  %688: ptr<int> = id %4;
+  %689: int = const 1;
+  %690: ptr<int> = ptradd %688 %689;
+  store %690 %687;
+  %691: int = const 67;
+  %692: ptr<int> = id %4;
+  %693: int = const 2;
+  %694: ptr<int> = ptradd %692 %693;
+  store %694 %691;
+  %695: int = const 79;
+  %696: ptr<int> = id %4;
+  %697: int = const 3;
+  %698: ptr<int> = ptradd %696 %697;
+  store %698 %695;
+  %699: int = const 77;
+  %700: ptr<int> = id %4;
+  %701: int = const 4;
+  %702: ptr<int> = ptradd %700 %701;
+  store %702 %699;
+  %703: int = const 69;
+  %704: ptr<int> = id %4;
+  %705: int = const 5;
+  %706: ptr<int> = ptradd %704 %705;
+  store %706 %703;
+  %707: int = const 83;
+  %708: ptr<int> = id %4;
+  %709: int = const 6;
+  %710: ptr<int> = ptradd %708 %709;
+  store %710 %707;
+  %711: ptr<int> = id %4;
+  %712: int = const 7;
+  %713: int = call @dynarrNewString %711 %712;
+  %714: ptr<int> = id %4;
+  %715: ptr<int> = ptradd %714 %713;
+  %3: ptr<int> = id %715;
+  jmp .L76;
+.L71:                                              preds = {.L69}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L71}, escapes = {%4}
+  %716: int = const 2;
+  %717: ptr<int> = alloc %716;
+  %4: ptr<int> = id %717;
+  %718: int = const 60;
+  %719: int = eq %6 %718;
+  br %719 .L72 .L73;
+.L72:                                              preds = {.L71}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L71, .L72}, escapes = {}
+  %720: int = const 76;
+  %721: ptr<int> = id %4;
+  store %721 %720;
+  %722: int = const 84;
+  %723: ptr<int> = id %4;
+  %724: int = const 1;
+  %725: ptr<int> = ptradd %723 %724;
+  store %725 %722;
+  jmp .L73;
+.L73:                                              preds = {.L71, .L72}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L71, .L73}, escapes = {}
+  %726: int = const 62;
+  %727: int = eq %6 %726;
+  br %727 .L74 .L75;
+.L74:                                              preds = {.L73}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L71, .L73, .L74}, escapes = {}
+  %728: int = const 71;
+  %729: ptr<int> = id %4;
+  store %729 %728;
+  %730: int = const 84;
+  %731: ptr<int> = id %4;
+  %732: int = const 1;
+  %733: ptr<int> = ptradd %731 %732;
+  store %733 %730;
+  jmp .L75;
+.L75:                                              preds = {.L73, .L74}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L71, .L73, .L75}, escapes = {%3}
+  %734: int = const 2;
+  %735: int = call @dynarrNewString %4 %734;
+  %736: ptr<int> = ptradd %4 %735;
+  %3: ptr<int> = id %736;
+  jmp .L76;
+.L76:                                              preds = {.L70, .L75}, dominators = {.L0, .L1, .L2, .L56, .L57, .L67, .L69, .L76}, escapes = {%1, %2}
+  %737: int = id %6;
+  %738: ptr<int> = id %4;
+  store %738 %737;
+  %739: ptr<int> = id %4;
+  %740: int = const 1;
+  %741: int = call @dynarrNewString %739 %740;
+  %742: ptr<int> = id %4;
+  %743: ptr<int> = ptradd %742 %741;
+  %2: ptr<int> = id %743;
+  %744: ptr<int> = id %4;
+  free %744;
+  %745: ptr<int> = id stdin;
+  %746: ptr<int> = id %1;
+  %747: ptr<int> = id %2;
+  %748: ptr<int> = id %3;
+  %749: int = call @tokensPush %745 %746 %747 %748;
+  %750: ptr<int> = id %1;
+  %751: ptr<int> = ptradd %750 %749;
+  %1: ptr<int> = id %751;
+  jmp .L77;
+.L77:                                              preds = {.L66, .L76}, dominators = {.L0, .L1, .L2, .L56, .L57, .L77}, escapes = {}
+  jmp .L78;
+.L78:                                              preds = {.L56, .L77}, dominators = {.L0, .L1, .L2, .L56, .L78}, escapes = {}
+  %752: int = const 2;
+  %753: int = eq %5 %752;
+  br %753 .L79 .L83;
+.L79:                                              preds = {.L78}, dominators = {.L0, .L1, .L2, .L56, .L78, .L79}, escapes = {}
+  %754: int = const 47;
+  %755: int = eq %0 %754;
+  br %755 .L80 .L81;
+.L80:                                              preds = {.L79}, dominators = {.L0, .L1, .L2, .L56, .L78, .L79, .L80}, escapes = {%5}
+  %5: int = const -3;
+  jmp .L82;
+.L81:                                              preds = {.L79}, dominators = {.L0, .L1, .L2, .L56, .L78, .L79, .L81}, escapes = {%1, %2, %3, %4, %5, %7}
+  %756: int = const 0;
+  %5: int = id %756;
+  %757: int = const 0;
+  %7: int = id %757;
+  %758: int = const 5;
+  %759: ptr<int> = alloc %758;
+  %4: ptr<int> = id %759;
+  %760: int = const 83;
+  %761: ptr<int> = id %4;
+  store %761 %760;
+  %762: int = const 76;
+  %763: ptr<int> = id %4;
+  %764: int = const 1;
+  %765: ptr<int> = ptradd %763 %764;
+  store %765 %762;
+  %766: int = const 65;
+  %767: ptr<int> = id %4;
+  %768: int = const 2;
+  %769: ptr<int> = ptradd %767 %768;
+  store %769 %766;
+  %770: int = const 83;
+  %771: ptr<int> = id %4;
+  %772: int = const 3;
+  %773: ptr<int> = ptradd %771 %772;
+  store %773 %770;
+  %774: int = const 72;
+  %775: ptr<int> = id %4;
+  %776: int = const 4;
+  %777: ptr<int> = ptradd %775 %776;
+  store %777 %774;
+  %778: ptr<int> = id %4;
+  %779: int = const 5;
+  %780: int = call @dynarrNewString %778 %779;
+  %781: ptr<int> = id %4;
+  %782: ptr<int> = ptradd %781 %780;
+  %3: ptr<int> = id %782;
+  %783: int = const 47;
+  %784: ptr<int> = id %4;
+  store %784 %783;
+  %785: ptr<int> = id %4;
+  %786: int = const 1;
+  %787: int = call @dynarrNewString %785 %786;
+  %788: ptr<int> = id %4;
+  %789: ptr<int> = ptradd %788 %787;
+  %2: ptr<int> = id %789;
+  %790: ptr<int> = id %4;
+  free %790;
+  %791: ptr<int> = id stdin;
+  %792: ptr<int> = id %1;
+  %793: ptr<int> = id %2;
+  %794: ptr<int> = id %3;
+  %795: int = call @tokensPush %791 %792 %793 %794;
+  %796: ptr<int> = id %1;
+  %797: ptr<int> = ptradd %796 %795;
+  %1: ptr<int> = id %797;
+  jmp .L82;
+.L82:                                              preds = {.L80, .L81}, dominators = {.L0, .L1, .L2, .L56, .L78, .L79, .L82}, escapes = {}
+  jmp .L83;
+.L83:                                              preds = {.L78, .L82}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83}, escapes = {}
+  %798: int = const 3;
+  %799: int = eq %5 %798;
+  br %799 .L84 .L87;
+.L84:                                              preds = {.L83}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L84}, escapes = {}
+  %800: int = const 10;
+  %801: int = eq %0 %800;
+  br %801 .L85 .L86;
+.L85:                                              preds = {.L84}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L84, .L85}, escapes = {%5}
+  %5: int = const 0;
+  jmp .L86;
+.L86:                                              preds = {.L84, .L85}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L84, .L86}, escapes = {}
+  jmp .L87;
+.L87:                                              preds = {.L83, .L86}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %802: int = const 4;
+  %803: int = eq %5 %802;
+  br %803 .L88 .L101;
+.L88:                                              preds = {.L87}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88}, escapes = {}
+  %804: int = const 47;
+  %805: int = lt %804 %0;
+  br %805 .L89 .L92;
+.L89:                                              preds = {.L88}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L89}, escapes = {}
+  %806: int = const 58;
+  %807: int = lt %0 %806;
+  br %807 .L90 .L91;
+.L90:                                              preds = {.L89}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L89, .L90}, escapes = {%0}
+  %808: int = call @error;
+  %0: int = id %808;
+  jmp .L91;
+.L91:                                              preds = {.L89, .L90}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L89, .L91}, escapes = {}
+  jmp .L92;
+.L92:                                              preds = {.L88, .L91}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92}, escapes = {}
+  %809: int = const 64;
+  %810: int = lt %809 %0;
+  br %810 .L93 .L96;
+.L93:                                              preds = {.L92}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L93}, escapes = {}
+  %811: int = const 91;
+  %812: int = lt %0 %811;
+  br %812 .L94 .L95;
+.L94:                                              preds = {.L93}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L93, .L94}, escapes = {%6}
+  %813: int = call @error;
+  %6: int = id %813;
+  jmp .L95;
+.L95:                                              preds = {.L93, .L94}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L93, .L95}, escapes = {}
+  jmp .L96;
+.L96:                                              preds = {.L92, .L95}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L96}, escapes = {}
+  %814: int = const 96;
+  %815: int = lt %814 %0;
+  br %815 .L97 .L100;
+.L97:                                              preds = {.L96}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L96, .L97}, escapes = {}
+  %816: int = const 123;
+  %817: int = lt %0 %816;
+  br %817 .L98 .L99;
+.L98:                                              preds = {.L97}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L96, .L97, .L98}, escapes = {%6}
+  %818: int = call @error;
+  %6: int = id %818;
+  jmp .L99;
+.L99:                                              preds = {.L97, .L98}, dominators = {.L0, .L1, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L96, .L97, .L99}, escapes = {}
+  jmp .L100;
+.L100:                                             preds = {.L96, .L99}, dominators = {.L0, .L1, .L100, .L2, .L56, .L78, .L83, .L87, .L88, .L92, .L96}, escapes = {%1, %2, %3, %4, %5, %7}
+  %819: int = const 0;
+  %5: int = id %819;
+  %820: int = const 0;
+  %7: int = id %820;
+  %821: int = const 4;
+  %822: ptr<int> = alloc %821;
+  %4: ptr<int> = id %822;
+  %823: int = const 90;
+  %824: ptr<int> = id %4;
+  store %824 %823;
+  %825: int = const 69;
+  %826: ptr<int> = id %4;
+  %827: int = const 1;
+  %828: ptr<int> = ptradd %826 %827;
+  store %828 %825;
+  %829: int = const 82;
+  %830: ptr<int> = id %4;
+  %831: int = const 2;
+  %832: ptr<int> = ptradd %830 %831;
+  store %832 %829;
+  %833: int = const 79;
+  %834: ptr<int> = id %4;
+  %835: int = const 3;
+  %836: ptr<int> = ptradd %834 %835;
+  store %836 %833;
+  %837: ptr<int> = id %4;
+  %838: int = const 4;
+  %839: int = call @dynarrNewString %837 %838;
+  %840: ptr<int> = id %4;
+  %841: ptr<int> = ptradd %840 %839;
+  %3: ptr<int> = id %841;
+  %842: int = const 48;
+  %843: ptr<int> = id %4;
+  store %843 %842;
+  %844: ptr<int> = id %4;
+  %845: int = const 1;
+  %846: int = call @dynarrNewString %844 %845;
+  %847: ptr<int> = id %4;
+  %848: ptr<int> = ptradd %847 %846;
+  %2: ptr<int> = id %848;
+  %849: ptr<int> = id %4;
+  free %849;
+  %850: ptr<int> = id stdin;
+  %851: ptr<int> = id %1;
+  %852: ptr<int> = id %2;
+  %853: ptr<int> = id %3;
+  %854: int = call @tokensPush %850 %851 %852 %853;
+  %855: ptr<int> = id %1;
+  %856: ptr<int> = ptradd %855 %854;
+  %1: ptr<int> = id %856;
+  jmp .L101;
+.L101:                                             preds = {.L100, .L87}, dominators = {.L0, .L1, .L101, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %857: int = const 5;
+  %858: int = eq %5 %857;
+  br %858 .L102 .L117;
+.L102:                                             preds = {.L101}, dominators = {.L0, .L1, .L101, .L102, .L2, .L56, .L78, .L83, .L87}, escapes = {%6}
+  %6: int = const 0;
+  %859: int = const 47;
+  %860: int = lt %859 %0;
+  br %860 .L103 .L106;
+.L103:                                             preds = {.L102}, dominators = {.L0, .L1, .L101, .L102, .L103, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %861: int = const 58;
+  %862: int = lt %0 %861;
+  br %862 .L104 .L105;
+.L104:                                             preds = {.L103}, dominators = {.L0, .L1, .L101, .L102, .L103, .L104, .L2, .L56, .L78, .L83, .L87}, escapes = {%2, %6}
+  %6: int = const 1;
+  %863: int = call @dynarrPush %2 %0;
+  %864: ptr<int> = ptradd %2 %863;
+  %2: ptr<int> = id %864;
+  jmp .L105;
+.L105:                                             preds = {.L103, .L104}, dominators = {.L0, .L1, .L101, .L102, .L103, .L105, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L106;
+.L106:                                             preds = {.L102, .L105}, dominators = {.L0, .L1, .L101, .L102, .L106, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %865: int = const 64;
+  %866: int = lt %865 %0;
+  br %866 .L107 .L110;
+.L107:                                             preds = {.L106}, dominators = {.L0, .L1, .L101, .L102, .L106, .L107, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %867: int = const 91;
+  %868: int = lt %0 %867;
+  br %868 .L108 .L109;
+.L108:                                             preds = {.L107}, dominators = {.L0, .L1, .L101, .L102, .L106, .L107, .L108, .L2, .L56, .L78, .L83, .L87}, escapes = {%6}
+  %869: int = call @error;
+  %6: int = id %869;
+  jmp .L109;
+.L109:                                             preds = {.L107, .L108}, dominators = {.L0, .L1, .L101, .L102, .L106, .L107, .L109, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L110;
+.L110:                                             preds = {.L106, .L109}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %870: int = const 96;
+  %871: int = lt %870 %0;
+  br %871 .L111 .L114;
+.L111:                                             preds = {.L110}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L111, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %872: int = const 123;
+  %873: int = lt %0 %872;
+  br %873 .L112 .L113;
+.L112:                                             preds = {.L111}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L111, .L112, .L2, .L56, .L78, .L83, .L87}, escapes = {%6}
+  %874: int = call @error;
+  %6: int = id %874;
+  jmp .L113;
+.L113:                                             preds = {.L111, .L112}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L111, .L113, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L114;
+.L114:                                             preds = {.L110, .L113}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L114, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %875: int = const 0;
+  %876: int = eq %6 %875;
+  br %876 .L115 .L116;
+.L115:                                             preds = {.L114}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L114, .L115, .L2, .L56, .L78, .L83, .L87}, escapes = {%1, %2, %3, %4, %5, %7}
+  %877: int = const 0;
+  %5: int = id %877;
+  %878: int = const 0;
+  %7: int = id %878;
+  %879: int = const 3;
+  %880: ptr<int> = alloc %879;
+  %4: ptr<int> = id %880;
+  %881: int = const 78;
+  %882: ptr<int> = id %4;
+  store %882 %881;
+  %883: int = const 85;
+  %884: ptr<int> = id %4;
+  %885: int = const 1;
+  %886: ptr<int> = ptradd %884 %885;
+  store %886 %883;
+  %887: int = const 77;
+  %888: ptr<int> = id %4;
+  %889: int = const 2;
+  %890: ptr<int> = ptradd %888 %889;
+  store %890 %887;
+  %891: ptr<int> = id %2;
+  %892: int = const 0;
+  %893: int = call @dynarrPush %891 %892;
+  %894: ptr<int> = id %2;
+  %895: ptr<int> = ptradd %894 %893;
+  %2: ptr<int> = id %895;
+  %896: ptr<int> = id %4;
+  %897: int = const 3;
+  %898: int = call @dynarrNewString %896 %897;
+  %899: ptr<int> = id %4;
+  %900: ptr<int> = ptradd %899 %898;
+  %3: ptr<int> = id %900;
+  %901: ptr<int> = id %4;
+  free %901;
+  %902: ptr<int> = id stdin;
+  %903: ptr<int> = id %1;
+  %904: ptr<int> = id %2;
+  %905: ptr<int> = id %3;
+  %906: int = call @tokensPush %902 %903 %904 %905;
+  %907: ptr<int> = id %1;
+  %908: ptr<int> = ptradd %907 %906;
+  %1: ptr<int> = id %908;
+  jmp .L116;
+.L116:                                             preds = {.L114, .L115}, dominators = {.L0, .L1, .L101, .L102, .L106, .L110, .L114, .L116, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L117;
+.L117:                                             preds = {.L101, .L116}, dominators = {.L0, .L1, .L101, .L117, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %909: int = const 6;
+  %910: int = eq %5 %909;
+  br %910 .L118 .L151;
+.L118:                                             preds = {.L117}, dominators = {.L0, .L1, .L101, .L117, .L118, .L2, .L56, .L78, .L83, .L87}, escapes = {%6}
+  %6: int = const 0;
+  %911: int = const 47;
+  %912: int = lt %911 %0;
+  br %912 .L119 .L122;
+.L119:                                             preds = {.L118}, dominators = {.L0, .L1, .L101, .L117, .L118, .L119, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %913: int = const 58;
+  %914: int = lt %0 %913;
+  br %914 .L120 .L121;
+.L120:                                             preds = {.L119}, dominators = {.L0, .L1, .L101, .L117, .L118, .L119, .L120, .L2, .L56, .L78, .L83, .L87}, escapes = {%2, %6}
+  %6: int = const 1;
+  %915: int = call @dynarrPush %2 %0;
+  %916: ptr<int> = ptradd %2 %915;
+  %2: ptr<int> = id %916;
+  jmp .L121;
+.L121:                                             preds = {.L119, .L120}, dominators = {.L0, .L1, .L101, .L117, .L118, .L119, .L121, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L122;
+.L122:                                             preds = {.L118, .L121}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %917: int = const 64;
+  %918: int = lt %917 %0;
+  br %918 .L123 .L126;
+.L123:                                             preds = {.L122}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L123, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %919: int = const 91;
+  %920: int = lt %0 %919;
+  br %920 .L124 .L125;
+.L124:                                             preds = {.L123}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L123, .L124, .L2, .L56, .L78, .L83, .L87}, escapes = {%2, %6}
+  %6: int = const 1;
+  %921: int = call @dynarrPush %2 %0;
+  %922: ptr<int> = ptradd %2 %921;
+  %2: ptr<int> = id %922;
+  jmp .L125;
+.L125:                                             preds = {.L123, .L124}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L123, .L125, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L126;
+.L126:                                             preds = {.L122, .L125}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %923: int = const 96;
+  %924: int = lt %923 %0;
+  br %924 .L127 .L130;
+.L127:                                             preds = {.L126}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L127, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %925: int = const 123;
+  %926: int = lt %0 %925;
+  br %926 .L128 .L129;
+.L128:                                             preds = {.L127}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L127, .L128, .L2, .L56, .L78, .L83, .L87}, escapes = {%2, %6}
+  %6: int = const 1;
+  %927: int = call @dynarrPush %2 %0;
+  %928: ptr<int> = ptradd %2 %927;
+  %2: ptr<int> = id %928;
+  jmp .L129;
+.L129:                                             preds = {.L127, .L128}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L127, .L129, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L130;
+.L130:                                             preds = {.L126, .L129}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %929: int = const 0;
+  %930: int = eq %6 %929;
+  br %930 .L131 .L150;
+.L131:                                             preds = {.L130}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L2, .L56, .L78, .L83, .L87}, escapes = {%2, %3, %4, %5, %7}
+  %931: int = const 0;
+  %5: int = id %931;
+  %932: int = const 0;
+  %7: int = id %932;
+  %933: ptr<int> = id %2;
+  %934: int = const 0;
+  %935: int = call @dynarrPush %933 %934;
+  %936: ptr<int> = id %2;
+  %937: ptr<int> = ptradd %936 %935;
+  %2: ptr<int> = id %937;
+  %938: int = const 8;
+  %939: ptr<int> = alloc %938;
+  %4: ptr<int> = id %939;
+  %940: ptr<int> = const 0x1;
+  %3: ptr<int> = id %940;
+  %941: int = const 105;
+  %942: ptr<int> = id %4;
+  store %942 %941;
+  %943: int = const 110;
+  %944: ptr<int> = id %4;
+  %945: int = const 1;
+  %946: ptr<int> = ptradd %944 %945;
+  store %946 %943;
+  %947: int = const 116;
+  %948: ptr<int> = id %4;
+  %949: int = const 2;
+  %950: ptr<int> = ptradd %948 %949;
+  store %950 %947;
+  %951: int = const 0;
+  %952: ptr<int> = id %4;
+  %953: int = const 3;
+  %954: ptr<int> = ptradd %952 %953;
+  store %954 %951;
+  %955: ptr<int> = id %2;
+  %956: ptr<int> = id %4;
+  %957: int = call @strcmp %955 %956;
+  %958: int = const 0;
+  %959: int = eq %957 %958;
+  br %959 .L132 .L133;
+.L132:                                             preds = {.L131}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L132, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %960: int = call @toupper %4;
+  %6: int = id %960;
+  %961: int = const 3;
+  %962: int = call @dynarrNewString %4 %961;
+  %963: ptr<int> = ptradd %4 %962;
+  %3: ptr<int> = id %963;
+  jmp .L133;
+.L133:                                             preds = {.L131, .L132}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %964: int = const 119;
+  %965: ptr<int> = id %4;
+  store %965 %964;
+  %966: int = const 97;
+  %967: ptr<int> = id %4;
+  %968: int = const 1;
+  %969: ptr<int> = ptradd %967 %968;
+  store %969 %966;
+  %970: int = const 105;
+  %971: ptr<int> = id %4;
+  %972: int = const 2;
+  %973: ptr<int> = ptradd %971 %972;
+  store %973 %970;
+  %974: int = const 110;
+  %975: ptr<int> = id %4;
+  %976: int = const 3;
+  %977: ptr<int> = ptradd %975 %976;
+  store %977 %974;
+  %978: int = const 0;
+  %979: ptr<int> = id %4;
+  %980: int = const 4;
+  %981: ptr<int> = ptradd %979 %980;
+  store %981 %978;
+  %982: ptr<int> = id %2;
+  %983: ptr<int> = id %4;
+  %984: int = call @strcmp %982 %983;
+  %985: int = const 0;
+  %986: int = eq %984 %985;
+  br %986 .L134 .L135;
+.L134:                                             preds = {.L133}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L134, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %987: int = call @toupper %4;
+  %6: int = id %987;
+  %988: int = const 4;
+  %989: int = call @dynarrNewString %4 %988;
+  %990: ptr<int> = ptradd %4 %989;
+  %3: ptr<int> = id %990;
+  jmp .L135;
+.L135:                                             preds = {.L133, .L134}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %991: int = const 78;
+  %992: ptr<int> = id %4;
+  store %992 %991;
+  %993: int = const 85;
+  %994: ptr<int> = id %4;
+  %995: int = const 1;
+  %996: ptr<int> = ptradd %994 %995;
+  store %996 %993;
+  %997: int = const 76;
+  %998: ptr<int> = id %4;
+  %999: int = const 2;
+  %1000: ptr<int> = ptradd %998 %999;
+  store %1000 %997;
+  %1001: int = const 76;
+  %1002: ptr<int> = id %4;
+  %1003: int = const 3;
+  %1004: ptr<int> = ptradd %1002 %1003;
+  store %1004 %1001;
+  %1005: int = const 0;
+  %1006: ptr<int> = id %4;
+  %1007: int = const 4;
+  %1008: ptr<int> = ptradd %1006 %1007;
+  store %1008 %1005;
+  %1009: ptr<int> = id %2;
+  %1010: ptr<int> = id %4;
+  %1011: int = call @strcmp %1009 %1010;
+  %1012: int = const 0;
+  %1013: int = eq %1011 %1012;
+  br %1013 .L136 .L137;
+.L136:                                             preds = {.L135}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L136, .L2, .L56, .L78, .L83, .L87}, escapes = {%3}
+  %1014: int = const 4;
+  %1015: int = call @dynarrNewString %4 %1014;
+  %1016: ptr<int> = ptradd %4 %1015;
+  %3: ptr<int> = id %1016;
+  jmp .L137;
+.L137:                                             preds = {.L135, .L136}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1017: int = const 105;
+  %1018: ptr<int> = id %4;
+  store %1018 %1017;
+  %1019: int = const 102;
+  %1020: ptr<int> = id %4;
+  %1021: int = const 1;
+  %1022: ptr<int> = ptradd %1020 %1021;
+  store %1022 %1019;
+  %1023: int = const 0;
+  %1024: ptr<int> = id %4;
+  %1025: int = const 2;
+  %1026: ptr<int> = ptradd %1024 %1025;
+  store %1026 %1023;
+  %1027: ptr<int> = id %2;
+  %1028: ptr<int> = id %4;
+  %1029: int = call @strcmp %1027 %1028;
+  %1030: int = const 0;
+  %1031: int = eq %1029 %1030;
+  br %1031 .L138 .L139;
+.L138:                                             preds = {.L137}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L138, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %1032: int = call @toupper %4;
+  %6: int = id %1032;
+  %1033: int = const 2;
+  %1034: int = call @dynarrNewString %4 %1033;
+  %1035: ptr<int> = ptradd %4 %1034;
+  %3: ptr<int> = id %1035;
+  jmp .L139;
+.L139:                                             preds = {.L137, .L138}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1036: int = const 101;
+  %1037: ptr<int> = id %4;
+  store %1037 %1036;
+  %1038: int = const 108;
+  %1039: ptr<int> = id %4;
+  %1040: int = const 1;
+  %1041: ptr<int> = ptradd %1039 %1040;
+  store %1041 %1038;
+  %1042: int = const 115;
+  %1043: ptr<int> = id %4;
+  %1044: int = const 2;
+  %1045: ptr<int> = ptradd %1043 %1044;
+  store %1045 %1042;
+  %1046: int = const 101;
+  %1047: ptr<int> = id %4;
+  %1048: int = const 3;
+  %1049: ptr<int> = ptradd %1047 %1048;
+  store %1049 %1046;
+  %1050: int = const 0;
+  %1051: ptr<int> = id %4;
+  %1052: int = const 4;
+  %1053: ptr<int> = ptradd %1051 %1052;
+  store %1053 %1050;
+  %1054: ptr<int> = id %2;
+  %1055: ptr<int> = id %4;
+  %1056: int = call @strcmp %1054 %1055;
+  %1057: int = const 0;
+  %1058: int = eq %1056 %1057;
+  br %1058 .L140 .L141;
+.L140:                                             preds = {.L139}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L140, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %1059: int = call @toupper %4;
+  %6: int = id %1059;
+  %1060: int = const 4;
+  %1061: int = call @dynarrNewString %4 %1060;
+  %1062: ptr<int> = ptradd %4 %1061;
+  %3: ptr<int> = id %1062;
+  jmp .L141;
+.L141:                                             preds = {.L139, .L140}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1063: int = const 119;
+  %1064: ptr<int> = id %4;
+  store %1064 %1063;
+  %1065: int = const 104;
+  %1066: ptr<int> = id %4;
+  %1067: int = const 1;
+  %1068: ptr<int> = ptradd %1066 %1067;
+  store %1068 %1065;
+  %1069: int = const 105;
+  %1070: ptr<int> = id %4;
+  %1071: int = const 2;
+  %1072: ptr<int> = ptradd %1070 %1071;
+  store %1072 %1069;
+  %1073: int = const 108;
+  %1074: ptr<int> = id %4;
+  %1075: int = const 3;
+  %1076: ptr<int> = ptradd %1074 %1075;
+  store %1076 %1073;
+  %1077: int = const 101;
+  %1078: ptr<int> = id %4;
+  %1079: int = const 4;
+  %1080: ptr<int> = ptradd %1078 %1079;
+  store %1080 %1077;
+  %1081: int = const 0;
+  %1082: ptr<int> = id %4;
+  %1083: int = const 5;
+  %1084: ptr<int> = ptradd %1082 %1083;
+  store %1084 %1081;
+  %1085: ptr<int> = id %2;
+  %1086: ptr<int> = id %4;
+  %1087: int = call @strcmp %1085 %1086;
+  %1088: int = const 0;
+  %1089: int = eq %1087 %1088;
+  br %1089 .L142 .L143;
+.L142:                                             preds = {.L141}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L142, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %1090: int = call @toupper %4;
+  %6: int = id %1090;
+  %1091: int = const 5;
+  %1092: int = call @dynarrNewString %4 %1091;
+  %1093: ptr<int> = ptradd %4 %1092;
+  %3: ptr<int> = id %1093;
+  jmp .L143;
+.L143:                                             preds = {.L141, .L142}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1094: int = const 114;
+  %1095: ptr<int> = id %4;
+  store %1095 %1094;
+  %1096: int = const 101;
+  %1097: ptr<int> = id %4;
+  %1098: int = const 1;
+  %1099: ptr<int> = ptradd %1097 %1098;
+  store %1099 %1096;
+  %1100: int = const 116;
+  %1101: ptr<int> = id %4;
+  %1102: int = const 2;
+  %1103: ptr<int> = ptradd %1101 %1102;
+  store %1103 %1100;
+  %1104: int = const 117;
+  %1105: ptr<int> = id %4;
+  %1106: int = const 3;
+  %1107: ptr<int> = ptradd %1105 %1106;
+  store %1107 %1104;
+  %1108: int = const 114;
+  %1109: ptr<int> = id %4;
+  %1110: int = const 4;
+  %1111: ptr<int> = ptradd %1109 %1110;
+  store %1111 %1108;
+  %1112: int = const 110;
+  %1113: ptr<int> = id %4;
+  %1114: int = const 5;
+  %1115: ptr<int> = ptradd %1113 %1114;
+  store %1115 %1112;
+  %1116: int = const 0;
+  %1117: ptr<int> = id %4;
+  %1118: int = const 6;
+  %1119: ptr<int> = ptradd %1117 %1118;
+  store %1119 %1116;
+  %1120: ptr<int> = id %2;
+  %1121: ptr<int> = id %4;
+  %1122: int = call @strcmp %1120 %1121;
+  %1123: int = const 0;
+  %1124: int = eq %1122 %1123;
+  br %1124 .L144 .L145;
+.L144:                                             preds = {.L143}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L144, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %1125: int = call @toupper %4;
+  %6: int = id %1125;
+  %1126: int = const 6;
+  %1127: int = call @dynarrNewString %4 %1126;
+  %1128: ptr<int> = ptradd %4 %1127;
+  %3: ptr<int> = id %1128;
+  jmp .L145;
+.L145:                                             preds = {.L143, .L144}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L145, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1129: int = const 112;
+  %1130: ptr<int> = id %4;
+  store %1130 %1129;
+  %1131: int = const 114;
+  %1132: ptr<int> = id %4;
+  %1133: int = const 1;
+  %1134: ptr<int> = ptradd %1132 %1133;
+  store %1134 %1131;
+  %1135: int = const 105;
+  %1136: ptr<int> = id %4;
+  %1137: int = const 2;
+  %1138: ptr<int> = ptradd %1136 %1137;
+  store %1138 %1135;
+  %1139: int = const 110;
+  %1140: ptr<int> = id %4;
+  %1141: int = const 3;
+  %1142: ptr<int> = ptradd %1140 %1141;
+  store %1142 %1139;
+  %1143: int = const 116;
+  %1144: ptr<int> = id %4;
+  %1145: int = const 4;
+  %1146: ptr<int> = ptradd %1144 %1145;
+  store %1146 %1143;
+  %1147: int = const 108;
+  %1148: ptr<int> = id %4;
+  %1149: int = const 5;
+  %1150: ptr<int> = ptradd %1148 %1149;
+  store %1150 %1147;
+  %1151: int = const 110;
+  %1152: ptr<int> = id %4;
+  %1153: int = const 6;
+  %1154: ptr<int> = ptradd %1152 %1153;
+  store %1154 %1151;
+  %1155: int = const 0;
+  %1156: ptr<int> = id %4;
+  %1157: int = const 7;
+  %1158: ptr<int> = ptradd %1156 %1157;
+  store %1158 %1155;
+  %1159: ptr<int> = id %2;
+  %1160: ptr<int> = id %4;
+  %1161: int = call @strcmp %1159 %1160;
+  %1162: int = const 0;
+  %1163: int = eq %1161 %1162;
+  br %1163 .L146 .L147;
+.L146:                                             preds = {.L145}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L145, .L146, .L2, .L56, .L78, .L83, .L87}, escapes = {%3, %6}
+  %1164: int = call @toupper %4;
+  %6: int = id %1164;
+  %1165: int = const 7;
+  %1166: int = call @dynarrNewString %4 %1165;
+  %1167: ptr<int> = ptradd %4 %1166;
+  %3: ptr<int> = id %1167;
+  jmp .L147;
+.L147:                                             preds = {.L145, .L146}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L145, .L147, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1168: ptr<int> = const 0x1;
+  %1169: int = eq %3 %1168;
+  br %1169 .L148 .L149;
+.L148:                                             preds = {.L147}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L145, .L147, .L148, .L2, .L56, .L78, .L83, .L87}, escapes = {%3}
+  %1170: int = const 73;
+  %1171: ptr<int> = id %4;
+  store %1171 %1170;
+  %1172: int = const 68;
+  %1173: ptr<int> = id %4;
+  %1174: int = const 1;
+  %1175: ptr<int> = ptradd %1173 %1174;
+  store %1175 %1172;
+  %1176: ptr<int> = id %4;
+  %1177: int = const 2;
+  %1178: int = call @dynarrNewString %1176 %1177;
+  %1179: ptr<int> = id %4;
+  %1180: ptr<int> = ptradd %1179 %1178;
+  %3: ptr<int> = id %1180;
+  jmp .L149;
+.L149:                                             preds = {.L147, .L148}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L131, .L133, .L135, .L137, .L139, .L141, .L143, .L145, .L147, .L149, .L2, .L56, .L78, .L83, .L87}, escapes = {%1}
+  free %4;
+  %1181: int = call @tokensPush stdin %1 %2 %3;
+  %1182: ptr<int> = ptradd %1 %1181;
+  %1: ptr<int> = id %1182;
+  jmp .L150;
+.L150:                                             preds = {.L130, .L149}, dominators = {.L0, .L1, .L101, .L117, .L118, .L122, .L126, .L130, .L150, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L151;
+.L151:                                             preds = {.L117, .L150}, dominators = {.L0, .L1, .L101, .L117, .L151, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1183: int = const 0;
+  %1184: int = lt %5 %1183;
+  br %1184 .L152 .L153;
+.L152:                                             preds = {.L151}, dominators = {.L0, .L1, .L101, .L117, .L151, .L152, .L2, .L56, .L78, .L83, .L87}, escapes = {%5}
+  %1185: int = const 0;
+  %1186: int = sub %1185 %5;
+  %5: int = id %1186;
+  jmp .L153;
+.L153:                                             preds = {.L151, .L152}, dominators = {.L0, .L1, .L101, .L117, .L151, .L153, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  %1187: int = const 1;
+  %1188: int = eq %7 %1187;
+  br %1188 .L154 .L155;
+.L154:                                             preds = {.L153}, dominators = {.L0, .L1, .L101, .L117, .L151, .L153, .L154, .L2, .L56, .L78, .L83, .L87}, escapes = {%0}
+  %1189: ptr<int> = id stdin;
+  %1190: int = load %1189;
+  %0: int = id %1190;
+  jmp .L156;
+.L155:                                             preds = {.L153}, dominators = {.L0, .L1, .L101, .L117, .L151, .L153, .L155, .L2, .L56, .L78, .L83, .L87}, escapes = {%7}
+  %7: int = const 1;
+  jmp .L156;
+.L156:                                             preds = {.L154, .L155}, dominators = {.L0, .L1, .L101, .L117, .L151, .L153, .L156, .L2, .L56, .L78, .L83, .L87}, escapes = {}
+  jmp .L1;
+.L157:                                             preds = {.L1}, dominators = {.L0, .L1, .L157}, escapes = {}
+  %1191: int = ptrdiff %1 stdin;
+  ret %1191;
+}
+
+@print(stdout: ptr<int>, msg: ptr<int>) : int {
+  jmp .L1;
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
+  %0: ptr<int> = id msg;
+  %1: int = load %0;
+  %2: int = const 0;
+  %3: int = ne %1 %2;
+  br %3 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {msg}
+  %4: ptr<int> = id msg;
+  %5: int = load %4;
+  %6: ptr<int> = id stdout;
+  store %6 %5;
+  %7: ptr<int> = id msg;
+  %8: int = const 1;
+  %9: ptr<int> = ptradd %7 %8;
+  msg: ptr<int> = id %9;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
+  %10: int = const 0;
+  ret %10;
+}
+
+@printTokens(stdin: ptr<int>, stdout: ptr<int>, tokens: ptr<int>) : int {
+  %0: int = const 0;
+  %1: ptr<int> = const 0x1;
+  %2: ptr<int> = const 0x1;
+  %3: int = call @dynarrSize tokens;
+  %4: int = id %3;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L2}, dominators = {.L0, .L1}, escapes = {}
+  %5: int = lt %0 %4;
+  br %5 .L2 .L3;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%0, tokens}
+  %6: ptr<int> = id tokens;
+  %7: int = load %6;
+  %8: ptr<int> = id stdin;
+  %9: ptr<int> = ptradd %8 %7;
+  %1: ptr<int> = id %9;
+  %10: ptr<int> = id %1;
+  %11: int = load %10;
+  %12: ptr<int> = id %1;
+  %13: ptr<int> = ptradd %12 %11;
+  %2: ptr<int> = id %13;
+  %14: ptr<int> = id stdout;
+  %15: ptr<int> = id %2;
+  %16: int = call @print %14 %15;
+  %17: int = const 32;
+  %18: ptr<int> = id stdout;
+  store %18 %17;
+  %19: ptr<int> = id %1;
+  %20: int = const 1;
+  %21: ptr<int> = ptradd %19 %20;
+  %22: int = load %21;
+  %23: ptr<int> = id %1;
+  %24: ptr<int> = ptradd %23 %22;
+  %2: ptr<int> = id %24;
+  %25: ptr<int> = id stdout;
+  %26: ptr<int> = id %2;
+  %27: int = call @printline %25 %26;
+  %28: int = id %0;
+  %29: int = const 1;
+  %30: int = add %28 %29;
+  %0: int = id %30;
+  %31: ptr<int> = id tokens;
+  %32: int = const 1;
+  %33: ptr<int> = ptradd %31 %32;
+  tokens: ptr<int> = id %33;
+  jmp .L1;
+.L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
+  %34: int = const 0;
+  ret %34;
+}
+
+@printline(stdout: ptr<int>, msg: ptr<int>) : int {
+  %0: ptr<int> = id stdout;
+  %1: ptr<int> = id msg;
+  %2: int = call @print %0 %1;
+  %3: int = const 10;
+  %4: ptr<int> = id stdout;
+  store %4 %3;
+  %5: int = const 0;
+  ret %5;
+}
+
+@strcmp(a: ptr<int>, b: ptr<int>) : int {
+  %0: int = const 1;
+  %1: int = const 0;
+  jmp .L1;
+.L1:                                               preds = {.L0, .L11}, dominators = {.L0, .L1}, escapes = {}
+  %2: int = const 0;
+  %3: int = eq %1 %2;
+  br %3 .L2 .L12;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {}
+  %4: ptr<int> = id a;
+  %5: int = load %4;
+  %6: ptr<int> = id b;
+  %7: int = load %6;
+  %8: int = eq %5 %7;
+  br %8 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {}
+  jmp .L5;
+.L4:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L4}, escapes = {%1}
+  %1: int = const 1;
+  jmp .L5;
+.L5:                                               preds = {.L3, .L4}, dominators = {.L0, .L1, .L2, .L5}, escapes = {}
+  %9: ptr<int> = id a;
+  %10: int = load %9;
+  %11: int = const 0;
+  %12: int = eq %10 %11;
+  br %12 .L6 .L7;
+.L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L2, .L5, .L6}, escapes = {%1}
+  %1: int = const 1;
+  jmp .L7;
+.L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L2, .L5, .L7}, escapes = {}
+  %13: ptr<int> = id b;
+  %14: int = load %13;
+  %15: int = const 0;
+  %16: int = eq %14 %15;
+  br %16 .L8 .L9;
+.L8:                                               preds = {.L7}, dominators = {.L0, .L1, .L2, .L5, .L7, .L8}, escapes = {%1}
+  %1: int = const 1;
+  jmp .L9;
+.L9:                                               preds = {.L7, .L8}, dominators = {.L0, .L1, .L2, .L5, .L7, .L9}, escapes = {}
+  %17: int = const 0;
+  %18: int = eq %1 %17;
+  br %18 .L10 .L11;
+.L10:                                              preds = {.L9}, dominators = {.L0, .L1, .L10, .L2, .L5, .L7, .L9}, escapes = {%0, a, b}
+  %19: int = const 1;
+  %20: int = add %0 %19;
+  %0: int = id %20;
+  %21: ptr<int> = ptradd a %19;
+  a: ptr<int> = id %21;
+  %22: ptr<int> = ptradd b %19;
+  b: ptr<int> = id %22;
+  jmp .L11;
+.L11:                                              preds = {.L10, .L9}, dominators = {.L0, .L1, .L11, .L2, .L5, .L7, .L9}, escapes = {}
+  jmp .L1;
+.L12:                                              preds = {.L1}, dominators = {.L0, .L1, .L12}, escapes = {}
+  %23: ptr<int> = id a;
+  %24: int = load %23;
+  %25: int = const 0;
+  %26: int = eq %24 %25;
+  br %26 .L13 .L16;
+.L13:                                              preds = {.L12}, dominators = {.L0, .L1, .L12, .L13}, escapes = {}
+  %27: ptr<int> = id b;
+  %28: int = load %27;
+  %29: int = const 0;
+  %30: int = eq %28 %29;
+  br %30 .L14 .L15;
+.L14:                                              preds = {.L13}, dominators = {.L0, .L1, .L12, .L13, .L14}, escapes = {%0}
+  %0: int = const 0;
+  jmp .L15;
+.L15:                                              preds = {.L13, .L14}, dominators = {.L0, .L1, .L12, .L13, .L15}, escapes = {}
+  jmp .L16;
+.L16:                                              preds = {.L12, .L15}, dominators = {.L0, .L1, .L12, .L16}, escapes = {}
+  ret %0;
+}
+
+@tokensPush(stdin: ptr<int>, tokens: ptr<int>, curStr: ptr<int>, curType: ptr<int>) : int {
+  %0: ptr<int> = const 0x1;
+  %1: ptr<int> = const 0x1;
+  %2: int = eq curType %0;
+  br %2 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  jmp .L5;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {}
+  %3: ptr<int> = const 0x1;
+  %4: int = eq curStr %3;
+  br %4 .L3 .L4;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L2, .L3}, escapes = {}
+  %5: int = call @error;
+  %6: ptr<int> = id %0;
+  store %6 %5;
+  jmp .L4;
+.L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L2, .L4}, escapes = {%0}
+  %7: int = const 2;
+  %8: ptr<int> = alloc %7;
+  %1: ptr<int> = id %8;
+  %9: ptr<int> = id curType;
+  %10: ptr<int> = id %1;
+  %11: int = ptrdiff %9 %10;
+  %12: ptr<int> = id %1;
+  store %12 %11;
+  %13: ptr<int> = id curStr;
+  %14: ptr<int> = id %1;
+  %15: int = ptrdiff %13 %14;
+  %16: ptr<int> = id %1;
+  %17: int = const 1;
+  %18: ptr<int> = ptradd %16 %17;
+  store %18 %15;
+  %19: ptr<int> = id tokens;
+  %20: ptr<int> = id %1;
+  %21: ptr<int> = id stdin;
+  %22: int = ptrdiff %20 %21;
+  %23: int = call @dynarrPush %19 %22;
+  %24: ptr<int> = id tokens;
+  %25: ptr<int> = ptradd %24 %23;
+  %0: ptr<int> = id %25;
+  jmp .L5;
+.L5:                                               preds = {.L1, .L4}, dominators = {.L0, .L5}, escapes = {}
+  %26: int = ptrdiff %0 tokens;
+  ret %26;
+}
+
+@toupper(a: ptr<int>) : int {
+  jmp .L1;
+.L1:                                               preds = {.L0, .L6}, dominators = {.L0, .L1}, escapes = {}
+  %0: ptr<int> = id a;
+  %1: int = load %0;
+  %2: int = const 0;
+  %3: int = ne %1 %2;
+  br %3 .L2 .L7;
+.L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {}
+  %4: int = const 96;
+  %5: ptr<int> = id a;
+  %6: int = load %5;
+  %7: int = lt %4 %6;
+  br %7 .L3 .L6;
+.L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {}
+  %8: ptr<int> = id a;
+  %9: int = load %8;
+  %10: int = const 123;
+  %11: int = lt %9 %10;
+  br %11 .L4 .L5;
+.L4:                                               preds = {.L3}, dominators = {.L0, .L1, .L2, .L3, .L4}, escapes = {}
+  %12: ptr<int> = id a;
+  %13: int = load %12;
+  %14: int = const 32;
+  %15: int = sub %13 %14;
+  %16: ptr<int> = id a;
+  store %16 %15;
+  jmp .L5;
+.L5:                                               preds = {.L3, .L4}, dominators = {.L0, .L1, .L2, .L3, .L5}, escapes = {}
+  jmp .L6;
+.L6:                                               preds = {.L2, .L5}, dominators = {.L0, .L1, .L2, .L6}, escapes = {a}
+  %17: int = const 1;
+  %18: ptr<int> = ptradd a %17;
+  a: ptr<int> = id %18;
+  jmp .L1;
+.L7:                                               preds = {.L1}, dominators = {.L0, .L1, .L7}, escapes = {}
+  %19: int = const 0;
+  ret %19;
+}
+
+@wain(stdin: ptr<int>, unused: int) : int {
+  %0: ptr<int> = const 0x1;
+  %1: int = const 2;
+  %2: ptr<int> = ptradd stdin %1;
+  %3: int = call @lex stdin;
+  %4: ptr<int> = ptradd stdin %3;
+  %5: int = call @printTokens stdin %2 %4;
+  free %0;
+  %6: int = const 0;
+  ret %6;
+}
+

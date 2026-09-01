@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 
 int wain(int a, int b) {
   int *stdin = 0xffff0004;

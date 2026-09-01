@@ -2,30 +2,30 @@
                                   ;   %0: int = const 0;
                                   ;   %1: int = const 0;
                                   ;   jmp .L1;
-                                  ; .L1:                                               preds = {.L0, .L4}, dominators = {.L0, .L1}
+                                  ; .L1:                                               preds = {.L0, .L4}, dominators = {.L0, .L1}, escapes = {%2, %3}
                                   ;   %2: int = id %0;
                                   ;   %3: int = id %1;
                                   ;   %4: int = const 10;
                                   ;   %5: int = lt %1 %4;
                                   ;   br %5 .L2 .L5;
-                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}
+                                  ; .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%8}
                                   ;   %6: int = const 5;
                                   ;   %7: int = lt %3 %6;
                                   ;   %8: int = id %2;
                                   ;   br %7 .L3 .L4;
-                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}
+                                  ; .L3:                                               preds = {.L2}, dominators = {.L0, .L1, .L2, .L3}, escapes = {%8}
                                   ;   %9: int = const 1;
                                   ;   %10: int = add %2 %9;
                                   ;   %8: int = id %10;
                                   ;   jmp .L4;
-                                  ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L1, .L2, .L4}
+                                  ; .L4:                                               preds = {.L2, .L3}, dominators = {.L0, .L1, .L2, .L4}, escapes = {%0, %1}
                                   ;   %11: int = add %8 %8;
                                   ;   %12: int = const 1;
                                   ;   %13: int = add %3 %12;
                                   ;   %0: int = id %11;
                                   ;   %1: int = id %13;
                                   ;   jmp .L1;
-                                  ; .L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}
+                                  ; .L5:                                               preds = {.L1}, dominators = {.L0, .L1, .L5}, escapes = {}
                                   ;   ret %2;
                                   ; }
                                   ; 

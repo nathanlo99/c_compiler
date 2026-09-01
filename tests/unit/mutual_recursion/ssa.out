@@ -1,0 +1,52 @@
+@abs(n: int) : int {
+  ret n;
+}
+
+@isEven(n: int) : int {
+  %0: int = const 0;
+  %1: int = eq n %0;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%2}
+  %2: int = const 1;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
+  %3: int = call @abs n;
+  %4: int = call @sub1 %3;
+  %5: int = call @isOdd %4;
+  %6: int = id %5;
+  jmp .L3;
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
+  %7: int = phi .L1 %2 .L2 %5;
+  ret %7;
+}
+
+@isOdd(n: int) : int {
+  %0: int = const 0;
+  %1: int = eq n %0;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
+  %2: int = id %0;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
+  %3: int = call @abs n;
+  %4: int = call @sub1 %3;
+  %5: int = call @isEven %4;
+  %6: int = id %5;
+  jmp .L3;
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
+  %7: int = phi .L1 %0 .L2 %5;
+  ret %7;
+}
+
+@sub1(n: int) : int {
+  %0: int = const 1;
+  %1: int = sub n %0;
+  ret %1;
+}
+
+@wain(a: int, b: int) : int {
+  %0: int = const 500;
+  %1: int = call @isOdd %0;
+  ret %1;
+}
+

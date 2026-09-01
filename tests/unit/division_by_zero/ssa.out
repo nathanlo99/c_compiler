@@ -1,0 +1,4 @@
+@wain(a: int, b: int) : int {
+  ret a;
+}
+

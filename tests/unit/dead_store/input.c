@@ -1,4 +1,4 @@
-// test phases: optimized, interpret
+// test phases: ssa, optimized, interpret
 // A store that's immediately overwritten with no intervening read is dead,
 // but nothing in the optimizer ever removes a Store instruction (see the
 // "TODO: Figure out what to do if a memory access / write happens" in

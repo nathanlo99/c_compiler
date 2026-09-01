@@ -1,0 +1,26 @@
+@fib(n: int) : int {
+  %0: int = const 2;
+  %1: int = lt %0 n;
+  br %1 .L1 .L2;
+.L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%7}
+  %2: int = const 1;
+  %3: int = sub n %2;
+  %4: int = call @fib %3;
+  %5: int = sub n %0;
+  %6: int = call @fib %5;
+  %7: int = add %6 %4;
+  jmp .L3;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%8}
+  %8: int = const 1;
+  jmp .L3;
+.L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
+  %9: int = phi .L2 %8 .L1 %7;
+  ret %9;
+}
+
+@wain(a: int, b: int) : int {
+  %0: int = call @fib a;
+  print %0;
+  ret %0;
+}
+

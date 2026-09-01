@@ -67,8 +67,7 @@ STAGES: list[Stage] = [
     # DEFAULT_STAGE_NAMES; opt in with `// test phases: gvn, ...`.
     Stage("gvn", "--gvn-only"),
     # Fully optimized, but still real SSA (phis and all) -- "optimized" runs
-    # convert_from_ssa first, so it never shows phis. Not in
-    # DEFAULT_STAGE_NAMES; opt in with `// test phases: ssa, ...`.
+    # convert_from_ssa first, so it never shows phis. In DEFAULT_STAGE_NAMES.
     Stage("ssa", "--optimized-ssa"),
     Stage("optimized", "--run-optimizations"),
     Stage("mips", "--emit-mips"),
@@ -81,7 +80,7 @@ STAGES_BY_NAME = {s.name: s for s in STAGES}
 # include "compute-rig": it's opt-in per case (see Case.declared_phases)
 # since almost no test cares about register-interference-graph output, and
 # defaulting it on would mean a golden file for every single case.
-DEFAULT_STAGE_NAMES = ["optimized", "mips", "interpret"]
+DEFAULT_STAGE_NAMES = ["ssa", "optimized", "mips", "interpret"]
 
 _PHASES_COMMENT_RE = re.compile(r"^//\s*test phases:\s*(.+)$", re.MULTILINE)
 

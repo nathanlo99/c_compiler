@@ -1,0 +1,10 @@
+@f() : int {
+  %0: int = const 0;
+  ret %0;
+}
+
+@wain(a: int, b: int) : int {
+  %0: int = call @f;
+  ret %0;
+}
+
