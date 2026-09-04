@@ -83,6 +83,15 @@ enum class Opcode {
   Print,
   Nop,
 
+  // Assume -- one opcode per comparison, same split as Lt/Le/Gt/Ge/Eq/Ne
+  // above rather than one opcode plus a comparison field.
+  AssumeLt,
+  AssumeLe,
+  AssumeGt,
+  AssumeGe,
+  AssumeEq,
+  AssumeNe,
+
   // Memory BRIL
   Alloc,
   Free,
@@ -140,6 +149,18 @@ inline std::ostream &operator<<(std::ostream &os, const Opcode opcode) {
     return os << "print";
   case Opcode::Nop:
     return os << "nop";
+  case Opcode::AssumeLt:
+    return os << "assume_lt";
+  case Opcode::AssumeLe:
+    return os << "assume_le";
+  case Opcode::AssumeGt:
+    return os << "assume_gt";
+  case Opcode::AssumeGe:
+    return os << "assume_ge";
+  case Opcode::AssumeEq:
+    return os << "assume_eq";
+  case Opcode::AssumeNe:
+    return os << "assume_ne";
   case Opcode::Alloc:
     return os << "alloc";
   case Opcode::Free:
@@ -302,6 +323,29 @@ struct Instruction {
   static inline Instruction nop() {
     return Instruction(Opcode::Nop, Type::Void, "", {});
   }
+  // Asserts `lhs <comparison> rhs` wherever this sits in the stream -- not
+  // tied to block entry or any one source. `comparison` is one of
+  // Lt/Le/Gt/Ge/Eq/Ne. Nothing produces these yet.
+  static inline Instruction assume(const Opcode comparison,
+                                   const std::string &lhs,
+                                   const std::string &rhs) {
+    switch (comparison) {
+    case Opcode::Lt:
+      return Instruction(Opcode::AssumeLt, Type::Void, "", {lhs, rhs});
+    case Opcode::Le:
+      return Instruction(Opcode::AssumeLe, Type::Void, "", {lhs, rhs});
+    case Opcode::Gt:
+      return Instruction(Opcode::AssumeGt, Type::Void, "", {lhs, rhs});
+    case Opcode::Ge:
+      return Instruction(Opcode::AssumeGe, Type::Void, "", {lhs, rhs});
+    case Opcode::Eq:
+      return Instruction(Opcode::AssumeEq, Type::Void, "", {lhs, rhs});
+    case Opcode::Ne:
+      return Instruction(Opcode::AssumeNe, Type::Void, "", {lhs, rhs});
+    default:
+      unreachable("Invalid comparison opcode for assume");
+    }
+  }
   static inline Instruction alloc(const std::string &destination,
                                   const std::string &argument) {
     return Instruction(Opcode::Alloc, Type::IntStar, destination, {argument});
@@ -441,6 +485,30 @@ struct Instruction {
       break;
     case Opcode::Nop:
       os << "nop;";
+      break;
+    case Opcode::AssumeLt:
+      os << "assume " << instruction.arguments[0] << " lt "
+         << instruction.arguments[1] << ";";
+      break;
+    case Opcode::AssumeLe:
+      os << "assume " << instruction.arguments[0] << " le "
+         << instruction.arguments[1] << ";";
+      break;
+    case Opcode::AssumeGt:
+      os << "assume " << instruction.arguments[0] << " gt "
+         << instruction.arguments[1] << ";";
+      break;
+    case Opcode::AssumeGe:
+      os << "assume " << instruction.arguments[0] << " ge "
+         << instruction.arguments[1] << ";";
+      break;
+    case Opcode::AssumeEq:
+      os << "assume " << instruction.arguments[0] << " eq "
+         << instruction.arguments[1] << ";";
+      break;
+    case Opcode::AssumeNe:
+      os << "assume " << instruction.arguments[0] << " ne "
+         << instruction.arguments[1] << ";";
       break;
 
     case Opcode::Alloc:

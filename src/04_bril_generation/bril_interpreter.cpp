@@ -3,10 +3,23 @@
 #include "bril.hpp"
 #include "timer.hpp"
 #include "util.hpp"
+#include <functional>
 #include <limits>
 
 namespace bril {
 namespace interpreter {
+
+// One template instantiation per AssumeLt/Le/Gt/Ge/Eq/Ne case below --
+// `compare` resolves at compile time (std::less<BRILValue> etc.), no
+// runtime indirection.
+template <typename Compare>
+static void check_assume(BRILContext &context, const Instruction &instruction,
+                         Compare compare) {
+  const BRILValue lhs = context.get_value(instruction.arguments[0]);
+  const BRILValue rhs = context.get_value(instruction.arguments[1]);
+  debug_assert(compare(lhs, rhs), "Assume violated at runtime: {}",
+              instruction.to_string());
+}
 
 void BRILInterpreter::run(const Program &program) {
   this->program = program;
@@ -236,6 +249,28 @@ BRILValue BRILInterpreter::interpret(const bril::ControlFlowGraph &graph,
     case Opcode::Nop: {
       // Do nothing
     } break;
+
+    // Verifies whatever a previous pass claimed true -- a compiler bug
+    // that emits a wrong assume shows up as a loud crash here instead of
+    // a silent miscompile. No-op in the actual MIPS output.
+    case Opcode::AssumeLt:
+      check_assume(context, instruction, std::less<BRILValue>{});
+      break;
+    case Opcode::AssumeLe:
+      check_assume(context, instruction, std::less_equal<BRILValue>{});
+      break;
+    case Opcode::AssumeGt:
+      check_assume(context, instruction, std::greater<BRILValue>{});
+      break;
+    case Opcode::AssumeGe:
+      check_assume(context, instruction, std::greater_equal<BRILValue>{});
+      break;
+    case Opcode::AssumeEq:
+      check_assume(context, instruction, std::equal_to<BRILValue>{});
+      break;
+    case Opcode::AssumeNe:
+      check_assume(context, instruction, std::not_equal_to<BRILValue>{});
+      break;
 
     // Memory instructions
     case Opcode::Alloc: {

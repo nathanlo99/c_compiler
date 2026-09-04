@@ -347,136 +347,89 @@ earlier draft of this doc overclaimed that plain `sccp` subsumes
 that's *globally* constant staying propagated to every use, which is
 ordinary SCCP).
 
-Rather than build this as a bespoke predicate-info side-table (an earlier
-draft of this doc did exactly that, keyed by destination name, populated
-only by branch analysis), make it a general primitive any pass can
-produce and the engine consumes uniformly -- predicate info becomes the
-*first* consumer, not a special case baked into the engine. Two more
-things fall out of building it this way, both real wins, not just nice
-framing: the interpreter can verify every fact any pass ever asserts, for
-free, on every test that already gets interpreted; and other passes (an
+Rather than a side-table keyed by destination name and populated only by
+branch analysis, make it a real instruction any pass can emit and the
+engine consumes uniformly -- predicate info becomes the *first* producer,
+not a special case baked into the engine. Two more things fall out of
+building it this way, both real wins, not just nice framing: the
+interpreter can verify every fact any pass ever asserts, for free, on
+every test that already gets interpreted; and other passes (an
 allocation-bounds pass proving `idx < len` at an array access, say) get
 the same mechanism without inventing their own.
 
-**Shape**: structured, not "a boolean SSA value the engine has to trace
-back through a defining comparison to understand" -- `lhs`, a comparison
-opcode, `rhs`, where either side can be a variable or a constant:
+**Shape**: `assume lhs <comparison> rhs;` -- six opcodes, `AssumeLt`
+through `AssumeNe`, `arguments = {lhs, rhs}`, no destination. One opcode
+per comparison rather than one opcode plus a comparison field, same split
+this project already uses for `Lt`/`Le`/`Gt`/`Ge`/`Eq`/`Ne` themselves.
+Structured rather than a single boolean SSA value, so a consumer reads
+the comparison directly instead of tracing back through a defining
+instruction -- and both sides are names, never literals, since BRIL has
+no literal operands (`assume a lt %100;`, `%100` the name holding 100).
+`idx < len` (both variable) is exactly this too, no special casing.
+Living in the instruction stream, not attached to a block or another
+instruction, is the whole point: it can sit anywhere, survives
+block/instruction mutation elsewhere for free (nothing points at it, it
+doesn't point at anything by position), and deleting or moving it is
+exactly as safe as deleting or moving any other instruction.
+
+**The engine's use of it**: `SparseConditionalPropagation` already walks
+each block's instructions forward in order; each `AssumeX` is just
+another case in that per-instruction dispatch, reached exactly when
+control would reach it, turned directly into a `RangeLattice` narrowing
+with no lookup needed:
 
 ```cpp
-struct AssumeFact {
-  Opcode comparison;     // Lt/Le/Gt/Ge/Eq/Ne
-  std::string lhs, rhs;  // rhs need not be a constant -- "idx < len" (both
-                          // variable) is a real fact a relational lattice
-                          // could exploit later; RangeLattice as sketched
-                          // only acts when rhs already resolves constant
-};
-```
-
-**Where facts live**: on `Block`, not spliced into the instruction stream
-as a positional pseudo-instruction. Predicate info's facts are exactly
-"true for this whole block, from entry" -- the same granularity
-`incoming_blocks`/`dominators`/`escapes` already live at, and direct
-`block.assumes` access avoids the "scan backward through however many
-rounds' worth of accumulated facts to find what applies here" cost an
-in-stream instruction would mean for every later pass that wants to know
-what's already known. A future pass wanting a fact that only holds from
-partway through a block (not from entry) is a real, separate case this
-doesn't cover -- not designed further here, since predicate info doesn't
-need it.
-
-```cpp
-struct Block {
-  ...
-  std::vector<AssumeFact> assumes;
-};
-```
-
-**The engine's use of it**: when visiting the first instruction of a
-block, consult `block.assumes` before falling through to the ordinary
-transfer rule for any name the facts mention. Structurally simpler than
-the earlier def-chasing sketch, because there's no destination name to
-key off of and no defining instruction to walk back through -- the fact
-just *is* the input.
-
-```cpp
-RangeLattice RangeTransfer::refine(const std::string &var, const RangeLattice &current,
-                                   const std::vector<AssumeFact> &facts) const {
-  RangeLattice result = current;
-  for (const auto &fact : facts) {
-    if (fact.lhs != var) continue;              // could also handle fact.rhs == var, flipping the comparison
-    const auto bound = lattice.find(fact.rhs);   // only useful once rhs resolves; Top or non-constant -> skip
-    if (bound == lattice.end() || bound->second.kind != RangeLattice::Kind::Range
-        || bound->second.lo != bound->second.hi) continue;
-    const int b = bound->second.lo;
-    switch (fact.comparison) {
-      case Opcode::Lt: result = meet_narrow(result, {RangeLattice::Kind::Range, INT_MIN, b - 1}); break;
-      case Opcode::Le: result = meet_narrow(result, {RangeLattice::Kind::Range, INT_MIN, b}); break;
-      case Opcode::Gt: result = meet_narrow(result, {RangeLattice::Kind::Range, b + 1, INT_MAX}); break;
-      case Opcode::Ge: result = meet_narrow(result, {RangeLattice::Kind::Range, b, INT_MAX}); break;
-      case Opcode::Eq: result = {RangeLattice::Kind::Range, b, b}; break;
-      case Opcode::Ne: break;  // hole, not an interval -- see below
-      default: break;
-    }
+RangeLattice RangeTransfer::refine(const RangeLattice &current,
+                                   const Instruction &assume) const {
+  const auto bound = lattice.find(assume.arguments[1]);
+  if (bound.kind != RangeLattice::Kind::Range || bound.lo != bound.hi)
+    return current;                                 // rhs not resolved to a point yet
+  const int b = bound.lo;
+  switch (assume.opcode) {
+    case Opcode::AssumeLt: return narrow(current, {RangeLattice::Kind::Range, INT_MIN, b - 1});
+    case Opcode::AssumeLe: return narrow(current, {RangeLattice::Kind::Range, INT_MIN, b});
+    case Opcode::AssumeGt: return narrow(current, {RangeLattice::Kind::Range, b + 1, INT_MAX});
+    case Opcode::AssumeGe: return narrow(current, {RangeLattice::Kind::Range, b, INT_MAX});
+    case Opcode::AssumeEq: return {RangeLattice::Kind::Range, b, b};
+    case Opcode::AssumeNe: return current;          // a hole, not an interval
+    default: return current;
   }
-  return result;
 }
 ```
 
-`meet_narrow` here means "intersect," not the lattice's own `meet` --
-combining a pre-existing fact about `var` with a newly-discovered one
-should only ever get *more* precise, the opposite direction plain `meet`
-moves. That's a real addition beyond the `Lattice` concept as sketched
-earlier in this doc, not assumed there.
+`narrow` here means "intersect," not the lattice's own `meet` -- combining
+a pre-existing fact with a newly discovered one should only ever get
+*more* precise, the opposite direction plain `meet` moves. That's a real
+addition beyond the `Lattice` concept as sketched earlier in this doc.
 
-**Populating it -- predicate info as the first consumer**: for
-`br %c L_true L_false` where `%c = <cmp> X Y` (negate `<cmp>` on the false
-edge -- Lt&harr;Ge, Le&harr;Gt, Eq&harr;Ne; plain `if (a)` is just
-`X=a, Y=0, cmp=Ne` with an implicit comparison): materialize `%c`'s own
-value directly as a `const` in each successor, same mechanism as before
-and still the better choice for that specific fact (legible to every
-pass, not just this engine) --
+**Populating it -- predicate info as the first producer**: for `br %c
+L_true L_false` where `%c = <cmp> X Y`, materialize `%c`'s own value
+directly as a `const` in each successor (unchanged from before) *and*
+emit the (negated, on the false edge) comparison as an `assume`:
 
 ```
-br %c L_true L_false     // %c = lt a %100  (%100 the SSA name holding 100 --
-                          // rhs is always a name, BRIL has no literal operands)
-L_true:  assumes = [{Lt, "a", "%100"}]
-  %c.1 = const 1          // %c's own refined value -- still the better
-  ... uses of %c rewritten to %c.1 in the simple boolean-condition case ...
+br %c L_true L_false     // %c = lt a %100
+L_true:
+  %c.1 = const 1          // %c's own refined value in this branch
+  assume a lt %100;        // redundant with the const fold above for this
+                            // specific case, but uniform -- costs nothing
+L_false:
+  assume a ge %100;        // negated -- Lt<->Ge, Le<->Gt, Eq<->Ne
 ```
 
--- and *also* append the structured fact to `L_true.assumes`
-(`{cmp, X, Y}`) and `L_false.assumes` (negated). No renaming needed for
-`X` itself when the fact lives at the block level instead of needing a
-fresh SSA name to scope it -- `block.assumes` *is* the scoping.
+Nested `if (a) { if (!a) ... }` is exactly this: the inner branch's own
+condition resolves through `%c.1`/`%c.2` being `const`s, no `assume`
+needed for that part specifically -- `assume` earns its keep on cases the
+`const`-materialization half can't reach, like the range-refinement
+example above.
 
-**The interpreter checks these at runtime.** On entering a block, evaluate
-every fact in `block.assumes` against the actual runtime values and throw
-if one doesn't hold -- the same `debug_assert`-style failure this
+**The interpreter checks these at runtime**: evaluates `lhs comparison
+rhs` and throws if false -- the same `debug_assert`-style failure this
 project's debug/ASan build already uses to catch real bugs (the
 `query_or_insert` bug this session was found exactly this way). Every
 fact any pass ever asserts gets validated on every test that already has
-an `interpret` phase, for free -- a compiler bug in whoever inserts an
-`assume` shows up as a loud crash on the next test run, not a silent
-miscompile. Costs nothing in the actual compiled MIPS output: `assume`
-facts never lower to any instruction there.
-
-Two things still worth being honest about, not glossed over:
-
-- The `Ne` case (plain `if (a)`'s true edge, "`a != 0`") is a *hole*, not
-  an interval -- `RangeLattice` as sketched can't represent it. In
-  practice this rarely bites here since a `Br` condition is almost always
-  itself a comparison's output, already 0/1-shaped, so `Ne`-from-0
-  trivially resolves to exactly `{1}` through the `const`-materialization
-  half even when the range half can't express it -- but it's a real gap
-  for branching on an arbitrary non-comparison expression, not something
-  to pretend away.
-- `AssumeFact::rhs` being allowed to be a variable (not just a constant)
-  is deliberate room for a future relational lattice (`idx < len`,
-  per the array-bounds idea above) -- but `RangeLattice` as sketched only
-  ever exploits the constant case. Actually using the variable-relative
-  form needs a genuinely different abstract domain (LLVM/GCC-style
-  relational/difference-constraint analysis), not assumed to fall out of
-  anything here.
+an `interpret` phase, for free. Costs nothing in the actual compiled MIPS
+output: `assume` never lowers to any instruction there.
 
 ## Relationship to `persistent_value_graph`
 
@@ -504,10 +457,10 @@ not a blocker for building this.
   above is built and proven equivalent on the existing test suite: then
   it gets replaced by a thin `CopyLattice`/`CopyTransfer` pair and the
   original file deleted, not kept alongside.
-- `AssumeFact`/`Block::assumes` -- `bril.hpp`, alongside `Block`'s other
-  metadata fields. Populating them (predicate info) is its own small
-  pass, not part of the engine itself; `bril_interpreter.cpp` gets the
-  per-block runtime check on entry.
+- `AssumeLt`..`AssumeNe` -- landed in `bril_instruction.hpp`/`.cpp` and
+  `bril_interpreter.cpp` already (see `sccp_assume`); nothing emits them
+  yet. Populating them (predicate info) is its own small pass, not part
+  of the engine itself.
 
 ## Open questions to resolve while implementing, not before
 

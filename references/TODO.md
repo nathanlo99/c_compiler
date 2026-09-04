@@ -58,7 +58,7 @@ inline).
 | ⬜ | `tail_call_elim` | **Correctness** | hard |
 | ⬜ | `source_location_tracking` | QoL | hard |
 | ⬜ | `persistent_value_graph` | QoL | hard |
-| ⬜ | `sccp_assume` | QoL | small |
+| ✅ | `sccp_assume` | QoL | small |
 | ⬜ | `predicate_info` | QoL | medium |
 | ⬜ | `sccp_engine` | QoL | hard |
 | ⬜ | `sccp_copy_propagation` | QoL | small |
@@ -136,7 +136,7 @@ flowchart TD
     end
 
     subgraph sccp["sparse conditional propagation"]
-        sccp_assume
+        sccp_assume["sccp_assume ✅"]
         predicate_info
         sccp_engine
         sccp_copy_propagation
@@ -186,10 +186,10 @@ flowchart TD
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
     class lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs,sccp_copy_propagation,sccp_assume small
+    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs,sccp_copy_propagation small
     class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support,copy_coalescing,sccp_constants,sccp_ranges,predicate_info medium
     class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,sccp_engine,safe_block_mutation,worklist_fixpoint hard
-    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub,dead_alloc_elim,ssa_copy_propagation done
+    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub,dead_alloc_elim,ssa_copy_propagation,sccp_assume done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -478,20 +478,23 @@ from scratch — why `reassociation` is awkward. Would simplify
 `worklist_fixpoint`. Must key by instruction identity — names get reused
 post-SSA.
 
-## `sccp_assume` — `AssumeFact`/`Block::assumes`, introduced but unused
-**[QoL · small]**
-Design: `references/sccp.md` (Extension). Just the operand: the
-`AssumeFact` struct (structured `lhs op rhs`, not spliced into the
-instruction stream), `Block::assumes`, print support, and the
-interpreter's runtime check on block entry. Nothing populates it yet --
-independent of `sccp_engine`/`sccp_ranges` entirely, since it's pure IR
-shape plus an interpreter check, no analysis logic. `predicate_info` is
-what actually writes to it.
+## `sccp_assume` — ~~`AssumeLt`..`AssumeNe`, introduced but unused~~ ✅ Done
+**[QoL · small] · DONE**
+Design: `references/sccp.md` (Extension). Six opcodes (`AssumeLt`
+through `AssumeNe`, `bril_instruction.hpp`) rather than one opcode plus a
+comparison field -- same split already used for `Lt`/`Le`/`Gt`/`Ge`/
+`Eq`/`Ne`. A real instruction, not attached to a block or another
+instruction, so it can sit anywhere. Print support plus the
+interpreter's runtime check (one templated `check_assume<Compare>`
+instantiated per opcode) land in the same commit. Nothing produces
+these yet -- independent of `sccp_engine`/`sccp_ranges` entirely, pure
+IR shape plus an interpreter check, no analysis logic. `predicate_info`
+is what actually emits them.
 
 ## `predicate_info` — Dominance-based fact propagation
 **[QoL · medium]**
 Design: `references/sccp.md` (Extension). The preprocessing pass that
-populates `sccp_assume`'s `Block::assumes`, plus (for the exact-value
+emits `sccp_assume`'s `AssumeLt`..`AssumeNe`, plus (for the exact-value
 case, e.g. plain `if (a)`) materializing a `const` directly -- which
 existing GVN/DCE already fold and branch-prune, no dependency on
 `sccp_engine` needed for that half specifically. Handles the genuinely
