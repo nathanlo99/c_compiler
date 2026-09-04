@@ -22,12 +22,12 @@ inline).
 | ✅ | `gvn_strength_reduction` | QoL | trivial |
 | ✅ | `gvn_negate_via_sub` | QoL | small |
 | ✅ | `dead_alloc_elim` | QoL | trivial |
+| ✅ | `ssa_copy_propagation` | QoL (perf) | small |
 | ⬜ | `lvn_fold_zero_add` | QoL | trivial |
 | ⬜ | `static_const_opcode_tables` | QoL | trivial |
 | ⬜ | `fix_log_macro` | QoL | trivial |
 | ⬜ | `remove_bad_dump` | QoL | trivial |
 | ⬜ | `reassociation` | QoL | small |
-| ⬜ | `ssa_copy_propagation` | QoL (perf) | small |
 | ⬜ | `lvn_memory_bailout` | QoL | small |
 | ⬜ | `should_inline_or_and` | QoL | small |
 | ⬜ | `word_size_constant` | QoL | small |
@@ -58,6 +58,12 @@ inline).
 | ⬜ | `tail_call_elim` | **Correctness** | hard |
 | ⬜ | `source_location_tracking` | QoL | hard |
 | ⬜ | `persistent_value_graph` | QoL | hard |
+| ⬜ | `sccp_assume` | QoL | small |
+| ⬜ | `predicate_info` | QoL | medium |
+| ⬜ | `sccp_engine` | QoL | hard |
+| ⬜ | `sccp_copy_propagation` | QoL | small |
+| ⬜ | `sccp_constants` | QoL | medium |
+| ⬜ | `sccp_ranges` | QoL | medium |
 | ⬜ | `safe_block_mutation` | QoL | hard |
 | ⬜ | `worklist_fixpoint` | QoL (perf) | hard |
 
@@ -86,7 +92,7 @@ flowchart TD
     subgraph gvncore["GVN core / hygiene"]
         gvn_negate_via_sub["gvn_negate_via_sub ✅"]
         reassociation
-        ssa_copy_propagation
+        ssa_copy_propagation["ssa_copy_propagation ✅"]
         naive_mips_fate
         scoped_table_utility
         unify_comparison_canonicalization
@@ -129,6 +135,15 @@ flowchart TD
         safe_block_mutation
     end
 
+    subgraph sccp["sparse conditional propagation"]
+        sccp_assume
+        predicate_info
+        sccp_engine
+        sccp_copy_propagation
+        sccp_constants
+        sccp_ranges
+    end
+
     subgraph perf["performance"]
         per_pass_timers
         verify_parser_scaling
@@ -160,13 +175,21 @@ flowchart TD
     per_pass_timers -.recommended before.-> worklist_fixpoint
     persistent_value_graph -.would also address.-> worklist_fixpoint
     safe_block_mutation -.would ease.-> persistent_value_graph
+    persistent_value_graph -.would ease.-> sccp_engine
+    sccp_engine --> sccp_constants
+    sccp_engine --> sccp_copy_propagation
+    sccp_engine --> sccp_ranges
+    sccp_assume --> predicate_info
+    sccp_ranges -.would strengthen.-> predicate_info
+    sccp_constants -.would obsolete easy slice of.-> gvn_dominance_branch
+    predicate_info -.would obsolete.-> gvn_dominance_branch
     single_source_grammar -.would obsolete.-> reconcile_grammar_docs
 
     class lvn_fold_zero_add,static_const_opcode_tables,fix_log_macro,remove_bad_dump trivial
-    class reassociation,ssa_copy_propagation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs small
-    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support,copy_coalescing medium
-    class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,safe_block_mutation,worklist_fixpoint hard
-    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub,dead_alloc_elim done
+    class reassociation,lvn_memory_bailout,should_inline_or_and,word_size_constant,delete_stale_debug_prints,naive_mips_fate,dead_store,wain_unused_arg_write,per_pass_timers,verify_parser_scaling,audit_graph_dirty,reconcile_grammar_docs,sccp_copy_propagation,sccp_assume small
+    class gvn_pointer_bailout,equivalent_arms,mutual_recursion,scoped_table_utility,gvn_dominance_branch,gvn_inline_redundancy,ir_verifier,per_pass_dump,unify_comparison_canonicalization,gate_debug_prints,single_source_grammar,putchar_getchar_support,copy_coalescing,sccp_constants,sccp_ranges,predicate_info medium
+    class licm,induction_strength_reduction,loop_unrolling,tail_call_elim,source_location_tracking,persistent_value_graph,sccp_engine,safe_block_mutation,worklist_fixpoint hard
+    class rig_unused_args,debug_release_builds,gvn_cancel_operand,gvn_strength_reduction,gvn_negate_via_sub,dead_alloc_elim,ssa_copy_propagation done
 ```
 
 Solid = hard dependency; dotted = non-blocking. `dead_store` is easy but
@@ -243,18 +266,14 @@ never caught. Fix to `__func__` or delete.
 Repro: [`tests/unit/constant_folding_reassociate`](../tests/unit/constant_folding_reassociate/input.c),
 [`constant_folding_negate_add`](../tests/unit/constant_folding_negate_add/input.c).
 
-## `ssa_copy_propagation` — Explicit, function-wide `id` elimination in SSA form
-**[QoL (perf) · small]**
-`x = id y` is always eliminable in SSA (dominance proves it safe). No
-output-correctness gap -- GVN's table already gets this right -- but DCE
-runs before GVN each round, so a dead `id` GVN just created waits for
-another fixpoint round to actually vanish. One pass doing both avoids
-that. Doesn't fix `copy_coalescing` (that's post-SSA-destruction).
-Caught live: `tests/unit/memory_leaks`'s `ssa` stage has two (`%5`, `%6`,
-both bare `id`s with zero uses) -- not a rare edge case, since every bare
-`x = expr;` statement's now-discarded expression-value read creates one of
-these. Both gone by the `optimized` stage; more fixpoint rounds after
-unSSA clean them up eventually either way.
+## `ssa_copy_propagation` — ~~Explicit, function-wide `id` elimination in SSA form~~ ✅ Done
+**[QoL (perf) · small] · DONE**
+`ssa_copy_propagation.cpp`: resolves `x = id y` chains function-wide,
+substitutes every use. Placed right after GVN in the fixpoint (not at the
+top), with an extra DCE call right after it -- catches the id-copies GVN's
+own round just created the same round, instead of waiting on the next
+one. `ssa.out` no longer shows the dead `id`s from `memory_leaks`; no
+`interpret.out` changed anywhere.
 
 ## `lvn_memory_bailout` — Let LVN process blocks that touch memory
 **[QoL · small]**
@@ -455,9 +474,66 @@ when a pass fuses instructions (GVN folding, CSE).
 identity. Every pass (GVN/LVN/DCE/liveness/alias) rebuilds its own view
 from scratch — why `reassociation` is awkward. Would simplify
 `reassociation`, `gvn_pointer_bailout`, `dead_store`,
-`gvn_inline_redundancy`; subsumes `scoped_table_utility`; helps
+`gvn_inline_redundancy`, `sccp_engine`; subsumes `scoped_table_utility`; helps
 `worklist_fixpoint`. Must key by instruction identity — names get reused
 post-SSA.
+
+## `sccp_assume` — `AssumeFact`/`Block::assumes`, introduced but unused
+**[QoL · small]**
+Design: `references/sccp.md` (Extension). Just the operand: the
+`AssumeFact` struct (structured `lhs op rhs`, not spliced into the
+instruction stream), `Block::assumes`, print support, and the
+interpreter's runtime check on block entry. Nothing populates it yet --
+independent of `sccp_engine`/`sccp_ranges` entirely, since it's pure IR
+shape plus an interpreter check, no analysis logic. `predicate_info` is
+what actually writes to it.
+
+## `predicate_info` — Dominance-based fact propagation
+**[QoL · medium]**
+Design: `references/sccp.md` (Extension). The preprocessing pass that
+populates `sccp_assume`'s `Block::assumes`, plus (for the exact-value
+case, e.g. plain `if (a)`) materializing a `const` directly -- which
+existing GVN/DCE already fold and branch-prune, no dependency on
+`sccp_engine` needed for that half specifically. Handles the genuinely
+path-sensitive case nothing else here does: `if (a) { if (!a) ... }`
+folding away. The `Lt`/`Le`/`Gt`/`Ge` range-refinement half is real but
+only pays off once `sccp_ranges` exists to consume it. Obsoletes
+`gvn_dominance_branch` outright.
+
+## `sccp_engine` — Generic sparse conditional propagation engine
+**[QoL · hard]**
+Design: `references/sccp.md`. The `Lattice`/`Transfer` concepts, the
+`SparseConditionalPropagation<L, T>` worklist engine (CFG-edge + SSA-def
+worklists, phi merges only over edges proven executable -- reachability-
+aware in a way GVN's dominance-walk isn't, proves things GVN can't, e.g.
+a dead loop), and its def-use index. No concrete lattice yet; can build
+its own per-run def-use index, doesn't strictly need
+`persistent_value_graph` first. Everything below depends on this.
+
+## `sccp_copy_propagation` — Copy-propagation instantiation
+**[QoL · small]**
+Design: `references/sccp.md` (Instantiation 2). `CopyLattice`/
+`CopyTransfer` on `sccp_engine` -- this *is* `ssa_copy_propagation`,
+rebuilt on the shared engine. Once proven equivalent on the existing
+suite, delete `ssa_copy_propagation.{hpp,cpp}` rather than keep both.
+
+## `sccp_constants` — Constant-propagation instantiation
+**[QoL · medium]**
+Design: `references/sccp.md` (Instantiation 1). `ConstLattice`/
+`ConstTransfer` on `sccp_engine`, reusing `simplify_binary`'s existing
+fold tables. Wire into `run_optimization_passes` right after GVN.
+Obsoletes GVN/LVN's constant-folding and phi-collapse-to-`id`, and the
+easy (globally-constant) slice of `gvn_dominance_branch`.
+
+## `sccp_ranges` — Value-range instantiation
+**[QoL · medium]**
+Design: `references/sccp.md` (Instantiation 3). `RangeLattice`/
+`RangeTransfer` on `sccp_engine` -- comparisons against a range (not just
+an exact constant) resolve to a known boolean during the same fixpoint,
+e.g. `[3,5] < 6` folds without either side ever being a single value.
+Needs a real design decision on widening (a fourth "unreachable" case,
+avoiding collapse-to-`bottom()` on the first disjoint-range merge at a
+loop back-edge) -- not just plugging in.
 
 ## `safe_block_mutation` — Give `Block` a real mutation API instead of raw vector splicing
 **[QoL · hard]**

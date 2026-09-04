@@ -3,10 +3,8 @@
   %1: int = eq b a;
   br %1 .L1 .L2;
 .L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
-  %2: int = id %0;
   jmp .L2;
 .L2:                                               preds = {.L0, .L1}, dominators = {.L0, .L2}, escapes = {}
-  %3: int = id %0;
   ret %0;
 }
 

@@ -5,6 +5,7 @@
 #include "global_value_numbering.hpp"
 #include "local_value_numbering.hpp"
 #include "mem_to_reg.hpp"
+#include "ssa_copy_propagation.hpp"
 
 inline size_t run_optimization_passes(bril::Program &program) {
   using namespace bril;
@@ -19,6 +20,12 @@ inline size_t run_optimization_passes(bril::Program &program) {
         program.apply_local_pass(remove_local_unused_assignments);
     num_removed_lines += program.apply_local_pass(local_value_numbering);
     num_removed_lines += program.apply_global_pass(global_value_numbering);
+    // Right after GVN, not at the top of the loop: catches the id-copies
+    // GVN's own round just created, so the DCE call right after gets to
+    // remove them the same round instead of waiting on the next one.
+    num_removed_lines += program.apply_global_pass(ssa_copy_propagation);
+    num_removed_lines +=
+        program.apply_global_pass(remove_global_unused_assignments);
     num_removed_lines +=
         program.apply_local_pass(remove_trivial_phi_instructions);
     num_removed_lines += program.apply_pass(remove_unused_parameters);

@@ -1,10 +1,8 @@
 @wain(a: ptr<int>, b: int) : int {
-  %0: ptr<int> = id a;
-  %1: int = id b;
-  %2: int = const 1;
-  %3: int = sub %1 %2;
-  %4: ptr<int> = ptradd %0 %3;
-  %5: int = load %4;
-  ret %5;
+  %0: int = const 1;
+  %1: int = sub b %0;
+  %2: ptr<int> = ptradd a %1;
+  %3: int = load %2;
+  ret %3;
 }
 

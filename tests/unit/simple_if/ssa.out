@@ -6,15 +6,13 @@
   br %3 .L1 .L2;
 .L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {%4}
   %4: int = mul a a;
-  %5: int = id %4;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%6}
-  %6: int = add a a;
-  %7: int = id %6;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
+  %5: int = add a a;
   jmp .L3;
 .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
-  %8: int = phi .L2 %6 .L1 %4;
-  print %8;
-  ret %8;
+  %6: int = phi .L2 %5 .L1 %4;
+  print %6;
+  ret %6;
 }
 

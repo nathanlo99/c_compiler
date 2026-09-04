@@ -44,53 +44,45 @@
 @isPrime(n: int) : int {
   %0: int = const 2;
   %1: int = const 1;
-  %2: int = id %1;
-  %3: int = const 3;
-  %4: int = lt %3 n;
-  br %4 .L1 .L2;
+  %2: int = const 3;
+  %3: int = lt %2 n;
+  br %3 .L1 .L2;
 .L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
-  %5: int = const 0;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%4}
+  %4: int = const 0;
   jmp .L3;
-.L3:                                               preds = {.L1, .L10, .L2}, dominators = {.L0, .L3}, escapes = {%11, %12, %7, %9}
-  %7: int = phi .L2 %5 .L1 %1 .L10 %6;
-  %9: int = phi .L2 %1 .L1 %1 .L10 %8;
-  %11: int = phi .L2 %0 .L1 %0 .L10 %10;
-  %12: int = const 0;
-  %13: int = ne %7 %12;
-  br %13 .L4 .L11;
+.L3:                                               preds = {.L1, .L10, .L2}, dominators = {.L0, .L3}, escapes = {%10, %11, %6, %8}
+  %6: int = phi .L2 %4 .L1 %1 .L10 %5;
+  %8: int = phi .L2 %1 .L1 %1 .L10 %7;
+  %10: int = phi .L2 %0 .L1 %0 .L10 %9;
+  %11: int = const 0;
+  %12: int = ne %6 %11;
+  br %12 .L4 .L11;
 .L4:                                               preds = {.L3}, dominators = {.L0, .L3, .L4}, escapes = {}
-  %14: int = mod n %11;
-  %15: int = id %12;
-  %16: int = eq %14 %12;
-  br %16 .L5 .L6;
+  %13: int = mod n %10;
+  %14: int = eq %13 %11;
+  br %14 .L5 .L6;
 .L5:                                               preds = {.L4}, dominators = {.L0, .L3, .L4, .L5}, escapes = {}
-  %17: int = id %12;
   jmp .L6;
-.L6:                                               preds = {.L4, .L5}, dominators = {.L0, .L3, .L4, .L6}, escapes = {%10, %8}
-  %8: int = phi .L4 %9 .L5 %12;
-  %18: int = id %1;
-  %10: int = add %11 %1;
-  %19: int = id %10;
-  %20: int = mul %10 %10;
-  %21: int = lt n %20;
-  br %21 .L7 .L8;
+.L6:                                               preds = {.L4, .L5}, dominators = {.L0, .L3, .L4, .L6}, escapes = {%7, %9}
+  %7: int = phi .L4 %8 .L5 %11;
+  %9: int = add %10 %1;
+  %15: int = mul %9 %9;
+  %16: int = lt n %15;
+  br %16 .L7 .L8;
 .L7:                                               preds = {.L6}, dominators = {.L0, .L3, .L4, .L6, .L7}, escapes = {}
-  %22: int = id %12;
   jmp .L10;
 .L8:                                               preds = {.L6}, dominators = {.L0, .L3, .L4, .L6, .L8}, escapes = {}
-  %23: int = id %12;
-  %24: int = eq %8 %12;
-  br %24 .L9 .L10;
+  %17: int = eq %7 %11;
+  br %17 .L9 .L10;
 .L9:                                               preds = {.L8}, dominators = {.L0, .L3, .L4, .L6, .L8, .L9}, escapes = {}
-  %25: int = id %12;
   jmp .L10;
-.L10:                                              preds = {.L7, .L8, .L9}, dominators = {.L0, .L10, .L3, .L4, .L6}, escapes = {%6}
-  %6: int = phi .L7 %12 .L8 %7 .L9 %12;
+.L10:                                              preds = {.L7, .L8, .L9}, dominators = {.L0, .L10, .L3, .L4, .L6}, escapes = {%5}
+  %5: int = phi .L7 %11 .L8 %6 .L9 %11;
   jmp .L3;
 .L11:                                              preds = {.L3}, dominators = {.L0, .L11, .L3}, escapes = {}
-  ret %9;
+  ret %8;
 }
 
 @wain(startNumber: int, numPrimes: int) : int {

@@ -13,11 +13,10 @@
   %3: int = call @abs n;
   %4: int = call @sub1 %3;
   %5: int = call @isOdd %4;
-  %6: int = id %5;
   jmp .L3;
 .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
-  %7: int = phi .L1 %2 .L2 %5;
-  ret %7;
+  %6: int = phi .L1 %2 .L2 %5;
+  ret %6;
 }
 
 @isOdd(n: int) : int {
@@ -25,17 +24,15 @@
   %1: int = eq n %0;
   br %1 .L1 .L2;
 .L1:                                               preds = {.L0}, dominators = {.L0, .L1}, escapes = {}
-  %2: int = id %0;
   jmp .L3;
-.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%5}
-  %3: int = call @abs n;
-  %4: int = call @sub1 %3;
-  %5: int = call @isEven %4;
-  %6: int = id %5;
+.L2:                                               preds = {.L0}, dominators = {.L0, .L2}, escapes = {%4}
+  %2: int = call @abs n;
+  %3: int = call @sub1 %2;
+  %4: int = call @isEven %3;
   jmp .L3;
 .L3:                                               preds = {.L1, .L2}, dominators = {.L0, .L3}, escapes = {}
-  %7: int = phi .L1 %0 .L2 %5;
-  ret %7;
+  %5: int = phi .L1 %0 .L2 %4;
+  ret %5;
 }
 
 @sub1(n: int) : int {

@@ -8,10 +8,8 @@
 .L2:                                               preds = {.L1}, dominators = {.L0, .L1, .L2}, escapes = {%1}
   %4: int = const 1;
   %1: int = add %2 %4;
-  %5: int = id %1;
   jmp .L1;
 .L3:                                               preds = {.L1}, dominators = {.L0, .L1, .L3}, escapes = {}
-  %6: int = id %0;
   ret %0;
 }
 

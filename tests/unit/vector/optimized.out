@@ -63,37 +63,33 @@
 .L8:                                               preds = {.L6}, dominators = {.L0, .L2, .L6, .L8}, escapes = {}
   %38: int = const 45;
   %39: ptr<int> = const 0xffff000c;
-  %40: int = id %38;
-  %41: ptr<int> = id %39;
-  store %41 %40;
+  store %39 %38;
   jmp .L9;
 .L9:                                               preds = {.L7, .L8}, dominators = {.L0, .L2, .L6, .L9}, escapes = {%1}
-  %42: int = const 1;
-  %43: int = sub %0 %42;
-  %1: int = id %43;
+  %40: int = const 1;
+  %41: int = sub %0 %40;
+  %1: int = id %41;
   jmp .L10;
 .L10:                                              preds = {.L11, .L9}, dominators = {.L0, .L10, .L2, .L6, .L9}, escapes = {}
-  %44: int = const 0;
-  %45: int = ge %1 %44;
-  br %45 .L11 .L12;
+  %42: int = const 0;
+  %43: int = ge %1 %42;
+  br %43 .L11 .L12;
 .L11:                                              preds = {.L10}, dominators = {.L0, .L10, .L11, .L2, .L6, .L9}, escapes = {%1}
-  %46: ptr<int> = id %6;
-  %47: int = id %1;
-  %48: ptr<int> = ptradd %46 %47;
-  %49: int = load %48;
-  %50: int = id %49;
-  %51: ptr<int> = const 0xffff000c;
-  %52: int = id %50;
-  %53: ptr<int> = id %51;
-  store %53 %52;
-  %54: int = const 1;
-  %55: int = sub %1 %54;
-  %1: int = id %55;
+  %44: ptr<int> = id %6;
+  %45: int = id %1;
+  %46: ptr<int> = ptradd %44 %45;
+  %47: int = load %46;
+  %48: int = id %47;
+  %49: ptr<int> = const 0xffff000c;
+  store %49 %48;
+  %50: int = const 1;
+  %51: int = sub %1 %50;
+  %1: int = id %51;
   jmp .L10;
 .L12:                                              preds = {.L10}, dominators = {.L0, .L10, .L12, .L2, .L6, .L9}, escapes = {}
   free %6;
-  %56: int = const 0;
-  ret %56;
+  %52: int = const 0;
+  ret %52;
 }
 
 @vector_push_back(vec: ptr<int>, value: int) : ptr<int> {
@@ -283,31 +279,27 @@
 .L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L3, .L4, .L5, .L6}, escapes = {}
   %28: int = const 32;
   %29: ptr<int> = const 0xffff000c;
-  %30: int = id %28;
-  %31: ptr<int> = id %29;
-  store %31 %30;
+  store %29 %28;
   jmp .L7;
 .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L3, .L4, .L5, .L7}, escapes = {%17}
-  %32: ptr<int> = id %16;
-  %33: int = id %17;
-  %34: int = const 2;
-  %35: ptr<int> = ptradd %32 %34;
-  %36: ptr<int> = ptradd %35 %33;
-  %37: ptr<int> = id %36;
-  %38: int = load %37;
-  %39: int = call @print_num %38;
-  %40: int = const 1;
-  %41: int = add %17 %40;
-  %17: int = id %41;
+  %30: ptr<int> = id %16;
+  %31: int = id %17;
+  %32: int = const 2;
+  %33: ptr<int> = ptradd %30 %32;
+  %34: ptr<int> = ptradd %33 %31;
+  %35: ptr<int> = id %34;
+  %36: int = load %35;
+  %37: int = call @print_num %36;
+  %38: int = const 1;
+  %39: int = add %17 %38;
+  %17: int = id %39;
   jmp .L4;
 .L8:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L8}, escapes = {}
-  %42: int = const 10;
-  %43: ptr<int> = const 0xffff000c;
-  %44: int = id %42;
-  %45: ptr<int> = id %43;
-  store %45 %44;
+  %40: int = const 10;
+  %41: ptr<int> = const 0xffff000c;
+  store %41 %40;
   free %16;
-  %46: int = const 0;
-  ret %46;
+  %42: int = const 0;
+  ret %42;
 }
 

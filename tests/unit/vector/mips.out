@@ -63,37 +63,33 @@
                                   ; .L8:                                               preds = {.L6}, dominators = {.L0, .L2, .L6, .L8}, escapes = {}
                                   ;   %38: int = const 45;
                                   ;   %39: ptr<int> = const 0xffff000c;
-                                  ;   %40: int = id %38;
-                                  ;   %41: ptr<int> = id %39;
-                                  ;   store %41 %40;
+                                  ;   store %39 %38;
                                   ;   jmp .L9;
                                   ; .L9:                                               preds = {.L7, .L8}, dominators = {.L0, .L2, .L6, .L9}, escapes = {%1}
-                                  ;   %42: int = const 1;
-                                  ;   %43: int = sub %0 %42;
-                                  ;   %1: int = id %43;
+                                  ;   %40: int = const 1;
+                                  ;   %41: int = sub %0 %40;
+                                  ;   %1: int = id %41;
                                   ;   jmp .L10;
                                   ; .L10:                                              preds = {.L11, .L9}, dominators = {.L0, .L10, .L2, .L6, .L9}, escapes = {}
-                                  ;   %44: int = const 0;
-                                  ;   %45: int = ge %1 %44;
-                                  ;   br %45 .L11 .L12;
+                                  ;   %42: int = const 0;
+                                  ;   %43: int = ge %1 %42;
+                                  ;   br %43 .L11 .L12;
                                   ; .L11:                                              preds = {.L10}, dominators = {.L0, .L10, .L11, .L2, .L6, .L9}, escapes = {%1}
-                                  ;   %46: ptr<int> = id %6;
-                                  ;   %47: int = id %1;
-                                  ;   %48: ptr<int> = ptradd %46 %47;
-                                  ;   %49: int = load %48;
-                                  ;   %50: int = id %49;
-                                  ;   %51: ptr<int> = const 0xffff000c;
-                                  ;   %52: int = id %50;
-                                  ;   %53: ptr<int> = id %51;
-                                  ;   store %53 %52;
-                                  ;   %54: int = const 1;
-                                  ;   %55: int = sub %1 %54;
-                                  ;   %1: int = id %55;
+                                  ;   %44: ptr<int> = id %6;
+                                  ;   %45: int = id %1;
+                                  ;   %46: ptr<int> = ptradd %44 %45;
+                                  ;   %47: int = load %46;
+                                  ;   %48: int = id %47;
+                                  ;   %49: ptr<int> = const 0xffff000c;
+                                  ;   store %49 %48;
+                                  ;   %50: int = const 1;
+                                  ;   %51: int = sub %1 %50;
+                                  ;   %1: int = id %51;
                                   ;   jmp .L10;
                                   ; .L12:                                              preds = {.L10}, dominators = {.L0, .L10, .L12, .L2, .L6, .L9}, escapes = {}
                                   ;   free %6;
-                                  ;   %56: int = const 0;
-                                  ;   ret %56;
+                                  ;   %52: int = const 0;
+                                  ;   ret %52;
                                   ; }
                                   ; 
                                   ; @vector_push_back(vec: ptr<int>, value: int) : ptr<int> {
@@ -283,32 +279,28 @@
                                   ; .L6:                                               preds = {.L5}, dominators = {.L0, .L1, .L3, .L4, .L5, .L6}, escapes = {}
                                   ;   %28: int = const 32;
                                   ;   %29: ptr<int> = const 0xffff000c;
-                                  ;   %30: int = id %28;
-                                  ;   %31: ptr<int> = id %29;
-                                  ;   store %31 %30;
+                                  ;   store %29 %28;
                                   ;   jmp .L7;
                                   ; .L7:                                               preds = {.L5, .L6}, dominators = {.L0, .L1, .L3, .L4, .L5, .L7}, escapes = {%17}
-                                  ;   %32: ptr<int> = id %16;
-                                  ;   %33: int = id %17;
-                                  ;   %34: int = const 2;
-                                  ;   %35: ptr<int> = ptradd %32 %34;
-                                  ;   %36: ptr<int> = ptradd %35 %33;
-                                  ;   %37: ptr<int> = id %36;
-                                  ;   %38: int = load %37;
-                                  ;   %39: int = call @print_num %38;
-                                  ;   %40: int = const 1;
-                                  ;   %41: int = add %17 %40;
-                                  ;   %17: int = id %41;
+                                  ;   %30: ptr<int> = id %16;
+                                  ;   %31: int = id %17;
+                                  ;   %32: int = const 2;
+                                  ;   %33: ptr<int> = ptradd %30 %32;
+                                  ;   %34: ptr<int> = ptradd %33 %31;
+                                  ;   %35: ptr<int> = id %34;
+                                  ;   %36: int = load %35;
+                                  ;   %37: int = call @print_num %36;
+                                  ;   %38: int = const 1;
+                                  ;   %39: int = add %17 %38;
+                                  ;   %17: int = id %39;
                                   ;   jmp .L4;
                                   ; .L8:                                               preds = {.L4}, dominators = {.L0, .L1, .L3, .L4, .L8}, escapes = {}
-                                  ;   %42: int = const 10;
-                                  ;   %43: ptr<int> = const 0xffff000c;
-                                  ;   %44: int = id %42;
-                                  ;   %45: ptr<int> = id %43;
-                                  ;   store %45 %44;
+                                  ;   %40: int = const 10;
+                                  ;   %41: ptr<int> = const 0xffff000c;
+                                  ;   store %41 %40;
                                   ;   free %16;
-                                  ;   %46: int = const 0;
-                                  ;   ret %46;
+                                  ;   %42: int = const 0;
+                                  ;   ret %42;
                                   ; }
                                   ; 
   .import init
@@ -440,25 +432,23 @@ wainL4:
   .word 32                        ; %28: int = const 32;
   lis $3
   .word 4294901772                ; %29: ptr<int> = const 0xffff000c;
-                                  ; %30: int = id %28;
-                                  ; %31: ptr<int> = id %29;
-  sw $5, 0($3)                    ; store %31 %30;
+  sw $5, 0($3)                    ; store %29 %28;
                                   ; jmp wainL7; (fallthrough)
 wainL7:
   add $8, $10, $0
-                                  ; %32: ptr<int> = id %16;
+                                  ; %30: ptr<int> = id %16;
   add $5, $9, $0
-                                  ; %33: int = id %17;
-  add $3, $11, $11                ; %34: int = const 2;
+                                  ; %31: int = id %17;
+  add $3, $11, $11                ; %32: int = const 2;
   mult $3, $4
   mflo $6
   add $3, $10, $6                 ;  (replaced $8 with $10)
   mult $9, $4                     ;  (replaced $5 with $9)
   mflo $6
   add $3, $3, $6
-                                  ; %37: ptr<int> = id %36;
-  lw $3, 0($3)                    ; %38: int = load %37;
-                                  ; Generating function call: %39: int = call @print_num %38;
+                                  ; %35: ptr<int> = id %34;
+  lw $3, 0($3)                    ; %36: int = load %35;
+                                  ; Generating function call: %37: int = call @print_num %36;
                                   ; 1. Save the live registers
   sw $9, -4($30)                  ;   push $9
   sub $30, $30, $4                ;   ^
@@ -493,20 +483,18 @@ wainL7:
   lw $9, -4($30)                  ;   ^
                                   ; 7. Done with function call
   add $1, $3, $0
-                                  ; 8. Copy return value to %39
+                                  ; 8. Copy return value to %37
                                   ; Removing locally unused write to $3
-  add $3, $9, $11                 ; %41: int = add %17 %40; (replaced $3 with $11)
+  add $3, $9, $11                 ; %39: int = add %17 %38; (replaced $3 with $11)
   add $9, $3, $0
-                                  ; %17: int = id %41;
+                                  ; %17: int = id %39;
   beq $0, $0, wainL4              ; jmp .L4;
 wainL8:
   lis $5
-  .word 10                        ; %42: int = const 10;
+  .word 10                        ; %40: int = const 10;
   lis $3
-  .word 4294901772                ; %43: ptr<int> = const 0xffff000c;
-                                  ; %44: int = id %42;
-                                  ; %45: ptr<int> = id %43;
-  sw $5, 0($3)                    ; store %45 %44;
+  .word 4294901772                ; %41: ptr<int> = const 0xffff000c;
+  sw $5, 0($3)                    ; store %41 %40;
   add $1, $10, $0
   beq $1, $11, deleteSkip0
   sw $31, -4($30)                 ;   push $31
@@ -517,8 +505,8 @@ wainL8:
   add $30, $30, $4                ;   pop $31
   lw $31, -4($30)                 ;   ^
 deleteSkip0:
-  add $3, $0, $0                  ; %46: int = const 0;
-                                  ; ret %46;
+  add $3, $0, $0                  ; %42: int = const 0;
+                                  ; ret %42;
   jr $31
                                   ; Done with function wain
                                   ; Code for function print_num
@@ -639,42 +627,38 @@ printNumL8:
   .word 45                        ; %38: int = const 45;
   lis $3
   .word 4294901772                ; %39: ptr<int> = const 0xffff000c;
-                                  ; %40: int = id %38;
-                                  ; %41: ptr<int> = id %39;
-  sw $5, 0($3)                    ; store %41 %40;
+  sw $5, 0($3)                    ; store %39 %38;
                                   ; jmp printNumL9; (fallthrough)
 printNumL9:
                                   ; Removing locally unused write to $3
-  sub $3, $12, $11                ; %43: int = sub %0 %42; (replaced $3 with $11)
+  sub $3, $12, $11                ; %41: int = sub %0 %40; (replaced $3 with $11)
   add $8, $3, $0
-                                  ; %1: int = id %43;
+                                  ; %1: int = id %41;
                                   ; jmp printNumL10; (fallthrough)
 printNumL10:
                                   ; Removing locally unused write to $3
   slt $3, $8, $0                  ;  (replaced $3 with $0)
-  sub $3, $11, $3                 ; %45: int = ge %1 %44;
-  beq $3, $0, printNumL12         ; br %45 .L11 .L12;
+  sub $3, $11, $3                 ; %43: int = ge %1 %42;
+  beq $3, $0, printNumL12         ; br %43 .L11 .L12;
                                   ; jmp printNumL11; (fallthrough)
                                   ; Removed unused label printNumL11
                                   ; Removing locally unused write to $5
-                                  ; %46: ptr<int> = id %6;
+                                  ; %44: ptr<int> = id %6;
                                   ; Removing locally unused write to $3
-                                  ; %47: int = id %1;
+                                  ; %45: int = id %1;
   mult $8, $4                     ;  (replaced $3 with $8)
   mflo $6
   add $3, $9, $6                  ;  (replaced $5 with $9)
-  lw $3, 0($3)                    ; %49: int = load %48;
+  lw $3, 0($3)                    ; %47: int = load %46;
   add $5, $3, $0
-                                  ; %50: int = id %49;
+                                  ; %48: int = id %47;
   lis $3
-  .word 4294901772                ; %51: ptr<int> = const 0xffff000c;
-                                  ; %52: int = id %50;
-                                  ; %53: ptr<int> = id %51;
-  sw $5, 0($3)                    ; store %53 %52;
+  .word 4294901772                ; %49: ptr<int> = const 0xffff000c;
+  sw $5, 0($3)                    ; store %49 %48;
                                   ; Removing locally unused write to $3
-  sub $3, $8, $11                 ; %55: int = sub %1 %54; (replaced $3 with $11)
+  sub $3, $8, $11                 ; %51: int = sub %1 %50; (replaced $3 with $11)
   add $8, $3, $0
-                                  ; %1: int = id %55;
+                                  ; %1: int = id %51;
   beq $0, $0, printNumL10         ; jmp .L10;
 printNumL12:
   add $1, $9, $0
@@ -687,8 +671,8 @@ printNumL12:
   add $30, $30, $4                ;   pop $31
   lw $31, -4($30)                 ;   ^
 deleteSkip1:
-  add $3, $0, $0                  ; %56: int = const 0;
-                                  ; ret %56;
+  add $3, $0, $0                  ; %52: int = const 0;
+                                  ; ret %52;
   jr $31
                                   ; Done with function print_num
                                   ; Code for function vector_push_back
