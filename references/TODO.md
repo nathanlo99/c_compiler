@@ -57,6 +57,7 @@ inline).
 | ⬜ | `loop_unrolling` | QoL | hard |
 | ⬜ | `tail_call_elim` | **Correctness** | hard |
 | ⬜ | `source_location_tracking` | QoL | hard |
+| ⬜ | `safe_block_mutation` | QoL | hard |
 | ⬜ | `persistent_value_graph` | QoL | hard |
 | ✅ | `sccp_assume` | QoL | small |
 | ⬜ | `predicate_info` | QoL | medium |
@@ -64,7 +65,6 @@ inline).
 | ⬜ | `sccp_copy_propagation` | QoL | small |
 | ⬜ | `sccp_constants` | QoL | medium |
 | ⬜ | `sccp_ranges` | QoL | medium |
-| ⬜ | `safe_block_mutation` | QoL | hard |
 | ⬜ | `worklist_fixpoint` | QoL (perf) | hard |
 
 ## Dependency graph
@@ -131,8 +131,8 @@ flowchart TD
         per_pass_dump
         gate_debug_prints
         source_location_tracking
-        persistent_value_graph
         safe_block_mutation
+        persistent_value_graph
     end
 
     subgraph sccp["sparse conditional propagation"]
@@ -174,7 +174,7 @@ flowchart TD
     persistent_value_graph -.would subsume.-> scoped_table_utility
     per_pass_timers -.recommended before.-> worklist_fixpoint
     persistent_value_graph -.would also address.-> worklist_fixpoint
-    safe_block_mutation -.would ease.-> persistent_value_graph
+    safe_block_mutation --> persistent_value_graph
     persistent_value_graph -.would ease.-> sccp_engine
     sccp_engine --> sccp_constants
     sccp_engine --> sccp_copy_propagation
@@ -471,12 +471,13 @@ when a pass fuses instructions (GVN folding, CSE).
 ## `persistent_value_graph` — A shared, persistent value/expression graph
 **[QoL · hard]**
 `Instruction.arguments` is `vector<string>` — no def/use edges, no stable
-identity. Every pass (GVN/LVN/DCE/liveness/alias) rebuilds its own view
-from scratch — why `reassociation` is awkward. Would simplify
-`reassociation`, `gvn_pointer_bailout`, `dead_store`,
-`gvn_inline_redundancy`, `sccp_engine`; subsumes `scoped_table_utility`; helps
-`worklist_fixpoint`. Must key by instruction identity — names get reused
-post-SSA.
+identity, names get reused post-SSA. Every pass (GVN/LVN/DCE/liveness/
+alias) rebuilds its own view from scratch — why `reassociation` is
+awkward. Builds the def-use side table (`InstId -> vector<InstId>` and
+back) on top of `safe_block_mutation`'s arena/`InstId`s, rather than
+inventing its own identity scheme. Would simplify `reassociation`,
+`gvn_pointer_bailout`, `dead_store`, `gvn_inline_redundancy`,
+`sccp_engine`; subsumes `scoped_table_utility`; helps `worklist_fixpoint`.
 
 ## `sccp_assume` — ~~`AssumeLt`..`AssumeNe`, introduced but unused~~ ✅ Done
 **[QoL · small] · DONE**
@@ -544,10 +545,15 @@ loop back-edge) -- not just plugging in.
 `block.instructions` with hand-rolled index bookkeeping (`idx--` after
 erase, `++i` after insert) -- easy to get wrong, and GVN's synthesis path
 already had to reason carefully about reference invalidation from it.
-Preferred fix (per discussion): something like an intrusive doubly-linked
-list, so erase/insert are index-safe by construction -- not just a
-`remove_if`-style helper bolted onto the vector. Real cost: ~50 sites elsewhere index into `instructions[i]` directly (22 in
-`bril_to_mips_generator.cpp` alone), all of which would need converting.
+Preferred fix: an arena of `Instruction`s addressed by opaque `InstId`
+(not raw pointers -- avoids the intrusive-linked-list footguns: dangling
+pointers on erase, no stable hashable identity, painful under ASan),
+`Block` holding an ordered `vector<InstId>`. Erase/insert become
+index-safe by construction, and `InstId` is exactly the stable identity
+`persistent_value_graph` needs -- build that on top of this, not as a
+separate mechanism. Real cost: ~50 sites elsewhere index into
+`instructions[i]` directly (22 in `bril_to_mips_generator.cpp` alone),
+all of which would need converting.
 
 ## `worklist_fixpoint` — Track dirty functions/blocks instead of re-scanning everything every iteration
 **[QoL (perf) · hard]**
